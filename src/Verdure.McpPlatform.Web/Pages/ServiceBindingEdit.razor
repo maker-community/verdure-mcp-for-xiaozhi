@@ -235,8 +235,8 @@
             }
 
             Navigation.NavigateTo(_model.XiaozhiConnectionId > 0 
-                ? $"/servers/{_model.XiaozhiConnectionId}/bindings" 
-                : "/bindings");
+                ? $"/connections/{_model.XiaozhiConnectionId}/service-bindings" 
+                : "/service-bindings");
         }
         catch (Exception ex)
         {
@@ -251,8 +251,8 @@
     private void Cancel()
     {
         Navigation.NavigateTo(_model.XiaozhiConnectionId > 0 
-            ? $"/servers/{_model.XiaozhiConnectionId}/bindings" 
-            : "/bindings");
+            ? $"/connections/{_model.XiaozhiConnectionId}/service-bindings" 
+            : "/service-bindings");
     }
 
     private class BindingFormModel

@@ -14,9 +14,9 @@
         <div class="d-flex justify-space-between align-center mb-4">
             <MudText Typo="Typo.h3">
                 <MudIcon Icon="@Icons.Material.Filled.Link" Class="mr-2" /> 
-                @(_connectionId.HasValue ? $"Bindings for {_serverName}" : "MCP External MCP Services")
+                @(_connectionId.HasValue ? $"Services for {_serverName}" : "MCP Service Bindings")
             </MudText>
-            <MudButton Href="@(_connectionId.HasValue ? $"/bindings/create?connectionId={_connectionId}" : "/bindings/create")" 
+            <MudButton Href="@(_connectionId.HasValue ? $"/service-bindings/create?connectionId={_connectionId}" : "/service-bindings/create")" 
                       Variant="Variant.Filled" 
                       Color="Color.Primary" 
                       StartIcon="@Icons.Material.Filled.Add">
