@@ -6,7 +6,7 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="2" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <MudAppBar Elevation="2">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
         <MudText Typo="Typo.h5" Class="ml-3">Verdure MCP Platform</MudText>
         <MudSpacer />
@@ -38,32 +38,33 @@
     {
         PaletteLight = new PaletteLight()
         {
-            Primary = "#667eea",
-            Secondary = "#764ba2",
-            AppbarBackground = "#667eea",
-            Background = "#f5f7fa",
+            Primary = "#7c3aed", // Vibrant violet
+            Secondary = "#a78bfa", // Light violet
+            AppbarBackground = "#7c3aed",
+            Background = "#faf5ff", // Very light violet tint
+            Surface = "#ffffff",
             DrawerBackground = "#ffffff",
             DrawerText = "rgba(0,0,0, 0.87)",
-            Success = "#06d6a0",
-            Info = "#4cc9f0",
-            Warning = "#ffd60a",
-            Error = "#ef476f",
+            Success = "#10b981", // Green
+            Info = "#6366f1", // Indigo
+            Warning = "#f59e0b", // Amber
+            Error = "#ef4444", // Red
             TextPrimary = "rgba(0,0,0, 0.87)",
             TextSecondary = "rgba(0,0,0, 0.60)"
         },
         PaletteDark = new PaletteDark()
         {
-            Primary = "#8b9cf7",
-            Secondary = "#9771c7",
-            AppbarBackground = "#1e1e2e",
-            Background = "#181825",
-            Surface = "#1e1e2e",
-            DrawerBackground = "#1e1e2e",
+            Primary = "#a78bfa", // Light violet for dark mode
+            Secondary = "#c4b5fd", // Lighter violet
+            AppbarBackground = "#1f1733", // Dark violet
+            Background = "#0f0817", // Very dark violet
+            Surface = "#1f1733",
+            DrawerBackground = "#1f1733",
             DrawerText = "rgba(255,255,255, 0.87)",
-            Success = "#06d6a0",
-            Info = "#4cc9f0",
-            Warning = "#ffd60a",
-            Error = "#ef476f",
+            Success = "#10b981",
+            Info = "#818cf8",
+            Warning = "#fbbf24",
+            Error = "#f87171",
             TextPrimary = "rgba(255,255,255, 0.87)",
             TextSecondary = "rgba(255,255,255, 0.60)"
         },
