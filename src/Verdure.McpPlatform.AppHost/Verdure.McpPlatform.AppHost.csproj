@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.5.2" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>7f90743a-a538-4cf1-9d23-c7b59ce41425</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.2" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Verdure.McpPlatform.Api\Verdure.McpPlatform.Api.csproj" />
+    <ProjectReference Include="..\Verdure.McpPlatform.Web\Verdure.McpPlatform.Web.csproj" />
+    <ProjectReference Include="..\Verdure.McpPlatform.ServiceDefaults\Verdure.McpPlatform.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>
