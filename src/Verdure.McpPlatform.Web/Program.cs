@@ -2,6 +2,7 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using MudBlazor.Services;
 using Verdure.McpPlatform.Web;
@@ -43,17 +44,17 @@ builder.Services.AddOidcAuthentication(options =>
     options.ProviderOptions.DefaultScopes.Add("email");
 });
 
+// Register custom authorization message handler
+builder.Services.AddScoped<CustomAuthorizationMessageHandler>();
+
 // Configure HTTP client for API with automatic token attachment
 builder.Services.AddHttpClient("Verdure.McpPlatform.Api", client =>
 {
     client.BaseAddress = new Uri(apiBaseAddress);
 })
-.AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+.AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
 
-// Register the base authorization message handler
-builder.Services.AddScoped<BaseAddressAuthorizationMessageHandler>();
-
-// Configure default HTTP client
+// Configure default HTTP client - 使用命名的 HttpClient
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
     .CreateClient("Verdure.McpPlatform.Api"));
 
