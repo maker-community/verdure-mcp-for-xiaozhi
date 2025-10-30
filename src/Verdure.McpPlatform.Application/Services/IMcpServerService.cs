@@ -13,4 +13,6 @@ public interface IMcpServerService
     Task<IEnumerable<McpServerDto>> GetByUserAsync(string userId);
     Task UpdateAsync(int id, UpdateMcpServerRequest request, string userId);
     Task DeleteAsync(int id, string userId);
+    Task EnableAsync(int id, string userId);
+    Task DisableAsync(int id, string userId);
 }

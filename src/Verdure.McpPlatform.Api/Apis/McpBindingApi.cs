@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Verdure.McpPlatform.Api.Services;
+using Verdure.McpPlatform.Api.Services.WebSocket;
 using Verdure.McpPlatform.Application.Services;
 using Verdure.McpPlatform.Contracts.DTOs;
 using Verdure.McpPlatform.Contracts.Requests;
@@ -93,12 +94,17 @@ public static class McpBindingApi
     private static async Task<Results<Created<McpBindingDto>, ValidationProblem>> CreateBindingAsync(
         CreateMcpBindingRequest request,
         IMcpBindingService mcpBindingService,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        McpSessionManager sessionManager)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
             var binding = await mcpBindingService.CreateAsync(request, userId);
+            
+            // Restart session to pick up new binding
+            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(request.ServerId));
+            
             return TypedResults.Created($"/api/mcp-bindings/{binding.Id}", binding);
         }
         catch (UnauthorizedAccessException ex)
@@ -177,12 +183,25 @@ public static class McpBindingApi
     private static async Task<Results<NoContent, NotFound>> DeleteBindingAsync(
         int id,
         IMcpBindingService mcpBindingService,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        McpSessionManager sessionManager)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
+            
+            // Get binding before deleting to get server ID
+            var binding = await mcpBindingService.GetByIdAsync(id, userId);
+            if (binding == null)
+            {
+                return TypedResults.NotFound();
+            }
+            
             await mcpBindingService.DeleteAsync(id, userId);
+            
+            // Restart session to remove deleted binding
+            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.McpServerId));
+            
             return TypedResults.NoContent();
         }
         catch (KeyNotFoundException)
