@@ -54,8 +54,8 @@ internal static class Extensions
                 options.UseSqlite("Data Source=identity.db"));
         }
 
-        // Add Identity
-        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+        // Add Identity (仅用于用户管理，不用于认证)
+        services.AddIdentityCore<ApplicationUser>(options =>
         {
             options.Password.RequireDigit = true;
             options.Password.RequireLowercase = true;
@@ -63,10 +63,10 @@ internal static class Extensions
             options.Password.RequireNonAlphanumeric = false;
             options.Password.RequiredLength = 8;
         })
+        .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
 
-        // ��OIDC����
         var oidcSettings = new OidcSettings();
         configuration.GetSection("Oidc").Bind(oidcSettings);
 
@@ -75,13 +75,18 @@ internal static class Extensions
             throw new InvalidOperationException("OIDC configuration is invalid. Please check Authority, Realm, and ClientId settings.");
         }
 
-        // ע�����÷���
         services.Configure<OidcSettings>(configuration.GetSection("Oidc"));
 
         var issuer = oidcSettings.GetIssuerUrl();
 
-        // Add JWT Bearer Authentication
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        // Add JWT Bearer Authentication（设置为默认认证方案）
+        services.AddAuthentication(options =>
+         {
+             // 设置 JWT Bearer 为默认认证和挑战方案
+             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+         })
          .AddJwtBearer(options =>
          {
              options.Authority = issuer;
@@ -97,12 +102,12 @@ internal static class Extensions
                  ValidIssuer = issuer,
                  ValidAudience = oidcSettings.Audience,
                  ClockSkew = TimeSpan.FromMinutes(oidcSettings.ClockSkewMinutes),
-                 // ӳ���׼Claims
+                 // 映射标准Claims
                  NameClaimType = ClaimTypes.Name,
                  RoleClaimType = ClaimTypes.Role
              };
 
-             // �����¼�����
+             // 配置事件处理
              options.Events = new JwtBearerEvents
              {
                  OnTokenValidated = context =>
@@ -111,8 +116,26 @@ internal static class Extensions
                  },
                  OnAuthenticationFailed = context =>
                  {
-                     // ��¼��֤ʧ�ܵ���ϸ��Ϣ
+                     // 记录认证失败的详细信息
+                     var logger = context.HttpContext.RequestServices
+                         .GetRequiredService<ILogger<Program>>();
+                     logger.LogWarning("JWT authentication failed: {Message}", context.Exception.Message);
                      return Task.CompletedTask;
+                 },
+                 OnChallenge = context =>
+                 {
+                     // 阻止默认的重定向行为，直接返回 401
+                     context.HandleResponse();
+                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                     context.Response.ContentType = "application/json";
+                     
+                     var result = System.Text.Json.JsonSerializer.Serialize(new
+                     {
+                         error = "Unauthorized",
+                         message = "Invalid or missing JWT token"
+                     });
+                     
+                     return context.Response.WriteAsync(result);
                  }
              };
          });
