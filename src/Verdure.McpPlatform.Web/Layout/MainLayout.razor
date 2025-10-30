@@ -1,16 +1,77 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
+
+<MudThemeProvider Theme="_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="2" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+        <MudText Typo="Typo.h5" Class="ml-3">Verdure MCP Platform</MudText>
+        <MudSpacer />
+        <AuthorizeView>
+            <Authorized>
+                <MudText Typo="Typo.body1" Class="mr-4">@context.User.Identity?.Name</MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
+            </Authorized>
+            <NotAuthorized>
+                <MudButton Href="/login" Variant="Variant.Text" Color="Color.Inherit">Login</MudButton>
+            </NotAuthorized>
+        </AuthorizeView>
+    </MudAppBar>
+    
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always">
         <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
+    </MudDrawer>
+    
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4 mb-4">
             @Body
-        </article>
-    </main>
-</div>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    private MudTheme _theme = new()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#667eea",
+            Secondary = "#764ba2",
+            AppbarBackground = "#667eea",
+            Background = "#f5f7fa",
+            DrawerBackground = "#ffffff",
+            DrawerText = "rgba(0,0,0, 0.87)",
+            Success = "#06d6a0",
+            Info = "#4cc9f0",
+            Warning = "#ffd60a",
+            Error = "#ef476f",
+            TextPrimary = "rgba(0,0,0, 0.87)",
+            TextSecondary = "rgba(0,0,0, 0.60)"
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = "#8b9cf7",
+            Secondary = "#9771c7",
+            AppbarBackground = "#1e1e2e",
+            Background = "#181825",
+            Surface = "#1e1e2e",
+            DrawerBackground = "#1e1e2e",
+            DrawerText = "rgba(255,255,255, 0.87)",
+            Success = "#06d6a0",
+            Info = "#4cc9f0",
+            Warning = "#ffd60a",
+            Error = "#ef476f",
+            TextPrimary = "rgba(255,255,255, 0.87)",
+            TextSecondary = "rgba(255,255,255, 0.60)"
+        },
+
+    };
+
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

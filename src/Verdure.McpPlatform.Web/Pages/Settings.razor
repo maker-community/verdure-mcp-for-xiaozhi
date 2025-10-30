@@ -1,0 +1,78 @@
+@page "/settings"
+@attribute [Authorize]
+@inject IAuthenticationService AuthService
+
+<PageTitle>Settings - Verdure MCP Platform</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudText Typo="Typo.h3" Class="mb-4">
+            <MudIcon Icon="@Icons.Material.Filled.Settings" Class="mr-2" /> Settings
+        </MudText>
+    </MudItem>
+
+    <MudItem xs="12" md="8">
+        <MudCard Elevation="2">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Account Information</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <AuthorizeView>
+                    <Authorized>
+                        <MudGrid>
+                            <MudItem xs="12">
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">Username</MudText>
+                                <MudText Typo="Typo.body1" Style="font-weight: 500;">@context.User.Identity?.Name</MudText>
+                            </MudItem>
+                            @if (context.User.Claims.Any())
+                            {
+                                <MudItem xs="12">
+                                    <MudDivider Class="my-2" />
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">User Claims</MudText>
+                                    <MudSimpleTable Dense="true" Style="overflow-x: auto;">
+                                        <thead>
+                                            <tr>
+                                                <th>Claim Type</th>
+                                                <th>Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var claim in context.User.Claims.Take(10))
+                                            {
+                                                <tr>
+                                                    <td>@claim.Type</td>
+                                                    <td style="word-break: break-all;">@claim.Value</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </MudSimpleTable>
+                                </MudItem>
+                            }
+                        </MudGrid>
+                    </Authorized>
+                </AuthorizeView>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="12" md="8">
+        <MudCard Elevation="2">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">About</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Typo="Typo.body2" Class="mb-2">
+                    <strong>Verdure MCP Platform</strong> is a powerful management platform for MCP (Model Context Protocol) services 
+                    with Xiaozhi AI integration.
+                </MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Configure your Keycloak settings in appsettings.json to enable full OIDC authentication.
+                </MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>

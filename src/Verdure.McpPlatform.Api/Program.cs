@@ -6,11 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add Aspire service defaults
 builder.AddServiceDefaults();
 
-// Add application services
+// Add application services (includes authentication)
 builder.AddApplicationServices();
-
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
 
 // Add OpenAPI/Swagger
 builder.Services.AddEndpointsApiExplorer();
