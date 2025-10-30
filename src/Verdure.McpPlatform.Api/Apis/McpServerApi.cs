@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Verdure.McpPlatform.Api.Services;
+using Verdure.McpPlatform.Api.Services.WebSocket;
 using Verdure.McpPlatform.Application.Services;
 using Verdure.McpPlatform.Contracts.DTOs;
 using Verdure.McpPlatform.Contracts.Requests;
@@ -40,6 +41,16 @@ public static class McpServerApi
 
         api.MapDelete("/{id:int}", DeleteMcpServerAsync)
             .WithName("DeleteMcpServer")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound);
+
+        api.MapPost("/{id:int}/enable", EnableMcpServerAsync)
+            .WithName("EnableMcpServer")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound);
+
+        api.MapPost("/{id:int}/disable", DisableMcpServerAsync)
+            .WithName("DisableMcpServer")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
@@ -105,6 +116,50 @@ public static class McpServerApi
         {
             var userId = identityService.GetUserIdentity();
             await mcpServerService.DeleteAsync(id, userId);
+            return TypedResults.NoContent();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return TypedResults.NotFound();
+        }
+    }
+
+    private static async Task<Results<NoContent, NotFound>> EnableMcpServerAsync(
+        int id,
+        IMcpServerService mcpServerService,
+        IIdentityService identityService,
+        McpSessionManager sessionManager)
+    {
+        try
+        {
+            var userId = identityService.GetUserIdentity();
+            await mcpServerService.EnableAsync(id, userId);
+            
+            // Start WebSocket session
+            _ = Task.Run(async () => await sessionManager.StartSessionAsync(id));
+            
+            return TypedResults.NoContent();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return TypedResults.NotFound();
+        }
+    }
+
+    private static async Task<Results<NoContent, NotFound>> DisableMcpServerAsync(
+        int id,
+        IMcpServerService mcpServerService,
+        IIdentityService identityService,
+        McpSessionManager sessionManager)
+    {
+        try
+        {
+            var userId = identityService.GetUserIdentity();
+            await mcpServerService.DisableAsync(id, userId);
+            
+            // Stop WebSocket session
+            await sessionManager.StopSessionAsync(id);
+            
             return TypedResults.NoContent();
         }
         catch (UnauthorizedAccessException)

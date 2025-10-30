@@ -11,8 +11,12 @@ public class McpServer : Entity, IAggregateRoot
     public string Address { get; private set; }
     public string UserId { get; private set; }
     public string? Description { get; private set; }
+    public bool IsEnabled { get; private set; }
+    public bool IsConnected { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
+    public DateTime? LastConnectedAt { get; private set; }
+    public DateTime? LastDisconnectedAt { get; private set; }
 
     private readonly List<McpBinding> _bindings;
     public IReadOnlyCollection<McpBinding> Bindings => _bindings.AsReadOnly();
@@ -31,6 +35,8 @@ public class McpServer : Entity, IAggregateRoot
         Address = address ?? throw new ArgumentNullException(nameof(address));
         UserId = userId ?? throw new ArgumentNullException(nameof(userId));
         Description = description;
+        IsEnabled = false; // Disabled by default until user enables
+        IsConnected = false;
         CreatedAt = DateTime.UtcNow;
     }
 
@@ -52,5 +58,30 @@ public class McpServer : Entity, IAggregateRoot
     public void RemoveBinding(McpBinding binding)
     {
         _bindings.Remove(binding);
+    }
+
+    public void Enable()
+    {
+        IsEnabled = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Disable()
+    {
+        IsEnabled = false;
+        IsConnected = false;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void SetConnected()
+    {
+        IsConnected = true;
+        LastConnectedAt = DateTime.UtcNow;
+    }
+
+    public void SetDisconnected()
+    {
+        IsConnected = false;
+        LastDisconnectedAt = DateTime.UtcNow;
     }
 }
