@@ -11,7 +11,7 @@ public class McpSessionManager : IAsyncDisposable
 {
     private readonly ILogger<McpSessionManager> _logger;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly IMcpServerRepository _serverRepository;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ReconnectionSettings _reconnectionSettings;
     
     private readonly ConcurrentDictionary<int, McpSessionService> _sessions = new();
@@ -19,10 +19,10 @@ public class McpSessionManager : IAsyncDisposable
     
     public McpSessionManager(
         ILoggerFactory loggerFactory,
-        IMcpServerRepository serverRepository)
+        IServiceScopeFactory serviceScopeFactory)
     {
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
-        _serverRepository = serverRepository ?? throw new ArgumentNullException(nameof(serverRepository));
+        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
         _logger = loggerFactory.CreateLogger<McpSessionManager>();
         
         // Default reconnection settings
@@ -50,8 +50,11 @@ public class McpSessionManager : IAsyncDisposable
                 return false;
             }
 
-            // Get server configuration
-            var server = await _serverRepository.GetAsync(serverId);
+            // Get server configuration using a scoped service
+            using var scope = _serviceScopeFactory.CreateScope();
+            var serverRepository = scope.ServiceProvider.GetRequiredService<IMcpServerRepository>();
+            
+            var server = await serverRepository.GetAsync(serverId);
             if (server == null)
             {
                 _logger.LogError("Server {ServerId} not found", serverId);
@@ -102,8 +105,16 @@ public class McpSessionManager : IAsyncDisposable
             {
                 try
                 {
-                    server.SetConnected();
-                    await _serverRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    // Update server status to connected
+                    using var backgroundScope = _serviceScopeFactory.CreateScope();
+                    var backgroundRepository = backgroundScope.ServiceProvider.GetRequiredService<IMcpServerRepository>();
+                    
+                    var serverToUpdate = await backgroundRepository.GetAsync(serverId);
+                    if (serverToUpdate != null)
+                    {
+                        serverToUpdate.SetConnected();
+                        await backgroundRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    }
                     
                     await session.StartAsync(cancellationToken);
                 }
@@ -111,9 +122,23 @@ public class McpSessionManager : IAsyncDisposable
                 {
                     _logger.LogError(ex, "Session for server {ServerId} failed", serverId);
                     
-                    // Update server status
-                    server.SetDisconnected();
-                    await _serverRepository.UnitOfWork.SaveEntitiesAsync(CancellationToken.None);
+                    // Update server status to disconnected
+                    try
+                    {
+                        using var errorScope = _serviceScopeFactory.CreateScope();
+                        var errorRepository = errorScope.ServiceProvider.GetRequiredService<IMcpServerRepository>();
+                        
+                        var serverToUpdate = await errorRepository.GetAsync(serverId);
+                        if (serverToUpdate != null)
+                        {
+                            serverToUpdate.SetDisconnected();
+                            await errorRepository.UnitOfWork.SaveEntitiesAsync(CancellationToken.None);
+                        }
+                    }
+                    catch (Exception updateEx)
+                    {
+                        _logger.LogError(updateEx, "Failed to update server status for {ServerId}", serverId);
+                    }
                     
                     // Remove failed session
                     _sessions.TryRemove(serverId, out _);
@@ -146,12 +171,15 @@ public class McpSessionManager : IAsyncDisposable
             await session.StopAsync();
             await session.DisposeAsync();
             
-            // Update server status
-            var server = await _serverRepository.GetAsync(serverId);
+            // Update server status using a scoped service
+            using var scope = _serviceScopeFactory.CreateScope();
+            var serverRepository = scope.ServiceProvider.GetRequiredService<IMcpServerRepository>();
+            
+            var server = await serverRepository.GetAsync(serverId);
             if (server != null)
             {
                 server.SetDisconnected();
-                await _serverRepository.UnitOfWork.SaveEntitiesAsync();
+                await serverRepository.UnitOfWork.SaveEntitiesAsync();
             }
             
             return true;
