@@ -1,7 +1,5 @@
 @page "/logout"
-@inject IAuthenticationService AuthService
 @inject NavigationManager Navigation
-@inject ISnackbar Snackbar
 
 <PageTitle>Logout - Verdure MCP Platform</PageTitle>
 
@@ -9,18 +7,16 @@
     <MudCard Elevation="4" Style="max-width: 400px; width: 100%;">
         <MudCardContent Class="pa-8 text-center">
             <MudIcon Icon="@Icons.Material.Filled.Logout" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
-            <MudText Typo="Typo.h5" Class="mb-2">Logging Out...</MudText>
+            <MudText Typo="Typo.h5" Class="mb-2">Signing Out...</MudText>
             <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
         </MudCardContent>
     </MudCard>
 </div>
 
 @code {
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await Task.Delay(500); // Brief delay for visual feedback
-        await AuthService.LogoutAsync();
-        Snackbar.Add("You have been logged out", Severity.Info);
-        Navigation.NavigateTo("/");
+        // Redirect to OIDC logout
+        Navigation.NavigateTo("authentication/logout");
     }
 }

@@ -1,7 +1,7 @@
 using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using MudBlazor;
 using MudBlazor.Services;
 using Verdure.McpPlatform.Web;
@@ -30,20 +30,32 @@ builder.Services.AddMudServices(config =>
 // Add Blazored LocalStorage
 builder.Services.AddBlazoredLocalStorage();
 
-// Add authentication
-builder.Services.AddAuthorizationCore();
-builder.Services.AddScoped<CustomAuthenticationStateProvider>();
-builder.Services.AddScoped<AuthenticationStateProvider>(provider => 
-    provider.GetRequiredService<CustomAuthenticationStateProvider>());
-
-// Configure HTTP client for API
-builder.Services.AddScoped(sp => new HttpClient 
-{ 
-    BaseAddress = new Uri(apiBaseAddress) 
+// Add OIDC Authentication
+builder.Services.AddOidcAuthentication(options =>
+{
+    // Load OIDC settings from configuration
+    builder.Configuration.Bind("Oidc", options.ProviderOptions);
+    
+    // Configure for Keycloak
+    options.ProviderOptions.ResponseType = "code";
+    options.ProviderOptions.DefaultScopes.Add("openid");
+    options.ProviderOptions.DefaultScopes.Add("profile");
+    options.ProviderOptions.DefaultScopes.Add("email");
 });
 
-// Register authentication service
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+// Configure HTTP client for API with automatic token attachment
+builder.Services.AddHttpClient("Verdure.McpPlatform.Api", client =>
+{
+    client.BaseAddress = new Uri(apiBaseAddress);
+})
+.AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+
+// Register the base authorization message handler
+builder.Services.AddScoped<BaseAddressAuthorizationMessageHandler>();
+
+// Configure default HTTP client
+builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
+    .CreateClient("Verdure.McpPlatform.Api"));
 
 // Register API client services
 builder.Services.AddScoped<IMcpServerClientService, McpServerClientService>();
