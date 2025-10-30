@@ -15,6 +15,7 @@ public static class McpBindingApi
     public static RouteGroupBuilder MapMcpBindingApi(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("api/mcp-bindings")
+            .RequireAuthorization()
             .WithTags("MCP Bindings")
             .WithOpenApi();
 

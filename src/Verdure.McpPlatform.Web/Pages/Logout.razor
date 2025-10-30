@@ -1,0 +1,22 @@
+@page "/logout"
+@inject NavigationManager Navigation
+
+<PageTitle>Logout - Verdure MCP Platform</PageTitle>
+
+<div class="d-flex justify-center align-center" style="min-height: 80vh;">
+    <MudCard Elevation="4" Style="max-width: 400px; width: 100%;">
+        <MudCardContent Class="pa-8 text-center">
+            <MudIcon Icon="@Icons.Material.Filled.Logout" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
+            <MudText Typo="Typo.h5" Class="mb-2">Signing Out...</MudText>
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </MudCardContent>
+    </MudCard>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Redirect to OIDC logout
+        Navigation.NavigateTo("authentication/logout");
+    }
+}

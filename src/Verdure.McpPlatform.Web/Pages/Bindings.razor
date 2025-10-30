@@ -1,0 +1,254 @@
+@page "/bindings"
+@page "/servers/{ServerId:int}/bindings"
+@attribute [Authorize]
+@inject IMcpBindingClientService BindingService
+@inject IMcpServerClientService ServerService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
+
+<PageTitle>MCP Bindings - Verdure MCP Platform</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <div class="d-flex justify-space-between align-center mb-4">
+            <MudText Typo="Typo.h3">
+                <MudIcon Icon="@Icons.Material.Filled.Link" Class="mr-2" /> 
+                @(_serverId.HasValue ? $"Bindings for {_serverName}" : "MCP Bindings")
+            </MudText>
+            <MudButton Href="@(_serverId.HasValue ? $"/bindings/create?serverId={_serverId}" : "/bindings/create")" 
+                      Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      StartIcon="@Icons.Material.Filled.Add">
+                Add Binding
+            </MudButton>
+        </div>
+    </MudItem>
+
+    @if (_serverId.HasValue)
+    {
+        <MudItem xs="12">
+            <MudButton Href="/servers" 
+                      Variant="Variant.Text" 
+                      StartIcon="@Icons.Material.Filled.ArrowBack">
+                Back to Servers
+            </MudButton>
+        </MudItem>
+    }
+
+    <MudItem xs="12">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudTable Items="@_bindings" 
+                         Loading="@_loading" 
+                         Hover="true" 
+                         Breakpoint="Breakpoint.Sm"
+                         Dense="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Service Bindings</MudText>
+                        <MudSpacer />
+                        <MudTextField @bind-Value="_searchString" 
+                                     Placeholder="Search bindings..." 
+                                     Adornment="Adornment.Start" 
+                                     AdornmentIcon="@Icons.Material.Filled.Search" 
+                                     IconSize="Size.Medium" 
+                                     Class="mt-0"
+                                     Immediate="true"></MudTextField>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Service Name</MudTh>
+                        <MudTh>Node Address</MudTh>
+                        <MudTh>Status</MudTh>
+                        <MudTh>Created</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        @if (string.IsNullOrWhiteSpace(_searchString) || 
+                             context.ServiceName.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
+                             context.NodeAddress.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+                        {
+                            <MudTd DataLabel="Service Name">
+                                <MudText Typo="Typo.body1" Style="font-weight: 500;">@context.ServiceName</MudText>
+                                @if (!string.IsNullOrWhiteSpace(context.Description))
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Description</MudText>
+                                }
+                            </MudTd>
+                            <MudTd DataLabel="Node Address">
+                                <MudText Typo="Typo.body2" Style="font-family: monospace;">@context.NodeAddress</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Status">
+                                @if (context.IsActive)
+                                {
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle">
+                                        Active
+                                    </MudChip>
+                                }
+                                else
+                                {
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Default" Icon="@Icons.Material.Filled.PauseCircle">
+                                        Inactive
+                                    </MudChip>
+                                }
+                            </MudTd>
+                            <MudTd DataLabel="Created">
+                                <MudText Typo="Typo.body2">@context.CreatedAt.ToString("MMM dd, yyyy")</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Actions">
+                                @if (context.IsActive)
+                                {
+                                    <MudIconButton Icon="@Icons.Material.Filled.Pause" 
+                                                 Size="Size.Small" 
+                                                 Color="Color.Warning"
+                                                 OnClick="@(() => DeactivateBinding(context))" 
+                                                 Title="Deactivate" />
+                                }
+                                else
+                                {
+                                    <MudIconButton Icon="@Icons.Material.Filled.PlayArrow" 
+                                                 Size="Size.Small" 
+                                                 Color="Color.Success"
+                                                 OnClick="@(() => ActivateBinding(context))" 
+                                                 Title="Activate" />
+                                }
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                             Size="Size.Small" 
+                                             Color="Color.Primary"
+                                             OnClick="@(() => EditBinding(context.Id))" 
+                                             Title="Edit" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                             Size="Size.Small" 
+                                             Color="Color.Error"
+                                             OnClick="@(() => DeleteBinding(context))" 
+                                             Title="Delete" />
+                            </MudTd>
+                        }
+                    </RowTemplate>
+                    <NoRecordsContent>
+                        <MudAlert Severity="Severity.Info" Class="my-4">
+                            No bindings found. Click "Add Binding" to create your first service binding!
+                        </MudAlert>
+                    </NoRecordsContent>
+                    <LoadingContent>
+                        <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                    </LoadingContent>
+                </MudTable>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public int? ServerId { get; set; }
+
+    private List<McpBindingDto> _bindings = new();
+    private bool _loading = true;
+    private string _searchString = "";
+    private string _serverName = string.Empty;
+    private int? _serverId => ServerId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBindingsAsync();
+    }
+
+    private async Task LoadBindingsAsync()
+    {
+        try
+        {
+            _loading = true;
+            
+            if (_serverId.HasValue)
+            {
+                var server = await ServerService.GetServerAsync(_serverId.Value);
+                if (server != null)
+                {
+                    _serverName = server.Name;
+                }
+                var bindings = await BindingService.GetBindingsByServerAsync(_serverId.Value);
+                _bindings = bindings.ToList();
+            }
+            else
+            {
+                var servers = await ServerService.GetServersAsync();
+                _bindings = servers.SelectMany(s => s.Bindings).ToList();
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            Snackbar.Add($"Error loading bindings: {ex.Message}", Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Unexpected error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void EditBinding(int id)
+    {
+        Navigation.NavigateTo($"/bindings/edit/{id}");
+    }
+
+    private async Task ActivateBinding(McpBindingDto binding)
+    {
+        try
+        {
+            await BindingService.ActivateBindingAsync(binding.Id);
+            binding = binding with { IsActive = true };
+            Snackbar.Add($"Binding '{binding.ServiceName}' activated", Severity.Success);
+            await LoadBindingsAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error activating binding: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task DeactivateBinding(McpBindingDto binding)
+    {
+        try
+        {
+            await BindingService.DeactivateBindingAsync(binding.Id);
+            binding = binding with { IsActive = false };
+            Snackbar.Add($"Binding '{binding.ServiceName}' deactivated", Severity.Success);
+            await LoadBindingsAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error deactivating binding: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task DeleteBinding(McpBindingDto binding)
+    {
+        var parameters = new DialogParameters<DeleteConfirmationDialog>
+        {
+            { x => x.ContentText, $"Are you sure you want to delete the binding '{binding.ServiceName}'? This action cannot be undone." },
+            { x => x.ButtonText, "Delete" },
+            { x => x.Color, Color.Error }
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>("Confirm Delete", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            try
+            {
+                await BindingService.DeleteBindingAsync(binding.Id);
+                _bindings.Remove(binding);
+                Snackbar.Add($"Binding '{binding.ServiceName}' deleted successfully", Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error deleting binding: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+}

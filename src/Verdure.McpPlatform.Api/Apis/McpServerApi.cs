@@ -15,6 +15,7 @@ public static class McpServerApi
     public static RouteGroupBuilder MapMcpServerApi(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("api/mcp-servers")
+            .RequireAuthorization()
             .WithTags("MCP Servers")
             .WithOpenApi();
 

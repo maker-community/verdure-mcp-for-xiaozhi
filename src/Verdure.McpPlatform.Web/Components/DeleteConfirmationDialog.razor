@@ -1,0 +1,26 @@
+<MudDialog>
+    <DialogContent>
+        <MudText>@ContentText</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudBlazor.IDialogReference? MudDialog { get; set; }
+
+    [Parameter] 
+    public string ContentText { get; set; } = "Are you sure you want to delete this item?";
+
+    [Parameter] 
+    public string ButtonText { get; set; } = "Delete";
+
+    [Parameter] 
+    public Color Color { get; set; } = Color.Error;
+
+    void Submit() => MudDialog?.Close(DialogResult.Ok(true));
+    void Cancel() => MudDialog?.Close(DialogResult.Cancel());
+}
