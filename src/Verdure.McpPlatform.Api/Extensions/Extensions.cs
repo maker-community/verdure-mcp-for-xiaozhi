@@ -152,6 +152,9 @@ internal static class Extensions
         // Register identity service
         services.AddScoped<IIdentityService, IdentityService>();
 
+        // Register WebSocket session manager as singleton
+        services.AddSingleton<Verdure.McpPlatform.Api.Services.WebSocket.McpSessionManager>();
+
         // Add CORS
         services.AddCors(options =>
         {

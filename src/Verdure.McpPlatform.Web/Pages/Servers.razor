@@ -44,6 +44,7 @@
                     <HeaderContent>
                         <MudTh>Name</MudTh>
                         <MudTh>Address</MudTh>
+                        <MudTh>Status</MudTh>
                         <MudTh>Bindings</MudTh>
                         <MudTh>Created</MudTh>
                         <MudTh>Actions</MudTh>
@@ -63,6 +64,31 @@
                             <MudTd DataLabel="Address">
                                 <MudText Typo="Typo.body2" Style="font-family: monospace;">@context.Address</MudText>
                             </MudTd>
+                            <MudTd DataLabel="Status">
+                                <div class="d-flex align-center gap-2">
+                                    @if (context.IsEnabled)
+                                    {
+                                        @if (context.IsConnected)
+                                        {
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle">
+                                                Connected
+                                            </MudChip>
+                                        }
+                                        else
+                                        {
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Warning" Icon="@Icons.Material.Filled.Warning">
+                                                Disconnected
+                                            </MudChip>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Default" Icon="@Icons.Material.Filled.PowerSettingsNew">
+                                            Disabled
+                                        </MudChip>
+                                    }
+                                </div>
+                            </MudTd>
                             <MudTd DataLabel="Bindings">
                                 <MudChip T="string" Size="Size.Small" Color="Color.Info">
                                     @context.Bindings.Count binding(s)
@@ -72,6 +98,22 @@
                                 <MudText Typo="Typo.body2">@context.CreatedAt.ToString("MMM dd, yyyy")</MudText>
                             </MudTd>
                             <MudTd DataLabel="Actions">
+                                @if (context.IsEnabled)
+                                {
+                                    <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" 
+                                                 Size="Size.Small" 
+                                                 Color="Color.Warning"
+                                                 OnClick="@(() => DisableServer(context))" 
+                                                 Title="Disable Connection" />
+                                }
+                                else
+                                {
+                                    <MudIconButton Icon="@Icons.Material.Filled.PlayArrow" 
+                                                 Size="Size.Small" 
+                                                 Color="Color.Success"
+                                                 OnClick="@(() => EnableServer(context))" 
+                                                 Title="Enable Connection" />
+                                }
                                 <MudIconButton Icon="@Icons.Material.Filled.Edit" 
                                              Size="Size.Small" 
                                              Color="Color.Primary"
@@ -144,6 +186,56 @@
     private void ViewBindings(int id)
     {
         Navigation.NavigateTo($"/servers/{id}/bindings");
+    }
+
+    private async Task EnableServer(McpServerDto server)
+    {
+        try
+        {
+            await ServerService.EnableServerAsync(server.Id);
+            
+            // Reload server data from backend to ensure consistency
+            var updatedServer = await ServerService.GetServerAsync(server.Id);
+            if (updatedServer != null)
+            {
+                var index = _servers.FindIndex(s => s.Id == server.Id);
+                if (index >= 0)
+                {
+                    _servers[index] = updatedServer;
+                }
+            }
+            
+            Snackbar.Add($"Server '{server.Name}' enabled", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error enabling server: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task DisableServer(McpServerDto server)
+    {
+        try
+        {
+            await ServerService.DisableServerAsync(server.Id);
+            
+            // Reload server data from backend to ensure consistency
+            var updatedServer = await ServerService.GetServerAsync(server.Id);
+            if (updatedServer != null)
+            {
+                var index = _servers.FindIndex(s => s.Id == server.Id);
+                if (index >= 0)
+                {
+                    _servers[index] = updatedServer;
+                }
+            }
+            
+            Snackbar.Add($"Server '{server.Name}' disabled", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error disabling server: {ex.Message}", Severity.Error);
+        }
     }
 
     private async Task DeleteServer(McpServerDto server)

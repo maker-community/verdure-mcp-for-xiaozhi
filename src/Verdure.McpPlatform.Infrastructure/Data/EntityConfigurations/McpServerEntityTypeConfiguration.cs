@@ -30,10 +30,17 @@ public class McpServerEntityTypeConfiguration : IEntityTypeConfiguration<McpServ
         builder.Property(s => s.Description)
             .HasMaxLength(1000);
 
+        builder.Property(s => s.IsEnabled)
+            .IsRequired();
+
+        builder.Property(s => s.IsConnected)
+            .IsRequired();
+
         builder.Property(s => s.CreatedAt)
             .IsRequired();
 
         builder.HasIndex(s => s.UserId);
+        builder.HasIndex(s => s.IsEnabled);
 
         builder.HasMany(s => s.Bindings)
             .WithOne()

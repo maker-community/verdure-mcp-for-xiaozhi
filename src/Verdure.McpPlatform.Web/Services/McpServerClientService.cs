@@ -95,4 +95,32 @@ public class McpServerClientService : IMcpServerClientService
             throw;
         }
     }
+
+    public async Task EnableServerAsync(int id)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsync($"{ApiEndpoint}/{id}/enable", null);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to enable MCP server {ServerId}", id);
+            throw;
+        }
+    }
+
+    public async Task DisableServerAsync(int id)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsync($"{ApiEndpoint}/{id}/disable", null);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to disable MCP server {ServerId}", id);
+            throw;
+        }
+    }
 }

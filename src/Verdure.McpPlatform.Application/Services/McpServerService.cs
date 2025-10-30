@@ -92,6 +92,44 @@ public class McpServerService : IMcpServerService
             userId);
     }
 
+    public async Task EnableAsync(int id, string userId)
+    {
+        var server = await _repository.GetAsync(id);
+        
+        if (server == null || server.UserId != userId)
+        {
+            throw new UnauthorizedAccessException($"Server {id} not found or access denied");
+        }
+
+        server.Enable();
+        _repository.Update(server);
+        await _repository.UnitOfWork.SaveEntitiesAsync();
+
+        _logger.LogInformation(
+            "Enabled MCP server {ServerId} for user {UserId}",
+            id,
+            userId);
+    }
+
+    public async Task DisableAsync(int id, string userId)
+    {
+        var server = await _repository.GetAsync(id);
+        
+        if (server == null || server.UserId != userId)
+        {
+            throw new UnauthorizedAccessException($"Server {id} not found or access denied");
+        }
+
+        server.Disable();
+        _repository.Update(server);
+        await _repository.UnitOfWork.SaveEntitiesAsync();
+
+        _logger.LogInformation(
+            "Disabled MCP server {ServerId} for user {UserId}",
+            id,
+            userId);
+    }
+
     private static McpServerDto MapToDto(McpServer server)
     {
         return new McpServerDto
@@ -100,8 +138,12 @@ public class McpServerService : IMcpServerService
             Name = server.Name,
             Address = server.Address,
             Description = server.Description,
+            IsEnabled = server.IsEnabled,
+            IsConnected = server.IsConnected,
             CreatedAt = server.CreatedAt,
             UpdatedAt = server.UpdatedAt,
+            LastConnectedAt = server.LastConnectedAt,
+            LastDisconnectedAt = server.LastDisconnectedAt,
             Bindings = server.Bindings.Select(b => new McpBindingDto
             {
                 Id = b.Id,
