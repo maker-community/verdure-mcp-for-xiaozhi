@@ -1,0 +1,176 @@
+@page "/servers"
+@attribute [Authorize]
+@inject IMcpServerClientService ServerService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
+
+<PageTitle>MCP Servers - Verdure MCP Platform</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <div class="d-flex justify-space-between align-center mb-4">
+            <MudText Typo="Typo.h3">
+                <MudIcon Icon="@Icons.Material.Filled.Dns" Class="mr-2" /> MCP Servers
+            </MudText>
+            <MudButton Href="/servers/create" 
+                      Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      StartIcon="@Icons.Material.Filled.Add">
+                Add Server
+            </MudButton>
+        </div>
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudTable Items="@_servers" 
+                         Loading="@_loading" 
+                         Hover="true" 
+                         Breakpoint="Breakpoint.Sm"
+                         Dense="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Your MCP Servers</MudText>
+                        <MudSpacer />
+                        <MudTextField @bind-Value="_searchString" 
+                                     Placeholder="Search servers..." 
+                                     Adornment="Adornment.Start" 
+                                     AdornmentIcon="@Icons.Material.Filled.Search" 
+                                     IconSize="Size.Medium" 
+                                     Class="mt-0"
+                                     Immediate="true"></MudTextField>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Address</MudTh>
+                        <MudTh>Bindings</MudTh>
+                        <MudTh>Created</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        @if (string.IsNullOrWhiteSpace(_searchString) || 
+                             context.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
+                             context.Address.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+                        {
+                            <MudTd DataLabel="Name">
+                                <MudText Typo="Typo.body1" Style="font-weight: 500;">@context.Name</MudText>
+                                @if (!string.IsNullOrWhiteSpace(context.Description))
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Description</MudText>
+                                }
+                            </MudTd>
+                            <MudTd DataLabel="Address">
+                                <MudText Typo="Typo.body2" Style="font-family: monospace;">@context.Address</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Bindings">
+                                <MudChip T="string" Size="Size.Small" Color="Color.Info">
+                                    @context.Bindings.Count binding(s)
+                                </MudChip>
+                            </MudTd>
+                            <MudTd DataLabel="Created">
+                                <MudText Typo="Typo.body2">@context.CreatedAt.ToString("MMM dd, yyyy")</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Actions">
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                             Size="Size.Small" 
+                                             Color="Color.Primary"
+                                             OnClick="@(() => EditServer(context.Id))" 
+                                             Title="Edit" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Link" 
+                                             Size="Size.Small" 
+                                             Color="Color.Secondary"
+                                             OnClick="@(() => ViewBindings(context.Id))" 
+                                             Title="View Bindings" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                             Size="Size.Small" 
+                                             Color="Color.Error"
+                                             OnClick="@(() => DeleteServer(context))" 
+                                             Title="Delete" />
+                            </MudTd>
+                        }
+                    </RowTemplate>
+                    <NoRecordsContent>
+                        <MudAlert Severity="Severity.Info" Class="my-4">
+                            No servers found. Click "Add Server" to create your first MCP server!
+                        </MudAlert>
+                    </NoRecordsContent>
+                    <LoadingContent>
+                        <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                    </LoadingContent>
+                </MudTable>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private List<McpServerDto> _servers = new();
+    private bool _loading = true;
+    private string _searchString = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadServersAsync();
+    }
+
+    private async Task LoadServersAsync()
+    {
+        try
+        {
+            _loading = true;
+            var servers = await ServerService.GetServersAsync();
+            _servers = servers.ToList();
+        }
+        catch (HttpRequestException ex)
+        {
+            Snackbar.Add($"Error loading servers: {ex.Message}", Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Unexpected error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void EditServer(int id)
+    {
+        Navigation.NavigateTo($"/servers/edit/{id}");
+    }
+
+    private void ViewBindings(int id)
+    {
+        Navigation.NavigateTo($"/servers/{id}/bindings");
+    }
+
+    private async Task DeleteServer(McpServerDto server)
+    {
+        var parameters = new DialogParameters<DeleteConfirmationDialog>
+        {
+            { x => x.ContentText, $"Are you sure you want to delete the server '{server.Name}'? This action cannot be undone." },
+            { x => x.ButtonText, "Delete" },
+            { x => x.Color, Color.Error }
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>("Confirm Delete", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            try
+            {
+                await ServerService.DeleteServerAsync(server.Id);
+                _servers.Remove(server);
+                Snackbar.Add($"Server '{server.Name}' deleted successfully", Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error deleting server: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+}

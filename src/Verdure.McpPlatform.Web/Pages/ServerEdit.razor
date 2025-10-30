@@ -1,0 +1,206 @@
+@page "/servers/create"
+@page "/servers/edit/{Id:int}"
+@attribute [Authorize]
+@inject IMcpServerClientService ServerService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<PageTitle>@(_isEdit ? "Edit" : "Create") Server - Verdure MCP Platform</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudText Typo="Typo.h3" Class="mb-4">
+            <MudIcon Icon="@(_isEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Class="mr-2" />
+            @(_isEdit ? "Edit" : "Create") MCP Server
+        </MudText>
+    </MudItem>
+
+    <MudItem xs="12" md="8" lg="6">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudForm @ref="_form" @bind-IsValid="@_formValid">
+                    <MudTextField @bind-Value="_model.Name" 
+                                 Label="Server Name" 
+                                 Required="true"
+                                 RequiredError="Server name is required"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 Class="mb-4" />
+
+                    <MudTextField @bind-Value="_model.Address" 
+                                 Label="Server Address" 
+                                 Required="true"
+                                 RequiredError="Server address is required"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HelperText="e.g., http://localhost:5000 or https://api.example.com"
+                                 Class="mb-4" />
+
+                    <MudTextField @bind-Value="_model.Description" 
+                                 Label="Description" 
+                                 Lines="3"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HelperText="Optional description for this server"
+                                 Class="mb-4" />
+                </MudForm>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Text" 
+                          Color="Color.Default" 
+                          OnClick="Cancel">
+                    Cancel
+                </MudButton>
+                <MudSpacer />
+                <MudButton Variant="Variant.Filled" 
+                          Color="Color.Primary" 
+                          OnClick="SaveAsync" 
+                          Disabled="@(!_formValid || _saving)"
+                          StartIcon="@Icons.Material.Filled.Save">
+                    @if (_saving)
+                    {
+                        <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" />
+                        <MudText>Saving...</MudText>
+                    }
+                    else
+                    {
+                        <MudText>Save</MudText>
+                    }
+                </MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+
+    @if (_isEdit && _existingServer != null)
+    {
+        <MudItem xs="12" md="8" lg="6">
+            <MudCard Elevation="2">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Server Information</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudGrid>
+                        <MudItem xs="6">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Created</MudText>
+                            <MudText Typo="Typo.body1">@_existingServer.CreatedAt.ToString("MMM dd, yyyy HH:mm")</MudText>
+                        </MudItem>
+                        @if (_existingServer.UpdatedAt.HasValue)
+                        {
+                            <MudItem xs="6">
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">Last Updated</MudText>
+                                <MudText Typo="Typo.body1">@_existingServer.UpdatedAt.Value.ToString("MMM dd, yyyy HH:mm")</MudText>
+                            </MudItem>
+                        }
+                        <MudItem xs="12">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Bindings</MudText>
+                            <MudText Typo="Typo.body1">@_existingServer.Bindings.Count binding(s)</MudText>
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private MudForm _form = null!;
+    private bool _formValid;
+    private bool _saving;
+    private bool _isEdit => Id > 0;
+    private McpServerDto? _existingServer;
+    
+    private ServerFormModel _model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_isEdit)
+        {
+            await LoadServerAsync();
+        }
+    }
+
+    private async Task LoadServerAsync()
+    {
+        try
+        {
+            _existingServer = await ServerService.GetServerAsync(Id);
+            if (_existingServer != null)
+            {
+                _model.Name = _existingServer.Name;
+                _model.Address = _existingServer.Address;
+                _model.Description = _existingServer.Description ?? string.Empty;
+            }
+            else
+            {
+                Snackbar.Add("Server not found", Severity.Error);
+                Navigation.NavigateTo("/servers");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading server: {ex.Message}", Severity.Error);
+            Navigation.NavigateTo("/servers");
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!_formValid)
+            return;
+
+        try
+        {
+            _saving = true;
+
+            if (_isEdit)
+            {
+                var request = new UpdateMcpServerRequest
+                {
+                    Name = _model.Name,
+                    Address = _model.Address,
+                    Description = _model.Description
+                };
+                await ServerService.UpdateServerAsync(Id, request);
+                Snackbar.Add("Server updated successfully", Severity.Success);
+            }
+            else
+            {
+                var request = new CreateMcpServerRequest
+                {
+                    Name = _model.Name,
+                    Address = _model.Address,
+                    Description = _model.Description
+                };
+                await ServerService.CreateServerAsync(request);
+                Snackbar.Add("Server created successfully", Severity.Success);
+            }
+
+            Navigation.NavigateTo("/servers");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving server: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/servers");
+    }
+
+    private class ServerFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+}

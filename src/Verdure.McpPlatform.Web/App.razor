@@ -1,12 +1,61 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
-    </NotFound>
-</Router>
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    @if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+                            <MudCard Elevation="2" Class="pa-8 text-center">
+                                <MudCardContent>
+                                    <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
+                                    <MudText Typo="Typo.h5" Class="mb-2">Authentication Required</MudText>
+                                    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+                                        You need to be logged in to access this page.
+                                    </MudText>
+                                    <MudButton Href="/login" 
+                                              Variant="Variant.Filled" 
+                                              Color="Color.Primary" 
+                                              StartIcon="@Icons.Material.Filled.Login">
+                                        Go to Login
+                                    </MudButton>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudContainer>
+                    }
+                    else
+                    {
+                        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+                            <MudAlert Severity="Severity.Error">
+                                You do not have permission to access this resource.
+                            </MudAlert>
+                        </MudContainer>
+                    }
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+                    <MudCard Elevation="2" Class="pa-8 text-center">
+                        <MudCardContent>
+                            <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Secondary" Class="mb-4" />
+                            <MudText Typo="Typo.h5" Class="mb-2">Page Not Found</MudText>
+                            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+                                Sorry, there's nothing at this address.
+                            </MudText>
+                            <MudButton Href="/" 
+                                      Variant="Variant.Filled" 
+                                      Color="Color.Primary" 
+                                      StartIcon="@Icons.Material.Filled.Home">
+                                Go to Home
+                            </MudButton>
+                        </MudCardContent>
+                    </MudCard>
+                </MudContainer>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

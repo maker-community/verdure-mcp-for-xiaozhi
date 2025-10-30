@@ -1,7 +1,204 @@
 ﻿@page "/"
+@inject IMcpServerClientService ServerService
+@inject IMcpBindingClientService BindingService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Dashboard - Verdure MCP Platform</PageTitle>
 
-<h1>Hello, world!</h1>
+<MudGrid>
+    <MudItem xs="12">
+        <MudText Typo="Typo.h3" Class="mb-4">
+            <MudIcon Icon="@Icons.Material.Filled.Dashboard" Class="mr-2" /> Dashboard
+        </MudText>
+    </MudItem>
 
-Welcome to your new app.
+    <AuthorizeView>
+        <Authorized>
+            <MudItem xs="12" sm="6" md="3">
+                <MudCard Elevation="2" Class="pa-4" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <MudCardContent>
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <MudText Typo="Typo.h4">@_serverCount</MudText>
+                                <MudText Typo="Typo.body2">MCP Servers</MudText>
+                            </div>
+                            <MudIcon Icon="@Icons.Material.Filled.Dns" Size="Size.Large" />
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" md="3">
+                <MudCard Elevation="2" Class="pa-4" Style="background: linear-gradient(135deg, #06d6a0 0%, #0fb8ad 100%); color: white;">
+                    <MudCardContent>
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <MudText Typo="Typo.h4">@_bindingCount</MudText>
+                                <MudText Typo="Typo.body2">Total Bindings</MudText>
+                            </div>
+                            <MudIcon Icon="@Icons.Material.Filled.Link" Size="Size.Large" />
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" md="3">
+                <MudCard Elevation="2" Class="pa-4" Style="background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%); color: white;">
+                    <MudCardContent>
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <MudText Typo="Typo.h4">@_activeBindingCount</MudText>
+                                <MudText Typo="Typo.body2">Active Bindings</MudText>
+                            </div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Large" />
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" md="3">
+                <MudCard Elevation="2" Class="pa-4" Style="background: linear-gradient(135deg, #ffd60a 0%, #ff9505 100%); color: white;">
+                    <MudCardContent>
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <MudText Typo="Typo.h4">@(_bindingCount - _activeBindingCount)</MudText>
+                                <MudText Typo="Typo.body2">Inactive Bindings</MudText>
+                            </div>
+                            <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Size="Size.Large" />
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudCard Elevation="2">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Quick Actions</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <div class="d-flex gap-4 flex-wrap">
+                            <MudButton Href="/servers/create" 
+                                      Variant="Variant.Filled" 
+                                      Color="Color.Primary" 
+                                      StartIcon="@Icons.Material.Filled.Add">
+                                Add MCP Server
+                            </MudButton>
+                            <MudButton Href="/bindings/create" 
+                                      Variant="Variant.Filled" 
+                                      Color="Color.Secondary" 
+                                      StartIcon="@Icons.Material.Filled.Link">
+                                Create Binding
+                            </MudButton>
+                            <MudButton Href="/servers" 
+                                      Variant="Variant.Outlined" 
+                                      Color="Color.Primary" 
+                                      StartIcon="@Icons.Material.Filled.List">
+                                View All Servers
+                            </MudButton>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudCard Elevation="2">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Recent Servers</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @if (_loading)
+                        {
+                            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                        }
+                        else if (_recentServers.Any())
+                        {
+                            <MudList T="string">
+                                @foreach (var server in _recentServers.Take(5))
+                                {
+                                    <MudListItem T="string">
+                                        <div class="d-flex justify-space-between align-center w-100">
+                                            <div>
+                                                <MudText Typo="Typo.body1">@server.Name</MudText>
+                                                <MudText Typo="Typo.body2" Color="Color.Secondary">@server.Address</MudText>
+                                            </div>
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Info">
+                                                @server.Bindings.Count binding(s)
+                                            </MudChip>
+                                        </div>
+                                    </MudListItem>
+                                    <MudDivider />
+                                }
+                            </MudList>
+                        }
+                        else
+                        {
+                            <MudAlert Severity="Severity.Info">No servers yet. Create your first MCP server to get started!</MudAlert>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </Authorized>
+        <NotAuthorized>
+            <MudItem xs="12">
+                <MudCard Elevation="2" Class="pa-8 text-center">
+                    <MudCardContent>
+                        <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
+                        <MudText Typo="Typo.h4" Class="mb-2">Welcome to Verdure MCP Platform</MudText>
+                        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+                            A powerful platform for managing MCP (Model Context Protocol) services with Xiaozhi AI integration.
+                        </MudText>
+                        <MudButton Href="/login" 
+                                  Variant="Variant.Filled" 
+                                  Color="Color.Primary" 
+                                  Size="Size.Large" 
+                                  StartIcon="@Icons.Material.Filled.Login">
+                            Login to Get Started
+                        </MudButton>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </NotAuthorized>
+    </AuthorizeView>
+</MudGrid>
+
+@code {
+    private bool _loading = true;
+    private int _serverCount = 0;
+    private int _bindingCount = 0;
+    private int _activeBindingCount = 0;
+    private List<McpServerDto> _recentServers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardDataAsync();
+    }
+
+    private async Task LoadDashboardDataAsync()
+    {
+        try
+        {
+            _loading = true;
+            
+            var servers = await ServerService.GetServersAsync();
+            _recentServers = servers.OrderByDescending(s => s.CreatedAt).ToList();
+            _serverCount = _recentServers.Count;
+            _bindingCount = _recentServers.Sum(s => s.Bindings.Count);
+            _activeBindingCount = _recentServers.SelectMany(s => s.Bindings).Count(b => b.IsActive);
+        }
+        catch (Exception)
+        {
+            // User not authenticated or error loading data
+            _serverCount = 0;
+            _bindingCount = 0;
+            _activeBindingCount = 0;
+            _recentServers = new List<McpServerDto>();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

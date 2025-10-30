@@ -1,0 +1,91 @@
+@page "/login"
+@inject NavigationManager Navigation
+@inject IAuthenticationService AuthService
+@inject ISnackbar Snackbar
+
+<PageTitle>Login - Verdure MCP Platform</PageTitle>
+
+<div class="d-flex justify-center align-center" style="min-height: 80vh;">
+    <MudCard Elevation="4" Style="max-width: 500px; width: 100%;">
+        <MudCardContent Class="pa-8">
+            <div class="text-center mb-6">
+                <MudIcon Icon="@Icons.Material.Filled.Cloud" Size="Size.Large" Color="Color.Primary" />
+                <MudText Typo="Typo.h4" Class="mt-2">Verdure MCP Platform</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Sign in to manage your MCP services</MudText>
+            </div>
+
+            <MudAlert Severity="Severity.Info" Class="mb-4">
+                <MudText Typo="Typo.body2">
+                    This platform integrates with Keycloak for authentication. 
+                    Please configure your Keycloak settings in appsettings.json to enable OIDC login.
+                </MudText>
+            </MudAlert>
+
+            <MudForm @ref="_form" @bind-IsValid="@_formValid">
+                <MudTextField @bind-Value="_token" 
+                             Label="Access Token" 
+                             Required="true"
+                             RequiredError="Access token is required"
+                             Variant="Variant.Outlined"
+                             Lines="5"
+                             HelperText="Enter your JWT access token from Keycloak"
+                             Class="mb-4" />
+            </MudForm>
+
+            <MudButton Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      FullWidth="true"
+                      Size="Size.Large"
+                      OnClick="LoginAsync" 
+                      Disabled="@(!_formValid || _logging)"
+                      StartIcon="@Icons.Material.Filled.Login">
+                @if (_logging)
+                {
+                    <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" Color="Color.Surface" />
+                    <MudText>Signing In...</MudText>
+                }
+                else
+                {
+                    <MudText>Sign In with Token</MudText>
+                }
+            </MudButton>
+
+            <MudDivider Class="my-6" />
+
+            <div class="text-center">
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    For production use, configure Keycloak OIDC flow in your settings.
+                </MudText>
+            </div>
+        </MudCardContent>
+    </MudCard>
+</div>
+
+@code {
+    private MudForm _form = null!;
+    private bool _formValid;
+    private bool _logging;
+    private string _token = string.Empty;
+
+    private async Task LoginAsync()
+    {
+        if (!_formValid)
+            return;
+
+        try
+        {
+            _logging = true;
+            await AuthService.LoginAsync(_token);
+            Snackbar.Add("Login successful!", Severity.Success);
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Login failed: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _logging = false;
+        }
+    }
+}
