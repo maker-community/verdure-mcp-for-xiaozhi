@@ -22,6 +22,7 @@ var api = builder.AddProject<Projects.Verdure_McpPlatform_Api>("api")
 // Add Blazor WebAssembly frontend
 builder.AddProject<Projects.Verdure_McpPlatform_Web>("web")
     .WithReference(api)
+    .WaitFor(api)
     .WithExternalHttpEndpoints();
 
 builder.Build().Run();
