@@ -193,14 +193,19 @@
         try
         {
             await ServerService.EnableServerAsync(server.Id);
-            server = server with { IsEnabled = true };
-            var index = _servers.FindIndex(s => s.Id == server.Id);
-            if (index >= 0)
+            
+            // Reload server data from backend to ensure consistency
+            var updatedServer = await ServerService.GetServerAsync(server.Id);
+            if (updatedServer != null)
             {
-                _servers[index] = server;
+                var index = _servers.FindIndex(s => s.Id == server.Id);
+                if (index >= 0)
+                {
+                    _servers[index] = updatedServer;
+                }
             }
+            
             Snackbar.Add($"Server '{server.Name}' enabled", Severity.Success);
-            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -213,14 +218,19 @@
         try
         {
             await ServerService.DisableServerAsync(server.Id);
-            server = server with { IsEnabled = false, IsConnected = false };
-            var index = _servers.FindIndex(s => s.Id == server.Id);
-            if (index >= 0)
+            
+            // Reload server data from backend to ensure consistency
+            var updatedServer = await ServerService.GetServerAsync(server.Id);
+            if (updatedServer != null)
             {
-                _servers[index] = server;
+                var index = _servers.FindIndex(s => s.Id == server.Id);
+                if (index >= 0)
+                {
+                    _servers[index] = updatedServer;
+                }
             }
+            
             Snackbar.Add($"Server '{server.Name}' disabled", Severity.Success);
-            StateHasChanged();
         }
         catch (Exception ex)
         {
