@@ -9,6 +9,9 @@ builder.AddServiceDefaults();
 // Add application services
 builder.AddApplicationServices();
 
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
 // Add OpenAPI/Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
