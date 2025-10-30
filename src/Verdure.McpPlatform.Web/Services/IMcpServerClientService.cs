@@ -13,4 +13,6 @@ public interface IMcpServerClientService
     Task<McpServerDto> CreateServerAsync(CreateMcpServerRequest request);
     Task UpdateServerAsync(int id, UpdateMcpServerRequest request);
     Task DeleteServerAsync(int id);
+    Task EnableServerAsync(int id);
+    Task DisableServerAsync(int id);
 }
