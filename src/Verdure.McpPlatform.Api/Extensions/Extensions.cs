@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -6,7 +6,7 @@ using System.Security.Claims;
 using Verdure.McpPlatform.Api.Services;
 using Verdure.McpPlatform.Api.Settings;
 using Verdure.McpPlatform.Application.Services;
-using Verdure.McpPlatform.Domain.AggregatesModel.McpServerAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
 using Verdure.McpPlatform.Infrastructure.Data;
 using Verdure.McpPlatform.Infrastructure.Identity;
 using Verdure.McpPlatform.Infrastructure.Repositories;
@@ -143,11 +143,11 @@ internal static class Extensions
         services.AddAuthorization();
 
         // Register repositories
-        services.AddScoped<IMcpServerRepository, McpServerRepository>();
+        services.AddScoped<IXiaozhiConnectionRepository, XiaozhiConnectionRepository>();
 
         // Register application services
-        services.AddScoped<IMcpServerService, McpServerService>();
-        services.AddScoped<IMcpBindingService, McpBindingService>();
+        services.AddScoped<IXiaozhiConnectionService, XiaozhiConnectionService>();
+        services.AddScoped<IMcpServiceBindingService, McpServiceBindingService>();
 
         // Register identity service
         services.AddScoped<IIdentityService, IdentityService>();

@@ -1,4 +1,4 @@
-using Blazored.LocalStorage;
+﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
@@ -59,7 +59,7 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
     .CreateClient("Verdure.McpPlatform.Api"));
 
 // Register API client services
-builder.Services.AddScoped<IMcpServerClientService, McpServerClientService>();
-builder.Services.AddScoped<IMcpBindingClientService, McpBindingClientService>();
+builder.Services.AddScoped<IXiaozhiConnectionClientService, XiaozhiConnectionClientService>();
+builder.Services.AddScoped<IMcpServiceBindingClientService, McpServiceBindingClientService>();
 
 await builder.Build().RunAsync();

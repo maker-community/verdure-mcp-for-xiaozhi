@@ -1,6 +1,6 @@
 ﻿@page "/"
-@inject IMcpServerClientService ServerService
-@inject IMcpBindingClientService BindingService
+@inject IXiaozhiConnectionClientService ServerService
+@inject IMcpServiceBindingClientService BindingService
 
 <PageTitle>Dashboard - Verdure MCP Platform</PageTitle>
 
@@ -19,7 +19,7 @@
                         <div class="d-flex justify-space-between align-center">
                             <div>
                                 <MudText Typo="Typo.h4">@_serverCount</MudText>
-                                <MudText Typo="Typo.body2">MCP Servers</MudText>
+                                <MudText Typo="Typo.body2">Xiaozhi Connections</MudText>
                             </div>
                             <MudIcon Icon="@Icons.Material.Filled.Dns" Size="Size.Large" />
                         </div>
@@ -78,19 +78,19 @@
                     </MudCardHeader>
                     <MudCardContent>
                         <div class="d-flex gap-4 flex-wrap">
-                            <MudButton Href="/servers/create" 
+                            <MudButton Href="/connections/create" 
                                       Variant="Variant.Filled" 
                                       Color="Color.Primary" 
                                       StartIcon="@Icons.Material.Filled.Add">
-                                Add MCP Server
+                                Add Xiaozhi Connection
                             </MudButton>
-                            <MudButton Href="/bindings/create" 
+                            <MudButton Href="/service-bindings/create" 
                                       Variant="Variant.Filled" 
                                       Color="Color.Secondary" 
                                       StartIcon="@Icons.Material.Filled.Link">
                                 Create Binding
                             </MudButton>
-                            <MudButton Href="/servers" 
+                            <MudButton Href="/connections" 
                                       Variant="Variant.Outlined" 
                                       Color="Color.Primary" 
                                       StartIcon="@Icons.Material.Filled.List">
@@ -125,7 +125,7 @@
                                                 <MudText Typo="Typo.body2" Color="Color.Secondary">@server.Address</MudText>
                                             </div>
                                             <MudChip T="string" Size="Size.Small" Color="Color.Info">
-                                                @server.Bindings.Count binding(s)
+                                                @server.ServiceBindings.Count binding(s)
                                             </MudChip>
                                         </div>
                                     </MudListItem>
@@ -135,7 +135,7 @@
                         }
                         else
                         {
-                            <MudAlert Severity="Severity.Info">No servers yet. Create your first MCP server to get started!</MudAlert>
+                            <MudAlert Severity="Severity.Info">No servers yet. Create Xiaozhi Connection to get started!</MudAlert>
                         }
                     </MudCardContent>
                 </MudCard>
@@ -169,7 +169,7 @@
     private int _serverCount = 0;
     private int _bindingCount = 0;
     private int _activeBindingCount = 0;
-    private List<McpServerDto> _recentServers = new();
+    private List<XiaozhiConnectionDto> _recentServers = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -185,8 +185,8 @@
             var servers = await ServerService.GetServersAsync();
             _recentServers = servers.OrderByDescending(s => s.CreatedAt).ToList();
             _serverCount = _recentServers.Count;
-            _bindingCount = _recentServers.Sum(s => s.Bindings.Count);
-            _activeBindingCount = _recentServers.SelectMany(s => s.Bindings).Count(b => b.IsActive);
+            _bindingCount = _recentServers.Sum(s => s.ServiceBindings.Count);
+            _activeBindingCount = _recentServers.SelectMany(s => s.ServiceBindings).Count(b => b.IsActive);
         }
         catch (Exception)
         {
@@ -194,7 +194,7 @@
             _serverCount = 0;
             _bindingCount = 0;
             _activeBindingCount = 0;
-            _recentServers = new List<McpServerDto>();
+            _recentServers = new List<XiaozhiConnectionDto>();
         }
         finally
         {

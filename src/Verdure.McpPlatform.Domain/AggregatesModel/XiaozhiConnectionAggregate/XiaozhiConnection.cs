@@ -1,11 +1,12 @@
 using Verdure.McpPlatform.Domain.SeedWork;
 
-namespace Verdure.McpPlatform.Domain.AggregatesModel.McpServerAggregate;
+namespace Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
 
 /// <summary>
-/// MCP Server aggregate root - represents a user's MCP server configuration
+/// Xiaozhi Connection aggregate root - represents a connection to Xiaozhi AI's MCP endpoint
+/// This configures the WebSocket endpoint where Xiaozhi AI connects to receive MCP services
 /// </summary>
-public class McpServer : Entity, IAggregateRoot
+public class XiaozhiConnection : Entity, IAggregateRoot
 {
     public string Name { get; private set; }
     public string Address { get; private set; }
@@ -18,18 +19,18 @@ public class McpServer : Entity, IAggregateRoot
     public DateTime? LastConnectedAt { get; private set; }
     public DateTime? LastDisconnectedAt { get; private set; }
 
-    private readonly List<McpBinding> _bindings;
-    public IReadOnlyCollection<McpBinding> Bindings => _bindings.AsReadOnly();
+    private readonly List<McpServiceBinding> _serviceBindings;
+    public IReadOnlyCollection<McpServiceBinding> ServiceBindings => _serviceBindings.AsReadOnly();
 
-    protected McpServer()
+    protected XiaozhiConnection()
     {
-        _bindings = new List<McpBinding>();
+        _serviceBindings = new List<McpServiceBinding>();
         Name = string.Empty;
         Address = string.Empty;
         UserId = string.Empty;
     }
 
-    public McpServer(string name, string address, string userId, string? description = null) : this()
+    public XiaozhiConnection(string name, string address, string userId, string? description = null) : this()
     {
         Name = name ?? throw new ArgumentNullException(nameof(name));
         Address = address ?? throw new ArgumentNullException(nameof(address));
@@ -48,16 +49,16 @@ public class McpServer : Entity, IAggregateRoot
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public McpBinding AddBinding(string serviceName, string nodeAddress, string? description = null)
+    public McpServiceBinding AddServiceBinding(string serviceName, string nodeAddress, string? description = null)
     {
-        var binding = new McpBinding(serviceName, nodeAddress, Id, description);
-        _bindings.Add(binding);
+        var binding = new McpServiceBinding(serviceName, nodeAddress, Id, description);
+        _serviceBindings.Add(binding);
         return binding;
     }
 
-    public void RemoveBinding(McpBinding binding)
+    public void RemoveServiceBinding(McpServiceBinding binding)
     {
-        _bindings.Remove(binding);
+        _serviceBindings.Remove(binding);
     }
 
     public void Enable()
