@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+using System.Security.Claims;
 using Verdure.McpPlatform.Api.Services;
+using Verdure.McpPlatform.Api.Settings;
 using Verdure.McpPlatform.Application.Services;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServerAggregate;
 using Verdure.McpPlatform.Infrastructure.Data;
@@ -29,7 +28,7 @@ internal static class Extensions
 
         // Add database context with Aspire PostgreSQL support
         var connectionString = configuration.GetConnectionString("mcpdb");
-        
+
         if (!string.IsNullOrEmpty(connectionString))
         {
             // Use Aspire PostgreSQL if available
@@ -67,61 +66,56 @@ internal static class Extensions
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
 
+        // 绑定OIDC配置
+        var oidcSettings = new OidcSettings();
+        configuration.GetSection("Oidc").Bind(oidcSettings);
+
+        if (!oidcSettings.IsValid())
+        {
+            throw new InvalidOperationException("OIDC configuration is invalid. Please check Authority, Realm, and ClientId settings.");
+        }
+
+        // 注册配置服务
+        services.Configure<OidcSettings>(configuration.GetSection("Oidc"));
+
+        var issuer = oidcSettings.GetIssuerUrl();
+
         // Add JWT Bearer Authentication
-        services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options =>
-        {
-            var jwtKey = configuration["Jwt:Key"];
-            var jwtIssuer = configuration["Jwt:Issuer"];
-            var jwtAudience = configuration["Jwt:Audience"];
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+         .AddJwtBearer(options =>
+         {
+             options.Authority = issuer;
+             options.Audience = oidcSettings.Audience;
+             options.RequireHttpsMetadata = builder.Environment.IsDevelopment() ? oidcSettings.RequireHttpsMetadata : true;
 
-            if (!string.IsNullOrEmpty(jwtKey))
-            {
-                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                {
-                    ValidateIssuer = !string.IsNullOrEmpty(jwtIssuer),
-                    ValidateAudience = !string.IsNullOrEmpty(jwtAudience),
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtIssuer,
-                    ValidAudience = jwtAudience,
-                    IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
-                        System.Text.Encoding.UTF8.GetBytes(jwtKey))
-                };
-            }
-            else
-            {
-                // For development: accept any valid JWT token
-                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = false,
-                    SignatureValidator = (token, parameters) =>
-                    {
-                        var jwt = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(token);
-                        return jwt;
-                    }
-                };
-            }
+             options.TokenValidationParameters = new TokenValidationParameters
+             {
+                 ValidateIssuer = true,
+                 ValidateAudience = !string.IsNullOrEmpty(oidcSettings.Audience),
+                 ValidateLifetime = true,
+                 ValidateIssuerSigningKey = true,
+                 ValidIssuer = issuer,
+                 ValidAudience = oidcSettings.Audience,
+                 ClockSkew = TimeSpan.FromMinutes(oidcSettings.ClockSkewMinutes),
+                 // 映射标准Claims
+                 NameClaimType = ClaimTypes.Name,
+                 RoleClaimType = ClaimTypes.Role
+             };
 
-            options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
-            {
-                OnAuthenticationFailed = context =>
-                {
-                    if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-                    {
-                        context.Response.Headers.Append("Token-Expired", "true");
-                    }
-                    return Task.CompletedTask;
-                }
-            };
-        });
+             // 添加事件处理
+             options.Events = new JwtBearerEvents
+             {
+                 OnTokenValidated = context =>
+                 {
+                     return Task.CompletedTask;
+                 },
+                 OnAuthenticationFailed = context =>
+                 {
+                     // 记录认证失败的详细信息
+                     return Task.CompletedTask;
+                 }
+             };
+         });
 
         services.AddAuthorization();
 
@@ -150,7 +144,7 @@ internal static class Extensions
     public static async Task ApplyDatabaseMigrations(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
-        
+
         var mcpContext = scope.ServiceProvider.GetRequiredService<McpPlatformContext>();
         await mcpContext.Database.EnsureCreatedAsync();
 
