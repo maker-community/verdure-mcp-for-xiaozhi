@@ -1,17 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Verdure.McpPlatform.Domain.AggregatesModel.McpServerAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
 
 namespace Verdure.McpPlatform.Infrastructure.Data.EntityConfigurations;
 
 /// <summary>
-/// Entity configuration for McpBinding
+/// Entity configuration for McpServiceBinding
 /// </summary>
-public class McpBindingEntityTypeConfiguration : IEntityTypeConfiguration<McpBinding>
+public class McpServiceBindingEntityTypeConfiguration : IEntityTypeConfiguration<McpServiceBinding>
 {
-    public void Configure(EntityTypeBuilder<McpBinding> builder)
+    public void Configure(EntityTypeBuilder<McpServiceBinding> builder)
     {
-        builder.ToTable("mcp_bindings");
+        builder.ToTable("mcp_service_bindings");
 
         builder.HasKey(b => b.Id);
 
@@ -32,7 +32,7 @@ public class McpBindingEntityTypeConfiguration : IEntityTypeConfiguration<McpBin
         builder.Property(b => b.CreatedAt)
             .IsRequired();
 
-        builder.HasIndex(b => b.McpServerId);
+        builder.HasIndex(b => b.XiaozhiConnectionId);
         builder.HasIndex(b => b.IsActive);
     }
 }

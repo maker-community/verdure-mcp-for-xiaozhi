@@ -1,34 +1,34 @@
-@page "/bindings"
-@page "/servers/{ServerId:int}/bindings"
+﻿@page "/service-bindings"
+@page "/connections/{ConnectionId:int}/service-bindings"
 @attribute [Authorize]
-@inject IMcpBindingClientService BindingService
-@inject IMcpServerClientService ServerService
+@inject IMcpServiceBindingClientService BindingService
+@inject IXiaozhiConnectionClientService ServerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
 
-<PageTitle>MCP Bindings - Verdure MCP Platform</PageTitle>
+<PageTitle>MCP External MCP Services - Verdure MCP Platform</PageTitle>
 
 <MudGrid>
     <MudItem xs="12">
         <div class="d-flex justify-space-between align-center mb-4">
             <MudText Typo="Typo.h3">
                 <MudIcon Icon="@Icons.Material.Filled.Link" Class="mr-2" /> 
-                @(_serverId.HasValue ? $"Bindings for {_serverName}" : "MCP Bindings")
+                @(_connectionId.HasValue ? $"Bindings for {_serverName}" : "MCP External MCP Services")
             </MudText>
-            <MudButton Href="@(_serverId.HasValue ? $"/bindings/create?serverId={_serverId}" : "/bindings/create")" 
+            <MudButton Href="@(_connectionId.HasValue ? $"/bindings/create?connectionId={_connectionId}" : "/bindings/create")" 
                       Variant="Variant.Filled" 
                       Color="Color.Primary" 
                       StartIcon="@Icons.Material.Filled.Add">
-                Add Binding
+                Add Service
             </MudButton>
         </div>
     </MudItem>
 
-    @if (_serverId.HasValue)
+    @if (_connectionId.HasValue)
     {
         <MudItem xs="12">
-            <MudButton Href="/servers" 
+            <MudButton Href="/connections" 
                       Variant="Variant.Text" 
                       StartIcon="@Icons.Material.Filled.ArrowBack">
                 Back to Servers
@@ -39,16 +39,16 @@
     <MudItem xs="12">
         <MudCard Elevation="2">
             <MudCardContent>
-                <MudTable Items="@_bindings" 
+                <MudTable Items="@_serviceBindings" 
                          Loading="@_loading" 
                          Hover="true" 
                          Breakpoint="Breakpoint.Sm"
                          Dense="true">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h6">Service Bindings</MudText>
+                        <MudText Typo="Typo.h6">External MCP Services</MudText>
                         <MudSpacer />
                         <MudTextField @bind-Value="_searchString" 
-                                     Placeholder="Search bindings..." 
+                                     Placeholder="Search services..." 
                                      Adornment="Adornment.Start" 
                                      AdornmentIcon="@Icons.Material.Filled.Search" 
                                      IconSize="Size.Medium" 
@@ -57,7 +57,7 @@
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>Service Name</MudTh>
-                        <MudTh>Node Address</MudTh>
+                        <MudTh>MCP Service Endpoint</MudTh>
                         <MudTh>Status</MudTh>
                         <MudTh>Created</MudTh>
                         <MudTh>Actions</MudTh>
@@ -74,7 +74,7 @@
                                     <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Description</MudText>
                                 }
                             </MudTd>
-                            <MudTd DataLabel="Node Address">
+                            <MudTd DataLabel="MCP Service Endpoint">
                                 <MudText Typo="Typo.body2" Style="font-family: monospace;">@context.NodeAddress</MudText>
                             </MudTd>
                             <MudTd DataLabel="Status">
@@ -126,7 +126,7 @@
                     </RowTemplate>
                     <NoRecordsContent>
                         <MudAlert Severity="Severity.Info" Class="my-4">
-                            No bindings found. Click "Add Binding" to create your first service binding!
+                            No services found. Click "Add Service" to bind your first external MCP service!
                         </MudAlert>
                     </NoRecordsContent>
                     <LoadingContent>
@@ -140,13 +140,13 @@
 
 @code {
     [Parameter]
-    public int? ServerId { get; set; }
+    public int? ConnectionId { get; set; }
 
-    private List<McpBindingDto> _bindings = new();
+    private List<McpServiceBindingDto> _serviceBindings = new();
     private bool _loading = true;
     private string _searchString = "";
     private string _serverName = string.Empty;
-    private int? _serverId => ServerId;
+    private int? _connectionId => ConnectionId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -159,25 +159,25 @@
         {
             _loading = true;
             
-            if (_serverId.HasValue)
+            if (_connectionId.HasValue)
             {
-                var server = await ServerService.GetServerAsync(_serverId.Value);
+                var server = await ServerService.GetServerAsync(_connectionId.Value);
                 if (server != null)
                 {
                     _serverName = server.Name;
                 }
-                var bindings = await BindingService.GetBindingsByServerAsync(_serverId.Value);
-                _bindings = bindings.ToList();
+                var bindings = await BindingService.GetBindingsByServerAsync(_connectionId.Value);
+                _serviceBindings = bindings.ToList();
             }
             else
             {
                 var servers = await ServerService.GetServersAsync();
-                _bindings = servers.SelectMany(s => s.Bindings).ToList();
+                _serviceBindings = servers.SelectMany(s => s.ServiceBindings).ToList();
             }
         }
         catch (HttpRequestException ex)
         {
-            Snackbar.Add($"Error loading bindings: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Error loading services: {ex.Message}", Severity.Error);
         }
         catch (Exception ex)
         {
@@ -191,16 +191,16 @@
 
     private void EditBinding(int id)
     {
-        Navigation.NavigateTo($"/bindings/edit/{id}");
+        Navigation.NavigateTo($"/service-bindings/edit/{id}");
     }
 
-    private async Task ActivateBinding(McpBindingDto binding)
+    private async Task ActivateBinding(McpServiceBindingDto binding)
     {
         try
         {
             await BindingService.ActivateBindingAsync(binding.Id);
             binding = binding with { IsActive = true };
-            Snackbar.Add($"Binding '{binding.ServiceName}' activated", Severity.Success);
+            Snackbar.Add($"service '{binding.ServiceName}' activated", Severity.Success);
             await LoadBindingsAsync();
         }
         catch (Exception ex)
@@ -209,13 +209,13 @@
         }
     }
 
-    private async Task DeactivateBinding(McpBindingDto binding)
+    private async Task DeactivateBinding(McpServiceBindingDto binding)
     {
         try
         {
             await BindingService.DeactivateBindingAsync(binding.Id);
             binding = binding with { IsActive = false };
-            Snackbar.Add($"Binding '{binding.ServiceName}' deactivated", Severity.Success);
+            Snackbar.Add($"service '{binding.ServiceName}' deactivated", Severity.Success);
             await LoadBindingsAsync();
         }
         catch (Exception ex)
@@ -224,11 +224,11 @@
         }
     }
 
-    private async Task DeleteBinding(McpBindingDto binding)
+    private async Task DeleteBinding(McpServiceBindingDto binding)
     {
         var parameters = new DialogParameters<DeleteConfirmationDialog>
         {
-            { x => x.ContentText, $"Are you sure you want to delete the binding '{binding.ServiceName}'? This action cannot be undone." },
+            { x => x.ContentText, $"Are you sure you want to Delete the service service '{binding.ServiceName}'? This action cannot be undone." },
             { x => x.ButtonText, "Delete" },
             { x => x.Color, Color.Error }
         };
@@ -242,8 +242,8 @@
             try
             {
                 await BindingService.DeleteBindingAsync(binding.Id);
-                _bindings.Remove(binding);
-                Snackbar.Add($"Binding '{binding.ServiceName}' deleted successfully", Severity.Success);
+                _serviceBindings.Remove(binding);
+                Snackbar.Add($"service '{binding.ServiceName}' deleted successfully", Severity.Success);
             }
             catch (Exception ex)
             {
