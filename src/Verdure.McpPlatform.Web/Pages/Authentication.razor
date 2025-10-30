@@ -1,0 +1,101 @@
+@page "/authentication/{action}"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+<RemoteAuthenticatorView Action="@Action">
+    <LoggingIn>
+        <div class="d-flex flex-column align-center justify-center" style="min-height: 80vh;">
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+            <MudText Typo="Typo.h6" Class="mt-4">Signing in...</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Please wait while we authenticate you</MudText>
+        </div>
+    </LoggingIn>
+    
+    <CompletingLoggingIn>
+        <div class="d-flex flex-column align-center justify-center" style="min-height: 80vh;">
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+            <MudText Typo="Typo.h6" Class="mt-4">Completing sign in...</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Almost there!</MudText>
+        </div>
+    </CompletingLoggingIn>
+    
+    <LogOut>
+        <div class="d-flex flex-column align-center justify-center" style="min-height: 80vh;">
+            <MudProgressCircular Color="Color.Warning" Size="Size.Large" Indeterminate="true" />
+            <MudText Typo="Typo.h6" Class="mt-4">Signing out...</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">You are being signed out</MudText>
+        </div>
+    </LogOut>
+    
+    <CompletingLogOut>
+        <div class="d-flex flex-column align-center justify-center" style="min-height: 80vh;">
+            <MudProgressCircular Color="Color.Warning" Size="Size.Large" Indeterminate="true" />
+            <MudText Typo="Typo.h6" Class="mt-4">Completing sign out...</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Almost done!</MudText>
+        </div>
+    </CompletingLogOut>
+    
+    <LogInFailed>
+        <div class="d-flex flex-column align-center justify-center" style="min-height: 80vh;">
+            <MudCard Elevation="4" Style="max-width: 500px; width: 100%;">
+                <MudCardContent Class="pa-8 text-center">
+                    <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error" Size="Size.Large" />
+                    <MudText Typo="Typo.h5" Class="mt-4 mb-2">Authentication Failed</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                        There was an error signing you in. Please try again.
+                    </MudText>
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Primary" 
+                              Href="/login"
+                              StartIcon="@Icons.Material.Filled.Refresh">
+                        Try Again
+                    </MudButton>
+                </MudCardContent>
+            </MudCard>
+        </div>
+    </LogInFailed>
+    
+    <LogOutFailed>
+        <div class="d-flex flex-column align-center justify-center" style="min-height: 80vh;">
+            <MudCard Elevation="4" Style="max-width: 500px; width: 100%;">
+                <MudCardContent Class="pa-8 text-center">
+                    <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error" Size="Size.Large" />
+                    <MudText Typo="Typo.h5" Class="mt-4 mb-2">Sign Out Failed</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                        There was an error signing you out. You can try again or close this window.
+                    </MudText>
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Primary" 
+                              Href="/"
+                              StartIcon="@Icons.Material.Filled.Home">
+                        Go to Home
+                    </MudButton>
+                </MudCardContent>
+            </MudCard>
+        </div>
+    </LogOutFailed>
+    
+    <LogOutSucceeded>
+        <div class="d-flex flex-column align-center justify-center" style="min-height: 80vh;">
+            <MudCard Elevation="4" Style="max-width: 500px; width: 100%;">
+                <MudCardContent Class="pa-8 text-center">
+                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" />
+                    <MudText Typo="Typo.h5" Class="mt-4 mb-2">Signed Out Successfully</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                        You have been signed out of the Verdure MCP Platform.
+                    </MudText>
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Primary" 
+                              Href="/login"
+                              StartIcon="@Icons.Material.Filled.Login">
+                        Sign In Again
+                    </MudButton>
+                </MudCardContent>
+            </MudCard>
+        </div>
+    </LogOutSucceeded>
+</RemoteAuthenticatorView>
+
+@code {
+    [Parameter]
+    public string? Action { get; set; }
+}
