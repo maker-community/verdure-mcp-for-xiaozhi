@@ -1,17 +1,17 @@
-@page "/servers/create"
-@page "/servers/edit/{Id:int}"
+﻿@page "/connections/create"
+@page "/connections/edit/{Id:int}"
 @attribute [Authorize]
-@inject IMcpServerClientService ServerService
+@inject IXiaozhiConnectionClientService ServerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 
-<PageTitle>@(_isEdit ? "Edit" : "Create") Server - Verdure MCP Platform</PageTitle>
+<PageTitle>@(_isEdit ? "Edit" : "Create") Xiaozhi Connection - Verdure MCP Platform</PageTitle>
 
 <MudGrid>
     <MudItem xs="12">
         <MudText Typo="Typo.h3" Class="mb-4">
             <MudIcon Icon="@(_isEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Class="mr-2" />
-            @(_isEdit ? "Edit" : "Create") MCP Server
+            @(_isEdit ? "Edit" : "Create") Xiaozhi Connection
         </MudText>
     </MudItem>
 
@@ -20,20 +20,20 @@
             <MudCardContent>
                 <MudForm @ref="_form" @bind-IsValid="@_formValid">
                     <MudTextField @bind-Value="_model.Name" 
-                                 Label="Server Name" 
+                                 Label="Connection Name" 
                                  Required="true"
-                                 RequiredError="Server name is required"
+                                 RequiredError="Connection Name is required"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
                                  Class="mb-4" />
 
                     <MudTextField @bind-Value="_model.Address" 
-                                 Label="Server Address" 
+                                 Label="Xiaozhi WebSocket Endpoint" 
                                  Required="true"
-                                 RequiredError="Server address is required"
+                                 RequiredError="Xiaozhi WebSocket Endpoint is required"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
-                                 HelperText="e.g., http://localhost:5000 or https://api.example.com"
+                                 HelperText="e.g., wss://api.xiaozhi.me/mcp/?token=YOUR_TOKEN"
                                  Class="mb-4" />
 
                     <MudTextField @bind-Value="_model.Description" 
@@ -41,7 +41,7 @@
                                  Lines="3"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
-                                 HelperText="Optional description for this server"
+                                 HelperText="Optional description for this Xiaozhi connection"
                                  Class="mb-4" />
                 </MudForm>
             </MudCardContent>
@@ -77,7 +77,7 @@
             <MudCard Elevation="2">
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Server Information</MudText>
+                        <MudText Typo="Typo.h6">Connection Information</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
@@ -95,7 +95,7 @@
                         }
                         <MudItem xs="12">
                             <MudText Typo="Typo.body2" Color="Color.Secondary">Bindings</MudText>
-                            <MudText Typo="Typo.body1">@_existingServer.Bindings.Count binding(s)</MudText>
+                            <MudText Typo="Typo.body1">@_existingServer.ServiceBindings.Count binding(s)</MudText>
                         </MudItem>
                     </MudGrid>
                 </MudCardContent>
@@ -112,7 +112,7 @@
     private bool _formValid;
     private bool _saving;
     private bool _isEdit => Id > 0;
-    private McpServerDto? _existingServer;
+    private XiaozhiConnectionDto? _existingServer;
     
     private ServerFormModel _model = new();
 
@@ -138,13 +138,13 @@
             else
             {
                 Snackbar.Add("Server not found", Severity.Error);
-                Navigation.NavigateTo("/servers");
+                Navigation.NavigateTo("/connections");
             }
         }
         catch (Exception ex)
         {
             Snackbar.Add($"Error loading server: {ex.Message}", Severity.Error);
-            Navigation.NavigateTo("/servers");
+            Navigation.NavigateTo("/connections");
         }
     }
 
@@ -159,28 +159,28 @@
 
             if (_isEdit)
             {
-                var request = new UpdateMcpServerRequest
+                var request = new UpdateXiaozhiConnectionRequest
                 {
                     Name = _model.Name,
                     Address = _model.Address,
                     Description = _model.Description
                 };
                 await ServerService.UpdateServerAsync(Id, request);
-                Snackbar.Add("Server updated successfully", Severity.Success);
+                Snackbar.Add("Connection updated successfully", Severity.Success);
             }
             else
             {
-                var request = new CreateMcpServerRequest
+                var request = new CreateXiaozhiConnectionRequest
                 {
                     Name = _model.Name,
                     Address = _model.Address,
                     Description = _model.Description
                 };
                 await ServerService.CreateServerAsync(request);
-                Snackbar.Add("Server created successfully", Severity.Success);
+                Snackbar.Add("Connection created successfully", Severity.Success);
             }
 
-            Navigation.NavigateTo("/servers");
+            Navigation.NavigateTo("/connections");
         }
         catch (Exception ex)
         {
@@ -194,7 +194,7 @@
 
     private void Cancel()
     {
-        Navigation.NavigateTo("/servers");
+        Navigation.NavigateTo("/connections");
     }
 
     private class ServerFormModel

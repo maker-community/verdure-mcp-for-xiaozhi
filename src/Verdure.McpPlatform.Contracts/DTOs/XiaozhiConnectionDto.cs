@@ -1,9 +1,9 @@
-namespace Verdure.McpPlatform.Contracts.DTOs;
+﻿namespace Verdure.McpPlatform.Contracts.DTOs;
 
 /// <summary>
 /// Data transfer object for MCP Server
 /// </summary>
-public record McpServerDto
+public record XiaozhiConnectionDto
 {
     public int Id { get; init; }
     public string Name { get; init; } = string.Empty;
@@ -15,5 +15,5 @@ public record McpServerDto
     public DateTime? UpdatedAt { get; init; }
     public DateTime? LastConnectedAt { get; init; }
     public DateTime? LastDisconnectedAt { get; init; }
-    public List<McpBindingDto> Bindings { get; init; } = new();
+    public List<McpServiceBindingDto> ServiceBindings { get; init; } = new();
 }

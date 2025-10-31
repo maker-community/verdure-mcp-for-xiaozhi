@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using Verdure.McpPlatform.Contracts.DTOs;
 using Verdure.McpPlatform.Contracts.Requests;
 
@@ -7,27 +7,27 @@ namespace Verdure.McpPlatform.Web.Services;
 /// <summary>
 /// Implementation of MCP binding client service
 /// </summary>
-public class McpBindingClientService : IMcpBindingClientService
+public class McpServiceBindingClientService : IMcpServiceBindingClientService
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<McpBindingClientService> _logger;
+    private readonly ILogger<McpServiceBindingClientService> _logger;
     private const string ApiEndpoint = "api/mcp-bindings";
 
-    public McpBindingClientService(
+    public McpServiceBindingClientService(
         HttpClient httpClient,
-        ILogger<McpBindingClientService> logger)
+        ILogger<McpServiceBindingClientService> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
     }
 
-    public async Task<IEnumerable<McpBindingDto>> GetBindingsByServerAsync(int serverId)
+    public async Task<IEnumerable<McpServiceBindingDto>> GetBindingsByServerAsync(int serverId)
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<IEnumerable<McpBindingDto>>(
+            var response = await _httpClient.GetFromJsonAsync<IEnumerable<McpServiceBindingDto>>(
                 $"{ApiEndpoint}/server/{serverId}");
-            return response ?? Enumerable.Empty<McpBindingDto>();
+            return response ?? Enumerable.Empty<McpServiceBindingDto>();
         }
         catch (HttpRequestException ex)
         {
@@ -36,13 +36,13 @@ public class McpBindingClientService : IMcpBindingClientService
         }
     }
 
-    public async Task<IEnumerable<McpBindingDto>> GetActiveBindingsAsync()
+    public async Task<IEnumerable<McpServiceBindingDto>> GetActiveBindingsAsync()
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<IEnumerable<McpBindingDto>>(
+            var response = await _httpClient.GetFromJsonAsync<IEnumerable<McpServiceBindingDto>>(
                 $"{ApiEndpoint}/active");
-            return response ?? Enumerable.Empty<McpBindingDto>();
+            return response ?? Enumerable.Empty<McpServiceBindingDto>();
         }
         catch (HttpRequestException ex)
         {
@@ -51,11 +51,11 @@ public class McpBindingClientService : IMcpBindingClientService
         }
     }
 
-    public async Task<McpBindingDto?> GetBindingAsync(int id)
+    public async Task<McpServiceBindingDto?> GetBindingAsync(int id)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<McpBindingDto>($"{ApiEndpoint}/{id}");
+            return await _httpClient.GetFromJsonAsync<McpServiceBindingDto>($"{ApiEndpoint}/{id}");
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -68,13 +68,13 @@ public class McpBindingClientService : IMcpBindingClientService
         }
     }
 
-    public async Task<McpBindingDto> CreateBindingAsync(CreateMcpBindingRequest request)
+    public async Task<McpServiceBindingDto> CreateBindingAsync(CreateMcpServiceBindingRequest request)
     {
         try
         {
             var response = await _httpClient.PostAsJsonAsync(ApiEndpoint, request);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<McpBindingDto>() 
+            return await response.Content.ReadFromJsonAsync<McpServiceBindingDto>() 
                 ?? throw new InvalidOperationException("Failed to deserialize binding response");
         }
         catch (HttpRequestException ex)
@@ -84,7 +84,7 @@ public class McpBindingClientService : IMcpBindingClientService
         }
     }
 
-    public async Task UpdateBindingAsync(int id, UpdateMcpBindingRequest request)
+    public async Task UpdateBindingAsync(int id, UpdateMcpServiceBindingRequest request)
     {
         try
         {

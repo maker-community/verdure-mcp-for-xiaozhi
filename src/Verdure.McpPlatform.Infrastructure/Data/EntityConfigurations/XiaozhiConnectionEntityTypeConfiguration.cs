@@ -1,17 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Verdure.McpPlatform.Domain.AggregatesModel.McpServerAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
 
 namespace Verdure.McpPlatform.Infrastructure.Data.EntityConfigurations;
 
 /// <summary>
-/// Entity configuration for McpServer
+/// Entity configuration for XiaozhiConnection
 /// </summary>
-public class McpServerEntityTypeConfiguration : IEntityTypeConfiguration<McpServer>
+public class XiaozhiConnectionEntityTypeConfiguration : IEntityTypeConfiguration<XiaozhiConnection>
 {
-    public void Configure(EntityTypeBuilder<McpServer> builder)
+    public void Configure(EntityTypeBuilder<XiaozhiConnection> builder)
     {
-        builder.ToTable("mcp_servers");
+        builder.ToTable("xiaozhi_connections");
 
         builder.HasKey(s => s.Id);
 
@@ -42,9 +42,9 @@ public class McpServerEntityTypeConfiguration : IEntityTypeConfiguration<McpServ
         builder.HasIndex(s => s.UserId);
         builder.HasIndex(s => s.IsEnabled);
 
-        builder.HasMany(s => s.Bindings)
+        builder.HasMany(s => s.ServiceBindings)
             .WithOne()
-            .HasForeignKey(b => b.McpServerId)
+            .HasForeignKey(b => b.XiaozhiConnectionId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

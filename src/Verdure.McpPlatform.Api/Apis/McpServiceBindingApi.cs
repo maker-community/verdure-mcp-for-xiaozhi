@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Verdure.McpPlatform.Api.Services;
 using Verdure.McpPlatform.Api.Services.WebSocket;
@@ -11,9 +11,9 @@ namespace Verdure.McpPlatform.Api.Apis;
 /// <summary>
 /// API endpoints for MCP Binding management
 /// </summary>
-public static class McpBindingApi
+public static class McpServiceBindingApi
 {
-    public static RouteGroupBuilder MapMcpBindingApi(this IEndpointRouteBuilder app)
+    public static RouteGroupBuilder MapMcpServiceBindingApi(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("api/mcp-bindings")
             .RequireAuthorization()
@@ -22,20 +22,20 @@ public static class McpBindingApi
 
         api.MapGet("/server/{serverId:int}", GetBindingsByServerAsync)
             .WithName("GetBindingsByServer")
-            .Produces<IEnumerable<McpBindingDto>>();
+            .Produces<IEnumerable<McpServiceBindingDto>>();
 
         api.MapGet("/active", GetActiveBindingsAsync)
             .WithName("GetActiveBindings")
-            .Produces<IEnumerable<McpBindingDto>>();
+            .Produces<IEnumerable<McpServiceBindingDto>>();
 
         api.MapGet("/{id:int}", GetBindingAsync)
             .WithName("GetBinding")
-            .Produces<McpBindingDto>()
+            .Produces<McpServiceBindingDto>()
             .Produces(StatusCodes.Status404NotFound);
 
         api.MapPost("/", CreateBindingAsync)
             .WithName("CreateBinding")
-            .Produces<McpBindingDto>(StatusCodes.Status201Created)
+            .Produces<McpServiceBindingDto>(StatusCodes.Status201Created)
             .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
 
         api.MapPut("/{id:int}", UpdateBindingAsync)
@@ -61,46 +61,46 @@ public static class McpBindingApi
         return api;
     }
 
-    private static async Task<Ok<IEnumerable<McpBindingDto>>> GetBindingsByServerAsync(
+    private static async Task<Ok<IEnumerable<McpServiceBindingDto>>> GetBindingsByServerAsync(
         int serverId,
-        IMcpBindingService mcpBindingService,
+        IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService)
     {
         var userId = identityService.GetUserIdentity();
-        var bindings = await mcpBindingService.GetByServerAsync(serverId, userId);
+        var bindings = await McpServiceBindingService.GetByServerAsync(serverId, userId);
         return TypedResults.Ok(bindings);
     }
 
-    private static async Task<Ok<IEnumerable<McpBindingDto>>> GetActiveBindingsAsync(
-        IMcpBindingService mcpBindingService)
+    private static async Task<Ok<IEnumerable<McpServiceBindingDto>>> GetActiveBindingsAsync(
+        IMcpServiceBindingService McpServiceBindingService)
     {
-        var bindings = await mcpBindingService.GetActiveBindingsAsync();
+        var bindings = await McpServiceBindingService.GetActiveServiceBindingsAsync();
         return TypedResults.Ok(bindings);
     }
 
-    private static async Task<Results<Ok<McpBindingDto>, NotFound>> GetBindingAsync(
+    private static async Task<Results<Ok<McpServiceBindingDto>, NotFound>> GetBindingAsync(
         int id,
-        IMcpBindingService mcpBindingService,
+        IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService)
     {
         var userId = identityService.GetUserIdentity();
-        var binding = await mcpBindingService.GetByIdAsync(id, userId);
+        var binding = await McpServiceBindingService.GetByIdAsync(id, userId);
         
         return binding is not null
             ? TypedResults.Ok(binding)
             : TypedResults.NotFound();
     }
 
-    private static async Task<Results<Created<McpBindingDto>, ValidationProblem>> CreateBindingAsync(
-        CreateMcpBindingRequest request,
-        IMcpBindingService mcpBindingService,
+    private static async Task<Results<Created<McpServiceBindingDto>, ValidationProblem>> CreateBindingAsync(
+        CreateMcpServiceBindingRequest request,
+        IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService,
         McpSessionManager sessionManager)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
-            var binding = await mcpBindingService.CreateAsync(request, userId);
+            var binding = await McpServiceBindingService.CreateAsync(request, userId);
             
             // Restart session to pick up new binding
             _ = Task.Run(async () => await sessionManager.RestartSessionAsync(request.ServerId));
@@ -118,14 +118,14 @@ public static class McpBindingApi
 
     private static async Task<Results<NoContent, NotFound>> UpdateBindingAsync(
         int id,
-        UpdateMcpBindingRequest request,
-        IMcpBindingService mcpBindingService,
+        UpdateMcpServiceBindingRequest request,
+        IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
-            await mcpBindingService.UpdateAsync(id, request, userId);
+            await McpServiceBindingService.UpdateAsync(id, request, userId);
             return TypedResults.NoContent();
         }
         catch (KeyNotFoundException)
@@ -140,13 +140,13 @@ public static class McpBindingApi
 
     private static async Task<Results<NoContent, NotFound>> ActivateBindingAsync(
         int id,
-        IMcpBindingService mcpBindingService,
+        IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
-            await mcpBindingService.ActivateAsync(id, userId);
+            await McpServiceBindingService.ActivateAsync(id, userId);
             return TypedResults.NoContent();
         }
         catch (KeyNotFoundException)
@@ -161,13 +161,13 @@ public static class McpBindingApi
 
     private static async Task<Results<NoContent, NotFound>> DeactivateBindingAsync(
         int id,
-        IMcpBindingService mcpBindingService,
+        IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
-            await mcpBindingService.DeactivateAsync(id, userId);
+            await McpServiceBindingService.DeactivateAsync(id, userId);
             return TypedResults.NoContent();
         }
         catch (KeyNotFoundException)
@@ -182,7 +182,7 @@ public static class McpBindingApi
 
     private static async Task<Results<NoContent, NotFound>> DeleteBindingAsync(
         int id,
-        IMcpBindingService mcpBindingService,
+        IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService,
         McpSessionManager sessionManager)
     {
@@ -191,16 +191,16 @@ public static class McpBindingApi
             var userId = identityService.GetUserIdentity();
             
             // Get binding before deleting to get server ID
-            var binding = await mcpBindingService.GetByIdAsync(id, userId);
+            var binding = await McpServiceBindingService.GetByIdAsync(id, userId);
             if (binding == null)
             {
                 return TypedResults.NotFound();
             }
             
-            await mcpBindingService.DeleteAsync(id, userId);
+            await McpServiceBindingService.DeleteAsync(id, userId);
             
             // Restart session to remove deleted binding
-            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.McpServerId));
+            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiConnectionId));
             
             return TypedResults.NoContent();
         }
