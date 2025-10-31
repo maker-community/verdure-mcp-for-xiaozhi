@@ -9,11 +9,21 @@
 <PageTitle>@(_isEdit ? "Edit" : "Create") Service Binding - Verdure MCP Platform</PageTitle>
 
 <MudGrid>
+    <!-- M3 Hero Banner - 统一蓝色渐变 -->
     <MudItem xs="12">
-        <MudText Typo="Typo.h3" Class="mb-4">
-            <MudIcon Icon="@(_isEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Class="mr-2" />
-            @(_isEdit ? "Edit" : "Create") MCP Service Binding
-        </MudText>
+        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
+            <MudCardContent Class="pa-6">
+                <div class="d-flex align-center mb-2">
+                    <MudIcon Icon="@(_isEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Size="Size.Large" Style="color: #FFFFFF; margin-right: 12px;" />
+                    <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
+                        @(_isEdit ? "Edit" : "Create") MCP Service Binding
+                    </MudText>
+                </div>
+                <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); margin-left: 48px;">
+                    @(_isEdit ? "Update your external MCP service binding configuration" : "Configure a new external MCP service binding for your connection")
+                </MudText>
+            </MudCardContent>
+        </MudCard>
     </MudItem>
 
     <MudItem xs="12" md="8" lg="6">
