@@ -456,10 +456,10 @@ namespace Verdure.McpPlatform.Domain.SeedWork;
 
 public abstract class Entity
 {
-    int? _requestedHashCode;
-    int _Id;
+    string? _requestedHashCode;
+    string _Id;
     
-    public virtual int Id 
+    public virtual string Id 
     {
         get => _Id;
         protected set => _Id = value;
@@ -467,6 +467,8 @@ public abstract class Entity
     
     // Domain events, equality comparison, etc.
 }
+
+新增的数据库表的实体Id 全部为string类型，请参考现有的实现。
 
 // Domain/AggregatesModel/McpServerAggregate/McpServer.cs
 namespace Verdure.McpPlatform.Domain.AggregatesModel.McpServerAggregate;
