@@ -1,29 +1,29 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Verdure.McpPlatform.Contracts.DTOs;
 using Verdure.McpPlatform.Contracts.Requests;
-using Verdure.McpPlatform.Domain.AggregatesModel.McpServerAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
 
 namespace Verdure.McpPlatform.Application.Services;
 
 /// <summary>
 /// Service implementation for MCP Server operations
 /// </summary>
-public class McpServerService : IMcpServerService
+public class XiaozhiConnectionService : IXiaozhiConnectionService
 {
-    private readonly IMcpServerRepository _repository;
-    private readonly ILogger<McpServerService> _logger;
+    private readonly IXiaozhiConnectionRepository _repository;
+    private readonly ILogger<XiaozhiConnectionService> _logger;
 
-    public McpServerService(
-        IMcpServerRepository repository,
-        ILogger<McpServerService> logger)
+    public XiaozhiConnectionService(
+        IXiaozhiConnectionRepository repository,
+        ILogger<XiaozhiConnectionService> logger)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<McpServerDto> CreateAsync(CreateMcpServerRequest request, string userId)
+    public async Task<XiaozhiConnectionDto> CreateAsync(CreateXiaozhiConnectionRequest request, string userId)
     {
-        var server = new McpServer(request.Name, request.Address, userId, request.Description);
+        var server = new XiaozhiConnection(request.Name, request.Address, userId, request.Description);
         
         _repository.Add(server);
         await _repository.UnitOfWork.SaveEntitiesAsync();
@@ -36,7 +36,7 @@ public class McpServerService : IMcpServerService
         return MapToDto(server);
     }
 
-    public async Task<McpServerDto?> GetByIdAsync(int id, string userId)
+    public async Task<XiaozhiConnectionDto?> GetByIdAsync(int id, string userId)
     {
         var server = await _repository.GetAsync(id);
         
@@ -49,13 +49,13 @@ public class McpServerService : IMcpServerService
         return MapToDto(server);
     }
 
-    public async Task<IEnumerable<McpServerDto>> GetByUserAsync(string userId)
+    public async Task<IEnumerable<XiaozhiConnectionDto>> GetByUserAsync(string userId)
     {
         var servers = await _repository.GetByUserIdAsync(userId);
         return servers.Select(MapToDto);
     }
 
-    public async Task UpdateAsync(int id, UpdateMcpServerRequest request, string userId)
+    public async Task UpdateAsync(int id, UpdateXiaozhiConnectionRequest request, string userId)
     {
         var server = await _repository.GetAsync(id);
         
@@ -130,9 +130,9 @@ public class McpServerService : IMcpServerService
             userId);
     }
 
-    private static McpServerDto MapToDto(McpServer server)
+    private static XiaozhiConnectionDto MapToDto(XiaozhiConnection server)
     {
-        return new McpServerDto
+        return new XiaozhiConnectionDto
         {
             Id = server.Id,
             Name = server.Name,
@@ -144,12 +144,12 @@ public class McpServerService : IMcpServerService
             UpdatedAt = server.UpdatedAt,
             LastConnectedAt = server.LastConnectedAt,
             LastDisconnectedAt = server.LastDisconnectedAt,
-            Bindings = server.Bindings.Select(b => new McpBindingDto
+            ServiceBindings = server.ServiceBindings.Select(b => new McpServiceBindingDto
             {
                 Id = b.Id,
                 ServiceName = b.ServiceName,
                 NodeAddress = b.NodeAddress,
-                McpServerId = b.McpServerId,
+                XiaozhiConnectionId = b.XiaozhiConnectionId,
                 Description = b.Description,
                 IsActive = b.IsActive,
                 CreatedAt = b.CreatedAt,

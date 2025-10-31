@@ -1,23 +1,23 @@
-@page "/servers"
+﻿@page "/connections"
 @attribute [Authorize]
-@inject IMcpServerClientService ServerService
+@inject IXiaozhiConnectionClientService ServerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
 
-<PageTitle>MCP Servers - Verdure MCP Platform</PageTitle>
+<PageTitle>Xiaozhi Connections - Verdure MCP Platform</PageTitle>
 
 <MudGrid>
     <MudItem xs="12">
         <div class="d-flex justify-space-between align-center mb-4">
             <MudText Typo="Typo.h3">
-                <MudIcon Icon="@Icons.Material.Filled.Dns" Class="mr-2" /> MCP Servers
+                <MudIcon Icon="@Icons.Material.Filled.Dns" Class="mr-2" /> Xiaozhi Connections
             </MudText>
-            <MudButton Href="/servers/create" 
+            <MudButton Href="/connections/create" 
                       Variant="Variant.Filled" 
                       Color="Color.Primary" 
                       StartIcon="@Icons.Material.Filled.Add">
-                Add Server
+                Add Connection
             </MudButton>
         </div>
     </MudItem>
@@ -31,10 +31,10 @@
                          Breakpoint="Breakpoint.Sm"
                          Dense="true">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h6">Your MCP Servers</MudText>
+                        <MudText Typo="Typo.h6">Your Xiaozhi Connections</MudText>
                         <MudSpacer />
                         <MudTextField @bind-Value="_searchString" 
-                                     Placeholder="Search servers..." 
+                                     Placeholder="Search connections..." 
                                      Adornment="Adornment.Start" 
                                      AdornmentIcon="@Icons.Material.Filled.Search" 
                                      IconSize="Size.Medium" 
@@ -91,7 +91,7 @@
                             </MudTd>
                             <MudTd DataLabel="Bindings">
                                 <MudChip T="string" Size="Size.Small" Color="Color.Info">
-                                    @context.Bindings.Count binding(s)
+                                    @context.ServiceBindings.Count binding(s)
                                 </MudChip>
                             </MudTd>
                             <MudTd DataLabel="Created">
@@ -134,7 +134,7 @@
                     </RowTemplate>
                     <NoRecordsContent>
                         <MudAlert Severity="Severity.Info" Class="my-4">
-                            No servers found. Click "Add Server" to create your first MCP server!
+                            No connections found. Click "Add Connection" to create your first Xiaozhi connection!
                         </MudAlert>
                     </NoRecordsContent>
                     <LoadingContent>
@@ -147,7 +147,7 @@
 </MudGrid>
 
 @code {
-    private List<McpServerDto> _servers = new();
+    private List<XiaozhiConnectionDto> _servers = new();
     private bool _loading = true;
     private string _searchString = "";
 
@@ -166,7 +166,7 @@
         }
         catch (HttpRequestException ex)
         {
-            Snackbar.Add($"Error loading servers: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Error loading connections: {ex.Message}", Severity.Error);
         }
         catch (Exception ex)
         {
@@ -180,15 +180,15 @@
 
     private void EditServer(int id)
     {
-        Navigation.NavigateTo($"/servers/edit/{id}");
+        Navigation.NavigateTo($"/connections/edit/{id}");
     }
 
     private void ViewBindings(int id)
     {
-        Navigation.NavigateTo($"/servers/{id}/bindings");
+        Navigation.NavigateTo($"/connections/{id}/service-bindings");
     }
 
-    private async Task EnableServer(McpServerDto server)
+    private async Task EnableServer(XiaozhiConnectionDto server)
     {
         try
         {
@@ -205,7 +205,7 @@
                 }
             }
             
-            Snackbar.Add($"Server '{server.Name}' enabled", Severity.Success);
+            Snackbar.Add($"connection '{server.Name}' enabled", Severity.Success);
         }
         catch (Exception ex)
         {
@@ -213,7 +213,7 @@
         }
     }
 
-    private async Task DisableServer(McpServerDto server)
+    private async Task DisableServer(XiaozhiConnectionDto server)
     {
         try
         {
@@ -230,7 +230,7 @@
                 }
             }
             
-            Snackbar.Add($"Server '{server.Name}' disabled", Severity.Success);
+            Snackbar.Add($"connection '{server.Name}' disabled", Severity.Success);
         }
         catch (Exception ex)
         {
@@ -238,11 +238,11 @@
         }
     }
 
-    private async Task DeleteServer(McpServerDto server)
+    private async Task DeleteServer(XiaozhiConnectionDto server)
     {
         var parameters = new DialogParameters<DeleteConfirmationDialog>
         {
-            { x => x.ContentText, $"Are you sure you want to delete the server '{server.Name}'? This action cannot be undone." },
+            { x => x.ContentText, $"Are you sure you want to delete the connection '{server.Name}'? This action cannot be undone." },
             { x => x.ButtonText, "Delete" },
             { x => x.Color, Color.Error }
         };
@@ -257,7 +257,7 @@
             {
                 await ServerService.DeleteServerAsync(server.Id);
                 _servers.Remove(server);
-                Snackbar.Add($"Server '{server.Name}' deleted successfully", Severity.Success);
+                Snackbar.Add($"connection '{server.Name}' deleted successfully", Severity.Success);
             }
             catch (Exception ex)
             {

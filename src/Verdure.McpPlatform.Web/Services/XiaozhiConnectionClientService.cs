@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using Verdure.McpPlatform.Contracts.DTOs;
 using Verdure.McpPlatform.Contracts.Requests;
 
@@ -7,26 +7,26 @@ namespace Verdure.McpPlatform.Web.Services;
 /// <summary>
 /// Implementation of MCP server client service
 /// </summary>
-public class McpServerClientService : IMcpServerClientService
+public class XiaozhiConnectionClientService : IXiaozhiConnectionClientService
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<McpServerClientService> _logger;
+    private readonly ILogger<XiaozhiConnectionClientService> _logger;
     private const string ApiEndpoint = "api/mcp-servers";
 
-    public McpServerClientService(
+    public XiaozhiConnectionClientService(
         HttpClient httpClient,
-        ILogger<McpServerClientService> logger)
+        ILogger<XiaozhiConnectionClientService> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
     }
 
-    public async Task<IEnumerable<McpServerDto>> GetServersAsync()
+    public async Task<IEnumerable<XiaozhiConnectionDto>> GetServersAsync()
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<IEnumerable<McpServerDto>>(ApiEndpoint);
-            return response ?? Enumerable.Empty<McpServerDto>();
+            var response = await _httpClient.GetFromJsonAsync<IEnumerable<XiaozhiConnectionDto>>(ApiEndpoint);
+            return response ?? Enumerable.Empty<XiaozhiConnectionDto>();
         }
         catch (HttpRequestException ex)
         {
@@ -35,11 +35,11 @@ public class McpServerClientService : IMcpServerClientService
         }
     }
 
-    public async Task<McpServerDto?> GetServerAsync(int id)
+    public async Task<XiaozhiConnectionDto?> GetServerAsync(int id)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<McpServerDto>($"{ApiEndpoint}/{id}");
+            return await _httpClient.GetFromJsonAsync<XiaozhiConnectionDto>($"{ApiEndpoint}/{id}");
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -52,13 +52,13 @@ public class McpServerClientService : IMcpServerClientService
         }
     }
 
-    public async Task<McpServerDto> CreateServerAsync(CreateMcpServerRequest request)
+    public async Task<XiaozhiConnectionDto> CreateServerAsync(CreateXiaozhiConnectionRequest request)
     {
         try
         {
             var response = await _httpClient.PostAsJsonAsync(ApiEndpoint, request);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<McpServerDto>() 
+            return await response.Content.ReadFromJsonAsync<XiaozhiConnectionDto>() 
                 ?? throw new InvalidOperationException("Failed to deserialize server response");
         }
         catch (HttpRequestException ex)
@@ -68,7 +68,7 @@ public class McpServerClientService : IMcpServerClientService
         }
     }
 
-    public async Task UpdateServerAsync(int id, UpdateMcpServerRequest request)
+    public async Task UpdateServerAsync(int id, UpdateXiaozhiConnectionRequest request)
     {
         try
         {

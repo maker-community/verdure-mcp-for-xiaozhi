@@ -1,11 +1,11 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Verdure.McpPlatform.Contracts.Requests;
 
 /// <summary>
 /// Request to update an existing MCP Server
 /// </summary>
-public record UpdateMcpServerRequest
+public record UpdateXiaozhiConnectionRequest
 {
     [Required(ErrorMessage = "Server name is required")]
     [StringLength(200, ErrorMessage = "Name cannot exceed 200 characters")]

@@ -1,18 +1,18 @@
-@page "/bindings/create"
-@page "/bindings/edit/{Id:int}"
+﻿@page "/service-bindings/create"
+@page "/service-bindings/edit/{Id:int}"
 @attribute [Authorize]
-@inject IMcpBindingClientService BindingService
-@inject IMcpServerClientService ServerService
+@inject IMcpServiceBindingClientService BindingService
+@inject IXiaozhiConnectionClientService ServerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 
-<PageTitle>@(_isEdit ? "Edit" : "Create") Binding - Verdure MCP Platform</PageTitle>
+<PageTitle>@(_isEdit ? "Edit" : "Create") Service Binding - Verdure MCP Platform</PageTitle>
 
 <MudGrid>
     <MudItem xs="12">
         <MudText Typo="Typo.h3" Class="mb-4">
             <MudIcon Icon="@(_isEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Class="mr-2" />
-            @(_isEdit ? "Edit" : "Create") MCP Binding
+            @(_isEdit ? "Edit" : "Create") MCP Service Binding
         </MudText>
     </MudItem>
 
@@ -22,10 +22,10 @@
                 <MudForm @ref="_form" @bind-IsValid="@_formValid">
                     @if (!_isEdit)
                     {
-                        <MudSelect @bind-Value="_model.McpServerId" 
-                                  Label="MCP Server" 
+                        <MudSelect @bind-Value="_model.XiaozhiConnectionId" 
+                                  Label="Xiaozhi Connection" 
                                   Required="true"
-                                  RequiredError="Please select a server"
+                                  RequiredError="Please select a Xiaozhi connection"
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
                                   Class="mb-4">
@@ -42,16 +42,16 @@
                                  RequiredError="Service name is required"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
-                                 HelperText="Name of the MCP service"
+                                 HelperText="Name of the external MCP service"
                                  Class="mb-4" />
 
                     <MudTextField @bind-Value="_model.NodeAddress" 
-                                 Label="Node Address" 
+                                 Label="MCP Service Endpoint" 
                                  Required="true"
-                                 RequiredError="Node address is required"
+                                 RequiredError="MCP Service Endpoint is required"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
-                                 HelperText="e.g., ws://localhost:3000 or wss://node.example.com"
+                                 HelperText="e.g., http://localhost:5000/calculator or https://mcp.example.com/weather"
                                  Class="mb-4" />
 
                     <MudTextField @bind-Value="_model.Description" 
@@ -59,7 +59,7 @@
                                  Lines="3"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
-                                 HelperText="Optional description for this binding"
+                                 HelperText="Optional description for this service binding"
                                  Class="mb-4" />
                 </MudForm>
             </MudCardContent>
@@ -95,7 +95,7 @@
             <MudCard Elevation="2">
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Binding Information</MudText>
+                        <MudText Typo="Typo.h6">Service Binding Information</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
@@ -144,8 +144,8 @@
     private bool _formValid;
     private bool _saving;
     private bool _isEdit => Id > 0;
-    private McpBindingDto? _existingBinding;
-    private List<McpServerDto> _servers = new();
+    private McpServiceBindingDto? _existingBinding;
+    private List<XiaozhiConnectionDto> _servers = new();
     
     private BindingFormModel _model = new();
 
@@ -159,7 +159,7 @@
         }
         else if (ServerId.HasValue)
         {
-            _model.McpServerId = ServerId.Value;
+            _model.XiaozhiConnectionId = ServerId.Value;
         }
     }
 
@@ -172,7 +172,7 @@
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error loading servers: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Error loading connections: {ex.Message}", Severity.Error);
         }
     }
 
@@ -183,7 +183,7 @@
             _existingBinding = await BindingService.GetBindingAsync(Id);
             if (_existingBinding != null)
             {
-                _model.McpServerId = _existingBinding.McpServerId;
+                _model.XiaozhiConnectionId = _existingBinding.XiaozhiConnectionId;
                 _model.ServiceName = _existingBinding.ServiceName;
                 _model.NodeAddress = _existingBinding.NodeAddress;
                 _model.Description = _existingBinding.Description ?? string.Empty;
@@ -191,13 +191,13 @@
             else
             {
                 Snackbar.Add("Binding not found", Severity.Error);
-                Navigation.NavigateTo("/bindings");
+                Navigation.NavigateTo("/service-bindings");
             }
         }
         catch (Exception ex)
         {
             Snackbar.Add($"Error loading binding: {ex.Message}", Severity.Error);
-            Navigation.NavigateTo("/bindings");
+            Navigation.NavigateTo("/service-bindings");
         }
     }
 
@@ -212,31 +212,31 @@
 
             if (_isEdit)
             {
-                var request = new UpdateMcpBindingRequest
+                var request = new UpdateMcpServiceBindingRequest
                 {
                     ServiceName = _model.ServiceName,
                     NodeAddress = _model.NodeAddress,
                     Description = _model.Description
                 };
                 await BindingService.UpdateBindingAsync(Id, request);
-                Snackbar.Add("Binding updated successfully", Severity.Success);
+                Snackbar.Add("Service binding updated successfully", Severity.Success);
             }
             else
             {
-                var request = new CreateMcpBindingRequest
+                var request = new CreateMcpServiceBindingRequest
                 {
-                    ServerId = _model.McpServerId,
+                    ServerId = _model.XiaozhiConnectionId,
                     ServiceName = _model.ServiceName,
                     NodeAddress = _model.NodeAddress,
                     Description = _model.Description
                 };
                 await BindingService.CreateBindingAsync(request);
-                Snackbar.Add("Binding created successfully", Severity.Success);
+                Snackbar.Add("Service binding created successfully", Severity.Success);
             }
 
-            Navigation.NavigateTo(_model.McpServerId > 0 
-                ? $"/servers/{_model.McpServerId}/bindings" 
-                : "/bindings");
+            Navigation.NavigateTo(_model.XiaozhiConnectionId > 0 
+                ? $"/connections/{_model.XiaozhiConnectionId}/service-bindings" 
+                : "/service-bindings");
         }
         catch (Exception ex)
         {
@@ -250,14 +250,14 @@
 
     private void Cancel()
     {
-        Navigation.NavigateTo(_model.McpServerId > 0 
-            ? $"/servers/{_model.McpServerId}/bindings" 
-            : "/bindings");
+        Navigation.NavigateTo(_model.XiaozhiConnectionId > 0 
+            ? $"/connections/{_model.XiaozhiConnectionId}/service-bindings" 
+            : "/service-bindings");
     }
 
     private class BindingFormModel
     {
-        public int McpServerId { get; set; }
+        public int XiaozhiConnectionId { get; set; }
         public string ServiceName { get; set; } = string.Empty;
         public string NodeAddress { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
