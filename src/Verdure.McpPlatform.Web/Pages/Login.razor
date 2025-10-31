@@ -1,21 +1,23 @@
 @page "/login"
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
 @inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResources> Loc
 
-<PageTitle>Login - Verdure MCP Platform</PageTitle>
+<PageTitle>@Loc["Login"] - @Loc["AppTitle"]</PageTitle>
 
 <div class="d-flex justify-center align-center" style="min-height: 80vh;">
     <MudCard Elevation="4" Style="max-width: 500px; width: 100%;">
         <MudCardContent Class="pa-8">
             <div class="text-center mb-6">
                 <MudIcon Icon="@Icons.Material.Filled.Cloud" Size="Size.Large" Color="Color.Primary" />
-                <MudText Typo="Typo.h4" Class="mt-2">Verdure MCP Platform</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Secondary">Sign in to manage your MCP services</MudText>
+                <MudText Typo="Typo.h4" Class="mt-2">@Loc["AppTitle"]</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["SignInToManageMcpServices"]</MudText>
             </div>
 
             <MudAlert Severity="Severity.Info" Class="mb-4">
                 <MudText Typo="Typo.body2">
-                    Secure authentication powered by Keycloak OpenID Connect.
-                    Click below to sign in with your account.
+                    @Loc["SecureAuthenticationInfo"]
                 </MudText>
             </MudAlert>
 
@@ -25,17 +27,17 @@
                       Size="Size.Large"
                       Href="authentication/login"
                       StartIcon="@Icons.Material.Filled.Login">
-                Sign In with Keycloak
+                @Loc["SignInWithKeycloak"]
             </MudButton>
 
             <MudDivider Class="my-6" />
 
             <div class="text-center">
                 <MudText Typo="Typo.body2" Color="Color.Secondary">
-                    You will be redirected to the Keycloak login page.
+                    @Loc["RedirectToKeycloakInfo"]
                 </MudText>
                 <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
-                    Using OIDC Authorization Code Flow with PKCE
+                    @Loc["UsingOidcAuthFlow"]
                 </MudText>
             </div>
         </MudCardContent>

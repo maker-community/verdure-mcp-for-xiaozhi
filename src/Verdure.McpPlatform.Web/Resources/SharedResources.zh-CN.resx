@@ -369,4 +369,32 @@
   <data name="ViewBindings" xml:space="preserve">
     <value>查看绑定</value>
   </data>
+  
+  <!-- Settings Page - About Section -->
+  <data name="About" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="AboutVerdurePlatform" xml:space="preserve">
+    <value>Verdure MCP 平台是一个强大的管理平台，用于管理 MCP（模型上下文协议）服务与小智 AI 集成。</value>
+  </data>
+  <data name="ConfigureKeycloakSettings" xml:space="preserve">
+    <value>在 appsettings.json 中配置您的 Keycloak 设置以启用完整的 OIDC 身份验证。</value>
+  </data>
+  
+  <!-- Login Page -->
+  <data name="SignInToManageMcpServices" xml:space="preserve">
+    <value>登录以管理您的 MCP 服务</value>
+  </data>
+  <data name="SecureAuthenticationInfo" xml:space="preserve">
+    <value>由 Keycloak OpenID Connect 提供的安全身份验证。点击下方按钮使用您的账户登录。</value>
+  </data>
+  <data name="SignInWithKeycloak" xml:space="preserve">
+    <value>使用 Keycloak 登录</value>
+  </data>
+  <data name="RedirectToKeycloakInfo" xml:space="preserve">
+    <value>您将被重定向到 Keycloak 登录页面。</value>
+  </data>
+  <data name="UsingOidcAuthFlow" xml:space="preserve">
+    <value>使用 OIDC 授权码流程与 PKCE</value>
+  </data>
 </root>

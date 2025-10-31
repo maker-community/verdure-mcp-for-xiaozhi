@@ -1,7 +1,11 @@
-﻿<MudNavMenu Class="pa-2">
+﻿@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudNavMenu Class="pa-2">
     <!-- M3 导航标题 -->
     <div class="m3-nav-section-title">
-        Navigation
+        @Loc["Navigation"]
     </div>
     
     <!-- M3 导航链接 - Dashboard -->
@@ -10,14 +14,14 @@
                 Icon="@Icons.Material.Outlined.Dashboard"
                 IconColor="Color.Primary"
                 Class="m3-nav-item">
-        Dashboard
+        @Loc["Dashboard"]
     </MudNavLink>
     
     <AuthorizeView>
         <Authorized>
             <!-- M3 分组标题 -->
             <div class="m3-nav-section-title" style="margin-top: var(--m3-spacing-lg);">
-                MCP Management
+                @Loc["McpManagement"]
             </div>
             
             <!-- M3 导航链接 - Xiaozhi Connections -->
@@ -25,7 +29,7 @@
                         Icon="@Icons.Material.Outlined.Dns"
                         IconColor="Color.Primary"
                         Class="m3-nav-item">
-                Xiaozhi Connections
+                @Loc["XiaozhiConnections"]
             </MudNavLink>
             
             <!-- M3 导航链接 - MCP Services -->
@@ -33,7 +37,7 @@
                         Icon="@Icons.Material.Outlined.Extension"
                         IconColor="Color.Secondary"
                         Class="m3-nav-item">
-                MCP Services
+                @Loc["McpServices"]
             </MudNavLink>
             
             <!-- M3 分隔线 -->
@@ -44,7 +48,7 @@
                         Icon="@Icons.Material.Outlined.Settings"
                         IconColor="Color.Default"
                         Class="m3-nav-item">
-                Settings
+                @Loc["Settings"]
             </MudNavLink>
             
             <!-- M3 导航链接 - Logout -->
@@ -52,7 +56,7 @@
                         Icon="@Icons.Material.Outlined.Logout"
                         IconColor="Color.Error"
                         Class="m3-nav-item">
-                Logout
+                @Loc["Logout"]
             </MudNavLink>
         </Authorized>
         <NotAuthorized>
@@ -60,7 +64,7 @@
                         Icon="@Icons.Material.Outlined.Login"
                         IconColor="Color.Primary"
                         Class="m3-nav-item">
-                Login
+                @Loc["Login"]
             </MudNavLink>
         </NotAuthorized>
     </AuthorizeView>

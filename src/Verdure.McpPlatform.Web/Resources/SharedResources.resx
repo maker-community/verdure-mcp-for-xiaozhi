@@ -369,4 +369,32 @@
   <data name="ViewBindings" xml:space="preserve">
     <value>View Bindings</value>
   </data>
+  
+  <!-- Settings Page - About Section -->
+  <data name="About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="AboutVerdurePlatform" xml:space="preserve">
+    <value>Verdure MCP Platform is a powerful management platform for MCP (Model Context Protocol) services with Xiaozhi AI integration.</value>
+  </data>
+  <data name="ConfigureKeycloakSettings" xml:space="preserve">
+    <value>Configure your Keycloak settings in appsettings.json to enable full OIDC authentication.</value>
+  </data>
+  
+  <!-- Login Page -->
+  <data name="SignInToManageMcpServices" xml:space="preserve">
+    <value>Sign in to manage your MCP services</value>
+  </data>
+  <data name="SecureAuthenticationInfo" xml:space="preserve">
+    <value>Secure authentication powered by Keycloak OpenID Connect. Click below to sign in with your account.</value>
+  </data>
+  <data name="SignInWithKeycloak" xml:space="preserve">
+    <value>Sign In with Keycloak</value>
+  </data>
+  <data name="RedirectToKeycloakInfo" xml:space="preserve">
+    <value>You will be redirected to the Keycloak login page.</value>
+  </data>
+  <data name="UsingOidcAuthFlow" xml:space="preserve">
+    <value>Using OIDC Authorization Code Flow with PKCE</value>
+  </data>
 </root>
