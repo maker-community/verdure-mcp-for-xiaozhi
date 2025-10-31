@@ -1,34 +1,65 @@
-﻿<MudNavMenu>
-    <MudText Typo="Typo.h6" Class="px-4 py-4" Style="font-weight: 600;">Navigation</MudText>
-    <MudDivider Class="mb-2" />
+﻿<MudNavMenu Class="pa-2">
+    <!-- M3 导航标题 -->
+    <div class="m3-nav-section-title">
+        Navigation
+    </div>
     
-    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
+    <!-- M3 导航链接 - Dashboard -->
+    <MudNavLink Href="/" 
+                Match="NavLinkMatch.All" 
+                Icon="@Icons.Material.Outlined.Dashboard"
+                IconColor="Color.Primary"
+                Class="m3-nav-item">
         Dashboard
     </MudNavLink>
     
     <AuthorizeView>
         <Authorized>
-            <MudNavGroup Title="MCP Management" Icon="@Icons.Material.Filled.Cloud" Expanded="true">
-                <MudNavLink Href="/connections" Icon="@Icons.Material.Filled.Link">
-                    Xiaozhi Connections
-                </MudNavLink>
-                <MudNavLink Href="/service-bindings" Icon="@Icons.Material.Filled.Extension">
-                    MCP Services
-                </MudNavLink>
-            </MudNavGroup>
+            <!-- M3 分组标题 -->
+            <div class="m3-nav-section-title" style="margin-top: var(--m3-spacing-lg);">
+                MCP Management
+            </div>
             
-            <MudDivider Class="my-2" />
+            <!-- M3 导航链接 - Xiaozhi Connections -->
+            <MudNavLink Href="/connections" 
+                        Icon="@Icons.Material.Outlined.Dns"
+                        IconColor="Color.Primary"
+                        Class="m3-nav-item">
+                Xiaozhi Connections
+            </MudNavLink>
             
-            <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings">
+            <!-- M3 导航链接 - MCP Services -->
+            <MudNavLink Href="/service-bindings" 
+                        Icon="@Icons.Material.Outlined.Extension"
+                        IconColor="Color.Secondary"
+                        Class="m3-nav-item">
+                MCP Services
+            </MudNavLink>
+            
+            <!-- M3 分隔线 -->
+            <MudDivider Class="my-4" Style="opacity: 0.12;" />
+            
+            <!-- M3 导航链接 - Settings -->
+            <MudNavLink Href="/settings" 
+                        Icon="@Icons.Material.Outlined.Settings"
+                        IconColor="Color.Default"
+                        Class="m3-nav-item">
                 Settings
             </MudNavLink>
             
-            <MudNavLink Href="/logout" Icon="@Icons.Material.Filled.Logout">
+            <!-- M3 导航链接 - Logout -->
+            <MudNavLink Href="/logout" 
+                        Icon="@Icons.Material.Outlined.Logout"
+                        IconColor="Color.Error"
+                        Class="m3-nav-item">
                 Logout
             </MudNavLink>
         </Authorized>
         <NotAuthorized>
-            <MudNavLink Href="/login" Icon="@Icons.Material.Filled.Login">
+            <MudNavLink Href="/login" 
+                        Icon="@Icons.Material.Outlined.Login"
+                        IconColor="Color.Primary"
+                        Class="m3-nav-item">
                 Login
             </MudNavLink>
         </NotAuthorized>

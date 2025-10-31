@@ -1,9 +1,18 @@
-/* Custom CSS for Verdure MCP Platform */
+/* ========================================
+   Verdure MCP Platform - Global Styles
+   Modern Material Design 3 Theme
+   ======================================== */
 
 html, body {
-    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    font-family: 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #F5F7FA;
+    color: #212121;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 h1:focus {
@@ -46,21 +55,34 @@ h1:focus {
     gap: 1rem;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Material Design Style */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: #F5F5F5;
+    border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
+    background: #BDBDBD;
+    border-radius: 6px;
+    border: 2px solid #F5F5F5;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #9E9E9E;
+}
+
+/* Smooth transitions for all elements */
+* {
+    transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Better focus styles */
+*:focus-visible {
+    outline: 2px solid #1976D2;
+    outline-offset: 2px;
 }

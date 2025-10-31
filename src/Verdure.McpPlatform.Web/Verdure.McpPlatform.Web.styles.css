@@ -1,0 +1,43 @@
+/* ========================================
+   Verdure MCP Platform - Component Scoped Styles
+   Material Design 3 Inspired
+   ======================================== */
+
+/* This file prevents 404 errors and provides a fallback for component-specific styles */
+
+/* Global component animations */
+[b-*] {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth transitions for all interactive elements */
+[b-*] button,
+[b-*] a,
+[b-*] input,
+[b-*] select {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Card hover effects */
+[b-*] .mud-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+[b-*] .mud-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Smooth scrolling */
+[b-*] {
+    scroll-behavior: smooth;
+}
+
+/* Focus visible styles */
+[b-*] *:focus-visible {
+    outline: 2px solid #1976D2;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Component-specific styles are bundled here automatically during build */

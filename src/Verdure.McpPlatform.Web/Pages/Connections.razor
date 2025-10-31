@@ -8,37 +8,50 @@
 <PageTitle>Xiaozhi Connections - Verdure MCP Platform</PageTitle>
 
 <MudGrid>
+    <!-- M3 页面标题和操作 -->
     <MudItem xs="12">
-        <div class="d-flex justify-space-between align-center mb-4">
-            <MudText Typo="Typo.h3">
-                <MudIcon Icon="@Icons.Material.Filled.Dns" Class="mr-2" /> Xiaozhi Connections
-            </MudText>
+        <div class="d-flex justify-space-between align-center m3-mb-xl">
+            <div>
+                <MudText Typo="Typo.h4" Class="m3-mb-sm" Style="font-weight: 500;">
+                    <MudIcon Icon="@Icons.Material.Outlined.Dns" Class="mr-2" /> Xiaozhi Connections
+                </MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Manage your Xiaozhi AI server connections
+                </MudText>
+            </div>
             <MudButton Href="/connections/create" 
                       Variant="Variant.Filled" 
                       Color="Color.Primary" 
-                      StartIcon="@Icons.Material.Filled.Add">
+                      StartIcon="@Icons.Material.Filled.Add"
+                      Size="Size.Large"
+                      Class="m3-button-lg">
                 Add Connection
             </MudButton>
         </div>
     </MudItem>
 
+    <!-- M3 表格容器 -->
     <MudItem xs="12">
-        <MudCard Elevation="2">
+        <MudCard Elevation="1" Class="m3-card">
             <MudCardContent>
                 <MudTable Items="@_servers" 
                          Loading="@_loading" 
                          Hover="true" 
                          Breakpoint="Breakpoint.Sm"
-                         Dense="true">
+                         Dense="false"
+                         Elevation="0">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h6">Your Xiaozhi Connections</MudText>
+                        <MudText Typo="Typo.h6" Style="font-weight: 500;">Your Connections</MudText>
                         <MudSpacer />
                         <MudTextField @bind-Value="_searchString" 
                                      Placeholder="Search connections..." 
                                      Adornment="Adornment.Start" 
-                                     AdornmentIcon="@Icons.Material.Filled.Search" 
+                                     AdornmentIcon="@Icons.Material.Outlined.Search" 
                                      IconSize="Size.Medium" 
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
                                      Class="mt-0"
+                                     Style="max-width: 300px;"
                                      Immediate="true"></MudTextField>
                     </ToolBarContent>
                     <HeaderContent>
@@ -65,32 +78,52 @@
                                 <MudText Typo="Typo.body2" Style="font-family: monospace;">@context.Address</MudText>
                             </MudTd>
                             <MudTd DataLabel="Status">
-                                <div class="d-flex align-center gap-2">
+                                <div class="d-flex align-center m3-gap-sm">
                                     @if (context.IsEnabled)
                                     {
                                         @if (context.IsConnected)
                                         {
-                                            <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle">
+                                            <MudChip T="string" 
+                                                    Size="Size.Small" 
+                                                    Variant="Variant.Filled"
+                                                    Color="Color.Success" 
+                                                    Icon="@Icons.Material.Filled.CheckCircle"
+                                                    Class="m3-chip">
                                                 Connected
                                             </MudChip>
                                         }
                                         else
                                         {
-                                            <MudChip T="string" Size="Size.Small" Color="Color.Warning" Icon="@Icons.Material.Filled.Warning">
+                                            <MudChip T="string" 
+                                                    Size="Size.Small" 
+                                                    Variant="Variant.Outlined"
+                                                    Color="Color.Warning" 
+                                                    Icon="@Icons.Material.Filled.Warning"
+                                                    Class="m3-chip">
                                                 Disconnected
                                             </MudChip>
                                         }
                                     }
                                     else
                                     {
-                                        <MudChip T="string" Size="Size.Small" Color="Color.Default" Icon="@Icons.Material.Filled.PowerSettingsNew">
+                                        <MudChip T="string" 
+                                                Size="Size.Small" 
+                                                Variant="Variant.Text"
+                                                Color="Color.Default" 
+                                                Icon="@Icons.Material.Filled.PowerSettingsNew"
+                                                Class="m3-chip"
+                                                Style="opacity: 0.6;">
                                             Disabled
                                         </MudChip>
                                     }
                                 </div>
                             </MudTd>
                             <MudTd DataLabel="Bindings">
-                                <MudChip T="string" Size="Size.Small" Color="Color.Info">
+                                <MudChip T="string" 
+                                        Size="Size.Small" 
+                                        Variant="Variant.Outlined"
+                                        Color="Color.Info"
+                                        Class="m3-chip">
                                     @context.ServiceBindings.Count binding(s)
                                 </MudChip>
                             </MudTd>
@@ -98,47 +131,82 @@
                                 <MudText Typo="Typo.body2">@context.CreatedAt.ToString("MMM dd, yyyy")</MudText>
                             </MudTd>
                             <MudTd DataLabel="Actions">
-                                @if (context.IsEnabled)
-                                {
-                                    <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" 
-                                                 Size="Size.Small" 
-                                                 Color="Color.Warning"
-                                                 OnClick="@(() => DisableServer(context))" 
-                                                 Title="Disable Connection" />
-                                }
-                                else
-                                {
-                                    <MudIconButton Icon="@Icons.Material.Filled.PlayArrow" 
-                                                 Size="Size.Small" 
-                                                 Color="Color.Success"
-                                                 OnClick="@(() => EnableServer(context))" 
-                                                 Title="Enable Connection" />
-                                }
-                                <MudIconButton Icon="@Icons.Material.Filled.Edit" 
-                                             Size="Size.Small" 
-                                             Color="Color.Primary"
-                                             OnClick="@(() => EditServer(context.Id))" 
-                                             Title="Edit" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Link" 
-                                             Size="Size.Small" 
-                                             Color="Color.Secondary"
-                                             OnClick="@(() => ViewBindings(context.Id))" 
-                                             Title="View Bindings" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                                             Size="Size.Small" 
-                                             Color="Color.Error"
-                                             OnClick="@(() => DeleteServer(context))" 
-                                             Title="Delete" />
+                                <div class="d-flex m3-gap-xs">
+                                    @if (context.IsEnabled)
+                                    {
+                                        <MudTooltip Text="Disable connection">
+                                            <MudIconButton Icon="@Icons.Material.Outlined.PowerSettingsNew" 
+                                                         Size="Size.Medium" 
+                                                         Color="Color.Warning"
+                                                         OnClick="@(() => DisableServer(context))"
+                                                         Class="m3-icon-button" />
+                                        </MudTooltip>
+                                    }
+                                    else
+                                    {
+                                        <MudTooltip Text="Enable connection">
+                                            <MudIconButton Icon="@Icons.Material.Outlined.PlayArrow" 
+                                                         Size="Size.Medium" 
+                                                         Color="Color.Success"
+                                                         OnClick="@(() => EnableServer(context))"
+                                                         Class="m3-icon-button" />
+                                        </MudTooltip>
+                                    }
+                                    <MudTooltip Text="Edit connection">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" 
+                                                     Size="Size.Medium" 
+                                                     Color="Color.Primary"
+                                                     OnClick="@(() => EditServer(context.Id))"
+                                                     Class="m3-icon-button" />
+                                    </MudTooltip>
+                                    <MudTooltip Text="View bindings">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Link" 
+                                                     Size="Size.Medium" 
+                                                     Color="Color.Secondary"
+                                                     OnClick="@(() => ViewBindings(context.Id))"
+                                                     Class="m3-icon-button" />
+                                    </MudTooltip>
+                                    <MudTooltip Text="Delete connection">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" 
+                                                     Size="Size.Medium" 
+                                                     Color="Color.Error"
+                                                     OnClick="@(() => DeleteServer(context))"
+                                                     Class="m3-icon-button" />
+                                    </MudTooltip>
+                                </div>
                             </MudTd>
                         }
                     </RowTemplate>
                     <NoRecordsContent>
-                        <MudAlert Severity="Severity.Info" Class="my-4">
-                            No connections found. Click "Add Connection" to create your first Xiaozhi connection!
-                        </MudAlert>
+                        <!-- M3 空状态设计 -->
+                        <div class="m3-empty-state">
+                            <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
+                                     Color="Color.Default" 
+                                     Class="m3-empty-state-icon" />
+                            <MudText Typo="Typo.h6" Class="m3-mb-sm" Style="font-weight: 500;">
+                                No connections found
+                            </MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="m3-mb-lg">
+                                @(_searchString?.Length > 0 
+                                    ? "Try adjusting your search criteria" 
+                                    : "Get started by creating your first Xiaozhi connection")
+                            </MudText>
+                            @if (string.IsNullOrEmpty(_searchString))
+                            {
+                                <MudButton Href="/connections/create" 
+                                           Variant="Variant.Filled" 
+                                           Color="Color.Primary" 
+                                           StartIcon="@Icons.Material.Filled.Add"
+                                           Class="m3-button">
+                                    Create Connection
+                                </MudButton>
+                            }
+                        </div>
                     </NoRecordsContent>
                     <LoadingContent>
-                        <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                        <div class="pa-4">
+                            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                        </div>
                     </LoadingContent>
                 </MudTable>
             </MudCardContent>
