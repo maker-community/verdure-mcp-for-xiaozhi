@@ -7,6 +7,7 @@ using Verdure.McpPlatform.Api.Services;
 using Verdure.McpPlatform.Api.Settings;
 using Verdure.McpPlatform.Application.Services;
 using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 using Verdure.McpPlatform.Infrastructure.Data;
 using Verdure.McpPlatform.Infrastructure.Identity;
 using Verdure.McpPlatform.Infrastructure.Repositories;
@@ -147,10 +148,12 @@ internal static class Extensions
 
         // Register repositories
         services.AddScoped<IXiaozhiConnectionRepository, XiaozhiConnectionRepository>();
+        services.AddScoped<IMcpServiceConfigRepository, McpServiceConfigRepository>();
 
         // Register application services
         services.AddScoped<IXiaozhiConnectionService, XiaozhiConnectionService>();
         services.AddScoped<IMcpServiceBindingService, McpServiceBindingService>();
+        services.AddScoped<IMcpServiceConfigService, McpServiceConfigService>();
 
         // Register identity service
         services.AddScoped<IIdentityService, IdentityService>();
