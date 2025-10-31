@@ -6,10 +6,7 @@
     margin: 0 auto;
 }
 
-/* Form Card */
-::deep .mud-card {
-    border-radius: 16px;
-}
+/* Form Card inherits global border-radius from app.css (12px) */
 
 /* Form Fields */
 ::deep .mud-input-root {

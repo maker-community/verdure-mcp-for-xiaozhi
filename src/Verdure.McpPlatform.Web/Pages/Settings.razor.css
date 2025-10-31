@@ -19,10 +19,7 @@
     border-bottom: 2px solid rgba(103, 80, 164, 0.12);
 }
 
-/* Settings Card */
-::deep .mud-card {
-    border-radius: 16px;
-}
+/* Settings Card inherits global border-radius from app.css (12px) */
 
 /* Form Fields */
 ::deep .mud-input-root {
