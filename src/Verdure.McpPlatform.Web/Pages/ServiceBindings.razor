@@ -45,14 +45,17 @@
                          Breakpoint="Breakpoint.Sm"
                          Dense="true">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h6">External MCP Services</MudText>
+                        <MudText Typo="Typo.h6" Style="font-weight: 500;">External MCP Services</MudText>
                         <MudSpacer />
                         <MudTextField @bind-Value="_searchString" 
                                      Placeholder="Search services..." 
                                      Adornment="Adornment.Start" 
-                                     AdornmentIcon="@Icons.Material.Filled.Search" 
+                                     AdornmentIcon="@Icons.Material.Outlined.Search" 
                                      IconSize="Size.Medium" 
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
                                      Class="mt-0"
+                                     Style="max-width: 300px;"
                                      Immediate="true"></MudTextField>
                     </ToolBarContent>
                     <HeaderContent>

@@ -220,6 +220,10 @@
     padding: var(--m3-spacing-lg);
     transition: all var(--m3-duration-medium) var(--m3-easing-standard);
     box-shadow: 0px 1px 2px rgba(0,0,0,0.3), 0px 1px 3px 1px rgba(0,0,0,0.15);
+    /* 确保所有卡片高度一致 */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .m3-stat-card:hover {
@@ -227,28 +231,35 @@
     transform: translateY(-2px);
 }
 
+/* 优化背景色对比度 - 使用更深的颜色和明显的边框 */
 .m3-stat-card-primary {
-    background-color: var(--mud-palette-primary-lighten);
+    background-color: #E3F2FD; /* Blue 50 - 更深的蓝色背景 */
+    border-left: 4px solid var(--mud-palette-primary);
 }
 
 .m3-stat-card-secondary {
-    background-color: var(--mud-palette-secondary-lighten);
+    background-color: #E0F7FA; /* Cyan 50 - 更深的青色背景 */
+    border-left: 4px solid var(--mud-palette-secondary);
 }
 
 .m3-stat-card-success {
-    background-color: rgba(20, 108, 46, 0.08);
+    background-color: #E8F5E9; /* Green 50 - 更深的绿色背景 */
+    border-left: 4px solid var(--mud-palette-success);
 }
 
 .m3-stat-card-warning {
-    background-color: rgba(125, 87, 0, 0.08);
+    background-color: #FFF3E0; /* Orange 50 - 更深的橙色背景 */
+    border-left: 4px solid var(--mud-palette-warning);
 }
 
 .m3-stat-card-error {
-    background-color: rgba(186, 26, 26, 0.08);
+    background-color: #FFEBEE; /* Red 50 - 更深的红色背景 */
+    border-left: 4px solid var(--mud-palette-error);
 }
 
 .m3-stat-card-info {
-    background-color: rgba(0, 97, 164, 0.08);
+    background-color: #E1F5FE; /* Light Blue 50 - 更深的浅蓝色背景 */
+    border-left: 4px solid var(--mud-palette-info);
 }
 
 /* ==========================================================================
