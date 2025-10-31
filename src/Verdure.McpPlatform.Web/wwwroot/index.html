@@ -41,25 +41,148 @@
         .loading-container {
             text-align: center;
             color: white;
+            position: relative;
         }
         
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
+        /* Modern Spinner Animation */
+        .spinner-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+        
+        .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .spinner-ring-animated {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-top-color: white;
+            border-right-color: white;
+            border-radius: 50%;
+            animation: spinner-rotate 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            will-change: transform;
+        }
+        
+        .spinner-ring-animated:nth-child(2) {
+            animation-delay: -0.4s;
+            opacity: 0.7;
+        }
+        
+        .spinner-ring-animated:nth-child(3) {
+            animation-delay: -0.8s;
+            opacity: 0.5;
+        }
+        
+        @keyframes spinner-rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Center Logo */
+        .logo-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            animation: logo-pulse 2s ease-in-out infinite;
+            will-change: transform;
+        }
+        
+        @keyframes logo-pulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            fill: #1976D2;
         }
         
         .loading-text {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 500;
+            margin-bottom: 10px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .loading-subtitle {
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 0.8;
+            animation: fadeIn 0.5s ease-in 0.2s both;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Progress bar */
+        .loading-progress {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin: 20px auto 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .loading-progress-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            background: white;
+            border-radius: 2px;
+            transform-origin: left center;
+            animation: progress 2s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
+            will-change: transform;
+        }
+        
+        @keyframes progress {
+            0% {
+                transform: translateX(-100%) scaleX(0);
+            }
+            50% {
+                transform: translateX(0%) scaleX(0.7);
+            }
+            100% {
+                transform: translateX(100%) scaleX(0);
+            }
         }
     </style>
 </head>
@@ -67,23 +190,107 @@
 <body>
     <div id="app">
         <div class="loading-container">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Loading Verdure MCP Platform...</div>
+            <!-- Modern Spinner with Logo -->
+            <div class="spinner-container">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring-animated"></div>
+                <div class="spinner-ring-animated"></div>
+                <div class="spinner-ring-animated"></div>
+                
+                <!-- Center Logo -->
+                <div class="logo-center">
+                    <svg class="logo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7v10c0 5.5 3.8 10.7 10 12 6.2-1.3 10-6.5 10-12V7l-10-5zm0 2.2l8 4V13c0 4.5-3.1 8.7-8 9.9-4.9-1.2-8-5.4-8-9.9V8.2l8-4zm-1 4.3v9l-5-5 1.4-1.4 3.6 3.6 5.6-5.6L18 10.5l-7 7z"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Loading text with multi-language support -->
+            <div class="loading-text" id="loading-text">Loading Verdure MCP Platform...</div>
+            <div class="loading-subtitle" id="loading-subtitle">Initializing application resources</div>
+            
+            <!-- Progress bar -->
+            <div class="loading-progress">
+                <div class="loading-progress-bar"></div>
+            </div>
         </div>
     </div>
 
     <div id="blazor-error-ui">
         <div style="background: #ef476f; color: white; padding: 1rem; text-align: center;">
-            An unhandled error has occurred.
-            <a href="." class="reload" style="color: white; text-decoration: underline; margin: 0 10px;">Reload</a>
+            <span id="error-message">An unhandled error has occurred.</span>
+            <a href="." class="reload" style="color: white; text-decoration: underline; margin: 0 10px;" id="reload-link">Reload</a>
             <span class="dismiss" style="color: white; cursor: pointer;">✕</span>
         </div>
     </div>
+    
+    <script>
+        // Set error UI text based on culture
+        (function() {
+            const savedCulture = window.localStorage.getItem('BlazorCulture') || navigator.language || 'zh-CN';
+            const cultureLang = savedCulture.startsWith('zh') ? 'zh-CN' : 'en-US';
+            
+            const errorTexts = {
+                'en-US': {
+                    message: 'An unhandled error has occurred.',
+                    reload: 'Reload'
+                },
+                'zh-CN': {
+                    message: '发生了未处理的错误。',
+                    reload: '重新加载'
+                }
+            };
+            
+            const texts = errorTexts[cultureLang] || errorTexts['zh-CN'];
+            
+            // Update when DOM is ready
+            document.addEventListener('DOMContentLoaded', function() {
+                const errorMsg = document.getElementById('error-message');
+                const reloadLink = document.getElementById('reload-link');
+                
+                if (errorMsg) errorMsg.textContent = texts.message;
+                if (reloadLink) reloadLink.textContent = texts.reload;
+            });
+        })();
+    </script>
     
     <!-- Scripts -->
     <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
     <script src="_framework/blazor.webassembly.js" autostart="false"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    
+    <!-- Multi-language loading text -->
+    <script>
+        // Loading text translations
+        const loadingTexts = {
+            'en-US': {
+                main: 'Loading Verdure MCP Platform...',
+                subtitle: 'Initializing application resources'
+            },
+            'zh-CN': {
+                main: '正在加载 Verdure MCP 平台...',
+                subtitle: '正在初始化应用程序资源'
+            }
+        };
+        
+        // Set loading text based on saved culture or browser language
+        (function() {
+            const savedCulture = window.localStorage.getItem('BlazorCulture') || 
+                                 navigator.language || 
+                                 'zh-CN';
+            
+            // Normalize culture code
+            const cultureLang = savedCulture.startsWith('zh') ? 'zh-CN' : 'en-US';
+            
+            // Update loading text
+            const texts = loadingTexts[cultureLang] || loadingTexts['zh-CN'];
+            const loadingTextEl = document.getElementById('loading-text');
+            const loadingSubtitleEl = document.getElementById('loading-subtitle');
+            
+            if (loadingTextEl) loadingTextEl.textContent = texts.main;
+            if (loadingSubtitleEl) loadingSubtitleEl.textContent = texts.subtitle;
+        })();
+    </script>
     
     <!-- Globalization support - Culture management (Microsoft Official Way) -->
     <script>
