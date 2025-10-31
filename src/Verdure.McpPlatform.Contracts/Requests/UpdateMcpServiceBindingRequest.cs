@@ -16,6 +16,11 @@ public record UpdateMcpServiceBindingRequest
     [StringLength(500, ErrorMessage = "Node address cannot exceed 500 characters")]
     public string NodeAddress { get; init; } = string.Empty;
 
+    [StringLength(36, MinimumLength = 36, ErrorMessage = "MCP Service Config ID must be a valid GUID")]
+    public string? McpServiceConfigId { get; init; }
+
     [StringLength(1000, ErrorMessage = "Description cannot exceed 1000 characters")]
     public string? Description { get; init; }
+
+    public List<string>? SelectedToolNames { get; init; }
 }

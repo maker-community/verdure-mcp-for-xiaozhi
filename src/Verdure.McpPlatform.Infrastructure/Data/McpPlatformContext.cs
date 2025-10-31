@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 using Verdure.McpPlatform.Domain.SeedWork;
 
 namespace Verdure.McpPlatform.Infrastructure.Data;
@@ -11,6 +12,8 @@ public class McpPlatformContext : DbContext, IUnitOfWork
 {
     public DbSet<XiaozhiConnection> XiaozhiConnections { get; set; }
     public DbSet<McpServiceBinding> McpServiceBindings { get; set; }
+    public DbSet<McpServiceConfig> McpServiceConfigs { get; set; }
+    public DbSet<McpTool> McpTools { get; set; }
 
     public McpPlatformContext(DbContextOptions<McpPlatformContext> options)
         : base(options)
