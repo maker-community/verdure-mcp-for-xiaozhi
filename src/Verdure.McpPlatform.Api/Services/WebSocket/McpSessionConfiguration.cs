@@ -19,6 +19,7 @@ public class McpServiceEndpoint
     public string BindingId { get; set; } = string.Empty;
     public string ServiceName { get; set; } = string.Empty;
     public string NodeAddress { get; set; } = string.Empty;
+    public List<string> SelectedToolNames { get; set; } = new();
 }
 
 /// <summary>

@@ -79,7 +79,8 @@ public class McpSessionManager : IAsyncDisposable
                     {
                         BindingId = b.Id,
                         ServiceName = b.ServiceName,
-                        NodeAddress = b.NodeAddress
+                        NodeAddress = b.NodeAddress,
+                        SelectedToolNames = b.SelectedToolNames.ToList()
                     })
                     .ToList()
             };
