@@ -1,0 +1,3 @@
+# This directory stores SQLite database files for development
+# The database files are ignored by git (see .gitignore)
+# This .gitkeep file ensures the directory is tracked in version control

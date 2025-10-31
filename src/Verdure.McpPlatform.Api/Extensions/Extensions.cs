@@ -37,8 +37,9 @@ internal static class Extensions
         else
         {
             // Fallback to SQLite for development
+            // SQLite files are stored in Data directory and ignored by git
             services.AddDbContext<McpPlatformContext>(options =>
-                options.UseSqlite("Data Source=mcpplatform.db"));
+                options.UseSqlite("Data Source=Data/mcpplatform.db"));
         }
 
         // Add Identity database context
@@ -50,8 +51,10 @@ internal static class Extensions
         }
         else
         {
+            // Fallback to SQLite for development
+            // SQLite files are stored in Data directory and ignored by git
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite("Data Source=identity.db"));
+                options.UseSqlite("Data Source=Data/identity.db"));
         }
 
         // Add Identity (仅用于用户管理，不用于认证)

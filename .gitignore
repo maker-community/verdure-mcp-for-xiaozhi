@@ -282,6 +282,14 @@ ServiceFabricBackup/
 *.ldf
 *.ndf
 
+# SQLite database files (development only)
+*.db
+*.db-shm
+*.db-wal
+src/Verdure.McpPlatform.Api/Data/*.db
+src/Verdure.McpPlatform.Api/Data/*.db-shm
+src/Verdure.McpPlatform.Api/Data/*.db-wal
+
 # Business Intelligence projects
 *.rdl.data
 *.bim.layout
