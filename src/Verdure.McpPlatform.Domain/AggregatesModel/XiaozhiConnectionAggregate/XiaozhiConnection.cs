@@ -50,9 +50,14 @@ public class XiaozhiConnection : Entity, IAggregateRoot
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public McpServiceBinding AddServiceBinding(string serviceName, string nodeAddress, string? description = null)
+    public McpServiceBinding AddServiceBinding(
+        string serviceName, 
+        string nodeAddress, 
+        string? mcpServiceConfigId = null,
+        string? description = null,
+        IEnumerable<string>? selectedToolNames = null)
     {
-        var binding = new McpServiceBinding(serviceName, nodeAddress, Id, description);
+        var binding = new McpServiceBinding(serviceName, nodeAddress, Id, mcpServiceConfigId, description, selectedToolNames);
         _serviceBindings.Add(binding);
         return binding;
     }
