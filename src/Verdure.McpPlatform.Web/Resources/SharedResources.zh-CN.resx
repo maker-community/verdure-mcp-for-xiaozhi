@@ -397,4 +397,257 @@
   <data name="UsingOidcAuthFlow" xml:space="preserve">
     <value>使用 OIDC 授权码流程与 PKCE</value>
   </data>
+  
+  <!-- Logout Page -->
+  <data name="SigningOut" xml:space="preserve">
+    <value>正在退出...</value>
+  </data>
+  <data name="PleaseWaitSigningOut" xml:space="preserve">
+    <value>请稍候，正在安全退出</value>
+  </data>
+  
+  <!-- Authentication Page -->
+  <data name="SigningIn" xml:space="preserve">
+    <value>正在登录...</value>
+  </data>
+  <data name="PleaseWaitAuthenticating" xml:space="preserve">
+    <value>请稍候，正在进行身份验证</value>
+  </data>
+  <data name="CompletingSignIn" xml:space="preserve">
+    <value>正在完成登录...</value>
+  </data>
+  <data name="AlmostThere" xml:space="preserve">
+    <value>快完成了！</value>
+  </data>
+  <data name="SigningOutStatus" xml:space="preserve">
+    <value>正在退出...</value>
+  </data>
+  <data name="YouAreBeingSignedOut" xml:space="preserve">
+    <value>您正在退出系统</value>
+  </data>
+  <data name="CompletingSignOut" xml:space="preserve">
+    <value>正在完成退出...</value>
+  </data>
+  <data name="AlmostDone" xml:space="preserve">
+    <value>即将完成！</value>
+  </data>
+  <data name="AuthenticationFailed" xml:space="preserve">
+    <value>身份验证失败</value>
+  </data>
+  <data name="ErrorSigningIn" xml:space="preserve">
+    <value>登录时发生错误，请重试。</value>
+  </data>
+  <data name="TryAgain" xml:space="preserve">
+    <value>重试</value>
+  </data>
+  <data name="SignOutFailed" xml:space="preserve">
+    <value>退出失败</value>
+  </data>
+  <data name="ErrorSigningOut" xml:space="preserve">
+    <value>退出时发生错误，您可以重试或关闭此窗口。</value>
+  </data>
+  <data name="GoToHome" xml:space="preserve">
+    <value>返回首页</value>
+  </data>
+  <data name="SignedOutSuccessfully" xml:space="preserve">
+    <value>退出成功</value>
+  </data>
+  <data name="SignedOutMessage" xml:space="preserve">
+    <value>您已成功退出 Verdure MCP 平台。</value>
+  </data>
+  <data name="SignInAgain" xml:space="preserve">
+    <value>重新登录</value>
+  </data>
+  
+  <!-- Connection Edit Page -->
+  <data name="EditConnection" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="CreateConnection" xml:space="preserve">
+    <value>创建</value>
+  </data>
+  <data name="XiaozhiConnection" xml:space="preserve">
+    <value>小智连接</value>
+  </data>
+  <data name="UpdateConnectionSettings" xml:space="preserve">
+    <value>更新您的小智 AI 服务器连接设置</value>
+  </data>
+  <data name="AddNewConnection" xml:space="preserve">
+    <value>向您的平台添加新的小智 AI 服务器连接</value>
+  </data>
+  <data name="ConnectionName" xml:space="preserve">
+    <value>连接名称</value>
+  </data>
+  <data name="ConnectionNameRequired" xml:space="preserve">
+    <value>连接名称为必填项</value>
+  </data>
+  <data name="XiaozhiWebSocketEndpoint" xml:space="preserve">
+    <value>小智 WebSocket 端点</value>
+  </data>
+  <data name="XiaozhiWebSocketEndpointRequired" xml:space="preserve">
+    <value>小智 WebSocket 端点为必填项</value>
+  </data>
+  <data name="WebSocketEndpointExample" xml:space="preserve">
+    <value>例如：wss://api.xiaozhi.me/mcp/?token=YOUR_TOKEN</value>
+  </data>
+  <data name="DescriptionOptional" xml:space="preserve">
+    <value>此小智连接的可选描述</value>
+  </data>
+  <data name="Saving" xml:space="preserve">
+    <value>保存中...</value>
+  </data>
+  <data name="ConnectionInformation" xml:space="preserve">
+    <value>连接信息</value>
+  </data>
+  <data name="Created" xml:space="preserve">
+    <value>创建时间</value>
+  </data>
+  <data name="LastUpdated" xml:space="preserve">
+    <value>最后更新</value>
+  </data>
+  <data name="Bindings" xml:space="preserve">
+    <value>绑定</value>
+  </data>
+  <data name="BindingsCountInfo" xml:space="preserve">
+    <value>{0} 个绑定</value>
+  </data>
+  <data name="ServerNotFound" xml:space="preserve">
+    <value>未找到服务器</value>
+  </data>
+  <data name="ErrorLoadingServer" xml:space="preserve">
+    <value>加载服务器时出错：{0}</value>
+  </data>
+  <data name="ConnectionUpdatedSuccess" xml:space="preserve">
+    <value>连接更新成功</value>
+  </data>
+  <data name="ConnectionCreatedSuccess" xml:space="preserve">
+    <value>连接创建成功</value>
+  </data>
+  <data name="ErrorSavingServer" xml:space="preserve">
+    <value>保存服务器时出错：{0}</value>
+  </data>
+  
+  <!-- Service Binding Edit Page -->
+  <data name="EditServiceBinding" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="CreateServiceBinding" xml:space="preserve">
+    <value>创建</value>
+  </data>
+  <data name="McpServiceBinding" xml:space="preserve">
+    <value>MCP 服务绑定</value>
+  </data>
+  <data name="UpdateServiceBindingConfig" xml:space="preserve">
+    <value>更新您的外部 MCP 服务绑定配置</value>
+  </data>
+  <data name="ConfigureNewServiceBinding" xml:space="preserve">
+    <value>为您的连接配置新的外部 MCP 服务绑定</value>
+  </data>
+  <data name="SelectXiaozhiConnection" xml:space="preserve">
+    <value>请选择一个小智连接</value>
+  </data>
+  <data name="ServiceNameRequired" xml:space="preserve">
+    <value>服务名称为必填项</value>
+  </data>
+  <data name="NameOfExternalService" xml:space="preserve">
+    <value>外部 MCP 服务的名称</value>
+  </data>
+  <data name="McpServiceEndpointRequired" xml:space="preserve">
+    <value>MCP 服务端点为必填项</value>
+  </data>
+  <data name="ServiceEndpointExample" xml:space="preserve">
+    <value>例如：http://localhost:5000/calculator 或 https://mcp.example.com/weather</value>
+  </data>
+  <data name="ServiceBindingDescriptionOptional" xml:space="preserve">
+    <value>此服务绑定的可选描述</value>
+  </data>
+  <data name="ServiceBindingInformation" xml:space="preserve">
+    <value>服务绑定信息</value>
+  </data>
+  <data name="BindingNotFound" xml:space="preserve">
+    <value>未找到绑定</value>
+  </data>
+  <data name="ErrorLoadingBinding" xml:space="preserve">
+    <value>加载绑定时出错：{0}</value>
+  </data>
+  <data name="ServiceBindingUpdatedSuccess" xml:space="preserve">
+    <value>服务绑定更新成功</value>
+  </data>
+  <data name="ServiceBindingCreatedSuccess" xml:space="preserve">
+    <value>服务绑定创建成功</value>
+  </data>
+  <data name="ErrorSavingBinding" xml:space="preserve">
+    <value>保存绑定时出错：{0}</value>
+  </data>
+  <data name="ErrorLoadingConnections" xml:space="preserve">
+    <value>加载连接时出错：{0}</value>
+  </data>
+  
+  <!-- Additional UI Texts -->
+  <data name="NoConnectionsFound" xml:space="preserve">
+    <value>未找到连接</value>
+  </data>
+  <data name="TryAdjustingSearch" xml:space="preserve">
+    <value>尝试调整搜索条件</value>
+  </data>
+  <data name="GetStartedCreateConnection" xml:space="preserve">
+    <value>开始创建您的第一个小智连接</value>
+  </data>
+  <data name="CreateConnection" xml:space="preserve">
+    <value>创建连接</value>
+  </data>
+  <data name="ErrorLoadingConnections2" xml:space="preserve">
+    <value>加载连接时出错：{0}</value>
+  </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>意外错误：{0}</value>
+  </data>
+  <data name="ConnectionEnabled" xml:space="preserve">
+    <value>连接 '{0}' 已启用</value>
+  </data>
+  <data name="ErrorEnablingServer" xml:space="preserve">
+    <value>启用服务器时出错：{0}</value>
+  </data>
+  <data name="ConnectionDisabled" xml:space="preserve">
+    <value>连接 '{0}' 已禁用</value>
+  </data>
+  <data name="ErrorDisablingServer" xml:space="preserve">
+    <value>禁用服务器时出错：{0}</value>
+  </data>
+  <data name="ConfirmDeleteConnection" xml:space="preserve">
+    <value>确定要删除连接 '{0}' 吗？此操作无法撤销。</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>确认删除</value>
+  </data>
+  <data name="ConnectionDeletedSuccess" xml:space="preserve">
+    <value>连接 '{0}' 已成功删除</value>
+  </data>
+  <data name="ErrorDeletingServer" xml:space="preserve">
+    <value>删除服务器时出错：{0}</value>
+  </data>
+  <data name="ErrorLoadingServices" xml:space="preserve">
+    <value>加载服务时出错：{0}</value>
+  </data>
+  <data name="ServiceActivated2" xml:space="preserve">
+    <value>服务 '{0}' 已激活</value>
+  </data>
+  <data name="ErrorActivatingBinding" xml:space="preserve">
+    <value>激活绑定时出错：{0}</value>
+  </data>
+  <data name="ServiceDeactivated2" xml:space="preserve">
+    <value>服务 '{0}' 已停用</value>
+  </data>
+  <data name="ErrorDeactivatingBinding" xml:space="preserve">
+    <value>停用绑定时出错：{0}</value>
+  </data>
+  <data name="ConfirmDeleteService" xml:space="preserve">
+    <value>确定要删除服务 '{0}' 吗？此操作无法撤销。</value>
+  </data>
+  <data name="ServiceDeletedSuccess" xml:space="preserve">
+    <value>服务 '{0}' 已成功删除</value>
+  </data>
+  <data name="ErrorDeletingBinding" xml:space="preserve">
+    <value>删除绑定时出错：{0}</value>
+  </data>
 </root>

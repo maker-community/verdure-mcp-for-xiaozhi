@@ -99,13 +99,13 @@
                                 @if (context.IsActive)
                                 {
                                     <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle">
-                                        Active
+                                        @Loc["Active"]
                                     </MudChip>
                                 }
                                 else
                                 {
                                     <MudChip T="string" Size="Size.Small" Color="Color.Default" Icon="@Icons.Material.Filled.PauseCircle">
-                                        Inactive
+                                        @Loc["Inactive"]
                                     </MudChip>
                                 }
                             </MudTd>
@@ -195,11 +195,11 @@
         }
         catch (HttpRequestException ex)
         {
-            Snackbar.Add($"Error loading services: {ex.Message}", Severity.Error);
+            Snackbar.Add(string.Format(Loc["ErrorLoadingServices"], ex.Message), Severity.Error);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Unexpected error: {ex.Message}", Severity.Error);
+            Snackbar.Add(string.Format(Loc["UnexpectedError"], ex.Message), Severity.Error);
         }
         finally
         {
@@ -218,12 +218,12 @@
         {
             await BindingService.ActivateBindingAsync(binding.Id);
             binding = binding with { IsActive = true };
-            Snackbar.Add($"service '{binding.ServiceName}' activated", Severity.Success);
+            Snackbar.Add(string.Format(Loc["ServiceActivated2"], binding.ServiceName), Severity.Success);
             await LoadBindingsAsync();
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error activating binding: {ex.Message}", Severity.Error);
+            Snackbar.Add(string.Format(Loc["ErrorActivatingBinding"], ex.Message), Severity.Error);
         }
     }
 
@@ -233,12 +233,12 @@
         {
             await BindingService.DeactivateBindingAsync(binding.Id);
             binding = binding with { IsActive = false };
-            Snackbar.Add($"service '{binding.ServiceName}' deactivated", Severity.Success);
+            Snackbar.Add(string.Format(Loc["ServiceDeactivated2"], binding.ServiceName), Severity.Success);
             await LoadBindingsAsync();
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error deactivating binding: {ex.Message}", Severity.Error);
+            Snackbar.Add(string.Format(Loc["ErrorDeactivatingBinding"], ex.Message), Severity.Error);
         }
     }
 
@@ -246,13 +246,13 @@
     {
         var parameters = new DialogParameters<DeleteConfirmationDialog>
         {
-            { x => x.ContentText, $"Are you sure you want to Delete the service service '{binding.ServiceName}'? This action cannot be undone." },
-            { x => x.ButtonText, "Delete" },
+            { x => x.ContentText, string.Format(Loc["ConfirmDeleteService"], binding.ServiceName) },
+            { x => x.ButtonText, Loc["Delete"] },
             { x => x.Color, Color.Error }
         };
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
-        var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>("Confirm Delete", parameters, options);
+        var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>(Loc["ConfirmDelete"], parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -261,11 +261,11 @@
             {
                 await BindingService.DeleteBindingAsync(binding.Id);
                 _serviceBindings.Remove(binding);
-                Snackbar.Add($"service '{binding.ServiceName}' deleted successfully", Severity.Success);
+                Snackbar.Add(string.Format(Loc["ServiceDeletedSuccess"], binding.ServiceName), Severity.Success);
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error deleting binding: {ex.Message}", Severity.Error);
+                Snackbar.Add(string.Format(Loc["ErrorDeletingBinding"], ex.Message), Severity.Error);
             }
         }
     }

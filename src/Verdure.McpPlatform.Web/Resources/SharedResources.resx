@@ -397,4 +397,257 @@
   <data name="UsingOidcAuthFlow" xml:space="preserve">
     <value>Using OIDC Authorization Code Flow with PKCE</value>
   </data>
+  
+  <!-- Logout Page -->
+  <data name="SigningOut" xml:space="preserve">
+    <value>Signing Out...</value>
+  </data>
+  <data name="PleaseWaitSigningOut" xml:space="preserve">
+    <value>Please wait while we sign you out securely</value>
+  </data>
+  
+  <!-- Authentication Page -->
+  <data name="SigningIn" xml:space="preserve">
+    <value>Signing in...</value>
+  </data>
+  <data name="PleaseWaitAuthenticating" xml:space="preserve">
+    <value>Please wait while we authenticate you</value>
+  </data>
+  <data name="CompletingSignIn" xml:space="preserve">
+    <value>Completing sign in...</value>
+  </data>
+  <data name="AlmostThere" xml:space="preserve">
+    <value>Almost there!</value>
+  </data>
+  <data name="SigningOutStatus" xml:space="preserve">
+    <value>Signing out...</value>
+  </data>
+  <data name="YouAreBeingSignedOut" xml:space="preserve">
+    <value>You are being signed out</value>
+  </data>
+  <data name="CompletingSignOut" xml:space="preserve">
+    <value>Completing sign out...</value>
+  </data>
+  <data name="AlmostDone" xml:space="preserve">
+    <value>Almost done!</value>
+  </data>
+  <data name="AuthenticationFailed" xml:space="preserve">
+    <value>Authentication Failed</value>
+  </data>
+  <data name="ErrorSigningIn" xml:space="preserve">
+    <value>There was an error signing you in. Please try again.</value>
+  </data>
+  <data name="TryAgain" xml:space="preserve">
+    <value>Try Again</value>
+  </data>
+  <data name="SignOutFailed" xml:space="preserve">
+    <value>Sign Out Failed</value>
+  </data>
+  <data name="ErrorSigningOut" xml:space="preserve">
+    <value>There was an error signing you out. You can try again or close this window.</value>
+  </data>
+  <data name="GoToHome" xml:space="preserve">
+    <value>Go to Home</value>
+  </data>
+  <data name="SignedOutSuccessfully" xml:space="preserve">
+    <value>Signed Out Successfully</value>
+  </data>
+  <data name="SignedOutMessage" xml:space="preserve">
+    <value>You have been signed out of the Verdure MCP Platform.</value>
+  </data>
+  <data name="SignInAgain" xml:space="preserve">
+    <value>Sign In Again</value>
+  </data>
+  
+  <!-- Connection Edit Page -->
+  <data name="EditConnection" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="CreateConnection" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="XiaozhiConnection" xml:space="preserve">
+    <value>Xiaozhi Connection</value>
+  </data>
+  <data name="UpdateConnectionSettings" xml:space="preserve">
+    <value>Update your Xiaozhi AI server connection settings</value>
+  </data>
+  <data name="AddNewConnection" xml:space="preserve">
+    <value>Add a new Xiaozhi AI server connection to your platform</value>
+  </data>
+  <data name="ConnectionName" xml:space="preserve">
+    <value>Connection Name</value>
+  </data>
+  <data name="ConnectionNameRequired" xml:space="preserve">
+    <value>Connection Name is required</value>
+  </data>
+  <data name="XiaozhiWebSocketEndpoint" xml:space="preserve">
+    <value>Xiaozhi WebSocket Endpoint</value>
+  </data>
+  <data name="XiaozhiWebSocketEndpointRequired" xml:space="preserve">
+    <value>Xiaozhi WebSocket Endpoint is required</value>
+  </data>
+  <data name="WebSocketEndpointExample" xml:space="preserve">
+    <value>e.g., wss://api.xiaozhi.me/mcp/?token=YOUR_TOKEN</value>
+  </data>
+  <data name="DescriptionOptional" xml:space="preserve">
+    <value>Optional description for this Xiaozhi connection</value>
+  </data>
+  <data name="Saving" xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="ConnectionInformation" xml:space="preserve">
+    <value>Connection Information</value>
+  </data>
+  <data name="Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="LastUpdated" xml:space="preserve">
+    <value>Last Updated</value>
+  </data>
+  <data name="Bindings" xml:space="preserve">
+    <value>Bindings</value>
+  </data>
+  <data name="BindingsCountInfo" xml:space="preserve">
+    <value>{0} binding(s)</value>
+  </data>
+  <data name="ServerNotFound" xml:space="preserve">
+    <value>Server not found</value>
+  </data>
+  <data name="ErrorLoadingServer" xml:space="preserve">
+    <value>Error loading server: {0}</value>
+  </data>
+  <data name="ConnectionUpdatedSuccess" xml:space="preserve">
+    <value>Connection updated successfully</value>
+  </data>
+  <data name="ConnectionCreatedSuccess" xml:space="preserve">
+    <value>Connection created successfully</value>
+  </data>
+  <data name="ErrorSavingServer" xml:space="preserve">
+    <value>Error saving server: {0}</value>
+  </data>
+  
+  <!-- Service Binding Edit Page -->
+  <data name="EditServiceBinding" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="CreateServiceBinding" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="McpServiceBinding" xml:space="preserve">
+    <value>MCP Service Binding</value>
+  </data>
+  <data name="UpdateServiceBindingConfig" xml:space="preserve">
+    <value>Update your external MCP service binding configuration</value>
+  </data>
+  <data name="ConfigureNewServiceBinding" xml:space="preserve">
+    <value>Configure a new external MCP service binding for your connection</value>
+  </data>
+  <data name="SelectXiaozhiConnection" xml:space="preserve">
+    <value>Please select a Xiaozhi connection</value>
+  </data>
+  <data name="ServiceNameRequired" xml:space="preserve">
+    <value>Service name is required</value>
+  </data>
+  <data name="NameOfExternalService" xml:space="preserve">
+    <value>Name of the external MCP service</value>
+  </data>
+  <data name="McpServiceEndpointRequired" xml:space="preserve">
+    <value>MCP Service Endpoint is required</value>
+  </data>
+  <data name="ServiceEndpointExample" xml:space="preserve">
+    <value>e.g., http://localhost:5000/calculator or https://mcp.example.com/weather</value>
+  </data>
+  <data name="ServiceBindingDescriptionOptional" xml:space="preserve">
+    <value>Optional description for this service binding</value>
+  </data>
+  <data name="ServiceBindingInformation" xml:space="preserve">
+    <value>Service Binding Information</value>
+  </data>
+  <data name="BindingNotFound" xml:space="preserve">
+    <value>Binding not found</value>
+  </data>
+  <data name="ErrorLoadingBinding" xml:space="preserve">
+    <value>Error loading binding: {0}</value>
+  </data>
+  <data name="ServiceBindingUpdatedSuccess" xml:space="preserve">
+    <value>Service binding updated successfully</value>
+  </data>
+  <data name="ServiceBindingCreatedSuccess" xml:space="preserve">
+    <value>Service binding created successfully</value>
+  </data>
+  <data name="ErrorSavingBinding" xml:space="preserve">
+    <value>Error saving binding: {0}</value>
+  </data>
+  <data name="ErrorLoadingConnections" xml:space="preserve">
+    <value>Error loading connections: {0}</value>
+  </data>
+  
+  <!-- Additional UI Texts -->
+  <data name="NoConnectionsFound" xml:space="preserve">
+    <value>No connections found</value>
+  </data>
+  <data name="TryAdjustingSearch" xml:space="preserve">
+    <value>Try adjusting your search criteria</value>
+  </data>
+  <data name="GetStartedCreateConnection" xml:space="preserve">
+    <value>Get started by creating your first Xiaozhi connection</value>
+  </data>
+  <data name="CreateConnection" xml:space="preserve">
+    <value>Create Connection</value>
+  </data>
+  <data name="ErrorLoadingConnections2" xml:space="preserve">
+    <value>Error loading connections: {0}</value>
+  </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>Unexpected error: {0}</value>
+  </data>
+  <data name="ConnectionEnabled" xml:space="preserve">
+    <value>connection '{0}' enabled</value>
+  </data>
+  <data name="ErrorEnablingServer" xml:space="preserve">
+    <value>Error enabling server: {0}</value>
+  </data>
+  <data name="ConnectionDisabled" xml:space="preserve">
+    <value>connection '{0}' disabled</value>
+  </data>
+  <data name="ErrorDisablingServer" xml:space="preserve">
+    <value>Error disabling server: {0}</value>
+  </data>
+  <data name="ConfirmDeleteConnection" xml:space="preserve">
+    <value>Are you sure you want to delete the connection '{0}'? This action cannot be undone.</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>Confirm Delete</value>
+  </data>
+  <data name="ConnectionDeletedSuccess" xml:space="preserve">
+    <value>connection '{0}' deleted successfully</value>
+  </data>
+  <data name="ErrorDeletingServer" xml:space="preserve">
+    <value>Error deleting server: {0}</value>
+  </data>
+  <data name="ErrorLoadingServices" xml:space="preserve">
+    <value>Error loading services: {0}</value>
+  </data>
+  <data name="ServiceActivated2" xml:space="preserve">
+    <value>service '{0}' activated</value>
+  </data>
+  <data name="ErrorActivatingBinding" xml:space="preserve">
+    <value>Error activating binding: {0}</value>
+  </data>
+  <data name="ServiceDeactivated2" xml:space="preserve">
+    <value>service '{0}' deactivated</value>
+  </data>
+  <data name="ErrorDeactivatingBinding" xml:space="preserve">
+    <value>Error deactivating binding: {0}</value>
+  </data>
+  <data name="ConfirmDeleteService" xml:space="preserve">
+    <value>Are you sure you want to Delete the service service '{0}'? This action cannot be undone.</value>
+  </data>
+  <data name="ServiceDeletedSuccess" xml:space="preserve">
+    <value>service '{0}' deleted successfully</value>
+  </data>
+  <data name="ErrorDeletingBinding" xml:space="preserve">
+    <value>Error deleting binding: {0}</value>
+  </data>
 </root>

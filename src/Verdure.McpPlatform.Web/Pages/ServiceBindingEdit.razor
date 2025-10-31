@@ -1,12 +1,16 @@
-﻿@page "/service-bindings/create"
+﻿
+@page "/service-bindings/create"
 @page "/service-bindings/edit/{Id:int}"
 @attribute [Authorize]
 @inject IMcpServiceBindingClientService BindingService
 @inject IXiaozhiConnectionClientService ServerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
 
-<PageTitle>@(_isEdit ? "Edit" : "Create") Service Binding - Verdure MCP Platform</PageTitle>
+<PageTitle>@(_isEdit ? Loc["EditServiceBinding"] : Loc["CreateServiceBinding"]) @Loc["McpServiceBinding"] - @Loc["AppTitle"]</PageTitle>
 
 <MudGrid>
     <!-- M3 Hero Banner - 统一蓝色渐变 -->
@@ -16,11 +20,11 @@
                 <div class="d-flex align-center mb-2">
                     <MudIcon Icon="@(_isEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Size="Size.Large" Style="color: #FFFFFF; margin-right: 12px;" />
                     <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
-                        @(_isEdit ? "Edit" : "Create") MCP Service Binding
+                        @(_isEdit ? Loc["EditServiceBinding"] : Loc["CreateServiceBinding"]) @Loc["McpServiceBinding"]
                     </MudText>
                 </div>
                 <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); margin-left: 48px;">
-                    @(_isEdit ? "Update your external MCP service binding configuration" : "Configure a new external MCP service binding for your connection")
+                    @(_isEdit ? Loc["UpdateServiceBindingConfig"] : Loc["ConfigureNewServiceBinding"])
                 </MudText>
             </MudCardContent>
         </MudCard>
@@ -33,9 +37,9 @@
                     @if (!_isEdit)
                     {
                         <MudSelect @bind-Value="_model.XiaozhiConnectionId" 
-                                  Label="Xiaozhi Connection" 
+                                  Label="@Loc["XiaozhiConnection"]" 
                                   Required="true"
-                                  RequiredError="Please select a Xiaozhi connection"
+                                  RequiredError="@Loc["SelectXiaozhiConnection"]"
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
                                   Class="mb-4">
@@ -47,29 +51,29 @@
                     }
 
                     <MudTextField @bind-Value="_model.ServiceName" 
-                                 Label="Service Name" 
+                                 Label="@Loc["ServiceName"]" 
                                  Required="true"
-                                 RequiredError="Service name is required"
+                                 RequiredError="@Loc["ServiceNameRequired"]"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
-                                 HelperText="Name of the external MCP service"
+                                 HelperText="@Loc["NameOfExternalService"]"
                                  Class="mb-4" />
 
                     <MudTextField @bind-Value="_model.NodeAddress" 
-                                 Label="MCP Service Endpoint" 
+                                 Label="@Loc["McpServiceEndpoint"]" 
                                  Required="true"
-                                 RequiredError="MCP Service Endpoint is required"
+                                 RequiredError="@Loc["McpServiceEndpointRequired"]"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
-                                 HelperText="e.g., http://localhost:5000/calculator or https://mcp.example.com/weather"
+                                 HelperText="@Loc["ServiceEndpointExample"]"
                                  Class="mb-4" />
 
                     <MudTextField @bind-Value="_model.Description" 
-                                 Label="Description" 
+                                 Label="@Loc["Description"]" 
                                  Lines="3"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
-                                 HelperText="Optional description for this service binding"
+                                 HelperText="@Loc["ServiceBindingDescriptionOptional"]"
                                  Class="mb-4" />
                 </MudForm>
             </MudCardContent>
@@ -77,7 +81,7 @@
                 <MudButton Variant="Variant.Text" 
                           Color="Color.Default" 
                           OnClick="Cancel">
-                    Cancel
+                    @Loc["Cancel"]
                 </MudButton>
                 <MudSpacer />
                 <MudButton Variant="Variant.Filled" 
@@ -88,11 +92,11 @@
                     @if (_saving)
                     {
                         <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" />
-                        <MudText>Saving...</MudText>
+                        <MudText>@Loc["Saving"]</MudText>
                     }
                     else
                     {
-                        <MudText>Save</MudText>
+                        <MudText>@Loc["Save"]</MudText>
                     }
                 </MudButton>
             </MudCardActions>
@@ -105,34 +109,34 @@
             <MudCard Elevation="2">
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Service Binding Information</MudText>
+                        <MudText Typo="Typo.h6">@Loc["ServiceBindingInformation"]</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
                     <MudGrid>
                         <MudItem xs="6">
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">Status</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Status"]</MudText>
                             @if (_existingBinding.IsActive)
                             {
                                 <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle">
-                                    Active
+                                    @Loc["Active"]
                                 </MudChip>
                             }
                             else
                             {
                                 <MudChip T="string" Size="Size.Small" Color="Color.Default" Icon="@Icons.Material.Filled.PauseCircle">
-                                    Inactive
+                                    @Loc["Inactive"]
                                 </MudChip>
                             }
                         </MudItem>
                         <MudItem xs="6">
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">Created</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Created"]</MudText>
                             <MudText Typo="Typo.body1">@_existingBinding.CreatedAt.ToString("MMM dd, yyyy HH:mm")</MudText>
                         </MudItem>
                         @if (_existingBinding.UpdatedAt.HasValue)
                         {
                             <MudItem xs="6">
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">Last Updated</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["LastUpdated"]</MudText>
                                 <MudText Typo="Typo.body1">@_existingBinding.UpdatedAt.Value.ToString("MMM dd, yyyy HH:mm")</MudText>
                             </MudItem>
                         }

@@ -1,11 +1,15 @@
-﻿@page "/connections/create"
+﻿
+@page "/connections/create"
 @page "/connections/edit/{Id:int}"
 @attribute [Authorize]
 @inject IXiaozhiConnectionClientService ServerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
 
-<PageTitle>@(_isEdit ? "Edit" : "Create") Xiaozhi Connection - Verdure MCP Platform</PageTitle>
+<PageTitle>@(_isEdit ? Loc["EditConnection"] : Loc["CreateConnection"]) @Loc["XiaozhiConnection"] - @Loc["AppTitle"]</PageTitle>
 
 <MudGrid>
     <!-- M3 Hero Banner - 统一蓝色渐变 -->
@@ -15,11 +19,11 @@
                 <div class="d-flex align-center mb-2">
                     <MudIcon Icon="@(_isEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Size="Size.Large" Style="color: #FFFFFF; margin-right: 12px;" />
                     <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
-                        @(_isEdit ? "Edit" : "Create") Xiaozhi Connection
+                        @(_isEdit ? Loc["EditConnection"] : Loc["CreateConnection"]) @Loc["XiaozhiConnection"]
                     </MudText>
                 </div>
                 <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); margin-left: 48px;">
-                    @(_isEdit ? "Update your Xiaozhi AI server connection settings" : "Add a new Xiaozhi AI server connection to your platform")
+                    @(_isEdit ? Loc["UpdateConnectionSettings"] : Loc["AddNewConnection"])
                 </MudText>
             </MudCardContent>
         </MudCard>
@@ -30,28 +34,28 @@
             <MudCardContent>
                 <MudForm @ref="_form" @bind-IsValid="@_formValid">
                     <MudTextField @bind-Value="_model.Name" 
-                                 Label="Connection Name" 
+                                 Label="@Loc["ConnectionName"]" 
                                  Required="true"
-                                 RequiredError="Connection Name is required"
+                                 RequiredError="@Loc["ConnectionNameRequired"]"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
                                  Class="mb-4" />
 
                     <MudTextField @bind-Value="_model.Address" 
-                                 Label="Xiaozhi WebSocket Endpoint" 
+                                 Label="@Loc["XiaozhiWebSocketEndpoint"]" 
                                  Required="true"
-                                 RequiredError="Xiaozhi WebSocket Endpoint is required"
+                                 RequiredError="@Loc["XiaozhiWebSocketEndpointRequired"]"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
-                                 HelperText="e.g., wss://api.xiaozhi.me/mcp/?token=YOUR_TOKEN"
+                                 HelperText="@Loc["WebSocketEndpointExample"]"
                                  Class="mb-4" />
 
                     <MudTextField @bind-Value="_model.Description" 
-                                 Label="Description" 
+                                 Label="@Loc["Description"]" 
                                  Lines="3"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
-                                 HelperText="Optional description for this Xiaozhi connection"
+                                 HelperText="@Loc["DescriptionOptional"]"
                                  Class="mb-4" />
                 </MudForm>
             </MudCardContent>
@@ -59,7 +63,7 @@
                 <MudButton Variant="Variant.Text" 
                           Color="Color.Default" 
                           OnClick="Cancel">
-                    Cancel
+                    @Loc["Cancel"]
                 </MudButton>
                 <MudSpacer />
                 <MudButton Variant="Variant.Filled" 
@@ -70,11 +74,11 @@
                     @if (_saving)
                     {
                         <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" />
-                        <MudText>Saving...</MudText>
+                        <MudText>@Loc["Saving"]</MudText>
                     }
                     else
                     {
-                        <MudText>Save</MudText>
+                        <MudText>@Loc["Save"]</MudText>
                     }
                 </MudButton>
             </MudCardActions>
@@ -87,25 +91,25 @@
             <MudCard Elevation="2">
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Connection Information</MudText>
+                        <MudText Typo="Typo.h6">@Loc["ConnectionInformation"]</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
                     <MudGrid>
                         <MudItem xs="6">
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">Created</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Created"]</MudText>
                             <MudText Typo="Typo.body1">@_existingServer.CreatedAt.ToString("MMM dd, yyyy HH:mm")</MudText>
                         </MudItem>
                         @if (_existingServer.UpdatedAt.HasValue)
                         {
                             <MudItem xs="6">
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">Last Updated</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["LastUpdated"]</MudText>
                                 <MudText Typo="Typo.body1">@_existingServer.UpdatedAt.Value.ToString("MMM dd, yyyy HH:mm")</MudText>
                             </MudItem>
                         }
                         <MudItem xs="12">
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">Bindings</MudText>
-                            <MudText Typo="Typo.body1">@_existingServer.ServiceBindings.Count binding(s)</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Bindings"]</MudText>
+                            <MudText Typo="Typo.body1">@string.Format(Loc["BindingsCountInfo"], _existingServer.ServiceBindings.Count)</MudText>
                         </MudItem>
                     </MudGrid>
                 </MudCardContent>

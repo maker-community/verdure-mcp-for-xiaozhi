@@ -191,12 +191,12 @@
                                      Color="Color.Default" 
                                      Class="m3-empty-state-icon" />
                             <MudText Typo="Typo.h6" Class="m3-mb-sm" Style="font-weight: 500;">
-                                No connections found
+                                @Loc["NoConnectionsFound"]
                             </MudText>
                             <MudText Typo="Typo.body2" Color="Color.Secondary" Class="m3-mb-lg">
                                 @(_searchString?.Length > 0 
-                                    ? "Try adjusting your search criteria" 
-                                    : "Get started by creating your first Xiaozhi connection")
+                                    ? Loc["TryAdjustingSearch"]
+                                    : Loc["GetStartedCreateConnection"])
                             </MudText>
                             @if (string.IsNullOrEmpty(_searchString))
                             {
@@ -205,7 +205,7 @@
                                            Color="Color.Primary" 
                                            StartIcon="@Icons.Material.Filled.Add"
                                            Class="m3-button">
-                                    Create Connection
+                                    @Loc["CreateConnection"]
                                 </MudButton>
                             }
                         </div>
@@ -241,11 +241,11 @@
         }
         catch (HttpRequestException ex)
         {
-            Snackbar.Add($"Error loading connections: {ex.Message}", Severity.Error);
+            Snackbar.Add(string.Format(Loc["ErrorLoadingConnections2"], ex.Message), Severity.Error);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Unexpected error: {ex.Message}", Severity.Error);
+            Snackbar.Add(string.Format(Loc["UnexpectedError"], ex.Message), Severity.Error);
         }
         finally
         {
@@ -280,11 +280,11 @@
                 }
             }
             
-            Snackbar.Add($"connection '{server.Name}' enabled", Severity.Success);
+            Snackbar.Add(string.Format(Loc["ConnectionEnabled"], server.Name), Severity.Success);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error enabling server: {ex.Message}", Severity.Error);
+            Snackbar.Add(string.Format(Loc["ErrorEnablingServer"], ex.Message), Severity.Error);
         }
     }
 
@@ -305,11 +305,11 @@
                 }
             }
             
-            Snackbar.Add($"connection '{server.Name}' disabled", Severity.Success);
+            Snackbar.Add(string.Format(Loc["ConnectionDisabled"], server.Name), Severity.Success);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error disabling server: {ex.Message}", Severity.Error);
+            Snackbar.Add(string.Format(Loc["ErrorDisablingServer"], ex.Message), Severity.Error);
         }
     }
 
@@ -317,13 +317,13 @@
     {
         var parameters = new DialogParameters<DeleteConfirmationDialog>
         {
-            { x => x.ContentText, $"Are you sure you want to delete the connection '{server.Name}'? This action cannot be undone." },
-            { x => x.ButtonText, "Delete" },
+            { x => x.ContentText, string.Format(Loc["ConfirmDeleteConnection"], server.Name) },
+            { x => x.ButtonText, Loc["Delete"] },
             { x => x.Color, Color.Error }
         };
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
-        var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>("Confirm Delete", parameters, options);
+        var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>(Loc["ConfirmDelete"], parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -332,11 +332,11 @@
             {
                 await ServerService.DeleteServerAsync(server.Id);
                 _servers.Remove(server);
-                Snackbar.Add($"connection '{server.Name}' deleted successfully", Severity.Success);
+                Snackbar.Add(string.Format(Loc["ConnectionDeletedSuccess"], server.Name), Severity.Success);
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error deleting server: {ex.Message}", Severity.Error);
+                Snackbar.Add(string.Format(Loc["ErrorDeletingServer"], ex.Message), Severity.Error);
             }
         }
     }

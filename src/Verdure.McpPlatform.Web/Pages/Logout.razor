@@ -1,17 +1,20 @@
 @page "/logout"
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
 @inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResources> Loc
 
-<PageTitle>Logout - Verdure MCP Platform</PageTitle>
+<PageTitle>@Loc["Logout"] - @Loc["AppTitle"]</PageTitle>
 
 <div class="d-flex justify-center align-center" style="min-height: 80vh;">
     <MudCard Elevation="4" Style="max-width: 400px; width: 100%;">
         <MudCardContent Class="pa-8 text-center">
             <MudIcon Icon="@Icons.Material.Filled.Logout" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
-            <MudText Typo="Typo.h5" Class="mb-2">Signing Out...</MudText>
+            <MudText Typo="Typo.h5" Class="mb-2">@Loc["SigningOut"]</MudText>
             <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
             <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-4">
-                Please wait while we sign you out securely
+                @Loc["PleaseWaitSigningOut"]
             </MudText>
         </MudCardContent>
     </MudCard>
