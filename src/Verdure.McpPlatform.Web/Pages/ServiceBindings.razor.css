@@ -1,0 +1,53 @@
+/* Service Bindings Page Styles - Material Design 3 */
+
+/* Table Container */
+::deep .mud-table {
+    border-radius: 12px;
+}
+
+/* Table Header */
+::deep .mud-table-head {
+    background-color: rgba(103, 80, 164, 0.04);
+}
+
+::deep .mud-table-head .mud-table-cell {
+    font-weight: 600;
+    letter-spacing: 0.0125em;
+    color: var(--mud-palette-text-primary);
+}
+
+/* Table Rows */
+::deep .mud-table-row:hover {
+    background-color: rgba(103, 80, 164, 0.04);
+}
+
+/* Status Chips */
+::deep .mud-chip {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Search Field */
+::deep .mud-input-root {
+    border-radius: 24px;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.page-header h3 {
+    font-weight: 500;
+    letter-spacing: 0.0125em;
+}

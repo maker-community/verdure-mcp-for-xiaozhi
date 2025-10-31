@@ -1,0 +1,61 @@
+/* Settings Page Styles - Material Design 3 */
+
+/* Settings Container */
+.settings-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Settings Section */
+.settings-section {
+    margin-bottom: 2rem;
+}
+
+.settings-section-title {
+    font-weight: 500;
+    letter-spacing: 0.0125em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(103, 80, 164, 0.12);
+}
+
+/* Settings Card */
+::deep .mud-card {
+    border-radius: 16px;
+}
+
+/* Form Fields */
+::deep .mud-input-root {
+    border-radius: 8px;
+}
+
+::deep .mud-input-label {
+    font-weight: 500;
+}
+
+/* Settings Item */
+.settings-item {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.settings-item:last-child {
+    border-bottom: none;
+}
+
+.settings-item-label {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.settings-item-description {
+    font-size: 0.875rem;
+    color: var(--mud-palette-text-secondary);
+}
+
+/* Page Title */
+.page-title {
+    font-weight: 500;
+    letter-spacing: 0.0125em;
+    margin-bottom: 1.5rem;
+}

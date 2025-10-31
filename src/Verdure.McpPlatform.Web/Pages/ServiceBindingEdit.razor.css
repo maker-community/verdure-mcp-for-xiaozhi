@@ -1,0 +1,45 @@
+/* Service Binding Edit Page Styles - Material Design 3 */
+
+/* Form Container */
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Form Card */
+::deep .mud-card {
+    border-radius: 16px;
+}
+
+/* Form Fields */
+::deep .mud-input-root {
+    border-radius: 8px;
+}
+
+::deep .mud-input-label {
+    font-weight: 500;
+}
+
+/* Form Buttons */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* Page Title */
+.page-title {
+    font-weight: 500;
+    letter-spacing: 0.0125em;
+    margin-bottom: 1.5rem;
+}
+
+/* Help Text */
+.help-text {
+    font-size: 0.875rem;
+    color: var(--mud-palette-text-secondary);
+    margin-top: 0.5rem;
+}
