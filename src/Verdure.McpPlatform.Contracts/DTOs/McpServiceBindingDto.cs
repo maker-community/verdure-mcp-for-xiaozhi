@@ -5,10 +5,16 @@
 /// </summary>
 public record McpServiceBindingDto
 {
-    public int Id { get; init; }
+    /// <summary>
+    /// Unique identifier (Guid Version 7 as string)
+    /// </summary>
+    public string Id { get; init; } = string.Empty;
     public string ServiceName { get; init; } = string.Empty;
     public string NodeAddress { get; init; } = string.Empty;
-    public int XiaozhiConnectionId { get; init; }
+    /// <summary>
+    /// Foreign key to XiaozhiConnection (Guid Version 7 as string)
+    /// </summary>
+    public string XiaozhiConnectionId { get; init; } = string.Empty;
     public string? Description { get; init; }
     public bool IsActive { get; init; }
     public DateTime CreatedAt { get; init; }

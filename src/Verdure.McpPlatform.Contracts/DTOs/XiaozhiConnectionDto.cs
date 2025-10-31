@@ -5,7 +5,10 @@
 /// </summary>
 public record XiaozhiConnectionDto
 {
-    public int Id { get; init; }
+    /// <summary>
+    /// Unique identifier (Guid Version 7 as string)
+    /// </summary>
+    public string Id { get; init; } = string.Empty;
     public string Name { get; init; } = string.Empty;
     public string Address { get; init; } = string.Empty;
     public string? Description { get; init; }

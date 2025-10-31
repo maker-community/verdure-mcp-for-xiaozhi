@@ -36,7 +36,7 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
         return MapToDto(server);
     }
 
-    public async Task<XiaozhiConnectionDto?> GetByIdAsync(int id, string userId)
+    public async Task<XiaozhiConnectionDto?> GetByIdAsync(string id, string userId)
     {
         var server = await _repository.GetAsync(id);
         
@@ -55,7 +55,7 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
         return servers.Select(MapToDto);
     }
 
-    public async Task UpdateAsync(int id, UpdateXiaozhiConnectionRequest request, string userId)
+    public async Task UpdateAsync(string id, UpdateXiaozhiConnectionRequest request, string userId)
     {
         var server = await _repository.GetAsync(id);
         
@@ -74,7 +74,7 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
             userId);
     }
 
-    public async Task DeleteAsync(int id, string userId)
+    public async Task DeleteAsync(string id, string userId)
     {
         var server = await _repository.GetAsync(id);
         
@@ -92,7 +92,7 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
             userId);
     }
 
-    public async Task EnableAsync(int id, string userId)
+    public async Task EnableAsync(string id, string userId)
     {
         var server = await _repository.GetAsync(id);
         
@@ -111,7 +111,7 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
             userId);
     }
 
-    public async Task DisableAsync(int id, string userId)
+    public async Task DisableAsync(string id, string userId)
     {
         var server = await _repository.GetAsync(id);
         

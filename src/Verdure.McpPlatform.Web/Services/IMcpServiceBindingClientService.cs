@@ -8,12 +8,12 @@ namespace Verdure.McpPlatform.Web.Services;
 /// </summary>
 public interface IMcpServiceBindingClientService
 {
-    Task<IEnumerable<McpServiceBindingDto>> GetBindingsByServerAsync(int serverId);
+    Task<IEnumerable<McpServiceBindingDto>> GetBindingsByServerAsync(string serverId);
     Task<IEnumerable<McpServiceBindingDto>> GetActiveBindingsAsync();
-    Task<McpServiceBindingDto?> GetBindingAsync(int id);
+    Task<McpServiceBindingDto?> GetBindingAsync(string id);
     Task<McpServiceBindingDto> CreateBindingAsync(CreateMcpServiceBindingRequest request);
-    Task UpdateBindingAsync(int id, UpdateMcpServiceBindingRequest request);
-    Task ActivateBindingAsync(int id);
-    Task DeactivateBindingAsync(int id);
-    Task DeleteBindingAsync(int id);
+    Task UpdateBindingAsync(string id, UpdateMcpServiceBindingRequest request);
+    Task ActivateBindingAsync(string id);
+    Task DeactivateBindingAsync(string id);
+    Task DeleteBindingAsync(string id);
 }

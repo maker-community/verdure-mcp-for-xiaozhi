@@ -29,7 +29,7 @@ public class McpSessionService : IAsyncDisposable
     private readonly List<IMcpClient> _mcpClients = new();
     private bool _isRunning = false;
     
-    public int ServerId => _config.ServerId;
+    public string ServerId => _config.ServerId;
     public string ServerName => _config.ServerName;
     public bool IsConnected => _webSocket?.State == WebSocketState.Open && _mcpClients.Count > 0;
     public DateTime? LastConnectedTime { get; private set; }

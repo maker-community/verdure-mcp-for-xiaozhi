@@ -21,13 +21,13 @@
                     <div>
                         <MudText Typo="Typo.h4" Class="m3-mb-sm" Style="font-weight: 600; color: #FFFFFF;">
                             <MudIcon Icon="@Icons.Material.Filled.Link" Class="mr-2" Style="color: #FFFFFF;" /> 
-                            @(_connectionId.HasValue ? string.Format(Loc["ServicesFor"], _serverName) : Loc["McpServiceBindings"])
+                            @(!string.IsNullOrEmpty(_connectionId) ? string.Format(Loc["ServicesFor"], _serverName) : Loc["McpServiceBindings"])
                         </MudText>
                         <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
-                            @(_connectionId.HasValue ? Loc["ManageServicesForConnection"] : Loc["ConfigureExternalServices"])
+                            @(!string.IsNullOrEmpty(_connectionId) ? Loc["ManageServicesForConnection"] : Loc["ConfigureExternalServices"])
                         </MudText>
                     </div>
-                    <MudButton Href="@(_connectionId.HasValue ? $"/service-bindings/create?connectionId={_connectionId}" : "/service-bindings/create")" 
+                    <MudButton Href="@(!string.IsNullOrEmpty(_connectionId) ? $"/service-bindings/create?connectionId={_connectionId}" : "/service-bindings/create")" 
                               Variant="Variant.Filled" 
                               Style="background: #FFFFFF; color: #0097A7;"
                               StartIcon="@Icons.Material.Filled.Add"
@@ -40,7 +40,7 @@
         </MudCard>
     </MudItem>
 
-    @if (_connectionId.HasValue)
+    @if (!string.IsNullOrEmpty(_connectionId))
     {
         <MudItem xs="12">
             <MudButton Href="/connections" 
@@ -158,13 +158,13 @@
 
 @code {
     [Parameter]
-    public int? ConnectionId { get; set; }
+    public string? ConnectionId { get; set; }
 
     private List<McpServiceBindingDto> _serviceBindings = new();
     private bool _loading = true;
     private string _searchString = "";
     private string _serverName = string.Empty;
-    private int? _connectionId => ConnectionId;
+    private string? _connectionId => ConnectionId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -177,14 +177,14 @@
         {
             _loading = true;
             
-            if (_connectionId.HasValue)
+            if (!string.IsNullOrEmpty(_connectionId))
             {
-                var server = await ServerService.GetServerAsync(_connectionId.Value);
+                var server = await ServerService.GetServerAsync(_connectionId);
                 if (server != null)
                 {
                     _serverName = server.Name;
                 }
-                var bindings = await BindingService.GetBindingsByServerAsync(_connectionId.Value);
+                var bindings = await BindingService.GetBindingsByServerAsync(_connectionId);
                 _serviceBindings = bindings.ToList();
             }
             else
@@ -207,7 +207,7 @@
         }
     }
 
-    private void EditBinding(int id)
+    private void EditBinding(string id)
     {
         Navigation.NavigateTo($"/service-bindings/edit/{id}");
     }

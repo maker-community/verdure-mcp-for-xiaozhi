@@ -34,7 +34,7 @@ public class XiaozhiConnectionRepository : IXiaozhiConnectionRepository
         _context.XiaozhiConnections.Remove(connection);
     }
 
-    public async Task<XiaozhiConnection?> GetAsync(int connectionId)
+    public async Task<XiaozhiConnection?> GetAsync(string connectionId)
     {
         var connection = await _context.XiaozhiConnections
             .Include(s => s.ServiceBindings)
@@ -53,13 +53,13 @@ public class XiaozhiConnectionRepository : IXiaozhiConnectionRepository
             .ToListAsync();
     }
 
-    public async Task<McpServiceBinding?> GetServiceBindingAsync(int bindingId)
+    public async Task<McpServiceBinding?> GetServiceBindingAsync(string bindingId)
     {
         return await _context.McpServiceBindings
             .FirstOrDefaultAsync(b => b.Id == bindingId);
     }
 
-    public async Task<IEnumerable<McpServiceBinding>> GetServiceBindingsByConnectionIdAsync(int connectionId)
+    public async Task<IEnumerable<McpServiceBinding>> GetServiceBindingsByConnectionIdAsync(string connectionId)
     {
         return await _context.McpServiceBindings
             .AsNoTracking()

@@ -5,7 +5,7 @@ namespace Verdure.McpPlatform.Api.Services.WebSocket;
 /// </summary>
 public class McpSessionConfiguration
 {
-    public int ServerId { get; set; }
+    public string ServerId { get; set; } = string.Empty;
     public string ServerName { get; set; } = string.Empty;
     public string WebSocketEndpoint { get; set; } = string.Empty;
     public List<McpServiceEndpoint> McpServices { get; set; } = new();
@@ -16,7 +16,7 @@ public class McpSessionConfiguration
 /// </summary>
 public class McpServiceEndpoint
 {
-    public int BindingId { get; set; }
+    public string BindingId { get; set; } = string.Empty;
     public string ServiceName { get; set; } = string.Empty;
     public string NodeAddress { get; set; } = string.Empty;
 }

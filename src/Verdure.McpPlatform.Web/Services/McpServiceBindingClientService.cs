@@ -21,7 +21,7 @@ public class McpServiceBindingClientService : IMcpServiceBindingClientService
         _logger = logger;
     }
 
-    public async Task<IEnumerable<McpServiceBindingDto>> GetBindingsByServerAsync(int serverId)
+    public async Task<IEnumerable<McpServiceBindingDto>> GetBindingsByServerAsync(string serverId)
     {
         try
         {
@@ -51,7 +51,7 @@ public class McpServiceBindingClientService : IMcpServiceBindingClientService
         }
     }
 
-    public async Task<McpServiceBindingDto?> GetBindingAsync(int id)
+    public async Task<McpServiceBindingDto?> GetBindingAsync(string id)
     {
         try
         {
@@ -84,7 +84,7 @@ public class McpServiceBindingClientService : IMcpServiceBindingClientService
         }
     }
 
-    public async Task UpdateBindingAsync(int id, UpdateMcpServiceBindingRequest request)
+    public async Task UpdateBindingAsync(string id, UpdateMcpServiceBindingRequest request)
     {
         try
         {
@@ -98,7 +98,7 @@ public class McpServiceBindingClientService : IMcpServiceBindingClientService
         }
     }
 
-    public async Task ActivateBindingAsync(int id)
+    public async Task ActivateBindingAsync(string id)
     {
         try
         {
@@ -112,7 +112,7 @@ public class McpServiceBindingClientService : IMcpServiceBindingClientService
         }
     }
 
-    public async Task DeactivateBindingAsync(int id)
+    public async Task DeactivateBindingAsync(string id)
     {
         try
         {
@@ -126,7 +126,7 @@ public class McpServiceBindingClientService : IMcpServiceBindingClientService
         }
     }
 
-    public async Task DeleteBindingAsync(int id)
+    public async Task DeleteBindingAsync(string id)
     {
         try
         {

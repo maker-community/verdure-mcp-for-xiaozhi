@@ -15,12 +15,22 @@ public class McpServiceBindingEntityTypeConfiguration : IEntityTypeConfiguration
 
         builder.HasKey(b => b.Id);
 
+        // Configure Id as string (Guid Version 7)
+        builder.Property(b => b.Id)
+            .HasMaxLength(36)
+            .IsRequired();
+
         builder.Property(b => b.ServiceName)
             .HasMaxLength(200)
             .IsRequired();
 
         builder.Property(b => b.NodeAddress)
             .HasMaxLength(500)
+            .IsRequired();
+
+        // Configure foreign key as string
+        builder.Property(b => b.XiaozhiConnectionId)
+            .HasMaxLength(36)
             .IsRequired();
 
         builder.Property(b => b.Description)

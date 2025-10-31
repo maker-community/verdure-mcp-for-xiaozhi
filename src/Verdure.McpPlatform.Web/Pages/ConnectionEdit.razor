@@ -120,12 +120,12 @@
 
 @code {
     [Parameter]
-    public int Id { get; set; }
+    public string? Id { get; set; }
 
     private MudForm _form = null!;
     private bool _formValid;
     private bool _saving;
-    private bool _isEdit => Id > 0;
+    private bool _isEdit => !string.IsNullOrEmpty(Id);
     private XiaozhiConnectionDto? _existingServer;
     
     private ServerFormModel _model = new();
@@ -142,7 +142,7 @@
     {
         try
         {
-            _existingServer = await ServerService.GetServerAsync(Id);
+            _existingServer = await ServerService.GetServerAsync(Id!);
             if (_existingServer != null)
             {
                 _model.Name = _existingServer.Name;
@@ -179,7 +179,7 @@
                     Address = _model.Address,
                     Description = _model.Description
                 };
-                await ServerService.UpdateServerAsync(Id, request);
+                await ServerService.UpdateServerAsync(Id!, request);
                 Snackbar.Add("Connection updated successfully", Severity.Success);
             }
             else

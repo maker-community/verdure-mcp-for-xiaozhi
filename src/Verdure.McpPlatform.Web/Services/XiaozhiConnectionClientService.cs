@@ -35,7 +35,7 @@ public class XiaozhiConnectionClientService : IXiaozhiConnectionClientService
         }
     }
 
-    public async Task<XiaozhiConnectionDto?> GetServerAsync(int id)
+    public async Task<XiaozhiConnectionDto?> GetServerAsync(string id)
     {
         try
         {
@@ -68,7 +68,7 @@ public class XiaozhiConnectionClientService : IXiaozhiConnectionClientService
         }
     }
 
-    public async Task UpdateServerAsync(int id, UpdateXiaozhiConnectionRequest request)
+    public async Task UpdateServerAsync(string id, UpdateXiaozhiConnectionRequest request)
     {
         try
         {
@@ -82,7 +82,7 @@ public class XiaozhiConnectionClientService : IXiaozhiConnectionClientService
         }
     }
 
-    public async Task DeleteServerAsync(int id)
+    public async Task DeleteServerAsync(string id)
     {
         try
         {
@@ -96,7 +96,7 @@ public class XiaozhiConnectionClientService : IXiaozhiConnectionClientService
         }
     }
 
-    public async Task EnableServerAsync(int id)
+    public async Task EnableServerAsync(string id)
     {
         try
         {
@@ -110,7 +110,7 @@ public class XiaozhiConnectionClientService : IXiaozhiConnectionClientService
         }
     }
 
-    public async Task DisableServerAsync(int id)
+    public async Task DisableServerAsync(string id)
     {
         try
         {

@@ -17,7 +17,8 @@ public record CreateMcpServiceBindingRequest
     public string NodeAddress { get; init; } = string.Empty;
 
     [Required(ErrorMessage = "Server ID is required")]
-    public int ServerId { get; init; }
+    [StringLength(36, MinimumLength = 36, ErrorMessage = "Server ID must be a valid GUID")]
+    public string ServerId { get; init; } = string.Empty;
 
     [StringLength(1000, ErrorMessage = "Description cannot exceed 1000 characters")]
     public string? Description { get; init; }

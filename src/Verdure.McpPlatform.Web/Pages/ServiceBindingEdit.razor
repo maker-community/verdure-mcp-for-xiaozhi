@@ -149,15 +149,15 @@
 
 @code {
     [Parameter]
-    public int Id { get; set; }
+    public string? Id { get; set; }
 
     [SupplyParameterFromQuery]
-    public int? ServerId { get; set; }
+    public string? ServerId { get; set; }
 
     private MudForm _form = null!;
     private bool _formValid;
     private bool _saving;
-    private bool _isEdit => Id > 0;
+    private bool _isEdit => !string.IsNullOrEmpty(Id);
     private McpServiceBindingDto? _existingBinding;
     private List<XiaozhiConnectionDto> _servers = new();
     
@@ -171,9 +171,9 @@
         {
             await LoadBindingAsync();
         }
-        else if (ServerId.HasValue)
+        else if (!string.IsNullOrEmpty(ServerId))
         {
-            _model.XiaozhiConnectionId = ServerId.Value;
+            _model.XiaozhiConnectionId = ServerId;
         }
     }
 
@@ -194,7 +194,7 @@
     {
         try
         {
-            _existingBinding = await BindingService.GetBindingAsync(Id);
+            _existingBinding = await BindingService.GetBindingAsync(Id!);
             if (_existingBinding != null)
             {
                 _model.XiaozhiConnectionId = _existingBinding.XiaozhiConnectionId;
@@ -232,7 +232,7 @@
                     NodeAddress = _model.NodeAddress,
                     Description = _model.Description
                 };
-                await BindingService.UpdateBindingAsync(Id, request);
+                await BindingService.UpdateBindingAsync(Id!, request);
                 Snackbar.Add("Service binding updated successfully", Severity.Success);
             }
             else
@@ -248,7 +248,7 @@
                 Snackbar.Add("Service binding created successfully", Severity.Success);
             }
 
-            Navigation.NavigateTo(_model.XiaozhiConnectionId > 0 
+            Navigation.NavigateTo(!string.IsNullOrEmpty(_model.XiaozhiConnectionId)
                 ? $"/connections/{_model.XiaozhiConnectionId}/service-bindings" 
                 : "/service-bindings");
         }
@@ -264,14 +264,14 @@
 
     private void Cancel()
     {
-        Navigation.NavigateTo(_model.XiaozhiConnectionId > 0 
+        Navigation.NavigateTo(!string.IsNullOrEmpty(_model.XiaozhiConnectionId)
             ? $"/connections/{_model.XiaozhiConnectionId}/service-bindings" 
             : "/service-bindings");
     }
 
     private class BindingFormModel
     {
-        public int XiaozhiConnectionId { get; set; }
+        public string XiaozhiConnectionId { get; set; } = string.Empty;
         public string ServiceName { get; set; } = string.Empty;
         public string NodeAddress { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

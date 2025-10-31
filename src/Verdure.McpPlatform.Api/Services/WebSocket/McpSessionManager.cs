@@ -14,7 +14,7 @@ public class McpSessionManager : IAsyncDisposable
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ReconnectionSettings _reconnectionSettings;
     
-    private readonly ConcurrentDictionary<int, McpSessionService> _sessions = new();
+    private readonly ConcurrentDictionary<string, McpSessionService> _sessions = new();
     private readonly SemaphoreSlim _sessionLock = new(1, 1);
     
     public McpSessionManager(
@@ -38,7 +38,7 @@ public class McpSessionManager : IAsyncDisposable
     /// <summary>
     /// Start a session for a specific server
     /// </summary>
-    public async Task<bool> StartSessionAsync(int serverId, CancellationToken cancellationToken = default)
+    public async Task<bool> StartSessionAsync(string serverId, CancellationToken cancellationToken = default)
     {
         await _sessionLock.WaitAsync(cancellationToken);
         try
@@ -156,7 +156,7 @@ public class McpSessionManager : IAsyncDisposable
     /// <summary>
     /// Stop a specific session
     /// </summary>
-    public async Task<bool> StopSessionAsync(int serverId)
+    public async Task<bool> StopSessionAsync(string serverId)
     {
         if (!_sessions.TryRemove(serverId, out var session))
         {
@@ -194,7 +194,7 @@ public class McpSessionManager : IAsyncDisposable
     /// <summary>
     /// Restart a session (useful when bindings are updated)
     /// </summary>
-    public async Task<bool> RestartSessionAsync(int serverId, CancellationToken cancellationToken = default)
+    public async Task<bool> RestartSessionAsync(string serverId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Restarting session for server {ServerId}", serverId);
         
@@ -219,7 +219,7 @@ public class McpSessionManager : IAsyncDisposable
     /// <summary>
     /// Get a specific session
     /// </summary>
-    public McpSessionService? GetSession(int serverId)
+    public McpSessionService? GetSession(string serverId)
     {
         _sessions.TryGetValue(serverId, out var session);
         return session;
@@ -228,7 +228,7 @@ public class McpSessionManager : IAsyncDisposable
     /// <summary>
     /// Check if a session exists and is connected
     /// </summary>
-    public bool IsSessionConnected(int serverId)
+    public bool IsSessionConnected(string serverId)
     {
         return _sessions.TryGetValue(serverId, out var session) && session.IsConnected;
     }
@@ -236,7 +236,7 @@ public class McpSessionManager : IAsyncDisposable
     /// <summary>
     /// Get all active sessions
     /// </summary>
-    public IReadOnlyDictionary<int, McpSessionService> GetAllSessions()
+    public IReadOnlyDictionary<string, McpSessionService> GetAllSessions()
     {
         return _sessions;
     }
@@ -290,7 +290,7 @@ public class SessionStatistics
 /// </summary>
 public class SessionInfo
 {
-    public int ServerId { get; set; }
+    public string ServerId { get; set; } = string.Empty;
     public string ServerName { get; set; } = string.Empty;
     public bool IsConnected { get; set; }
     public DateTime? LastConnectedTime { get; set; }

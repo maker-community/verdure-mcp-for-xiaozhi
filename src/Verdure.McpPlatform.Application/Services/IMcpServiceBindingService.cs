@@ -9,11 +9,11 @@ namespace Verdure.McpPlatform.Application.Services;
 public interface IMcpServiceBindingService
 {
     Task<McpServiceBindingDto> CreateAsync(CreateMcpServiceBindingRequest request, string userId);
-    Task<McpServiceBindingDto?> GetByIdAsync(int id, string userId);
-    Task<IEnumerable<McpServiceBindingDto>> GetByServerAsync(int serverId, string userId);
+    Task<McpServiceBindingDto?> GetByIdAsync(string id, string userId);
+    Task<IEnumerable<McpServiceBindingDto>> GetByServerAsync(string serverId, string userId);
     Task<IEnumerable<McpServiceBindingDto>> GetActiveServiceBindingsAsync();
-    Task UpdateAsync(int id, UpdateMcpServiceBindingRequest request, string userId);
-    Task ActivateAsync(int id, string userId);
-    Task DeactivateAsync(int id, string userId);
-    Task DeleteAsync(int id, string userId);
+    Task UpdateAsync(string id, UpdateMcpServiceBindingRequest request, string userId);
+    Task ActivateAsync(string id, string userId);
+    Task DeactivateAsync(string id, string userId);
+    Task DeleteAsync(string id, string userId);
 }

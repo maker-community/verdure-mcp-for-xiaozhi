@@ -24,7 +24,7 @@ public static class XiaozhiConnectionApi
             .WithName("GetMcpServers")
             .Produces<IEnumerable<XiaozhiConnectionDto>>();
 
-        api.MapGet("/{id:int}", GetMcpServerAsync)
+        api.MapGet("/{id}", GetMcpServerAsync)
             .WithName("GetMcpServer")
             .Produces<XiaozhiConnectionDto>()
             .Produces(StatusCodes.Status404NotFound);
@@ -34,22 +34,22 @@ public static class XiaozhiConnectionApi
             .Produces<XiaozhiConnectionDto>(StatusCodes.Status201Created)
             .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
 
-        api.MapPut("/{id:int}", UpdateMcpServerAsync)
+        api.MapPut("/{id}", UpdateMcpServerAsync)
             .WithName("UpdateMcpServer")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
-        api.MapDelete("/{id:int}", DeleteMcpServerAsync)
+        api.MapDelete("/{id}", DeleteMcpServerAsync)
             .WithName("DeleteMcpServer")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
-        api.MapPost("/{id:int}/enable", EnableMcpServerAsync)
+        api.MapPost("/{id}/enable", EnableMcpServerAsync)
             .WithName("EnableMcpServer")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
-        api.MapPost("/{id:int}/disable", DisableMcpServerAsync)
+        api.MapPost("/{id}/disable", DisableMcpServerAsync)
             .WithName("DisableMcpServer")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
@@ -67,7 +67,7 @@ public static class XiaozhiConnectionApi
     }
 
     private static async Task<Results<Ok<XiaozhiConnectionDto>, NotFound>> GetMcpServerAsync(
-        int id,
+        string id,
         IXiaozhiConnectionService XiaozhiConnectionService,
         IIdentityService identityService)
     {
@@ -90,7 +90,7 @@ public static class XiaozhiConnectionApi
     }
 
     private static async Task<Results<NoContent, NotFound>> UpdateMcpServerAsync(
-        int id,
+        string id,
         UpdateXiaozhiConnectionRequest request,
         IXiaozhiConnectionService XiaozhiConnectionService,
         IIdentityService identityService)
@@ -108,7 +108,7 @@ public static class XiaozhiConnectionApi
     }
 
     private static async Task<Results<NoContent, NotFound>> DeleteMcpServerAsync(
-        int id,
+        string id,
         IXiaozhiConnectionService XiaozhiConnectionService,
         IIdentityService identityService)
     {
@@ -125,7 +125,7 @@ public static class XiaozhiConnectionApi
     }
 
     private static async Task<Results<NoContent, NotFound>> EnableMcpServerAsync(
-        int id,
+        string id,
         IXiaozhiConnectionService XiaozhiConnectionService,
         IIdentityService identityService,
         McpSessionManager sessionManager)
@@ -147,7 +147,7 @@ public static class XiaozhiConnectionApi
     }
 
     private static async Task<Results<NoContent, NotFound>> DisableMcpServerAsync(
-        int id,
+        string id,
         IXiaozhiConnectionService XiaozhiConnectionService,
         IIdentityService identityService,
         McpSessionManager sessionManager)

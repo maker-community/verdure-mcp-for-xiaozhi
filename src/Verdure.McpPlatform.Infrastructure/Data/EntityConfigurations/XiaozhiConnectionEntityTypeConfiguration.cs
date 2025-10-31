@@ -15,6 +15,11 @@ public class XiaozhiConnectionEntityTypeConfiguration : IEntityTypeConfiguration
 
         builder.HasKey(s => s.Id);
 
+        // Configure Id as string (Guid Version 7)
+        builder.Property(s => s.Id)
+            .HasMaxLength(36)
+            .IsRequired();
+
         builder.Property(s => s.Name)
             .HasMaxLength(200)
             .IsRequired();

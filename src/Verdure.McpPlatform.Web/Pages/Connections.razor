@@ -253,12 +253,12 @@
         }
     }
 
-    private void EditServer(int id)
+    private void EditServer(string id)
     {
         Navigation.NavigateTo($"/connections/edit/{id}");
     }
 
-    private void ViewBindings(int id)
+    private void ViewBindings(string id)
     {
         Navigation.NavigateTo($"/connections/{id}/service-bindings");
     }

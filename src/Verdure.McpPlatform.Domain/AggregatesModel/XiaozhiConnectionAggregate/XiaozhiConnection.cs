@@ -32,6 +32,7 @@ public class XiaozhiConnection : Entity, IAggregateRoot
 
     public XiaozhiConnection(string name, string address, string userId, string? description = null) : this()
     {
+        GenerateId(); // Generate Guid Version 7 ID
         Name = name ?? throw new ArgumentNullException(nameof(name));
         Address = address ?? throw new ArgumentNullException(nameof(address));
         UserId = userId ?? throw new ArgumentNullException(nameof(userId));

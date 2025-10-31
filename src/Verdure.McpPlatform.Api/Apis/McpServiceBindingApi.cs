@@ -20,7 +20,7 @@ public static class McpServiceBindingApi
             .WithTags("MCP Bindings")
             .WithOpenApi();
 
-        api.MapGet("/server/{serverId:int}", GetBindingsByServerAsync)
+        api.MapGet("/server/{serverId}", GetBindingsByServerAsync)
             .WithName("GetBindingsByServer")
             .Produces<IEnumerable<McpServiceBindingDto>>();
 
@@ -28,7 +28,7 @@ public static class McpServiceBindingApi
             .WithName("GetActiveBindings")
             .Produces<IEnumerable<McpServiceBindingDto>>();
 
-        api.MapGet("/{id:int}", GetBindingAsync)
+        api.MapGet("/{id}", GetBindingAsync)
             .WithName("GetBinding")
             .Produces<McpServiceBindingDto>()
             .Produces(StatusCodes.Status404NotFound);
@@ -38,22 +38,22 @@ public static class McpServiceBindingApi
             .Produces<McpServiceBindingDto>(StatusCodes.Status201Created)
             .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
 
-        api.MapPut("/{id:int}", UpdateBindingAsync)
+        api.MapPut("/{id}", UpdateBindingAsync)
             .WithName("UpdateBinding")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
-        api.MapPut("/{id:int}/activate", ActivateBindingAsync)
+        api.MapPut("/{id}/activate", ActivateBindingAsync)
             .WithName("ActivateBinding")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
-        api.MapPut("/{id:int}/deactivate", DeactivateBindingAsync)
+        api.MapPut("/{id}/deactivate", DeactivateBindingAsync)
             .WithName("DeactivateBinding")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
-        api.MapDelete("/{id:int}", DeleteBindingAsync)
+        api.MapDelete("/{id}", DeleteBindingAsync)
             .WithName("DeleteBinding")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
@@ -62,7 +62,7 @@ public static class McpServiceBindingApi
     }
 
     private static async Task<Ok<IEnumerable<McpServiceBindingDto>>> GetBindingsByServerAsync(
-        int serverId,
+        string serverId,
         IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService)
     {
@@ -79,7 +79,7 @@ public static class McpServiceBindingApi
     }
 
     private static async Task<Results<Ok<McpServiceBindingDto>, NotFound>> GetBindingAsync(
-        int id,
+        string id,
         IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService)
     {
@@ -117,7 +117,7 @@ public static class McpServiceBindingApi
     }
 
     private static async Task<Results<NoContent, NotFound>> UpdateBindingAsync(
-        int id,
+        string id,
         UpdateMcpServiceBindingRequest request,
         IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService)
@@ -139,7 +139,7 @@ public static class McpServiceBindingApi
     }
 
     private static async Task<Results<NoContent, NotFound>> ActivateBindingAsync(
-        int id,
+        string id,
         IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService)
     {
@@ -160,7 +160,7 @@ public static class McpServiceBindingApi
     }
 
     private static async Task<Results<NoContent, NotFound>> DeactivateBindingAsync(
-        int id,
+        string id,
         IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService)
     {
@@ -181,7 +181,7 @@ public static class McpServiceBindingApi
     }
 
     private static async Task<Results<NoContent, NotFound>> DeleteBindingAsync(
-        int id,
+        string id,
         IMcpServiceBindingService McpServiceBindingService,
         IIdentityService identityService,
         McpSessionManager sessionManager)

@@ -10,7 +10,7 @@ public class McpServiceBinding : Entity
 {
     public string ServiceName { get; private set; }
     public string NodeAddress { get; private set; }
-    public int XiaozhiConnectionId { get; private set; }
+    public string XiaozhiConnectionId { get; private set; }
     public string? Description { get; private set; }
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -20,13 +20,15 @@ public class McpServiceBinding : Entity
     {
         ServiceName = string.Empty;
         NodeAddress = string.Empty;
+        XiaozhiConnectionId = string.Empty;
     }
 
-    public McpServiceBinding(string serviceName, string nodeAddress, int xiaozhiConnectionId, string? description = null)
+    public McpServiceBinding(string serviceName, string nodeAddress, string xiaozhiConnectionId, string? description = null)
     {
+        GenerateId(); // Generate Guid Version 7 ID
         ServiceName = serviceName ?? throw new ArgumentNullException(nameof(serviceName));
         NodeAddress = nodeAddress ?? throw new ArgumentNullException(nameof(nodeAddress));
-        XiaozhiConnectionId = xiaozhiConnectionId;
+        XiaozhiConnectionId = xiaozhiConnectionId ?? throw new ArgumentNullException(nameof(xiaozhiConnectionId));
         Description = description;
         IsActive = true;
         CreatedAt = DateTime.UtcNow;

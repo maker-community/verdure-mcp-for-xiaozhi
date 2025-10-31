@@ -9,10 +9,10 @@ namespace Verdure.McpPlatform.Web.Services;
 public interface IXiaozhiConnectionClientService
 {
     Task<IEnumerable<XiaozhiConnectionDto>> GetServersAsync();
-    Task<XiaozhiConnectionDto?> GetServerAsync(int id);
+    Task<XiaozhiConnectionDto?> GetServerAsync(string id);
     Task<XiaozhiConnectionDto> CreateServerAsync(CreateXiaozhiConnectionRequest request);
-    Task UpdateServerAsync(int id, UpdateXiaozhiConnectionRequest request);
-    Task DeleteServerAsync(int id);
-    Task EnableServerAsync(int id);
-    Task DisableServerAsync(int id);
+    Task UpdateServerAsync(string id, UpdateXiaozhiConnectionRequest request);
+    Task DeleteServerAsync(string id);
+    Task EnableServerAsync(string id);
+    Task DisableServerAsync(string id);
 }

@@ -42,7 +42,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
         return MapToDto(binding);
     }
 
-    public async Task<McpServiceBindingDto?> GetByIdAsync(int id, string userId)
+    public async Task<McpServiceBindingDto?> GetByIdAsync(string id, string userId)
     {
         var binding = await _repository.GetServiceBindingAsync(id);
         
@@ -61,7 +61,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
         return MapToDto(binding);
     }
 
-    public async Task<IEnumerable<McpServiceBindingDto>> GetByServerAsync(int serverId, string userId)
+    public async Task<IEnumerable<McpServiceBindingDto>> GetByServerAsync(string serverId, string userId)
     {
         var server = await _repository.GetAsync(serverId);
         
@@ -80,7 +80,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
         return bindings.Select(MapToDto);
     }
 
-    public async Task UpdateAsync(int id, UpdateMcpServiceBindingRequest request, string userId)
+    public async Task UpdateAsync(string id, UpdateMcpServiceBindingRequest request, string userId)
     {
         var binding = await _repository.GetServiceBindingAsync(id);
         
@@ -102,7 +102,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
         _logger.LogInformation("Updated MCP binding {BindingId}", id);
     }
 
-    public async Task ActivateAsync(int id, string userId)
+    public async Task ActivateAsync(string id, string userId)
     {
         var binding = await _repository.GetServiceBindingAsync(id);
         
@@ -124,7 +124,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
         _logger.LogInformation("Activated MCP binding {BindingId}", id);
     }
 
-    public async Task DeactivateAsync(int id, string userId)
+    public async Task DeactivateAsync(string id, string userId)
     {
         var binding = await _repository.GetServiceBindingAsync(id);
         
@@ -146,7 +146,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
         _logger.LogInformation("Deactivated MCP binding {BindingId}", id);
     }
 
-    public async Task DeleteAsync(int id, string userId)
+    public async Task DeleteAsync(string id, string userId)
     {
         var binding = await _repository.GetServiceBindingAsync(id);
         

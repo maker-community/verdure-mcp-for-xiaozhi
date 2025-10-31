@@ -11,9 +11,9 @@ public interface IXiaozhiConnectionRepository : IRepository<XiaozhiConnection>
     XiaozhiConnection Add(XiaozhiConnection connection);
     void Update(XiaozhiConnection connection);
     void Delete(XiaozhiConnection connection);
-    Task<XiaozhiConnection?> GetAsync(int connectionId);
+    Task<XiaozhiConnection?> GetAsync(string connectionId);
     Task<IEnumerable<XiaozhiConnection>> GetByUserIdAsync(string userId);
-    Task<McpServiceBinding?> GetServiceBindingAsync(int bindingId);
-    Task<IEnumerable<McpServiceBinding>> GetServiceBindingsByConnectionIdAsync(int connectionId);
+    Task<McpServiceBinding?> GetServiceBindingAsync(string bindingId);
+    Task<IEnumerable<McpServiceBinding>> GetServiceBindingsByConnectionIdAsync(string connectionId);
     Task<IEnumerable<McpServiceBinding>> GetActiveServiceBindingsAsync();
 }
