@@ -1,13 +1,16 @@
 ﻿@page "/service-bindings"
 @page "/connections/{ConnectionId:int}/service-bindings"
 @attribute [Authorize]
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
 @inject IMcpServiceBindingClientService BindingService
 @inject IXiaozhiConnectionClientService ServerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
+@inject IStringLocalizer<SharedResources> Loc
 
-<PageTitle>MCP External MCP Services - Verdure MCP Platform</PageTitle>
+<PageTitle>@Loc["McpServiceBindings"] - @Loc["AppTitle"]</PageTitle>
 
 <MudGrid>
     <!-- M3 Hero Banner - 统一蓝色渐变 -->
@@ -18,10 +21,10 @@
                     <div>
                         <MudText Typo="Typo.h4" Class="m3-mb-sm" Style="font-weight: 600; color: #FFFFFF;">
                             <MudIcon Icon="@Icons.Material.Filled.Link" Class="mr-2" Style="color: #FFFFFF;" /> 
-                            @(_connectionId.HasValue ? $"Services for {_serverName}" : "MCP Service Bindings")
+                            @(_connectionId.HasValue ? string.Format(Loc["ServicesFor"], _serverName) : Loc["McpServiceBindings"])
                         </MudText>
                         <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
-                            @(_connectionId.HasValue ? "Manage MCP services for this connection" : "Configure external MCP service bindings")
+                            @(_connectionId.HasValue ? Loc["ManageServicesForConnection"] : Loc["ConfigureExternalServices"])
                         </MudText>
                     </div>
                     <MudButton Href="@(_connectionId.HasValue ? $"/service-bindings/create?connectionId={_connectionId}" : "/service-bindings/create")" 
@@ -30,7 +33,7 @@
                               StartIcon="@Icons.Material.Filled.Add"
                               Size="Size.Large"
                               Class="m3-button-lg">
-                        Add Service
+                        @Loc["AddService"]
                     </MudButton>
                 </div>
             </MudCardContent>
@@ -43,7 +46,7 @@
             <MudButton Href="/connections" 
                       Variant="Variant.Text" 
                       StartIcon="@Icons.Material.Filled.ArrowBack">
-                Back to Servers
+                @Loc["BackToServers"]
             </MudButton>
         </MudItem>
     }
@@ -57,10 +60,10 @@
                          Breakpoint="Breakpoint.Sm"
                          Dense="true">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h6" Style="font-weight: 500;">External MCP Services</MudText>
+                        <MudText Typo="Typo.h6" Style="font-weight: 500;">@Loc["ExternalMcpServices"]</MudText>
                         <MudSpacer />
                         <MudTextField @bind-Value="_searchString" 
-                                     Placeholder="Search services..." 
+                                     Placeholder="@Loc["SearchServices"]" 
                                      Adornment="Adornment.Start" 
                                      AdornmentIcon="@Icons.Material.Outlined.Search" 
                                      IconSize="Size.Medium" 
@@ -71,11 +74,11 @@
                                      Immediate="true"></MudTextField>
                     </ToolBarContent>
                     <HeaderContent>
-                        <MudTh>Service Name</MudTh>
-                        <MudTh>MCP Service Endpoint</MudTh>
-                        <MudTh>Status</MudTh>
-                        <MudTh>Created</MudTh>
-                        <MudTh>Actions</MudTh>
+                        <MudTh>@Loc["ServiceName"]</MudTh>
+                        <MudTh>@Loc["McpServiceEndpoint"]</MudTh>
+                        <MudTh>@Loc["Status"]</MudTh>
+                        <MudTh>@Loc["CreatedAt"]</MudTh>
+                        <MudTh>@Loc["Actions"]</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         @if (string.IsNullOrWhiteSpace(_searchString) || 
@@ -116,7 +119,7 @@
                                                  Size="Size.Small" 
                                                  Color="Color.Warning"
                                                  OnClick="@(() => DeactivateBinding(context))" 
-                                                 Title="Deactivate" />
+                                                 Title="@Loc["Deactivate"]" />
                                 }
                                 else
                                 {
@@ -124,24 +127,24 @@
                                                  Size="Size.Small" 
                                                  Color="Color.Success"
                                                  OnClick="@(() => ActivateBinding(context))" 
-                                                 Title="Activate" />
+                                                 Title="@Loc["Activate"]" />
                                 }
                                 <MudIconButton Icon="@Icons.Material.Filled.Edit" 
                                              Size="Size.Small" 
                                              Color="Color.Primary"
                                              OnClick="@(() => EditBinding(context.Id))" 
-                                             Title="Edit" />
+                                             Title="@Loc["Edit"]" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Delete" 
                                              Size="Size.Small" 
                                              Color="Color.Error"
                                              OnClick="@(() => DeleteBinding(context))" 
-                                             Title="Delete" />
+                                             Title="@Loc["Delete"]" />
                             </MudTd>
                         }
                     </RowTemplate>
                     <NoRecordsContent>
                         <MudAlert Severity="Severity.Info" Class="my-4">
-                            No services found. Click "Add Service" to bind your first external MCP service!
+                            @Loc["NoServicesFound"]
                         </MudAlert>
                     </NoRecordsContent>
                     <LoadingContent>

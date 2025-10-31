@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="utf-8" />
@@ -21,7 +21,7 @@
     
     <!-- Custom CSS -->
     <link href="css/app.css" rel="stylesheet" />
-    <link href="Verdure.McpPlatform.Web.styles.css" rel="stylesheet" />
+    <link href="css/Verdure.McpPlatform.Web.styles.css" rel="stylesheet" />
     
     <style>
         body {
@@ -82,8 +82,49 @@
     
     <!-- Scripts -->
     <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    
+    <!-- Globalization support - Culture management (Microsoft Official Way) -->
+    <script>
+        // Helper functions for culture storage
+        window.blazorCulture = {
+            get: () => {
+                try {
+                    return window.localStorage.getItem('BlazorCulture');
+                } catch (e) {
+                    console.error('Failed to get culture from localStorage:', e);
+                    return null;
+                }
+            },
+            set: (value) => {
+                try {
+                    window.localStorage.setItem('BlazorCulture', value);
+                    console.log('Culture saved to localStorage:', value);
+                    return true;
+                } catch (e) {
+                    console.error('Failed to set culture in localStorage:', e);
+                    return false;
+                }
+            }
+        };
+        
+        // Official Microsoft approach: Set culture before Blazor starts
+        // Reference: https://github.com/dotnet/aspnetcore/tree/main/src/Components/test/testassets/GlobalizationWasmApp
+        (function() {
+            const savedCulture = window.localStorage.getItem('BlazorCulture') || 'zh-CN';
+            console.log('🌐 Starting Blazor with culture:', savedCulture);
+            
+            // Start Blazor with the specified culture
+            Blazor.start({
+                applicationCulture: savedCulture
+            }).then(() => {
+                console.log('✅ Blazor started successfully with culture:', savedCulture);
+            }).catch((error) => {
+                console.error('❌ Failed to start Blazor:', error);
+            });
+        })();
+    </script>
 </body>
 
 </html>

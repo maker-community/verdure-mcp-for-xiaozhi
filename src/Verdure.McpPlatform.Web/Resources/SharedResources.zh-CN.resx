@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Application Title -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>Verdure MCP 平台</value>
+  </data>
+  
+  <!-- Common UI Strings -->
+  <data name="Welcome" xml:space="preserve">
+    <value>欢迎</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>首页</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>登录</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  
+  <!-- Common Actions -->
+  <data name="Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>创建</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>确认</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  
+  <!-- Navigation -->
+  <data name="XiaozhiConnections" xml:space="preserve">
+    <value>小智连接</value>
+  </data>
+  <data name="McpBindings" xml:space="preserve">
+    <value>MCP 绑定</value>
+  </data>
+  
+  <!-- Status -->
+  <data name="Active" xml:space="preserve">
+    <value>活跃</value>
+  </data>
+  <data name="Inactive" xml:space="preserve">
+    <value>未活跃</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>状态</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="LoadingMessage" xml:space="preserve">
+    <value>加载中...</value>
+  </data>
+  <data name="NoDataMessage" xml:space="preserve">
+    <value>暂无数据</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>发生错误</value>
+  </data>
+  <data name="SuccessMessage" xml:space="preserve">
+    <value>操作成功</value>
+  </data>
+  
+  <!-- Validation -->
+  <data name="RequiredField" xml:space="preserve">
+    <value>此字段为必填项</value>
+  </data>
+  <data name="InvalidFormat" xml:space="preserve">
+    <value>格式无效</value>
+  </data>
+  
+  <!-- Dashboard -->
+  <data name="Dashboard" xml:space="preserve">
+    <value>仪表板</value>
+  </data>
+  <data name="DashboardOverview" xml:space="preserve">
+    <value>MCP 平台统计信息和最近活动概览</value>
+  </data>
+  <data name="TotalBindings" xml:space="preserve">
+    <value>绑定总数</value>
+  </data>
+  <data name="ActiveBindings" xml:space="preserve">
+    <value>活动绑定</value>
+  </data>
+  <data name="InactiveBindings" xml:space="preserve">
+    <value>非活动绑定</value>
+  </data>
+  <data name="QuickActions" xml:space="preserve">
+    <value>快速操作</value>
+  </data>
+  <data name="AddXiaozhiConnection" xml:space="preserve">
+    <value>添加小智连接</value>
+  </data>
+  <data name="CreateBinding" xml:space="preserve">
+    <value>创建绑定</value>
+  </data>
+  <data name="ViewAllConnections" xml:space="preserve">
+    <value>查看所有连接</value>
+  </data>
+  <data name="RecentServers" xml:space="preserve">
+    <value>最近的服务器</value>
+  </data>
+  <data name="BindingsCount" xml:space="preserve">
+    <value>{0} 个绑定</value>
+  </data>
+  <data name="NoServersYet" xml:space="preserve">
+    <value>暂无服务器。创建小智连接以开始使用！</value>
+  </data>
+  <data name="WelcomeToPlatform" xml:space="preserve">
+    <value>欢迎使用 Verdure MCP 平台</value>
+  </data>
+  <data name="PlatformDescription" xml:space="preserve">
+    <value>一个功能强大的平台，用于管理 MCP（模型上下文协议）服务与小智 AI 集成。</value>
+  </data>
+  <data name="LoginToGetStarted" xml:space="preserve">
+    <value>登录以开始使用</value>
+  </data>
+  
+  <!-- Navigation -->
+  <data name="Navigation" xml:space="preserve">
+    <value>导航</value>
+  </data>
+  <data name="McpManagement" xml:space="preserve">
+    <value>MCP 管理</value>
+  </data>
+  <data name="McpServices" xml:space="preserve">
+    <value>MCP 服务</value>
+  </data>
+  
+  <!-- Connections Page -->
+  <data name="ManageConnections" xml:space="preserve">
+    <value>管理您的小智 AI 服务器连接</value>
+  </data>
+  <data name="AddConnection" xml:space="preserve">
+    <value>添加连接</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>地址</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>创建时间</value>
+  </data>
+  <data name="UpdatedAt" xml:space="preserve">
+    <value>更新时间</value>
+  </data>
+  <data name="ViewServices" xml:space="preserve">
+    <value>查看服务</value>
+  </data>
+  <data name="NoConnectionsYet" xml:space="preserve">
+    <value>暂无连接。创建您的第一个小智连接以开始使用！</value>
+  </data>
+  <data name="DeleteConnection" xml:space="preserve">
+    <value>删除连接</value>
+  </data>
+  <data name="DeleteConnectionConfirm" xml:space="preserve">
+    <value>确定要删除此连接吗？所有关联的服务绑定也将被删除。</value>
+  </data>
+  <data name="ConnectionDeleted" xml:space="preserve">
+    <value>连接已成功删除</value>
+  </data>
+  
+  <!-- Service Bindings Page -->
+  <data name="McpServiceBindings" xml:space="preserve">
+    <value>MCP 服务绑定</value>
+  </data>
+  <data name="ConfigureExternalServices" xml:space="preserve">
+    <value>配置外部 MCP 服务绑定</value>
+  </data>
+  <data name="ManageServicesForConnection" xml:space="preserve">
+    <value>管理此连接的 MCP 服务</value>
+  </data>
+  <data name="ServicesFor" xml:space="preserve">
+    <value>{0} 的服务</value>
+  </data>
+  <data name="AddService" xml:space="preserve">
+    <value>添加服务</value>
+  </data>
+  <data name="ServiceName" xml:space="preserve">
+    <value>服务名称</value>
+  </data>
+  <data name="Connection" xml:space="preserve">
+    <value>连接</value>
+  </data>
+  <data name="Transport" xml:space="preserve">
+    <value>传输方式</value>
+  </data>
+  <data name="Command" xml:space="preserve">
+    <value>命令</value>
+  </data>
+  <data name="Args" xml:space="preserve">
+    <value>参数</value>
+  </data>
+  <data name="Environment" xml:space="preserve">
+    <value>环境变量</value>
+  </data>
+  <data name="NoServicesYet" xml:space="preserve">
+    <value>暂无服务。创建您的第一个 MCP 服务绑定！</value>
+  </data>
+  <data name="DeleteService" xml:space="preserve">
+    <value>删除服务</value>
+  </data>
+  <data name="DeleteServiceConfirm" xml:space="preserve">
+    <value>确定要删除此服务绑定吗？</value>
+  </data>
+  <data name="ServiceDeleted" xml:space="preserve">
+    <value>服务已成功删除</value>
+  </data>
+  <data name="Activate" xml:space="preserve">
+    <value>激活</value>
+  </data>
+  <data name="Deactivate" xml:space="preserve">
+    <value>停用</value>
+  </data>
+  <data name="ServiceActivated" xml:space="preserve">
+    <value>服务已成功激活</value>
+  </data>
+  <data name="ServiceDeactivated" xml:space="preserve">
+    <value>服务已成功停用</value>
+  </data>
+  <data name="Connected" xml:space="preserve">
+    <value>已连接</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>未连接</value>
+  </data>
+  <data name="NotStarted" xml:space="preserve">
+    <value>未启动</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>查看详情</value>
+  </data>
+  <!-- Additional Chinese Translations -->
+  <data name="YourConnections" xml:space="preserve">
+    <value>您的连接</value>
+  </data>
+  <data name="SearchConnections" xml:space="preserve">
+    <value>搜索连接...</value>
+  </data>
+  <data name="SearchServices" xml:space="preserve">
+    <value>搜索服务...</value>
+  </data>
+  <data name="BackToServers" xml:space="preserve">
+    <value>返回服务器</value>
+  </data>
+  <data name="ExternalMcpServices" xml:space="preserve">
+    <value>外部 MCP 服务</value>
+  </data>
+  <data name="McpServiceEndpoint" xml:space="preserve">
+    <value>MCP 服务端点</value>
+  </data>
+  <data name="DisableConnection" xml:space="preserve">
+    <value>禁用连接</value>
+  </data>
+  <data name="EnableConnection" xml:space="preserve">
+    <value>启用连接</value>
+  </data>
+  <data name="AccountInformation" xml:space="preserve">
+    <value>账户信息</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>用户名</value>
+  </data>
+  <data name="UserClaims" xml:space="preserve">
+    <value>用户声明</value>
+  </data>
+  <data name="ClaimType" xml:space="preserve">
+    <value>声明类型</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>值</value>
+  </data>
+  <data name="LanguagePreferences" xml:space="preserve">
+    <value>语言偏好</value>
+  </data>
+  <data name="ManageAccountPreferences" xml:space="preserve">
+    <value>管理您的账户偏好和应用程序设置</value>
+  </data>
+  <data name="NoServicesFound" xml:space="preserve">
+    <value>未找到服务。点击"添加服务"绑定您的第一个外部 MCP 服务！</value>
+  </data>
+  <data name="ViewBindings" xml:space="preserve">
+    <value>查看绑定</value>
+  </data>
+</root>

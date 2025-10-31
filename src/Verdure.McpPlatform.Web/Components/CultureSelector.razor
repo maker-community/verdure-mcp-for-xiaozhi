@@ -1,0 +1,98 @@
+@using System.Globalization
+@using Microsoft.JSInterop
+@using MudBlazor
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudMenu AnchorOrigin="Origin.BottomCenter" 
+         TransformOrigin="Origin.TopCenter"
+         Dense="true">
+    <ActivatorContent>
+        <MudButton Variant="Variant.Text" 
+                   Color="Color.Inherit" 
+                   StartIcon="@Icons.Material.Filled.Language"
+                   IconColor="Color.Inherit"
+                   Class="text-white">
+            @GetCultureDisplayName(_currentCulture)
+        </MudButton>
+    </ActivatorContent>
+    <ChildContent>
+        @foreach (var culture in _supportedCultures)
+        {
+            <MudMenuItem OnClick="@(() => OnCultureChanged(culture.Name))"
+                        Class="@(culture.Name == _currentCulture ? "mud-theme-primary" : "")">
+                <div class="d-flex align-center gap-2">
+                    <MudIcon Icon="@GetCultureIcon(culture.Name)" Size="Size.Small" />
+                    <MudText>@culture.DisplayName</MudText>
+                    @if (culture.Name == _currentCulture)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Check" 
+                                 Size="Size.Small" 
+                                 Color="Color.Primary" 
+                                 Class="ml-auto" />
+                    }
+                </div>
+            </MudMenuItem>
+        }
+    </ChildContent>
+</MudMenu>
+
+@code {
+    private string _currentCulture = CultureInfo.CurrentUICulture.Name;
+    
+    private readonly CultureInfo[] _supportedCultures = new[]
+    {
+        new CultureInfo("zh-CN"),
+        new CultureInfo("en")
+    };
+
+    private string GetCultureDisplayName(string cultureName)
+    {
+        return cultureName switch
+        {
+            "zh-CN" => "中文",
+            "en" => "English",
+            _ => cultureName
+        };
+    }
+
+    private string GetCultureIcon(string cultureName)
+    {
+        return cultureName switch
+        {
+            "zh-CN" => Icons.Material.Filled.Translate,  // 中文图标
+            "en" => Icons.Material.Filled.Language,       // 英文图标
+            _ => Icons.Material.Filled.Language
+        };
+    }
+
+    private async Task OnCultureChanged(string cultureName)
+    {
+        if (cultureName == _currentCulture)
+        {
+            return;
+        }
+
+        try
+        {
+            // Save culture to browser localStorage
+            await JSRuntime.InvokeVoidAsync("blazorCulture.set", cultureName);
+            
+            // Small delay to ensure localStorage is written
+            await Task.Delay(100);
+
+            // Force full page reload to apply new culture
+            // This is necessary because Blazor WebAssembly sets culture at startup
+            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error changing culture: {ex.Message}");
+            // If JavaScript interop fails, still try to reload
+            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+        }
+    }
+}

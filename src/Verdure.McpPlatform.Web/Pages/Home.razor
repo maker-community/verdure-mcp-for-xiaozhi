@@ -1,8 +1,11 @@
 ﻿@page "/"
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
 @inject IXiaozhiConnectionClientService ServerService
 @inject IMcpServiceBindingClientService BindingService
+@inject IStringLocalizer<SharedResources> Loc
 
-<PageTitle>Dashboard - Verdure MCP Platform</PageTitle>
+<PageTitle>@Loc["Dashboard"] - @Loc["AppTitle"]</PageTitle>
 
 <MudGrid>
     <!-- M3 Hero Banner - 统一蓝色渐变 -->
@@ -12,11 +15,11 @@
                 <div class="d-flex align-center mb-2">
                     <MudIcon Icon="@Icons.Material.Filled.Dashboard" Size="Size.Large" Style="color: #FFFFFF; margin-right: 12px;" />
                     <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
-                        Dashboard
+                        @Loc["Dashboard"]
                     </MudText>
                 </div>
                 <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); margin-left: 48px;">
-                    Overview of your MCP platform statistics and recent activity
+                    @Loc["DashboardOverview"]
                 </MudText>
             </MudCardContent>
         </MudCard>
@@ -31,7 +34,7 @@
                         <div class="d-flex justify-space-between align-center">
                             <div>
                                 <MudText Typo="Typo.h4" Style="color: #1565C0; font-weight: 600;">@_serverCount</MudText>
-                                <MudText Typo="Typo.body2" Style="color: #1976D2; font-weight: 500;">Xiaozhi Connections</MudText>
+                                <MudText Typo="Typo.body2" Style="color: #1976D2; font-weight: 500;">@Loc["XiaozhiConnections"]</MudText>
                             </div>
                             <MudIcon Icon="@Icons.Material.Filled.Dns" Size="Size.Large" Style="color: #1976D2;" />
                         </div>
@@ -46,7 +49,7 @@
                         <div class="d-flex justify-space-between align-center">
                             <div>
                                 <MudText Typo="Typo.h4" Style="color: #00838F; font-weight: 600;">@_bindingCount</MudText>
-                                <MudText Typo="Typo.body2" Style="color: #0097A7; font-weight: 500;">Total Bindings</MudText>
+                                <MudText Typo="Typo.body2" Style="color: #0097A7; font-weight: 500;">@Loc["TotalBindings"]</MudText>
                             </div>
                             <MudIcon Icon="@Icons.Material.Filled.Link" Size="Size.Large" Style="color: #0097A7;" />
                         </div>
@@ -61,7 +64,7 @@
                         <div class="d-flex justify-space-between align-center">
                             <div>
                                 <MudText Typo="Typo.h4" Style="color: #2E7D32; font-weight: 600;">@_activeBindingCount</MudText>
-                                <MudText Typo="Typo.body2" Style="color: #43A047; font-weight: 500;">Active Bindings</MudText>
+                                <MudText Typo="Typo.body2" Style="color: #43A047; font-weight: 500;">@Loc["ActiveBindings"]</MudText>
                             </div>
                             <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Large" Style="color: #43A047;" />
                         </div>
@@ -76,7 +79,7 @@
                         <div class="d-flex justify-space-between align-center">
                             <div>
                                 <MudText Typo="Typo.h4" Style="color: #E65100; font-weight: 600;">@(_bindingCount - _activeBindingCount)</MudText>
-                                <MudText Typo="Typo.body2" Style="color: #FB8C00; font-weight: 500;">Inactive Bindings</MudText>
+                                <MudText Typo="Typo.body2" Style="color: #FB8C00; font-weight: 500;">@Loc["InactiveBindings"]</MudText>
                             </div>
                             <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Size="Size.Large" Style="color: #FB8C00;" />
                         </div>
@@ -89,7 +92,7 @@
                 <MudCard Elevation="1" Class="m3-card">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6" Style="font-weight: 500;">Quick Actions</MudText>
+                            <MudText Typo="Typo.h6" Style="font-weight: 500;">@Loc["QuickActions"]</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
@@ -99,21 +102,21 @@
                                       Color="Color.Primary" 
                                       StartIcon="@Icons.Material.Filled.Add"
                                       Class="m3-button">
-                                Add Xiaozhi Connection
+                                @Loc["AddXiaozhiConnection"]
                             </MudButton>
                             <MudButton Href="/service-bindings/create" 
                                       Variant="Variant.Filled" 
                                       Color="Color.Secondary" 
                                       StartIcon="@Icons.Material.Filled.Link"
                                       Class="m3-button">
-                                Create Binding
+                                @Loc["CreateBinding"]
                             </MudButton>
                             <MudButton Href="/connections" 
                                       Variant="Variant.Outlined" 
                                       Color="Color.Primary" 
                                       StartIcon="@Icons.Material.Filled.List"
                                       Class="m3-button">
-                                View All Connections
+                                @Loc["ViewAllConnections"]
                             </MudButton>
                         </div>
                     </MudCardContent>
@@ -124,7 +127,7 @@
                 <MudCard Elevation="2">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">Recent Servers</MudText>
+                            <MudText Typo="Typo.h6">@Loc["RecentServers"]</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
@@ -144,7 +147,7 @@
                                                 <MudText Typo="Typo.body2" Color="Color.Secondary">@server.Address</MudText>
                                             </div>
                                             <MudChip T="string" Size="Size.Small" Color="Color.Info">
-                                                @server.ServiceBindings.Count binding(s)
+                                                @string.Format(Loc["BindingsCount"], server.ServiceBindings.Count)
                                             </MudChip>
                                         </div>
                                     </MudListItem>
@@ -154,7 +157,7 @@
                         }
                         else
                         {
-                            <MudAlert Severity="Severity.Info">No servers yet. Create Xiaozhi Connection to get started!</MudAlert>
+                            <MudAlert Severity="Severity.Info">@Loc["NoServersYet"]</MudAlert>
                         }
                     </MudCardContent>
                 </MudCard>
@@ -165,16 +168,16 @@
                 <MudCard Elevation="2" Class="pa-8 text-center">
                     <MudCardContent>
                         <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
-                        <MudText Typo="Typo.h4" Class="mb-2">Welcome to Verdure MCP Platform</MudText>
+                        <MudText Typo="Typo.h4" Class="mb-2">@Loc["WelcomeToPlatform"]</MudText>
                         <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
-                            A powerful platform for managing MCP (Model Context Protocol) services with Xiaozhi AI integration.
+                            @Loc["PlatformDescription"]
                         </MudText>
                         <MudButton Href="/login" 
                                   Variant="Variant.Filled" 
                                   Color="Color.Primary" 
                                   Size="Size.Large" 
                                   StartIcon="@Icons.Material.Filled.Login">
-                            Login to Get Started
+                            @Loc["LoginToGetStarted"]
                         </MudButton>
                     </MudCardContent>
                 </MudCard>

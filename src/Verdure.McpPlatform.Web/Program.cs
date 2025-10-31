@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.Web;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
@@ -12,6 +13,12 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 // Configure API base address
 var apiBaseAddress = builder.Configuration["ApiBaseAddress"]
     ?? builder.HostEnvironment.BaseAddress;
+
+// Add localization services
+// FIX ATTEMPT 1: Try simple AddLocalization() without ResourcesPath
+// Reference: https://github.com/dotnet/aspnetcore GlobalizationWasmApp
+// This works when resource namespace matches the default convention
+builder.Services.AddLocalization();
 
 // Add MudBlazor services with custom theme
 builder.Services.AddMudServices(config =>
@@ -56,4 +63,11 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
 builder.Services.AddScoped<IXiaozhiConnectionClientService, XiaozhiConnectionClientService>();
 builder.Services.AddScoped<IMcpServiceBindingClientService, McpServiceBindingClientService>();
 
+// Build and run the host
+// Note: Application culture is set in index.html via Blazor.start({ applicationCulture })
+// The Blazor framework will automatically:
+// 1. Set CultureInfo.CurrentCulture and CultureInfo.CurrentUICulture
+// 2. Load the appropriate satellite assemblies (e.g., zh-CN\Verdure.McpPlatform.Web.resources.dll)
+// 3. Make IStringLocalizer work with the loaded resources
+// Reference: https://github.com/dotnet/aspnetcore/tree/main/src/Components/test/testassets/GlobalizationWasmApp
 await builder.Build().RunAsync();

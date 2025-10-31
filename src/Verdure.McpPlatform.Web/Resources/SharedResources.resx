@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Application Title -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>Verdure MCP Platform</value>
+  </data>
+  
+  <!-- Common UI Strings -->
+  <data name="Welcome" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  
+  <!-- Common Actions -->
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  
+  <!-- Navigation -->
+  <data name="XiaozhiConnections" xml:space="preserve">
+    <value>Xiaozhi Connections</value>
+  </data>
+  <data name="McpBindings" xml:space="preserve">
+    <value>MCP Bindings</value>
+  </data>
+  
+  <!-- Status -->
+  <data name="Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Inactive" xml:space="preserve">
+    <value>Inactive</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="LoadingMessage" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="NoDataMessage" xml:space="preserve">
+    <value>No data available</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>An error occurred</value>
+  </data>
+  <data name="SuccessMessage" xml:space="preserve">
+    <value>Operation completed successfully</value>
+  </data>
+  
+  <!-- Validation -->
+  <data name="RequiredField" xml:space="preserve">
+    <value>This field is required</value>
+  </data>
+  <data name="InvalidFormat" xml:space="preserve">
+    <value>Invalid format</value>
+  </data>
+  
+  <!-- Dashboard -->
+  <data name="Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="DashboardOverview" xml:space="preserve">
+    <value>Overview of your MCP platform statistics and recent activity</value>
+  </data>
+  <data name="TotalBindings" xml:space="preserve">
+    <value>Total Bindings</value>
+  </data>
+  <data name="ActiveBindings" xml:space="preserve">
+    <value>Active Bindings</value>
+  </data>
+  <data name="InactiveBindings" xml:space="preserve">
+    <value>Inactive Bindings</value>
+  </data>
+  <data name="QuickActions" xml:space="preserve">
+    <value>Quick Actions</value>
+  </data>
+  <data name="AddXiaozhiConnection" xml:space="preserve">
+    <value>Add Xiaozhi Connection</value>
+  </data>
+  <data name="CreateBinding" xml:space="preserve">
+    <value>Create Binding</value>
+  </data>
+  <data name="ViewAllConnections" xml:space="preserve">
+    <value>View All Connections</value>
+  </data>
+  <data name="RecentServers" xml:space="preserve">
+    <value>Recent Servers</value>
+  </data>
+  <data name="BindingsCount" xml:space="preserve">
+    <value>{0} binding(s)</value>
+  </data>
+  <data name="NoServersYet" xml:space="preserve">
+    <value>No servers yet. Create Xiaozhi Connection to get started!</value>
+  </data>
+  <data name="WelcomeToPlatform" xml:space="preserve">
+    <value>Welcome to Verdure MCP Platform</value>
+  </data>
+  <data name="PlatformDescription" xml:space="preserve">
+    <value>A powerful platform for managing MCP (Model Context Protocol) services with Xiaozhi AI integration.</value>
+  </data>
+  <data name="LoginToGetStarted" xml:space="preserve">
+    <value>Login to Get Started</value>
+  </data>
+  
+  <!-- Navigation -->
+  <data name="Navigation" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="McpManagement" xml:space="preserve">
+    <value>MCP Management</value>
+  </data>
+  <data name="McpServices" xml:space="preserve">
+    <value>MCP Services</value>
+  </data>
+  
+  <!-- Connections Page -->
+  <data name="ManageConnections" xml:space="preserve">
+    <value>Manage your Xiaozhi AI server connections</value>
+  </data>
+  <data name="AddConnection" xml:space="preserve">
+    <value>Add Connection</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="UpdatedAt" xml:space="preserve">
+    <value>Updated</value>
+  </data>
+  <data name="ViewServices" xml:space="preserve">
+    <value>View Services</value>
+  </data>
+  <data name="NoConnectionsYet" xml:space="preserve">
+    <value>No connections yet. Create your first Xiaozhi connection to get started!</value>
+  </data>
+  <data name="DeleteConnection" xml:space="preserve">
+    <value>Delete Connection</value>
+  </data>
+  <data name="DeleteConnectionConfirm" xml:space="preserve">
+    <value>Are you sure you want to delete this connection? All associated service bindings will also be deleted.</value>
+  </data>
+  <data name="ConnectionDeleted" xml:space="preserve">
+    <value>Connection deleted successfully</value>
+  </data>
+  
+  <!-- Service Bindings Page -->
+  <data name="McpServiceBindings" xml:space="preserve">
+    <value>MCP Service Bindings</value>
+  </data>
+  <data name="ConfigureExternalServices" xml:space="preserve">
+    <value>Configure external MCP service bindings</value>
+  </data>
+  <data name="ManageServicesForConnection" xml:space="preserve">
+    <value>Manage MCP services for this connection</value>
+  </data>
+  <data name="ServicesFor" xml:space="preserve">
+    <value>Services for {0}</value>
+  </data>
+  <data name="AddService" xml:space="preserve">
+    <value>Add Service</value>
+  </data>
+  <data name="ServiceName" xml:space="preserve">
+    <value>Service Name</value>
+  </data>
+  <data name="Connection" xml:space="preserve">
+    <value>Connection</value>
+  </data>
+  <data name="Transport" xml:space="preserve">
+    <value>Transport</value>
+  </data>
+  <data name="Command" xml:space="preserve">
+    <value>Command</value>
+  </data>
+  <data name="Args" xml:space="preserve">
+    <value>Args</value>
+  </data>
+  <data name="Environment" xml:space="preserve">
+    <value>Environment</value>
+  </data>
+  <data name="NoServicesYet" xml:space="preserve">
+    <value>No services yet. Create your first MCP service binding!</value>
+  </data>
+  <data name="DeleteService" xml:space="preserve">
+    <value>Delete Service</value>
+  </data>
+  <data name="DeleteServiceConfirm" xml:space="preserve">
+    <value>Are you sure you want to delete this service binding?</value>
+  </data>
+  <data name="ServiceDeleted" xml:space="preserve">
+    <value>Service deleted successfully</value>
+  </data>
+  <data name="Activate" xml:space="preserve">
+    <value>Activate</value>
+  </data>
+  <data name="Deactivate" xml:space="preserve">
+    <value>Deactivate</value>
+  </data>
+  <data name="ServiceActivated" xml:space="preserve">
+    <value>Service activated successfully</value>
+  </data>
+  <data name="ServiceDeactivated" xml:space="preserve">
+    <value>Service deactivated successfully</value>
+  </data>
+  <data name="Connected" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>Disconnected</value>
+  </data>
+  <data name="NotStarted" xml:space="preserve">
+    <value>Not Started</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>View Details</value>
+  </data>
+  <!-- Additional Resources for All Pages -->
+  <data name="YourConnections" xml:space="preserve">
+    <value>Your Connections</value>
+  </data>
+  <data name="SearchConnections" xml:space="preserve">
+    <value>Search connections...</value>
+  </data>
+  <data name="SearchServices" xml:space="preserve">
+    <value>Search services...</value>
+  </data>
+  <data name="BackToServers" xml:space="preserve">
+    <value>Back to Servers</value>
+  </data>
+  <data name="ExternalMcpServices" xml:space="preserve">
+    <value>External MCP Services</value>
+  </data>
+  <data name="McpServiceEndpoint" xml:space="preserve">
+    <value>MCP Service Endpoint</value>
+  </data>
+  <data name="DisableConnection" xml:space="preserve">
+    <value>Disable connection</value>
+  </data>
+  <data name="EnableConnection" xml:space="preserve">
+    <value>Enable connection</value>
+  </data>
+  <data name="AccountInformation" xml:space="preserve">
+    <value>Account Information</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="UserClaims" xml:space="preserve">
+    <value>User Claims</value>
+  </data>
+  <data name="ClaimType" xml:space="preserve">
+    <value>Claim Type</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="LanguagePreferences" xml:space="preserve">
+    <value>Language Preferences</value>
+  </data>
+  <data name="ManageAccountPreferences" xml:space="preserve">
+    <value>Manage your account preferences and application settings</value>
+  </data>
+  <data name="NoServicesFound" xml:space="preserve">
+    <value>No services found. Click "Add Service" to bind your first external MCP service!</value>
+  </data>
+  <data name="ViewBindings" xml:space="preserve">
+    <value>View Bindings</value>
+  </data>
+</root>

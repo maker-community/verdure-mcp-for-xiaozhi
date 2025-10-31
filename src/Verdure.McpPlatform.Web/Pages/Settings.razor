@@ -1,7 +1,10 @@
 @page "/settings"
 @attribute [Authorize]
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
 
-<PageTitle>Settings - Verdure MCP Platform</PageTitle>
+<PageTitle>@Loc["Settings"] - @Loc["AppTitle"]</PageTitle>
 
 <MudGrid>
     <!-- M3 Hero Banner - 统一蓝色渐变 -->
@@ -11,11 +14,11 @@
                 <div class="d-flex align-center mb-2">
                     <MudIcon Icon="@Icons.Material.Filled.Settings" Size="Size.Large" Style="color: #FFFFFF; margin-right: 12px;" />
                     <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
-                        Settings
+                        @Loc["Settings"]
                     </MudText>
                 </div>
                 <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); margin-left: 48px;">
-                    Manage your account preferences and application settings
+                    @Loc["ManageAccountPreferences"]
                 </MudText>
             </MudCardContent>
         </MudCard>
@@ -25,7 +28,7 @@
         <MudCard Elevation="2">
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudText Typo="Typo.h6">Account Information</MudText>
+                    <MudText Typo="Typo.h6">@Loc["AccountInformation"]</MudText>
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>
@@ -33,19 +36,19 @@
                     <Authorized>
                         <MudGrid>
                             <MudItem xs="12">
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">Username</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Username"]</MudText>
                                 <MudText Typo="Typo.body1" Style="font-weight: 500;">@context.User.Identity?.Name</MudText>
                             </MudItem>
                             @if (context.User.Claims.Any())
                             {
                                 <MudItem xs="12">
                                     <MudDivider Class="my-2" />
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">User Claims</MudText>
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">@Loc["UserClaims"]</MudText>
                                     <MudSimpleTable Dense="true" Style="overflow-x: auto;">
                                         <thead>
                                             <tr>
-                                                <th>Claim Type</th>
-                                                <th>Value</th>
+                                                <th>@Loc["ClaimType"]</th>
+                                                <th>@Loc["Value"]</th>
                                             </tr>
                                         </thead>
                                         <tbody>

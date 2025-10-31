@@ -1,4 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inherits LayoutComponentBase
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudThemeProvider Theme="_theme" />
 <MudPopoverProvider />
@@ -8,17 +11,20 @@
 <MudLayout>
     <MudAppBar Elevation="1" Color="Color.Primary">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-        <MudText Typo="Typo.h6" Class="ml-3">Verdure MCP Platform</MudText>
+        <MudText Typo="Typo.h6" Class="ml-3">@Loc["AppTitle"]</MudText>
         <MudSpacer />
-        <AuthorizeView>
-            <Authorized>
-                <MudText Typo="Typo.body2" Class="mr-4">@context.User.Identity?.Name</MudText>
-                <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
-            </Authorized>
-            <NotAuthorized>
-                <MudButton Href="/login" Variant="Variant.Text" Color="Color.Inherit">Login</MudButton>
-            </NotAuthorized>
-        </AuthorizeView>
+        <div class="d-flex align-center gap-4">
+            <CultureSelector />
+            <AuthorizeView>
+                <Authorized>
+                    <MudText Typo="Typo.body2" Class="mr-4">@context.User.Identity?.Name</MudText>
+                    <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
+                </Authorized>
+                <NotAuthorized>
+                    <MudButton Href="/login" Variant="Variant.Text" Color="Color.Inherit">Login</MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
     </MudAppBar>
     
     <MudDrawer @bind-Open="_drawerOpen" Elevation="1" ClipMode="DrawerClipMode.Always">
