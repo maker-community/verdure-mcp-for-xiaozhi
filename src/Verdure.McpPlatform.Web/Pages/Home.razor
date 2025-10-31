@@ -14,56 +14,64 @@
     <AuthorizeView>
         <Authorized>
             <MudItem xs="12" sm="6" md="3">
-                <MudCard Elevation="2" Class="pa-4" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <MudCard Elevation="2" Class="pa-4 stats-card stats-card-primary">
                     <MudCardContent>
                         <div class="d-flex justify-space-between align-center">
                             <div>
-                                <MudText Typo="Typo.h4">@_serverCount</MudText>
-                                <MudText Typo="Typo.body2">Xiaozhi Connections</MudText>
+                                <MudText Typo="Typo.h4" Style="font-weight: 600;">@_serverCount</MudText>
+                                <MudText Typo="Typo.body2" Style="opacity: 0.9;">Xiaozhi Connections</MudText>
                             </div>
-                            <MudIcon Icon="@Icons.Material.Filled.Dns" Size="Size.Large" />
+                            <div class="icon-container">
+                                <MudIcon Icon="@Icons.Material.Filled.Dns" Size="Size.Large" />
+                            </div>
                         </div>
                     </MudCardContent>
                 </MudCard>
             </MudItem>
 
             <MudItem xs="12" sm="6" md="3">
-                <MudCard Elevation="2" Class="pa-4" Style="background: linear-gradient(135deg, #06d6a0 0%, #0fb8ad 100%); color: white;">
+                <MudCard Elevation="2" Class="pa-4 stats-card stats-card-success">
                     <MudCardContent>
                         <div class="d-flex justify-space-between align-center">
                             <div>
-                                <MudText Typo="Typo.h4">@_bindingCount</MudText>
-                                <MudText Typo="Typo.body2">Total Bindings</MudText>
+                                <MudText Typo="Typo.h4" Style="font-weight: 600;">@_bindingCount</MudText>
+                                <MudText Typo="Typo.body2" Style="opacity: 0.9;">Total Bindings</MudText>
                             </div>
-                            <MudIcon Icon="@Icons.Material.Filled.Link" Size="Size.Large" />
+                            <div class="icon-container">
+                                <MudIcon Icon="@Icons.Material.Filled.Link" Size="Size.Large" />
+                            </div>
                         </div>
                     </MudCardContent>
                 </MudCard>
             </MudItem>
 
             <MudItem xs="12" sm="6" md="3">
-                <MudCard Elevation="2" Class="pa-4" Style="background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%); color: white;">
+                <MudCard Elevation="2" Class="pa-4 stats-card stats-card-info">
                     <MudCardContent>
                         <div class="d-flex justify-space-between align-center">
                             <div>
-                                <MudText Typo="Typo.h4">@_activeBindingCount</MudText>
-                                <MudText Typo="Typo.body2">Active Bindings</MudText>
+                                <MudText Typo="Typo.h4" Style="font-weight: 600;">@_activeBindingCount</MudText>
+                                <MudText Typo="Typo.body2" Style="opacity: 0.9;">Active Bindings</MudText>
                             </div>
-                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Large" />
+                            <div class="icon-container">
+                                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Large" />
+                            </div>
                         </div>
                     </MudCardContent>
                 </MudCard>
             </MudItem>
 
             <MudItem xs="12" sm="6" md="3">
-                <MudCard Elevation="2" Class="pa-4" Style="background: linear-gradient(135deg, #ffd60a 0%, #ff9505 100%); color: white;">
+                <MudCard Elevation="2" Class="pa-4 stats-card stats-card-warning">
                     <MudCardContent>
                         <div class="d-flex justify-space-between align-center">
                             <div>
-                                <MudText Typo="Typo.h4">@(_bindingCount - _activeBindingCount)</MudText>
-                                <MudText Typo="Typo.body2">Inactive Bindings</MudText>
+                                <MudText Typo="Typo.h4" Style="font-weight: 600;">@(_bindingCount - _activeBindingCount)</MudText>
+                                <MudText Typo="Typo.body2" Style="opacity: 0.9;">Inactive Bindings</MudText>
                             </div>
-                            <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Size="Size.Large" />
+                            <div class="icon-container">
+                                <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Size="Size.Large" />
+                            </div>
                         </div>
                     </MudCardContent>
                 </MudCard>
@@ -73,26 +81,29 @@
                 <MudCard Elevation="2">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">Quick Actions</MudText>
+                            <MudText Typo="Typo.h6" Style="font-weight: 500;">Quick Actions</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
-                        <div class="d-flex gap-4 flex-wrap">
+                        <div class="quick-actions">
                             <MudButton Href="/connections/create" 
                                       Variant="Variant.Filled" 
                                       Color="Color.Primary" 
+                                      Size="Size.Large"
                                       StartIcon="@Icons.Material.Filled.Add">
                                 Add Xiaozhi Connection
                             </MudButton>
                             <MudButton Href="/service-bindings/create" 
                                       Variant="Variant.Filled" 
                                       Color="Color.Secondary" 
+                                      Size="Size.Large"
                                       StartIcon="@Icons.Material.Filled.Link">
                                 Create Binding
                             </MudButton>
                             <MudButton Href="/connections" 
                                       Variant="Variant.Outlined" 
                                       Color="Color.Primary" 
+                                      Size="Size.Large"
                                       StartIcon="@Icons.Material.Filled.List">
                                 View All Servers
                             </MudButton>
@@ -105,26 +116,26 @@
                 <MudCard Elevation="2">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">Recent Servers</MudText>
+                            <MudText Typo="Typo.h6" Style="font-weight: 500;">Recent Servers</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
                         @if (_loading)
                         {
-                            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-2" />
                         }
                         else if (_recentServers.Any())
                         {
                             <MudList T="string">
                                 @foreach (var server in _recentServers.Take(5))
                                 {
-                                    <MudListItem T="string">
+                                    <MudListItem T="string" Class="recent-item">
                                         <div class="d-flex justify-space-between align-center w-100">
                                             <div>
-                                                <MudText Typo="Typo.body1">@server.Name</MudText>
-                                                <MudText Typo="Typo.body2" Color="Color.Secondary">@server.Address</MudText>
+                                                <MudText Typo="Typo.body1" Style="font-weight: 500;">@server.Name</MudText>
+                                                <MudText Typo="Typo.body2" Color="Color.Secondary" Style="font-family: monospace; font-size: 0.8rem;">@server.Address</MudText>
                                             </div>
-                                            <MudChip T="string" Size="Size.Small" Color="Color.Info">
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Filled">
                                                 @server.ServiceBindings.Count binding(s)
                                             </MudChip>
                                         </div>
@@ -135,7 +146,9 @@
                         }
                         else
                         {
-                            <MudAlert Severity="Severity.Info">No servers yet. Create Xiaozhi Connection to get started!</MudAlert>
+                            <MudAlert Severity="Severity.Info" Variant="Variant.Filled" Class="my-2">
+                                No servers yet. Create Xiaozhi Connection to get started!
+                            </MudAlert>
                         }
                     </MudCardContent>
                 </MudCard>
@@ -143,18 +156,19 @@
         </Authorized>
         <NotAuthorized>
             <MudItem xs="12">
-                <MudCard Elevation="2" Class="pa-8 text-center">
+                <MudCard Elevation="3" Class="pa-8 text-center welcome-card">
                     <MudCardContent>
-                        <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
-                        <MudText Typo="Typo.h4" Class="mb-2">Welcome to Verdure MCP Platform</MudText>
-                        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+                        <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Primary" Class="mb-6" Style="font-size: 4rem;" />
+                        <MudText Typo="Typo.h3" Class="mb-3" Style="font-weight: 500;">Welcome to Verdure MCP Platform</MudText>
+                        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-6" Style="max-width: 600px; margin-left: auto; margin-right: auto; font-size: 1.125rem;">
                             A powerful platform for managing MCP (Model Context Protocol) services with Xiaozhi AI integration.
                         </MudText>
                         <MudButton Href="/login" 
                                   Variant="Variant.Filled" 
                                   Color="Color.Primary" 
                                   Size="Size.Large" 
-                                  StartIcon="@Icons.Material.Filled.Login">
+                                  StartIcon="@Icons.Material.Filled.Login"
+                                  Style="padding: 12px 32px;">
                             Login to Get Started
                         </MudButton>
                     </MudCardContent>

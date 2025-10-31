@@ -6,27 +6,27 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="2">
+    <MudAppBar Elevation="0" Class="app-bar-elevated">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-        <MudText Typo="Typo.h5" Class="ml-3">Verdure MCP Platform</MudText>
+        <MudText Typo="Typo.h6" Class="ml-3" Style="font-weight: 500; letter-spacing: 0.0125em;">Verdure MCP Platform</MudText>
         <MudSpacer />
         <AuthorizeView>
             <Authorized>
-                <MudText Typo="Typo.body1" Class="mr-4">@context.User.Identity?.Name</MudText>
+                <MudText Typo="Typo.body2" Class="mr-3" Style="font-weight: 500;">@context.User.Identity?.Name</MudText>
                 <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
             </Authorized>
             <NotAuthorized>
-                <MudButton Href="/login" Variant="Variant.Text" Color="Color.Inherit">Login</MudButton>
+                <MudButton Href="/login" Variant="Variant.Text" Color="Color.Inherit" Style="text-transform: none; font-weight: 500;">Login</MudButton>
             </NotAuthorized>
         </AuthorizeView>
     </MudAppBar>
     
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always">
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="0" ClipMode="DrawerClipMode.Always" Class="drawer-elevated">
         <NavMenu />
     </MudDrawer>
     
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4 mb-4">
+    <MudMainContent Class="main-content-bg">
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6 px-4">
             @Body
         </MudContainer>
     </MudMainContent>
@@ -38,37 +38,82 @@
     {
         PaletteLight = new PaletteLight()
         {
-            Primary = "#7c3aed", // Vibrant violet
-            Secondary = "#a78bfa", // Light violet
-            AppbarBackground = "#7c3aed",
-            Background = "#faf5ff", // Very light violet tint
-            Surface = "#ffffff",
-            DrawerBackground = "#ffffff",
+            Primary = "#6750A4", // M3 Primary - Purple
+            Secondary = "#625B71", // M3 Secondary - Neutral variant
+            Tertiary = "#7D5260", // M3 Tertiary - Error container complement
+            AppbarBackground = "#6750A4",
+            Background = "#FEF7FF", // M3 Surface tint - Very light purple
+            Surface = "#FFFBFE", // M3 Surface - Nearly white with warm tint
+            DrawerBackground = "#FFFBFE",
             DrawerText = "rgba(0,0,0, 0.87)",
-            Success = "#10b981", // Green
-            Info = "#6366f1", // Indigo
-            Warning = "#f59e0b", // Amber
-            Error = "#ef4444", // Red
-            TextPrimary = "rgba(0,0,0, 0.87)",
-            TextSecondary = "rgba(0,0,0, 0.60)"
+            Success = "#006E1C", // M3 Green
+            Info = "#0061A4", // M3 Blue
+            Warning = "#825500", // M3 Amber/Orange
+            Error = "#BA1A1A", // M3 Error
+            Dark = "#1C1B1F", // M3 On-surface
+            TextPrimary = "rgba(28, 27, 31, 0.87)", // Better contrast
+            TextSecondary = "rgba(73, 69, 79, 0.60)",
+            ActionDefault = "rgba(103, 80, 164, 0.54)",
+            ActionDisabled = "rgba(28, 27, 31, 0.38)",
+            ActionDisabledBackground = "rgba(28, 27, 31, 0.12)"
         },
         PaletteDark = new PaletteDark()
         {
-            Primary = "#a78bfa", // Light violet for dark mode
-            Secondary = "#c4b5fd", // Lighter violet
-            AppbarBackground = "#1f1733", // Dark violet
-            Background = "#0f0817", // Very dark violet
-            Surface = "#1f1733",
-            DrawerBackground = "#1f1733",
+            Primary = "#D0BCFF", // M3 Primary light for dark mode
+            Secondary = "#CCC2DC", // M3 Secondary light
+            Tertiary = "#EFB8C8", // M3 Tertiary light
+            AppbarBackground = "#1C1B1F", // M3 Surface
+            Background = "#1C1B1F", // M3 Background
+            Surface = "#1C1B1F",
+            DrawerBackground = "#1C1B1F",
             DrawerText = "rgba(255,255,255, 0.87)",
-            Success = "#10b981",
-            Info = "#818cf8",
-            Warning = "#fbbf24",
-            Error = "#f87171",
-            TextPrimary = "rgba(255,255,255, 0.87)",
-            TextSecondary = "rgba(255,255,255, 0.60)"
+            Success = "#6DD58C", // M3 Green light
+            Info = "#A8C7FA", // M3 Blue light
+            Warning = "#FFB951", // M3 Amber light
+            Error = "#FFB4AB", // M3 Error light
+            TextPrimary = "rgba(230, 225, 229, 0.87)",
+            TextSecondary = "rgba(202, 196, 208, 0.60)",
+            ActionDefault = "rgba(208, 188, 255, 0.54)",
+            ActionDisabled = "rgba(230, 225, 229, 0.38)",
+            ActionDisabledBackground = "rgba(230, 225, 229, 0.12)"
         },
-
+        LayoutProperties = new LayoutProperties()
+        {
+            DefaultBorderRadius = "12px", // M3 uses more rounded corners
+            DrawerWidthLeft = "280px",
+            DrawerWidthRight = "280px"
+        },
+        Shadows = new Shadow()
+        {
+            Elevation = new string[]
+            {
+                "none",
+                "0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)",
+                "0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12)",
+                "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px rgba(0,0,0,0.12)",
+                "0px 2px 4px -1px rgba(0,0,0,0.2),0px 4px 5px 0px rgba(0,0,0,0.14),0px 1px 10px 0px rgba(0,0,0,0.12)",
+                "0px 3px 5px -1px rgba(0,0,0,0.2),0px 5px 8px 0px rgba(0,0,0,0.14),0px 1px 14px 0px rgba(0,0,0,0.12)",
+                "0px 3px 5px -1px rgba(0,0,0,0.2),0px 6px 10px 0px rgba(0,0,0,0.14),0px 1px 18px 0px rgba(0,0,0,0.12)",
+                "0px 4px 5px -2px rgba(0,0,0,0.2),0px 7px 10px 1px rgba(0,0,0,0.14),0px 2px 16px 1px rgba(0,0,0,0.12)",
+                "0px 5px 5px -3px rgba(0,0,0,0.2),0px 8px 10px 1px rgba(0,0,0,0.14),0px 3px 14px 2px rgba(0,0,0,0.12)",
+                "0px 5px 6px -3px rgba(0,0,0,0.2),0px 9px 12px 1px rgba(0,0,0,0.14),0px 3px 16px 2px rgba(0,0,0,0.12)",
+                "0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)",
+                "0px 6px 7px -4px rgba(0,0,0,0.2),0px 11px 15px 1px rgba(0,0,0,0.14),0px 4px 20px 3px rgba(0,0,0,0.12)",
+                "0px 7px 8px -4px rgba(0,0,0,0.2),0px 12px 17px 2px rgba(0,0,0,0.14),0px 5px 22px 4px rgba(0,0,0,0.12)",
+                "0px 7px 8px -4px rgba(0,0,0,0.2),0px 13px 19px 2px rgba(0,0,0,0.14),0px 5px 24px 4px rgba(0,0,0,0.12)",
+                "0px 7px 9px -4px rgba(0,0,0,0.2),0px 14px 21px 2px rgba(0,0,0,0.14),0px 5px 26px 4px rgba(0,0,0,0.12)",
+                "0px 8px 9px -5px rgba(0,0,0,0.2),0px 15px 22px 2px rgba(0,0,0,0.14),0px 6px 28px 5px rgba(0,0,0,0.12)",
+                "0px 8px 10px -5px rgba(0,0,0,0.2),0px 16px 24px 2px rgba(0,0,0,0.14),0px 6px 30px 5px rgba(0,0,0,0.12)",
+                "0px 8px 11px -5px rgba(0,0,0,0.2),0px 17px 26px 2px rgba(0,0,0,0.14),0px 6px 32px 5px rgba(0,0,0,0.12)",
+                "0px 9px 11px -5px rgba(0,0,0,0.2),0px 18px 28px 2px rgba(0,0,0,0.14),0px 7px 34px 6px rgba(0,0,0,0.12)",
+                "0px 9px 12px -6px rgba(0,0,0,0.2),0px 19px 29px 2px rgba(0,0,0,0.14),0px 7px 36px 6px rgba(0,0,0,0.12)",
+                "0px 10px 13px -6px rgba(0,0,0,0.2),0px 20px 31px 3px rgba(0,0,0,0.14),0px 8px 38px 7px rgba(0,0,0,0.12)",
+                "0px 10px 13px -6px rgba(0,0,0,0.2),0px 21px 33px 3px rgba(0,0,0,0.14),0px 8px 40px 7px rgba(0,0,0,0.12)",
+                "0px 10px 14px -6px rgba(0,0,0,0.2),0px 22px 35px 3px rgba(0,0,0,0.14),0px 8px 42px 7px rgba(0,0,0,0.12)",
+                "0px 11px 14px -7px rgba(0,0,0,0.2),0px 23px 36px 3px rgba(0,0,0,0.14),0px 9px 44px 8px rgba(0,0,0,0.12)",
+                "0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12)"
+            }
+        }
     };
 
     private void ToggleDrawer()

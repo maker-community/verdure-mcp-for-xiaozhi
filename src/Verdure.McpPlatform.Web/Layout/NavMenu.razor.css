@@ -1,0 +1,40 @@
+/* NavMenu Styles - Material Design 3 */
+
+/* Navigation Header */
+.nav-header {
+    font-weight: 500;
+    letter-spacing: 0.0125em;
+    color: var(--mud-palette-text-primary);
+    opacity: 0.6;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+/* Navigation Links */
+::deep .mud-nav-link {
+    border-radius: 12px !important;
+    margin: 4px 8px;
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::deep .mud-nav-link:hover {
+    background-color: rgba(103, 80, 164, 0.08) !important;
+}
+
+::deep .mud-nav-link.active {
+    background-color: rgba(103, 80, 164, 0.12) !important;
+    font-weight: 500;
+}
+
+::deep .mud-nav-link .mud-nav-link-text {
+    font-weight: 500;
+}
+
+/* Navigation Group */
+::deep .mud-nav-group {
+    margin: 4px 8px;
+}
+
+::deep .mud-nav-group .mud-nav-link {
+    margin-left: 16px;
+}

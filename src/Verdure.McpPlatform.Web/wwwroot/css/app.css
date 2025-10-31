@@ -1,18 +1,78 @@
-/* Custom CSS for Verdure MCP Platform */
+/* Custom CSS for Verdure MCP Platform - Material Design 3 */
 
 html, body {
-    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    font-family: 'Roboto', 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
     margin: 0;
     padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 h1:focus {
     outline: none;
 }
 
+/* Material Design 3 Surface Elevation */
+.app-bar-elevated {
+    box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12) !important;
+}
+
+.drawer-elevated {
+    box-shadow: 0px 8px 10px -5px rgba(0,0,0,0.2), 0px 16px 24px 2px rgba(0,0,0,0.14), 0px 6px 30px 5px rgba(0,0,0,0.12) !important;
+}
+
+.main-content-bg {
+    background: var(--mud-palette-background);
+    min-height: calc(100vh - 64px);
+}
+
+/* Material Design 3 Card Styles */
+.mud-card {
+    border-radius: 12px !important;
+    transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mud-card:hover {
+    box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 6px 10px 0px rgba(0,0,0,0.14), 0px 1px 18px 0px rgba(0,0,0,0.12);
+}
+
+/* Material Design 3 Button Styles */
+.mud-button-root {
+    border-radius: 20px !important;
+    text-transform: none;
+    font-weight: 500;
+    letter-spacing: 0.0125em;
+    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mud-button-filled {
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
+}
+
+.mud-button-filled:hover {
+    box-shadow: 0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12);
+}
+
+/* Material Design 3 Chip Styles */
+.mud-chip {
+    border-radius: 8px !important;
+    font-weight: 500;
+}
+
+/* Material Design 3 Icon Button */
+.mud-icon-button {
+    border-radius: 50% !important;
+    transition: background-color 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Material Design 3 Text Field */
+.mud-input {
+    border-radius: 4px !important;
+}
+
 /* Blazor Error UI */
 #blazor-error-ui {
-    background: #ef476f;
+    background: #BA1A1A;
     bottom: 0;
     box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
     display: none;
@@ -32,7 +92,7 @@ h1:focus {
 }
 
 .blazor-error-boundary {
-    background: #ef476f;
+    background: #BA1A1A;
     padding: 1rem 1rem 1rem 3.7rem;
     color: white;
 }
@@ -41,26 +101,91 @@ h1:focus {
     content: "An error has occurred."
 }
 
-/* Utility Classes */
+/* Material Design 3 Utility Classes */
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.gap-3 {
+    gap: 0.75rem;
+}
+
 .gap-4 {
     gap: 1rem;
 }
 
-/* Custom Scrollbar */
+.gap-6 {
+    gap: 1.5rem;
+}
+
+/* Material Design 3 Spacing */
+.py-6 {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+}
+
+.px-4 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+/* Material Design 3 Scrollbar */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--mud-palette-background);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    border: 3px solid var(--mud-palette-background);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Material Design 3 Animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-in {
+    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Material Design 3 Focus Indicator */
+*:focus-visible {
+    outline: 2px solid var(--mud-palette-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Material Design 3 Surface Tint */
+.surface-tint {
+    background: linear-gradient(0deg, rgba(103, 80, 164, 0.05), rgba(103, 80, 164, 0.05)), var(--mud-palette-surface);
+}
+
+/* Material Design 3 Elevation Overlays */
+.elevation-overlay-1 {
+    background: linear-gradient(0deg, rgba(103, 80, 164, 0.05), rgba(103, 80, 164, 0.05)), var(--mud-palette-surface);
+}
+
+.elevation-overlay-2 {
+    background: linear-gradient(0deg, rgba(103, 80, 164, 0.08), rgba(103, 80, 164, 0.08)), var(--mud-palette-surface);
+}
+
+.elevation-overlay-3 {
+    background: linear-gradient(0deg, rgba(103, 80, 164, 0.11), rgba(103, 80, 164, 0.11)), var(--mud-palette-surface);
 }

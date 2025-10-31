@@ -1,6 +1,7 @@
 ﻿<MudNavMenu>
-    <MudText Typo="Typo.h6" Class="px-4 py-4" Style="font-weight: 600;">Navigation</MudText>
-    <MudDivider Class="mb-2" />
+    <div class="px-4 py-4">
+        <MudText Typo="Typo.caption" Class="nav-header">Navigation</MudText>
+    </div>
     
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
         Dashboard
@@ -8,16 +9,18 @@
     
     <AuthorizeView>
         <Authorized>
-            <MudNavGroup Title="MCP Management" Icon="@Icons.Material.Filled.Cloud" Expanded="true">
-                <MudNavLink Href="/connections" Icon="@Icons.Material.Filled.Link">
-                    Xiaozhi Connections
-                </MudNavLink>
-                <MudNavLink Href="/service-bindings" Icon="@Icons.Material.Filled.Extension">
-                    MCP Services
-                </MudNavLink>
-            </MudNavGroup>
+            <div class="px-4 pt-4 pb-2">
+                <MudText Typo="Typo.caption" Class="nav-header">Management</MudText>
+            </div>
             
-            <MudDivider Class="my-2" />
+            <MudNavLink Href="/connections" Icon="@Icons.Material.Filled.Link">
+                Xiaozhi Connections
+            </MudNavLink>
+            <MudNavLink Href="/service-bindings" Icon="@Icons.Material.Filled.Extension">
+                MCP Services
+            </MudNavLink>
+            
+            <MudDivider Class="my-3 mx-3" />
             
             <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings">
                 Settings
