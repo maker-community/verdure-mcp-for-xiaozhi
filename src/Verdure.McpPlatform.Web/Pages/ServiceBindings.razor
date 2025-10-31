@@ -10,19 +10,31 @@
 <PageTitle>MCP External MCP Services - Verdure MCP Platform</PageTitle>
 
 <MudGrid>
+    <!-- M3 Hero Banner - 统一蓝色渐变 -->
     <MudItem xs="12">
-        <div class="d-flex justify-space-between align-center mb-4">
-            <MudText Typo="Typo.h3">
-                <MudIcon Icon="@Icons.Material.Filled.Link" Class="mr-2" /> 
-                @(_connectionId.HasValue ? $"Services for {_serverName}" : "MCP Service Bindings")
-            </MudText>
-            <MudButton Href="@(_connectionId.HasValue ? $"/service-bindings/create?connectionId={_connectionId}" : "/service-bindings/create")" 
-                      Variant="Variant.Filled" 
-                      Color="Color.Primary" 
-                      StartIcon="@Icons.Material.Filled.Add">
-                Add Service
-            </MudButton>
-        </div>
+        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
+            <MudCardContent Class="pa-6">
+                <div class="d-flex justify-space-between align-center flex-wrap" Style="gap: 1rem;">
+                    <div>
+                        <MudText Typo="Typo.h4" Class="m3-mb-sm" Style="font-weight: 600; color: #FFFFFF;">
+                            <MudIcon Icon="@Icons.Material.Filled.Link" Class="mr-2" Style="color: #FFFFFF;" /> 
+                            @(_connectionId.HasValue ? $"Services for {_serverName}" : "MCP Service Bindings")
+                        </MudText>
+                        <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
+                            @(_connectionId.HasValue ? "Manage MCP services for this connection" : "Configure external MCP service bindings")
+                        </MudText>
+                    </div>
+                    <MudButton Href="@(_connectionId.HasValue ? $"/service-bindings/create?connectionId={_connectionId}" : "/service-bindings/create")" 
+                              Variant="Variant.Filled" 
+                              Style="background: #FFFFFF; color: #0097A7;"
+                              StartIcon="@Icons.Material.Filled.Add"
+                              Size="Size.Large"
+                              Class="m3-button-lg">
+                        Add Service
+                    </MudButton>
+                </div>
+            </MudCardContent>
+        </MudCard>
     </MudItem>
 
     @if (_connectionId.HasValue)

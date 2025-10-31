@@ -8,26 +8,30 @@
 <PageTitle>Xiaozhi Connections - Verdure MCP Platform</PageTitle>
 
 <MudGrid>
-    <!-- M3 页面标题和操作 -->
+    <!-- M3 Hero Banner - 蓝色背景 -->
     <MudItem xs="12">
-        <div class="d-flex justify-space-between align-center m3-mb-xl">
-            <div>
-                <MudText Typo="Typo.h4" Class="m3-mb-sm" Style="font-weight: 500;">
-                    <MudIcon Icon="@Icons.Material.Outlined.Dns" Class="mr-2" /> Xiaozhi Connections
-                </MudText>
-                <MudText Typo="Typo.body2" Style="color: #5F6368; font-weight: 400;">
-                    Manage your Xiaozhi AI server connections
-                </MudText>
-            </div>
-            <MudButton Href="/connections/create" 
-                      Variant="Variant.Filled" 
-                      Color="Color.Primary" 
-                      StartIcon="@Icons.Material.Filled.Add"
-                      Size="Size.Large"
-                      Class="m3-button-lg">
-                Add Connection
-            </MudButton>
-        </div>
+        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
+            <MudCardContent Class="pa-6">
+                <div class="d-flex justify-space-between align-center flex-wrap" Style="gap: 1rem;">
+                    <div>
+                        <MudText Typo="Typo.h4" Class="m3-mb-sm" Style="font-weight: 600; color: #FFFFFF;">
+                            <MudIcon Icon="@Icons.Material.Outlined.Dns" Class="mr-2" Style="color: #FFFFFF;" /> Xiaozhi Connections
+                        </MudText>
+                        <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
+                            Manage your Xiaozhi AI server connections
+                        </MudText>
+                    </div>
+                    <MudButton Href="/connections/create" 
+                              Variant="Variant.Filled" 
+                              Style="background: #FFFFFF; color: #1976D2;"
+                              StartIcon="@Icons.Material.Filled.Add"
+                              Size="Size.Large"
+                              Class="m3-button-lg">
+                        Add Connection
+                    </MudButton>
+                </div>
+            </MudCardContent>
+        </MudCard>
     </MudItem>
 
     <!-- M3 表格容器 -->
