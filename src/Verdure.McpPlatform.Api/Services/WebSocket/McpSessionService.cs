@@ -26,7 +26,7 @@ public class McpSessionService : IAsyncDisposable
     
     // Session state
     private ClientWebSocket? _webSocket;
-    private readonly List<IMcpClient> _mcpClients = new();
+    private readonly List<McpClient> _mcpClients = new();
     private bool _isRunning = false;
     
     public string ServerId => _config.ServerId;
@@ -174,14 +174,13 @@ public class McpSessionService : IAsyncDisposable
             {
                 try
                 {
-                    var httpClient = new HttpClient();
-                    var transport = new SseClientTransport(new SseClientTransportOptions
+                    var transport = new HttpClientTransport(new HttpClientTransportOptions
                     {
                         Endpoint = new Uri(service.NodeAddress),
                         Name = $"McpService_{service.ServiceName}",
-                    }, httpClient, _loggerFactory);
+                    });
 
-                    var mcpClient = await McpClientFactory.CreateAsync(transport, null, loggerFactory: _loggerFactory, cancellationToken);
+                    var mcpClient = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
                     _mcpClients.Add(mcpClient);
                     
                     _logger.LogInformation("Server {ServerId}: MCP client connected to service {ServiceName} at {NodeAddress}", 
@@ -514,7 +513,7 @@ public class McpSessionService : IAsyncDisposable
             {
                 try
                 {
-                    result = await mcpClient.CallToolAsync(toolName, arguments);
+                    result = await mcpClient.CallToolAsync(toolName, arguments, cancellationToken: cancellationToken);
                     break; // Success
                 }
                 catch (Exception ex)
