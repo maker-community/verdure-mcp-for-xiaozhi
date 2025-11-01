@@ -51,15 +51,16 @@
                         </MudSelect>
                     }
 
-                    <MudSelect @bind-Value="_model.McpServiceConfigId" 
+                    <MudSelect Value="_model.McpServiceConfigId" 
+                              ValueChanged="@OnMcpServiceChanged"
                               Label="@Loc["SelectMcpService"]" 
                               Variant="Variant.Outlined"
                               Margin="Margin.Dense"
                               HelperText="@Loc["SelectMcpServiceHelp"]"
                               Class="mb-4"
-                              T="string"
-                              OnClose="@(() => LoadToolsForSelectedService())">
-                        <MudSelectItem Value="@((string)null)">@Loc["None"]</MudSelectItem>
+                              Required="true"
+                              RequiredError="@Loc["SelectMcpServiceRequired"]"
+                              T="string">
                         @if (_myServices.Any())
                         {
                             <MudListSubheader>@Loc["MyServices"]</MudListSubheader>
@@ -94,9 +95,10 @@
                             <MudPaper Elevation="0" Outlined="true" Class="pa-3 mb-4" Style="max-height: 300px; overflow-y: auto;">
                                 @foreach (var tool in _availableTools)
                                 {
+                                    var toolName = tool.Name; // Capture for closure
                                     <MudCheckBox T="bool" 
-                                                Checked="@_selectedTools.Contains(tool.Name)"
-                                                CheckedChanged="@((bool isChecked) => ToggleTool(tool.Name, isChecked))"
+                                                Value="@_selectedTools.Contains(toolName)"
+                                                ValueChanged="@((bool isChecked) => ToggleTool(toolName, isChecked))"
                                                 Color="Color.Primary"
                                                 Dense="true">
                                         <MudText Typo="Typo.body2">@tool.Name</MudText>
@@ -117,23 +119,15 @@
                         }
                     }
 
-                    <MudTextField @bind-Value="_model.ServiceName" 
-                                 Label="@Loc["ServiceName"]" 
-                                 Required="true"
-                                 RequiredError="@Loc["ServiceNameRequired"]"
-                                 Variant="Variant.Outlined"
-                                 Margin="Margin.Dense"
-                                 HelperText="@Loc["NameOfExternalService"]"
-                                 Class="mb-4" />
-
-                    <MudTextField @bind-Value="_model.NodeAddress" 
-                                 Label="@Loc["McpServiceEndpoint"]" 
-                                 Required="true"
-                                 RequiredError="@Loc["McpServiceEndpointRequired"]"
-                                 Variant="Variant.Outlined"
-                                 Margin="Margin.Dense"
-                                 HelperText="@Loc["ServiceEndpointExample"]"
-                                 Class="mb-4" />
+                    @if (!string.IsNullOrEmpty(_model.McpServiceConfigId) && _selectedService != null)
+                    {
+                        <MudPaper Elevation="0" Outlined="true" Class="pa-3 mb-4">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@Loc["SelectedServiceInfo"]</MudText>
+                            <MudText Typo="Typo.body2" Class="mt-1"><strong>@Loc["ServiceName"]:</strong> @_selectedService.Name</MudText>
+                            <MudText Typo="Typo.body2"><strong>@Loc["Endpoint"]:</strong> @_selectedService.Endpoint</MudText>
+                            <MudText Typo="Typo.body2"><strong>@Loc["Protocol"]:</strong> @(_selectedService.Protocol ?? "http")</MudText>
+                        </MudPaper>
+                    }
 
                     <MudTextField @bind-Value="_model.Description" 
                                  Label="@Loc["Description"]" 
@@ -232,6 +226,8 @@
     private List<McpToolDto> _availableTools = new();
     private HashSet<string> _selectedTools = new();
     private bool _loadingTools = false;
+    private McpServiceConfigDto? _selectedService;
+    private string? _lastLoadedServiceId;  // Track which service's tools are currently loaded
     
     private BindingFormModel _model = new();
 
@@ -279,30 +275,81 @@
         }
     }
 
+    private async Task OnMcpServiceChanged(string? serviceId)
+    {
+        _model.McpServiceConfigId = serviceId;
+        
+        if (string.IsNullOrEmpty(serviceId))
+        {
+            _selectedService = null;
+            _availableTools.Clear();
+            _selectedTools.Clear();
+            return;
+        }
+
+        // Find the selected service from both lists
+        _selectedService = _myServices.FirstOrDefault(s => s.Id == serviceId) 
+                          ?? _publicServices.FirstOrDefault(s => s.Id == serviceId);
+
+        if (_selectedService != null)
+        {
+            // Auto-fill service name and endpoint from the selected MCP service config
+            _model.ServiceName = _selectedService.Name;
+            _model.NodeAddress = _selectedService.Endpoint;
+        }
+
+        await LoadToolsForSelectedService();
+    }
+
     private async Task LoadToolsForSelectedService()
     {
         if (string.IsNullOrEmpty(_model.McpServiceConfigId))
         {
             _availableTools.Clear();
             _selectedTools.Clear();
+            _lastLoadedServiceId = null;
+            Console.WriteLine("[DEBUG] LoadTools: Service cleared");
             return;
         }
 
         try
         {
             _loadingTools = true;
+            Console.WriteLine($"[DEBUG] LoadTools: Loading tools for service {_model.McpServiceConfigId}");
             var tools = await McpServiceConfigService.GetToolsAsync(_model.McpServiceConfigId);
             _availableTools = tools.ToList();
+            Console.WriteLine($"[DEBUG] LoadTools: Loaded {_availableTools.Count} tools");
             
-            // If editing and this is the same service, restore selected tools
+            // Determine if we should clear selected tools
+            bool shouldClearSelection = false;
+            
             if (_isEdit && _existingBinding?.McpServiceConfigId == _model.McpServiceConfigId)
             {
+                // Editing mode: restore previously saved tool selections
                 _selectedTools = _existingBinding.SelectedToolNames.ToHashSet();
+                shouldClearSelection = false;
+                Console.WriteLine($"[DEBUG] LoadTools: Edit mode - restored {_selectedTools.Count} tools");
+            }
+            else if (_lastLoadedServiceId != null && _lastLoadedServiceId != _model.McpServiceConfigId)
+            {
+                // Service changed: clear previous selections
+                shouldClearSelection = true;
+                Console.WriteLine($"[DEBUG] LoadTools: Service changed from {_lastLoadedServiceId} to {_model.McpServiceConfigId}");
             }
             else
             {
+                Console.WriteLine($"[DEBUG] LoadTools: First load, current selections: {_selectedTools.Count}");
+            }
+            // else: first load in create mode, keep empty _selectedTools
+            
+            if (shouldClearSelection)
+            {
+                Console.WriteLine($"[DEBUG] LoadTools: Clearing {_selectedTools.Count} selected tools");
                 _selectedTools.Clear();
             }
+            
+            // Remember which service we loaded
+            _lastLoadedServiceId = _model.McpServiceConfigId;
         }
         catch (Exception ex)
         {
@@ -317,14 +364,21 @@
 
     private void ToggleTool(string toolName, bool isChecked)
     {
+        Console.WriteLine($"[DEBUG] ToggleTool called: {toolName}, isChecked={isChecked}, Before count: {_selectedTools.Count}");
+        
         if (isChecked)
         {
             _selectedTools.Add(toolName);
+            Console.WriteLine($"[DEBUG] Tool added: {toolName}, After count: {_selectedTools.Count}");
         }
         else
         {
             _selectedTools.Remove(toolName);
+            Console.WriteLine($"[DEBUG] Tool removed: {toolName}, After count: {_selectedTools.Count}");
         }
+        
+        // Force UI update
+        StateHasChanged();
     }
 
     private async Task LoadBindingAsync()
@@ -340,9 +394,11 @@
                 _model.Description = _existingBinding.Description ?? string.Empty;
                 _model.McpServiceConfigId = _existingBinding.McpServiceConfigId;
                 
-                // Load tools for the selected service
+                // Load selected service and tools
                 if (!string.IsNullOrEmpty(_model.McpServiceConfigId))
                 {
+                    _selectedService = _myServices.FirstOrDefault(s => s.Id == _model.McpServiceConfigId) 
+                                      ?? _publicServices.FirstOrDefault(s => s.Id == _model.McpServiceConfigId);
                     await LoadToolsForSelectedService();
                 }
             }
@@ -368,6 +424,10 @@
         {
             _saving = true;
 
+            // Debug: Check what we're about to save
+            var toolsList = _selectedTools.ToList();
+            Console.WriteLine($"[DEBUG] Saving binding with {toolsList.Count} tools: {string.Join(", ", toolsList)}");
+
             if (_isEdit)
             {
                 var request = new UpdateMcpServiceBindingRequest
@@ -376,8 +436,9 @@
                     NodeAddress = _model.NodeAddress,
                     Description = _model.Description,
                     McpServiceConfigId = _model.McpServiceConfigId,
-                    SelectedToolNames = _selectedTools.ToList()
+                    SelectedToolNames = toolsList
                 };
+                Console.WriteLine($"[DEBUG] Update request: ServiceName={request.ServiceName}, Tools={request.SelectedToolNames?.Count ?? 0}");
                 await BindingService.UpdateBindingAsync(Id!, request);
                 Snackbar.Add("Service binding updated successfully", Severity.Success);
             }
@@ -390,15 +451,15 @@
                     NodeAddress = _model.NodeAddress,
                     Description = _model.Description,
                     McpServiceConfigId = _model.McpServiceConfigId,
-                    SelectedToolNames = _selectedTools.ToList()
+                    SelectedToolNames = toolsList
                 };
+                Console.WriteLine($"[DEBUG] Create request: ServiceName={request.ServiceName}, Tools={request.SelectedToolNames?.Count ?? 0}");
                 await BindingService.CreateBindingAsync(request);
                 Snackbar.Add("Service binding created successfully", Severity.Success);
             }
 
-            Navigation.NavigateTo(!string.IsNullOrEmpty(_model.XiaozhiConnectionId)
-                ? $"/connections/{_model.XiaozhiConnectionId}/service-bindings" 
-                : "/service-bindings");
+            // Always redirect to the main service bindings page
+            Navigation.NavigateTo("/service-bindings");
         }
         catch (Exception ex)
         {
@@ -412,9 +473,8 @@
 
     private void Cancel()
     {
-        Navigation.NavigateTo(!string.IsNullOrEmpty(_model.XiaozhiConnectionId)
-            ? $"/connections/{_model.XiaozhiConnectionId}/service-bindings" 
-            : "/service-bindings");
+        // Always redirect to the main service bindings page
+        Navigation.NavigateTo("/service-bindings");
     }
 
     private class BindingFormModel
