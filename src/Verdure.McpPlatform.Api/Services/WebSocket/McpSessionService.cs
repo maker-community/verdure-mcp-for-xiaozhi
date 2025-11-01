@@ -422,14 +422,26 @@ public class McpSessionService : IAsyncDisposable
             // Collect tools from all MCP clients
             var allTools = new List<object>();
             
-            foreach (var mcpClient in _mcpClients)
+            for (int i = 0; i < _mcpClients.Count; i++)
             {
+                var mcpClient = _mcpClients[i];
+                var serviceConfig = i < _config.McpServices.Count ? _config.McpServices[i] : null;
+                
                 try
                 {
                     var toolsResponse = await mcpClient.ListToolsAsync(null, cancellationToken);
 
                     foreach (var tool in toolsResponse)
                     {
+                        // If service has selected tools, only include those
+                        if (serviceConfig != null && serviceConfig.SelectedToolNames.Count > 0)
+                        {
+                            if (!serviceConfig.SelectedToolNames.Contains(tool.Name))
+                            {
+                                continue; // Skip tools not in the selected list
+                            }
+                        }
+                        
                         var properties = new Dictionary<string, object>();
                         var required = Array.Empty<string>();
 
@@ -509,8 +521,20 @@ public class McpSessionService : IAsyncDisposable
             object? result = null;
             Exception? lastException = null;
             
-            foreach (var mcpClient in _mcpClients)
+            for (int i = 0; i < _mcpClients.Count; i++)
             {
+                var mcpClient = _mcpClients[i];
+                var serviceConfig = i < _config.McpServices.Count ? _config.McpServices[i] : null;
+                
+                // Check if tool is allowed for this service
+                if (serviceConfig != null && serviceConfig.SelectedToolNames.Count > 0)
+                {
+                    if (!serviceConfig.SelectedToolNames.Contains(toolName))
+                    {
+                        continue; // Skip this client if tool is not in selected list
+                    }
+                }
+                
                 try
                 {
                     result = await mcpClient.CallToolAsync(toolName, arguments, cancellationToken: cancellationToken);

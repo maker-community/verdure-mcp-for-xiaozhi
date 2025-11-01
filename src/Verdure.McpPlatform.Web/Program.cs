@@ -62,6 +62,7 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
 // Register API client services
 builder.Services.AddScoped<IXiaozhiConnectionClientService, XiaozhiConnectionClientService>();
 builder.Services.AddScoped<IMcpServiceBindingClientService, McpServiceBindingClientService>();
+builder.Services.AddScoped<IMcpServiceConfigClientService, McpServiceConfigClientService>();
 
 // Build and run the host
 // Note: Application culture is set in index.html via Blazor.start({ applicationCulture })

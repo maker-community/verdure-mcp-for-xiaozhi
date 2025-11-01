@@ -30,7 +30,13 @@ public class McpServiceBindingService : IMcpServiceBindingService
             throw new UnauthorizedAccessException("Server not found or access denied");
         }
 
-        var binding = server.AddServiceBinding(request.ServiceName, request.NodeAddress, request.Description);
+        var binding = server.AddServiceBinding(
+            request.ServiceName, 
+            request.NodeAddress,
+            request.McpServiceConfigId,
+            request.Description,
+            request.SelectedToolNames);
+        
         _repository.Update(server);
         await _repository.UnitOfWork.SaveEntitiesAsync();
 
@@ -95,7 +101,12 @@ public class McpServiceBindingService : IMcpServiceBindingService
             throw new UnauthorizedAccessException("Access denied");
         }
 
-        binding.UpdateInfo(request.ServiceName, request.NodeAddress, request.Description);
+        binding.UpdateInfo(
+            request.ServiceName, 
+            request.NodeAddress,
+            request.McpServiceConfigId,
+            request.Description,
+            request.SelectedToolNames);
         _repository.Update(server);
         await _repository.UnitOfWork.SaveEntitiesAsync();
 
@@ -176,8 +187,10 @@ public class McpServiceBindingService : IMcpServiceBindingService
             ServiceName = binding.ServiceName,
             NodeAddress = binding.NodeAddress,
             XiaozhiConnectionId = binding.XiaozhiConnectionId,
+            McpServiceConfigId = binding.McpServiceConfigId,
             Description = binding.Description,
             IsActive = binding.IsActive,
+            SelectedToolNames = binding.SelectedToolNames.ToList(),
             CreatedAt = binding.CreatedAt,
             UpdatedAt = binding.UpdatedAt
         };

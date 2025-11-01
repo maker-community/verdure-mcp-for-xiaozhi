@@ -208,6 +208,9 @@
   <data name="McpServices" xml:space="preserve">
     <value>MCP Services</value>
   </data>
+  <data name="ServiceBindings" xml:space="preserve">
+    <value>Service Bindings</value>
+  </data>
   
   <!-- Connections Page -->
   <data name="ManageConnections" xml:space="preserve">
@@ -593,7 +596,7 @@
   <data name="GetStartedCreateConnection" xml:space="preserve">
     <value>Get started by creating your first Xiaozhi connection</value>
   </data>
-  <data name="CreateConnection" xml:space="preserve">
+  <data name="CreateConnectionButton" xml:space="preserve">
     <value>Create Connection</value>
   </data>
   <data name="ErrorLoadingConnections2" xml:space="preserve">
@@ -649,5 +652,220 @@
   </data>
   <data name="ErrorDeletingBinding" xml:space="preserve">
     <value>Error deleting binding: {0}</value>
+  </data>
+  
+  <!-- MCP Service Configuration -->
+  <data name="ManageMcpServices" xml:space="preserve">
+    <value>Manage your MCP service configurations and tools</value>
+  </data>
+  <data name="AddMcpService" xml:space="preserve">
+    <value>Add MCP Service</value>
+  </data>
+  <data name="YourMcpServices" xml:space="preserve">
+    <value>Your MCP Services</value>
+  </data>
+  <data name="SearchMcpServices" xml:space="preserve">
+    <value>Search MCP services...</value>
+  </data>
+  <data name="Endpoint" xml:space="preserve">
+    <value>Endpoint</value>
+  </data>
+  <data name="Protocol" xml:space="preserve">
+    <value>Protocol</value>
+  </data>
+  <data name="Visibility" xml:space="preserve">
+    <value>Visibility</value>
+  </data>
+  <data name="Tools" xml:space="preserve">
+    <value>Tools</value>
+  </data>
+  <data name="LastSynced" xml:space="preserve">
+    <value>Last Synced</value>
+  </data>
+  <data name="Public" xml:space="preserve">
+    <value>Public</value>
+  </data>
+  <data name="Private" xml:space="preserve">
+    <value>Private</value>
+  </data>
+  <data name="ToolsCount" xml:space="preserve">
+    <value>{0} tools</value>
+  </data>
+  <data name="NeverSynced" xml:space="preserve">
+    <value>Never synced</value>
+  </data>
+  <data name="SyncTools" xml:space="preserve">
+    <value>Sync Tools</value>
+  </data>
+  <data name="NoMcpServicesFound" xml:space="preserve">
+    <value>No MCP Services Found</value>
+  </data>
+  <data name="GetStartedCreateMcpService" xml:space="preserve">
+    <value>Get started by creating your first MCP service configuration</value>
+  </data>
+  <data name="CreateMcpService" xml:space="preserve">
+    <value>Create MCP Service</value>
+  </data>
+  <data name="ErrorLoadingMcpServices" xml:space="preserve">
+    <value>Error loading MCP services: {0}</value>
+  </data>
+  <data name="ToolsSyncedSuccess" xml:space="preserve">
+    <value>Tools synced successfully for service '{0}'</value>
+  </data>
+  <data name="ErrorSyncingTools" xml:space="preserve">
+    <value>Error syncing tools: {0}</value>
+  </data>
+  <data name="ConfirmDeleteMcpService" xml:space="preserve">
+    <value>Are you sure you want to delete the MCP service '{0}'? This action cannot be undone.</value>
+  </data>
+  <data name="McpServiceDeletedSuccess" xml:space="preserve">
+    <value>MCP service '{0}' deleted successfully</value>
+  </data>
+  <data name="ErrorDeletingMcpService" xml:space="preserve">
+    <value>Error deleting MCP service: {0}</value>
+  </data>
+  
+  <!-- MCP Service Edit -->
+  <data name="EditMcpService" xml:space="preserve">
+    <value>Edit MCP Service</value>
+  </data>
+  <data name="EditMcpServiceDescription" xml:space="preserve">
+    <value>Update your MCP service configuration settings</value>
+  </data>
+  <data name="CreateMcpServiceDescription" xml:space="preserve">
+    <value>Configure a new MCP service with authentication and protocol settings</value>
+  </data>
+  <data name="BasicInformation" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="ServiceNameHelp" xml:space="preserve">
+    <value>A descriptive name for your MCP service</value>
+  </data>
+  <data name="ProtocolHelp" xml:space="preserve">
+    <value>Communication protocol for the MCP service</value>
+  </data>
+  <data name="EndpointHelp" xml:space="preserve">
+    <value>The endpoint URL or command to connect to the MCP service</value>
+  </data>
+  <data name="DescriptionHelp" xml:space="preserve">
+    <value>Optional description of what this MCP service provides</value>
+  </data>
+  <data name="MakePublic" xml:space="preserve">
+    <value>Make this service public</value>
+  </data>
+  <data name="MakePublicHelp" xml:space="preserve">
+    <value>When enabled, other users can discover and use this MCP service</value>
+  </data>
+  <data name="Authentication" xml:space="preserve">
+    <value>Authentication</value>
+  </data>
+  <data name="AuthenticationType" xml:space="preserve">
+    <value>Authentication Type</value>
+  </data>
+  <data name="AuthenticationTypeHelp" xml:space="preserve">
+    <value>Select the authentication method required by this MCP service</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="AuthenticationConfig" xml:space="preserve">
+    <value>Authentication Config</value>
+  </data>
+  <data name="BearerTokenHelp" xml:space="preserve">
+    <value>Enter the bearer token (e.g., your API token)</value>
+  </data>
+  <data name="BasicAuthHelp" xml:space="preserve">
+    <value>Enter credentials in format username:password</value>
+  </data>
+  <data name="ApiKeyHelp" xml:space="preserve">
+    <value>Enter your API key</value>
+  </data>
+  <data name="OAuth2Help" xml:space="preserve">
+    <value>Enter OAuth 2.0 configuration (JSON format)</value>
+  </data>
+  <data name="AuthenticationConfigHelp" xml:space="preserve">
+    <value>Authentication configuration details</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="McpServiceNotFound" xml:space="preserve">
+    <value>MCP service not found</value>
+  </data>
+  <data name="ErrorLoadingData" xml:space="preserve">
+    <value>Error loading data: {0}</value>
+  </data>
+  <data name="McpServiceUpdatedSuccess" xml:space="preserve">
+    <value>MCP service updated successfully</value>
+  </data>
+  <data name="McpServiceCreatedSuccess" xml:space="preserve">
+    <value>MCP service created successfully</value>
+  </data>
+  <data name="ErrorSavingMcpService" xml:space="preserve">
+    <value>Error saving MCP service: {0}</value>
+  </data>
+  
+  <!-- MCP Service Details -->
+  <data name="McpServiceDetails" xml:space="preserve">
+    <value>MCP Service Details</value>
+  </data>
+  <data name="ServiceInformation" xml:space="preserve">
+    <value>Service Information</value>
+  </data>
+  <data name="Statistics" xml:space="preserve">
+    <value>Statistics</value>
+  </data>
+  <data name="TotalTools" xml:space="preserve">
+    <value>Total Tools</value>
+  </data>
+  <data name="AvailableTools" xml:space="preserve">
+    <value>Available Tools</value>
+  </data>
+  <data name="SearchTools" xml:space="preserve">
+    <value>Search tools...</value>
+  </data>
+  <data name="NoToolsFound" xml:space="preserve">
+    <value>No Tools Found</value>
+  </data>
+  <data name="SyncToolsToDiscover" xml:space="preserve">
+    <value>Sync with the MCP service to discover available tools</value>
+  </data>
+  <data name="HasSchema" xml:space="preserve">
+    <value>Has Schema</value>
+  </data>
+  <data name="ErrorLoadingMcpService" xml:space="preserve">
+    <value>Error loading MCP service: {0}</value>
+  </data>
+  
+  <!-- Service Binding with Tool Selection -->
+  <data name="SelectMcpService" xml:space="preserve">
+    <value>Select MCP Service</value>
+  </data>
+  <data name="SelectMcpServiceHelp" xml:space="preserve">
+    <value>Choose an MCP service configuration to bind</value>
+  </data>
+  <data name="SelectTools" xml:space="preserve">
+    <value>Select Tools</value>
+  </data>
+  <data name="SelectToolsHelp" xml:space="preserve">
+    <value>Choose which tools from this service to make available</value>
+  </data>
+  <data name="LoadingTools" xml:space="preserve">
+    <value>Loading tools...</value>
+  </data>
+  <data name="NoToolsAvailable" xml:space="preserve">
+    <value>No tools available. Please sync the MCP service first.</value>
+  </data>
+  <data name="AllTools" xml:space="preserve">
+    <value>All Tools</value>
+  </data>
+  <data name="SelectedTools" xml:space="preserve">
+    <value>Selected Tools ({0})</value>
+  </data>
+  <data name="PublicServices" xml:space="preserve">
+    <value>Public Services</value>
+  </data>
+  <data name="MyServices" xml:space="preserve">
+    <value>My Services</value>
   </data>
 </root>

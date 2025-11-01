@@ -33,6 +33,9 @@ public class McpServiceBindingEntityTypeConfiguration : IEntityTypeConfiguration
             .HasMaxLength(36)
             .IsRequired();
 
+        builder.Property(b => b.McpServiceConfigId)
+            .HasMaxLength(36);
+
         builder.Property(b => b.Description)
             .HasMaxLength(1000);
 
@@ -42,7 +45,16 @@ public class McpServiceBindingEntityTypeConfiguration : IEntityTypeConfiguration
         builder.Property(b => b.CreatedAt)
             .IsRequired();
 
+        // Configure SelectedToolNames as a JSON column or separate table
+        builder.Property<string>("_selectedToolNamesJson")
+            .HasColumnName("SelectedToolNames")
+            .HasMaxLength(4000);
+
+        // Use backing field for collection
+        builder.Ignore(b => b.SelectedToolNames);
+
         builder.HasIndex(b => b.XiaozhiConnectionId);
+        builder.HasIndex(b => b.McpServiceConfigId);
         builder.HasIndex(b => b.IsActive);
     }
 }

@@ -1,0 +1,314 @@
+@page "/mcp-services/create"
+@page "/mcp-services/edit/{Id}"
+@attribute [Authorize]
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@using Verdure.McpPlatform.Contracts.DTOs
+@using Verdure.McpPlatform.Contracts.Requests
+@inject IMcpServiceConfigClientService ServiceConfigService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@(IsEditMode ? Loc["EditMcpService"] : Loc["CreateMcpService"]) - @Loc["AppTitle"]</PageTitle>
+
+<MudGrid>
+    <!-- M3 Hero Banner -->
+    <MudItem xs="12">
+        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #6A1B9A 0%, #8E24AA 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-lg">
+            <MudCardContent Class="pa-6">
+                <div class="d-flex align-center" Style="gap: 1rem;">
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" 
+                                  Color="Color.Inherit" 
+                                  Style="color: #FFFFFF;"
+                                  OnClick="NavigateBack" 
+                                  Size="Size.Large" />
+                    <div>
+                        <MudText Typo="Typo.h4" Style="font-weight: 600; color: #FFFFFF;">
+                            @(IsEditMode ? Loc["EditMcpService"] : Loc["CreateMcpService"])
+                        </MudText>
+                        <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85);">
+                            @(IsEditMode ? Loc["EditMcpServiceDescription"] : Loc["CreateMcpServiceDescription"])
+                        </MudText>
+                    </div>
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- M3 Form Container -->
+    <MudItem xs="12">
+        <MudCard Elevation="1" Class="m3-card">
+            <MudCardContent>
+                @if (_loading)
+                {
+                    <div class="pa-4 text-center">
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                        <MudText Typo="Typo.body1" Class="mt-4">@Loc["Loading"]</MudText>
+                    </div>
+                }
+                else
+                {
+                    <EditForm Model="@_model" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        
+                        <!-- Basic Information Section -->
+                        <MudText Typo="Typo.h6" Class="m3-mb-md" Style="font-weight: 500;">
+                            <MudIcon Icon="@Icons.Material.Outlined.Info" Class="mr-2" /> @Loc["BasicInformation"]
+                        </MudText>
+                        
+                        <MudGrid>
+                            <!-- Service Name -->
+                            <MudItem xs="12" md="6">
+                                <MudTextField @bind-Value="_model.Name" 
+                                             Label="@Loc["ServiceName"]" 
+                                             Variant="Variant.Outlined"
+                                             Required="true"
+                                             HelperText="@Loc["ServiceNameHelp"]"
+                                             For="@(() => _model.Name)" />
+                            </MudItem>
+
+                            <!-- Protocol -->
+                            <MudItem xs="12" md="6">
+                                <MudSelect @bind-Value="_model.Protocol" 
+                                          Label="@Loc["Protocol"]" 
+                                          Variant="Variant.Outlined"
+                                          HelperText="@Loc["ProtocolHelp"]">
+                                    <MudSelectItem Value="@("stdio")">stdio</MudSelectItem>
+                                    <MudSelectItem Value="@("sse")">SSE (Server-Sent Events)</MudSelectItem>
+                                    <MudSelectItem Value="@("websocket")">WebSocket</MudSelectItem>
+                                    <MudSelectItem Value="@("http")">HTTP</MudSelectItem>
+                                </MudSelect>
+                            </MudItem>
+
+                            <!-- Endpoint -->
+                            <MudItem xs="12">
+                                <MudTextField @bind-Value="_model.Endpoint" 
+                                             Label="@Loc["Endpoint"]" 
+                                             Variant="Variant.Outlined"
+                                             Required="true"
+                                             HelperText="@Loc["EndpointHelp"]"
+                                             For="@(() => _model.Endpoint)" />
+                            </MudItem>
+
+                            <!-- Description -->
+                            <MudItem xs="12">
+                                <MudTextField @bind-Value="_model.Description" 
+                                             Label="@Loc["Description"]" 
+                                             Variant="Variant.Outlined"
+                                             Lines="3"
+                                             HelperText="@Loc["DescriptionHelp"]" />
+                            </MudItem>
+
+                            <!-- Is Public -->
+                            <MudItem xs="12">
+                                <MudSwitch @bind-Value="_model.IsPublic" 
+                                          Color="Color.Success"
+                                          Label="@Loc["MakePublic"]">
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2">
+                                        @Loc["MakePublicHelp"]
+                                    </MudText>
+                                </MudSwitch>
+                            </MudItem>
+                        </MudGrid>
+
+                        <!-- Authentication Section -->
+                        <MudDivider Class="my-6" />
+                        <MudText Typo="Typo.h6" Class="m3-mb-md" Style="font-weight: 500;">
+                            <MudIcon Icon="@Icons.Material.Outlined.Security" Class="mr-2" /> @Loc["Authentication"]
+                        </MudText>
+                        
+                        <MudGrid>
+                            <!-- Authentication Type -->
+                            <MudItem xs="12" md="6">
+                                <MudSelect @bind-Value="_model.AuthenticationType" 
+                                          Label="@Loc["AuthenticationType"]" 
+                                          Variant="Variant.Outlined"
+                                          Clearable="true"
+                                          HelperText="@Loc["AuthenticationTypeHelp"]">
+                                    <MudSelectItem Value="@((string?)null)">@Loc["None"]</MudSelectItem>
+                                    <MudSelectItem Value="@("bearer")">Bearer Token</MudSelectItem>
+                                    <MudSelectItem Value="@("basic")">Basic Auth</MudSelectItem>
+                                    <MudSelectItem Value="@("apikey")">API Key</MudSelectItem>
+                                    <MudSelectItem Value="@("oauth2")">OAuth 2.0</MudSelectItem>
+                                </MudSelect>
+                            </MudItem>
+
+                            <!-- Authentication Config (Conditional) -->
+                            @if (!string.IsNullOrEmpty(_model.AuthenticationType))
+                            {
+                                <MudItem xs="12" md="6">
+                                    <MudTextField @bind-Value="_model.AuthenticationConfig" 
+                                                 Label="@Loc["AuthenticationConfig"]" 
+                                                 Variant="Variant.Outlined"
+                                                 HelperText="@GetAuthConfigHelp()" />
+                                </MudItem>
+                            }
+                        </MudGrid>
+
+                        <!-- Action Buttons -->
+                        <MudDivider Class="my-6" />
+                        <div class="d-flex justify-end m3-gap-sm flex-wrap">
+                            <MudButton Variant="Variant.Text" 
+                                      Color="Color.Default" 
+                                      OnClick="NavigateBack"
+                                      StartIcon="@Icons.Material.Outlined.Cancel">
+                                @Loc["Cancel"]
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled" 
+                                      Color="Color.Primary" 
+                                      ButtonType="ButtonType.Submit"
+                                      Disabled="@_saving"
+                                      StartIcon="@Icons.Material.Outlined.Save">
+                                @if (_saving)
+                                {
+                                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                                }
+                                @Loc["Save"]
+                            </MudButton>
+                        </div>
+                    </EditForm>
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    private bool IsEditMode => !string.IsNullOrEmpty(Id);
+    private bool _loading = true;
+    private bool _saving = false;
+    private McpServiceConfigFormModel _model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            _loading = true;
+
+            if (IsEditMode && !string.IsNullOrEmpty(Id))
+            {
+                var service = await ServiceConfigService.GetServiceAsync(Id);
+                if (service != null)
+                {
+                    _model = new McpServiceConfigFormModel
+                    {
+                        Name = service.Name,
+                        Endpoint = service.Endpoint,
+                        Description = service.Description,
+                        IsPublic = service.IsPublic,
+                        AuthenticationType = service.AuthenticationType,
+                        AuthenticationConfig = service.AuthenticationConfig,
+                        Protocol = service.Protocol ?? "stdio"
+                    };
+                }
+                else
+                {
+                    Snackbar.Add(Loc["McpServiceNotFound"], Severity.Error);
+                    NavigateBack();
+                }
+            }
+            else
+            {
+                // Default values for new service
+                _model.Protocol = "stdio";
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format(Loc["ErrorLoadingData"], ex.Message), Severity.Error);
+            NavigateBack();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            _saving = true;
+
+            if (IsEditMode && !string.IsNullOrEmpty(Id))
+            {
+                var request = new UpdateMcpServiceConfigRequest
+                {
+                    Name = _model.Name,
+                    Endpoint = _model.Endpoint,
+                    Description = _model.Description,
+                    IsPublic = _model.IsPublic,
+                    AuthenticationType = _model.AuthenticationType,
+                    AuthenticationConfig = _model.AuthenticationConfig,
+                    Protocol = _model.Protocol
+                };
+
+                await ServiceConfigService.UpdateServiceAsync(Id, request);
+                Snackbar.Add(Loc["McpServiceUpdatedSuccess"], Severity.Success);
+            }
+            else
+            {
+                var request = new CreateMcpServiceConfigRequest
+                {
+                    Name = _model.Name,
+                    Endpoint = _model.Endpoint,
+                    Description = _model.Description,
+                    IsPublic = _model.IsPublic,
+                    AuthenticationType = _model.AuthenticationType,
+                    AuthenticationConfig = _model.AuthenticationConfig,
+                    Protocol = _model.Protocol
+                };
+
+                var result = await ServiceConfigService.CreateServiceAsync(request);
+                Snackbar.Add(Loc["McpServiceCreatedSuccess"], Severity.Success);
+            }
+
+            NavigateBack();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format(Loc["ErrorSavingMcpService"], ex.Message), Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void NavigateBack()
+    {
+        Navigation.NavigateTo("/mcp-services");
+    }
+
+    private string GetAuthConfigHelp()
+    {
+        return _model.AuthenticationType switch
+        {
+            "bearer" => Loc["BearerTokenHelp"],
+            "basic" => Loc["BasicAuthHelp"],
+            "apikey" => Loc["ApiKeyHelp"],
+            "oauth2" => Loc["OAuth2Help"],
+            _ => Loc["AuthenticationConfigHelp"]
+        };
+    }
+
+    private class McpServiceConfigFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Endpoint { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public bool IsPublic { get; set; }
+        public string? AuthenticationType { get; set; }
+        public string? AuthenticationConfig { get; set; }
+        public string Protocol { get; set; } = "stdio";
+    }
+}

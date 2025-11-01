@@ -208,6 +208,9 @@
   <data name="McpServices" xml:space="preserve">
     <value>MCP 服务</value>
   </data>
+  <data name="ServiceBindings" xml:space="preserve">
+    <value>服务绑定</value>
+  </data>
   
   <!-- Connections Page -->
   <data name="ManageConnections" xml:space="preserve">
@@ -593,7 +596,7 @@
   <data name="GetStartedCreateConnection" xml:space="preserve">
     <value>开始创建您的第一个小智连接</value>
   </data>
-  <data name="CreateConnection" xml:space="preserve">
+  <data name="CreateConnectionButton" xml:space="preserve">
     <value>创建连接</value>
   </data>
   <data name="ErrorLoadingConnections2" xml:space="preserve">
@@ -649,5 +652,220 @@
   </data>
   <data name="ErrorDeletingBinding" xml:space="preserve">
     <value>删除绑定时出错：{0}</value>
+  </data>
+  
+  <!-- MCP 服务配置 -->
+  <data name="ManageMcpServices" xml:space="preserve">
+    <value>管理您的 MCP 服务配置和工具</value>
+  </data>
+  <data name="AddMcpService" xml:space="preserve">
+    <value>添加 MCP 服务</value>
+  </data>
+  <data name="YourMcpServices" xml:space="preserve">
+    <value>您的 MCP 服务</value>
+  </data>
+  <data name="SearchMcpServices" xml:space="preserve">
+    <value>搜索 MCP 服务...</value>
+  </data>
+  <data name="Endpoint" xml:space="preserve">
+    <value>端点</value>
+  </data>
+  <data name="Protocol" xml:space="preserve">
+    <value>协议</value>
+  </data>
+  <data name="Visibility" xml:space="preserve">
+    <value>可见性</value>
+  </data>
+  <data name="Tools" xml:space="preserve">
+    <value>工具</value>
+  </data>
+  <data name="LastSynced" xml:space="preserve">
+    <value>最后同步</value>
+  </data>
+  <data name="Public" xml:space="preserve">
+    <value>公开</value>
+  </data>
+  <data name="Private" xml:space="preserve">
+    <value>私有</value>
+  </data>
+  <data name="ToolsCount" xml:space="preserve">
+    <value>{0} 个工具</value>
+  </data>
+  <data name="NeverSynced" xml:space="preserve">
+    <value>从未同步</value>
+  </data>
+  <data name="SyncTools" xml:space="preserve">
+    <value>同步工具</value>
+  </data>
+  <data name="NoMcpServicesFound" xml:space="preserve">
+    <value>未找到 MCP 服务</value>
+  </data>
+  <data name="GetStartedCreateMcpService" xml:space="preserve">
+    <value>创建您的第一个 MCP 服务配置开始使用</value>
+  </data>
+  <data name="CreateMcpService" xml:space="preserve">
+    <value>创建 MCP 服务</value>
+  </data>
+  <data name="ErrorLoadingMcpServices" xml:space="preserve">
+    <value>加载 MCP 服务时出错：{0}</value>
+  </data>
+  <data name="ToolsSyncedSuccess" xml:space="preserve">
+    <value>服务 '{0}' 的工具已成功同步</value>
+  </data>
+  <data name="ErrorSyncingTools" xml:space="preserve">
+    <value>同步工具时出错：{0}</value>
+  </data>
+  <data name="ConfirmDeleteMcpService" xml:space="preserve">
+    <value>确定要删除 MCP 服务 '{0}' 吗？此操作无法撤销。</value>
+  </data>
+  <data name="McpServiceDeletedSuccess" xml:space="preserve">
+    <value>MCP 服务 '{0}' 已成功删除</value>
+  </data>
+  <data name="ErrorDeletingMcpService" xml:space="preserve">
+    <value>删除 MCP 服务时出错：{0}</value>
+  </data>
+  
+  <!-- MCP 服务编辑 -->
+  <data name="EditMcpService" xml:space="preserve">
+    <value>编辑 MCP 服务</value>
+  </data>
+  <data name="EditMcpServiceDescription" xml:space="preserve">
+    <value>更新您的 MCP 服务配置设置</value>
+  </data>
+  <data name="CreateMcpServiceDescription" xml:space="preserve">
+    <value>配置新的 MCP 服务，包括认证和协议设置</value>
+  </data>
+  <data name="BasicInformation" xml:space="preserve">
+    <value>基本信息</value>
+  </data>
+  <data name="ServiceNameHelp" xml:space="preserve">
+    <value>为您的 MCP 服务起一个描述性的名称</value>
+  </data>
+  <data name="ProtocolHelp" xml:space="preserve">
+    <value>MCP 服务的通信协议</value>
+  </data>
+  <data name="EndpointHelp" xml:space="preserve">
+    <value>连接到 MCP 服务的端点 URL 或命令</value>
+  </data>
+  <data name="DescriptionHelp" xml:space="preserve">
+    <value>可选的服务描述，说明此 MCP 服务提供的功能</value>
+  </data>
+  <data name="MakePublic" xml:space="preserve">
+    <value>公开此服务</value>
+  </data>
+  <data name="MakePublicHelp" xml:space="preserve">
+    <value>启用后，其他用户可以发现并使用此 MCP 服务</value>
+  </data>
+  <data name="Authentication" xml:space="preserve">
+    <value>认证</value>
+  </data>
+  <data name="AuthenticationType" xml:space="preserve">
+    <value>认证类型</value>
+  </data>
+  <data name="AuthenticationTypeHelp" xml:space="preserve">
+    <value>选择此 MCP 服务所需的认证方法</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="AuthenticationConfig" xml:space="preserve">
+    <value>认证配置</value>
+  </data>
+  <data name="BearerTokenHelp" xml:space="preserve">
+    <value>输入 Bearer 令牌（例如：您的 API 令牌）</value>
+  </data>
+  <data name="BasicAuthHelp" xml:space="preserve">
+    <value>输入凭据，格式为 username:password</value>
+  </data>
+  <data name="ApiKeyHelp" xml:space="preserve">
+    <value>输入您的 API 密钥</value>
+  </data>
+  <data name="OAuth2Help" xml:space="preserve">
+    <value>输入 OAuth 2.0 配置（JSON 格式）</value>
+  </data>
+  <data name="AuthenticationConfigHelp" xml:space="preserve">
+    <value>认证配置详情</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>加载中...</value>
+  </data>
+  <data name="McpServiceNotFound" xml:space="preserve">
+    <value>未找到 MCP 服务</value>
+  </data>
+  <data name="ErrorLoadingData" xml:space="preserve">
+    <value>加载数据时出错：{0}</value>
+  </data>
+  <data name="McpServiceUpdatedSuccess" xml:space="preserve">
+    <value>MCP 服务已成功更新</value>
+  </data>
+  <data name="McpServiceCreatedSuccess" xml:space="preserve">
+    <value>MCP 服务已成功创建</value>
+  </data>
+  <data name="ErrorSavingMcpService" xml:space="preserve">
+    <value>保存 MCP 服务时出错：{0}</value>
+  </data>
+  
+  <!-- MCP 服务详情 -->
+  <data name="McpServiceDetails" xml:space="preserve">
+    <value>MCP 服务详情</value>
+  </data>
+  <data name="ServiceInformation" xml:space="preserve">
+    <value>服务信息</value>
+  </data>
+  <data name="Statistics" xml:space="preserve">
+    <value>统计</value>
+  </data>
+  <data name="TotalTools" xml:space="preserve">
+    <value>工具总数</value>
+  </data>
+  <data name="AvailableTools" xml:space="preserve">
+    <value>可用工具</value>
+  </data>
+  <data name="SearchTools" xml:space="preserve">
+    <value>搜索工具...</value>
+  </data>
+  <data name="NoToolsFound" xml:space="preserve">
+    <value>未找到工具</value>
+  </data>
+  <data name="SyncToolsToDiscover" xml:space="preserve">
+    <value>与 MCP 服务同步以发现可用工具</value>
+  </data>
+  <data name="HasSchema" xml:space="preserve">
+    <value>有模式</value>
+  </data>
+  <data name="ErrorLoadingMcpService" xml:space="preserve">
+    <value>加载 MCP 服务时出错：{0}</value>
+  </data>
+  
+  <!-- 服务绑定与工具选择 -->
+  <data name="SelectMcpService" xml:space="preserve">
+    <value>选择 MCP 服务</value>
+  </data>
+  <data name="SelectMcpServiceHelp" xml:space="preserve">
+    <value>选择要绑定的 MCP 服务配置</value>
+  </data>
+  <data name="SelectTools" xml:space="preserve">
+    <value>选择工具</value>
+  </data>
+  <data name="SelectToolsHelp" xml:space="preserve">
+    <value>选择要从此服务中提供哪些工具</value>
+  </data>
+  <data name="LoadingTools" xml:space="preserve">
+    <value>加载工具中...</value>
+  </data>
+  <data name="NoToolsAvailable" xml:space="preserve">
+    <value>没有可用的工具。请先同步 MCP 服务。</value>
+  </data>
+  <data name="AllTools" xml:space="preserve">
+    <value>所有工具</value>
+  </data>
+  <data name="SelectedTools" xml:space="preserve">
+    <value>已选择的工具 ({0})</value>
+  </data>
+  <data name="PublicServices" xml:space="preserve">
+    <value>公共服务</value>
+  </data>
+  <data name="MyServices" xml:space="preserve">
+    <value>我的服务</value>
   </data>
 </root>

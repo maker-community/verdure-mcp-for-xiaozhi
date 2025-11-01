@@ -120,12 +120,25 @@ public static class McpServiceBindingApi
         string id,
         UpdateMcpServiceBindingRequest request,
         IMcpServiceBindingService McpServiceBindingService,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        McpSessionManager sessionManager)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
+            
+            // Get binding before updating to get server ID
+            var binding = await McpServiceBindingService.GetByIdAsync(id, userId);
+            if (binding == null)
+            {
+                return TypedResults.NotFound();
+            }
+            
             await McpServiceBindingService.UpdateAsync(id, request, userId);
+            
+            // Restart session to pick up updated binding and tool selections
+            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiConnectionId));
+            
             return TypedResults.NoContent();
         }
         catch (KeyNotFoundException)
@@ -141,12 +154,25 @@ public static class McpServiceBindingApi
     private static async Task<Results<NoContent, NotFound>> ActivateBindingAsync(
         string id,
         IMcpServiceBindingService McpServiceBindingService,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        McpSessionManager sessionManager)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
+            
+            // Get binding to get server ID
+            var binding = await McpServiceBindingService.GetByIdAsync(id, userId);
+            if (binding == null)
+            {
+                return TypedResults.NotFound();
+            }
+            
             await McpServiceBindingService.ActivateAsync(id, userId);
+            
+            // Restart session to activate binding
+            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiConnectionId));
+            
             return TypedResults.NoContent();
         }
         catch (KeyNotFoundException)
@@ -162,12 +188,25 @@ public static class McpServiceBindingApi
     private static async Task<Results<NoContent, NotFound>> DeactivateBindingAsync(
         string id,
         IMcpServiceBindingService McpServiceBindingService,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        McpSessionManager sessionManager)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
+            
+            // Get binding to get server ID
+            var binding = await McpServiceBindingService.GetByIdAsync(id, userId);
+            if (binding == null)
+            {
+                return TypedResults.NotFound();
+            }
+            
             await McpServiceBindingService.DeactivateAsync(id, userId);
+            
+            // Restart session to deactivate binding
+            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiConnectionId));
+            
             return TypedResults.NoContent();
         }
         catch (KeyNotFoundException)

@@ -150,8 +150,10 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
                 ServiceName = b.ServiceName,
                 NodeAddress = b.NodeAddress,
                 XiaozhiConnectionId = b.XiaozhiConnectionId,
+                McpServiceConfigId = b.McpServiceConfigId,
                 Description = b.Description,
                 IsActive = b.IsActive,
+                SelectedToolNames = b.SelectedToolNames.ToList(),
                 CreatedAt = b.CreatedAt,
                 UpdatedAt = b.UpdatedAt
             }).ToList()

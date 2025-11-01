@@ -36,6 +36,7 @@ app.UseAuthorization();
 // Map API endpoints
 app.MapXiaozhiConnectionApi();
 app.MapMcpServiceBindingApi();
+app.MapMcpServiceConfigApi();
 
 // Health check endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
