@@ -11,13 +11,16 @@ namespace Verdure.McpPlatform.Application.Services;
 public class McpServiceConfigService : IMcpServiceConfigService
 {
     private readonly IMcpServiceConfigRepository _repository;
+    private readonly IMcpClientService _mcpClientService;
     private readonly ILogger<McpServiceConfigService> _logger;
 
     public McpServiceConfigService(
         IMcpServiceConfigRepository repository,
+        IMcpClientService mcpClientService,
         ILogger<McpServiceConfigService> logger)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _mcpClientService = mcpClientService ?? throw new ArgumentNullException(nameof(mcpClientService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -124,13 +127,38 @@ public class McpServiceConfigService : IMcpServiceConfigService
             throw new UnauthorizedAccessException($"Service config {id} not found or access denied");
         }
 
-        // Tool syncing will be implemented in the API layer where MCP client is available
-        // This method is a placeholder for now
         _logger.LogInformation(
-            "Tool sync requested for MCP service config {ConfigId}. Implementation pending.",
+            "Starting tool sync for MCP service config {ConfigId}",
             config.Id);
-        
-        throw new NotImplementedException("Tool synchronization will be implemented in the API layer");
+
+        try
+        {
+            // Connect to the MCP service and retrieve tools
+            var toolInfos = await _mcpClientService.GetToolsAsync(config);
+            
+            // Convert tool infos to domain entities
+            var tools = toolInfos.Select(info => 
+                new McpTool(info.Name, config.Id, info.Description, info.InputSchema)).ToList();
+            
+            // Update the service config with the new tools
+            config.UpdateTools(tools);
+            
+            _repository.Update(config);
+            await _repository.UnitOfWork.SaveEntitiesAsync();
+
+            _logger.LogInformation(
+                "Successfully synced {Count} tools for MCP service config {ConfigId}",
+                tools.Count,
+                config.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Failed to sync tools for MCP service config {ConfigId}",
+                config.Id);
+            throw;
+        }
     }
 
     public async Task<IEnumerable<McpToolDto>> GetToolsAsync(string serviceId, string userId)

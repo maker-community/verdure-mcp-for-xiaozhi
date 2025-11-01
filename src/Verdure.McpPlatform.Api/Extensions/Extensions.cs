@@ -154,6 +154,7 @@ internal static class Extensions
         services.AddScoped<IXiaozhiConnectionService, XiaozhiConnectionService>();
         services.AddScoped<IMcpServiceBindingService, McpServiceBindingService>();
         services.AddScoped<IMcpServiceConfigService, McpServiceConfigService>();
+        services.AddScoped<IMcpClientService, McpClientService>();
 
         // Register identity service
         services.AddScoped<IIdentityService, IdentityService>();
