@@ -1,0 +1,305 @@
+@page "/mcp-services"
+@attribute [Authorize]
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@using Verdure.McpPlatform.Contracts.DTOs
+@inject IMcpServiceConfigClientService ServiceConfigService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@Loc["McpServices"] - @Loc["AppTitle"]</PageTitle>
+
+<MudGrid>
+    <!-- M3 Hero Banner -->
+    <MudItem xs="12">
+        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #6A1B9A 0%, #8E24AA 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
+            <MudCardContent Class="pa-6">
+                <div class="d-flex justify-space-between align-center flex-wrap" Style="gap: 1rem;">
+                    <div>
+                        <MudText Typo="Typo.h4" Class="m3-mb-sm" Style="font-weight: 600; color: #FFFFFF;">
+                            <MudIcon Icon="@Icons.Material.Outlined.Settings" Class="mr-2" Style="color: #FFFFFF;" /> @Loc["McpServices"]
+                        </MudText>
+                        <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
+                            @Loc["ManageMcpServices"]
+                        </MudText>
+                    </div>
+                    <MudButton Href="/mcp-services/create" 
+                              Variant="Variant.Filled" 
+                              Style="background: #FFFFFF; color: #6A1B9A;"
+                              StartIcon="@Icons.Material.Filled.Add"
+                              Size="Size.Large"
+                              Class="m3-button-lg">
+                        @Loc["AddMcpService"]
+                    </MudButton>
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- M3 Table Container -->
+    <MudItem xs="12">
+        <MudCard Elevation="1" Class="m3-card">
+            <MudCardContent>
+                <MudTable Items="@_services" 
+                         Loading="@_loading" 
+                         Hover="true" 
+                         Breakpoint="Breakpoint.Sm"
+                         Dense="false"
+                         Elevation="0">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6" Style="font-weight: 500;">@Loc["YourMcpServices"]</MudText>
+                        <MudSpacer />
+                        <MudTextField @bind-Value="_searchString" 
+                                     Placeholder="@Loc["SearchMcpServices"]" 
+                                     Adornment="Adornment.Start" 
+                                     AdornmentIcon="@Icons.Material.Outlined.Search" 
+                                     IconSize="Size.Medium" 
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     Class="mt-0"
+                                     Style="max-width: 300px;"
+                                     Immediate="true"></MudTextField>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>@Loc["Name"]</MudTh>
+                        <MudTh>@Loc["Endpoint"]</MudTh>
+                        <MudTh>@Loc["Protocol"]</MudTh>
+                        <MudTh>@Loc["Visibility"]</MudTh>
+                        <MudTh>@Loc["Tools"]</MudTh>
+                        <MudTh>@Loc["LastSynced"]</MudTh>
+                        <MudTh>@Loc["Actions"]</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        @if (string.IsNullOrWhiteSpace(_searchString) || 
+                             context.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
+                             context.Endpoint.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+                        {
+                            <MudTd DataLabel="Name">
+                                <MudText Typo="Typo.body1" Style="font-weight: 500;">@context.Name</MudText>
+                                @if (!string.IsNullOrWhiteSpace(context.Description))
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Description</MudText>
+                                }
+                            </MudTd>
+                            <MudTd DataLabel="Endpoint">
+                                <MudText Typo="Typo.body2" Style="font-family: monospace; font-size: 0.875rem;">@TruncateEndpoint(context.Endpoint)</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Protocol">
+                                <MudChip T="string" 
+                                        Size="Size.Small" 
+                                        Variant="Variant.Outlined"
+                                        Color="Color.Info"
+                                        Class="m3-chip">
+                                    @(context.Protocol ?? "stdio")
+                                </MudChip>
+                            </MudTd>
+                            <MudTd DataLabel="Visibility">
+                                @if (context.IsPublic)
+                                {
+                                    <MudChip T="string" 
+                                            Size="Size.Small" 
+                                            Variant="Variant.Filled"
+                                            Color="Color.Success" 
+                                            Icon="@Icons.Material.Filled.Public"
+                                            Class="m3-chip">
+                                        @Loc["Public"]
+                                    </MudChip>
+                                }
+                                else
+                                {
+                                    <MudChip T="string" 
+                                            Size="Size.Small" 
+                                            Variant="Variant.Outlined"
+                                            Color="Color.Default" 
+                                            Icon="@Icons.Material.Filled.Lock"
+                                            Class="m3-chip">
+                                        @Loc["Private"]
+                                    </MudChip>
+                                }
+                            </MudTd>
+                            <MudTd DataLabel="Tools">
+                                <MudChip T="string" 
+                                        Size="Size.Small" 
+                                        Variant="Variant.Text"
+                                        Color="Color.Primary"
+                                        Class="m3-chip">
+                                    @string.Format(Loc["ToolsCount"], context.Tools?.Count ?? 0)
+                                </MudChip>
+                            </MudTd>
+                            <MudTd DataLabel="LastSynced">
+                                @if (context.LastSyncedAt.HasValue)
+                                {
+                                    <MudText Typo="Typo.body2">@context.LastSyncedAt.Value.ToString("MMM dd, yyyy HH:mm")</MudText>
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["NeverSynced"]</MudText>
+                                }
+                            </MudTd>
+                            <MudTd DataLabel="Actions">
+                                <div class="d-flex m3-gap-xs flex-wrap">
+                                    <MudTooltip Text="@Loc["ViewDetails"]">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Visibility" 
+                                                     Size="Size.Medium" 
+                                                     Color="Color.Info"
+                                                     OnClick="@(() => ViewDetails(context.Id))"
+                                                     Class="m3-icon-button" />
+                                    </MudTooltip>
+                                    <MudTooltip Text="@Loc["SyncTools"]">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Sync" 
+                                                     Size="Size.Medium" 
+                                                     Color="Color.Secondary"
+                                                     OnClick="@(() => SyncTools(context))"
+                                                     Class="m3-icon-button" />
+                                    </MudTooltip>
+                                    <MudTooltip Text="@Loc["Edit"]">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" 
+                                                     Size="Size.Medium" 
+                                                     Color="Color.Primary"
+                                                     OnClick="@(() => EditService(context.Id))"
+                                                     Class="m3-icon-button" />
+                                    </MudTooltip>
+                                    <MudTooltip Text="@Loc["Delete"]">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" 
+                                                     Size="Size.Medium" 
+                                                     Color="Color.Error"
+                                                     OnClick="@(() => DeleteService(context))"
+                                                     Class="m3-icon-button" />
+                                    </MudTooltip>
+                                </div>
+                            </MudTd>
+                        }
+                    </RowTemplate>
+                    <NoRecordsContent>
+                        <!-- M3 Empty State Design -->
+                        <div class="m3-empty-state">
+                            <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
+                                     Color="Color.Default" 
+                                     Class="m3-empty-state-icon" />
+                            <MudText Typo="Typo.h6" Class="m3-mb-sm" Style="font-weight: 500;">
+                                @Loc["NoMcpServicesFound"]
+                            </MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="m3-mb-lg">
+                                @(_searchString?.Length > 0 
+                                    ? Loc["TryAdjustingSearch"]
+                                    : Loc["GetStartedCreateMcpService"])
+                            </MudText>
+                            @if (string.IsNullOrEmpty(_searchString))
+                            {
+                                <MudButton Href="/mcp-services/create" 
+                                           Variant="Variant.Filled" 
+                                           Color="Color.Primary" 
+                                           StartIcon="@Icons.Material.Filled.Add"
+                                           Class="m3-button">
+                                    @Loc["CreateMcpService"]
+                                </MudButton>
+                            }
+                        </div>
+                    </NoRecordsContent>
+                    <LoadingContent>
+                        <div class="pa-4">
+                            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                        </div>
+                    </LoadingContent>
+                </MudTable>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private List<McpServiceConfigDto> _services = new();
+    private bool _loading = true;
+    private string _searchString = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadServicesAsync();
+    }
+
+    private async Task LoadServicesAsync()
+    {
+        try
+        {
+            _loading = true;
+            var services = await ServiceConfigService.GetServicesAsync();
+            _services = services.ToList();
+        }
+        catch (HttpRequestException ex)
+        {
+            Snackbar.Add(string.Format(Loc["ErrorLoadingMcpServices"], ex.Message), Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format(Loc["UnexpectedError"], ex.Message), Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void ViewDetails(string id)
+    {
+        Navigation.NavigateTo($"/mcp-services/{id}");
+    }
+
+    private void EditService(string id)
+    {
+        Navigation.NavigateTo($"/mcp-services/edit/{id}");
+    }
+
+    private async Task SyncTools(McpServiceConfigDto service)
+    {
+        try
+        {
+            await ServiceConfigService.SyncToolsAsync(service.Id);
+            Snackbar.Add(string.Format(Loc["ToolsSyncedSuccess"], service.Name), Severity.Success);
+            
+            // Reload to get updated tool list
+            await LoadServicesAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format(Loc["ErrorSyncingTools"], ex.Message), Severity.Error);
+        }
+    }
+
+    private async Task DeleteService(McpServiceConfigDto service)
+    {
+        var parameters = new DialogParameters<DeleteConfirmationDialog>
+        {
+            { x => x.ContentText, string.Format(Loc["ConfirmDeleteMcpService"], service.Name) },
+            { x => x.ButtonText, Loc["Delete"] },
+            { x => x.Color, Color.Error }
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>(Loc["ConfirmDelete"], parameters, options);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled)
+        {
+            try
+            {
+                await ServiceConfigService.DeleteServiceAsync(service.Id);
+                _services.Remove(service);
+                Snackbar.Add(string.Format(Loc["McpServiceDeletedSuccess"], service.Name), Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(string.Format(Loc["ErrorDeletingMcpService"], ex.Message), Severity.Error);
+            }
+        }
+    }
+
+    private string TruncateEndpoint(string endpoint)
+    {
+        if (string.IsNullOrEmpty(endpoint))
+            return "";
+        
+        return endpoint.Length > 50 ? endpoint.Substring(0, 47) + "..." : endpoint;
+    }
+}

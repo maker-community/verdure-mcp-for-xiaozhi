@@ -1,0 +1,308 @@
+@page "/mcp-services/{Id}"
+@attribute [Authorize]
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@using Verdure.McpPlatform.Contracts.DTOs
+@inject IMcpServiceConfigClientService ServiceConfigService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@Loc["McpServiceDetails"] - @Loc["AppTitle"]</PageTitle>
+
+@if (_loading)
+{
+    <div class="pa-4 text-center">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        <MudText Typo="Typo.body1" Class="mt-4">@Loc["Loading"]</MudText>
+    </div>
+}
+else if (_service == null)
+{
+    <MudAlert Severity="Severity.Error">@Loc["McpServiceNotFound"]</MudAlert>
+}
+else
+{
+    <MudGrid>
+        <!-- M3 Hero Banner -->
+        <MudItem xs="12">
+            <MudCard Elevation="2" Style="background: linear-gradient(135deg, #6A1B9A 0%, #8E24AA 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-lg">
+                <MudCardContent Class="pa-6">
+                    <div class="d-flex align-center justify-space-between flex-wrap" Style="gap: 1rem;">
+                        <div class="d-flex align-center" Style="gap: 1rem;">
+                            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" 
+                                          Color="Color.Inherit" 
+                                          Style="color: #FFFFFF;"
+                                          OnClick="NavigateBack" 
+                                          Size="Size.Large" />
+                            <div>
+                                <MudText Typo="Typo.h4" Style="font-weight: 600; color: #FFFFFF;">
+                                    @_service.Name
+                                </MudText>
+                                @if (!string.IsNullOrEmpty(_service.Description))
+                                {
+                                    <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85);">
+                                        @_service.Description
+                                    </MudText>
+                                }
+                            </div>
+                        </div>
+                        <div class="d-flex m3-gap-sm">
+                            <MudButton Variant="Variant.Filled" 
+                                      Style="background: #FFFFFF; color: #6A1B9A;"
+                                      StartIcon="@Icons.Material.Outlined.Sync"
+                                      OnClick="SyncTools">
+                                @Loc["SyncTools"]
+                            </MudButton>
+                            <MudButton Variant="Variant.Outlined" 
+                                      Style="border-color: #FFFFFF; color: #FFFFFF;"
+                                      StartIcon="@Icons.Material.Outlined.Edit"
+                                      Href="@($"/mcp-services/edit/{Id}")">
+                                @Loc["Edit"]
+                            </MudButton>
+                        </div>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <!-- Service Information Card -->
+        <MudItem xs="12" md="6">
+            <MudCard Elevation="1" Class="m3-card" Style="height: 100%;">
+                <MudCardContent>
+                    <MudText Typo="Typo.h6" Class="m3-mb-md" Style="font-weight: 500;">
+                        <MudIcon Icon="@Icons.Material.Outlined.Info" Class="mr-2" /> @Loc["ServiceInformation"]
+                    </MudText>
+                    
+                    <MudList T="string" Dense="true">
+                        <MudListItem T="string" Icon="@Icons.Material.Outlined.Link">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Endpoint"]</MudText>
+                            <MudText Typo="Typo.body1" Style="font-family: monospace; word-break: break-all;">@_service.Endpoint</MudText>
+                        </MudListItem>
+                        <MudListItem T="string" Icon="@Icons.Material.Outlined.Cable">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Protocol"]</MudText>
+                            <MudText Typo="Typo.body1">@(_service.Protocol ?? "stdio")</MudText>
+                        </MudListItem>
+                        <MudListItem T="string" Icon="@(_service.IsPublic ? Icons.Material.Outlined.Public : Icons.Material.Outlined.Lock)">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Visibility"]</MudText>
+                            <MudChip T="string" 
+                                    Size="Size.Small" 
+                                    Variant="@(_service.IsPublic ? Variant.Filled : Variant.Outlined)"
+                                    Color="@(_service.IsPublic ? Color.Success : Color.Default)" 
+                                    Icon="@(_service.IsPublic ? Icons.Material.Filled.Public : Icons.Material.Filled.Lock)"
+                                    Class="m3-chip">
+                                @(_service.IsPublic ? Loc["Public"] : Loc["Private"])
+                            </MudChip>
+                        </MudListItem>
+                        @if (!string.IsNullOrEmpty(_service.AuthenticationType))
+                        {
+                            <MudListItem T="string" Icon="@Icons.Material.Outlined.Security">
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["AuthenticationType"]</MudText>
+                                <MudText Typo="Typo.body1">@_service.AuthenticationType</MudText>
+                            </MudListItem>
+                        }
+                        <MudListItem T="string" Icon="@Icons.Material.Outlined.CalendarToday">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["CreatedAt"]</MudText>
+                            <MudText Typo="Typo.body1">@_service.CreatedAt.ToString("MMM dd, yyyy HH:mm")</MudText>
+                        </MudListItem>
+                        @if (_service.LastSyncedAt.HasValue)
+                        {
+                            <MudListItem T="string" Icon="@Icons.Material.Outlined.Sync">
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["LastSynced"]</MudText>
+                                <MudText Typo="Typo.body1">@_service.LastSyncedAt.Value.ToString("MMM dd, yyyy HH:mm")</MudText>
+                            </MudListItem>
+                        }
+                    </MudList>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <!-- Statistics Card -->
+        <MudItem xs="12" md="6">
+            <MudCard Elevation="1" Class="m3-card" Style="height: 100%;">
+                <MudCardContent>
+                    <MudText Typo="Typo.h6" Class="m3-mb-md" Style="font-weight: 500;">
+                        <MudIcon Icon="@Icons.Material.Outlined.Analytics" Class="mr-2" /> @Loc["Statistics"]
+                    </MudText>
+                    
+                    <div class="d-flex flex-column m3-gap-md">
+                        <MudPaper Elevation="0" Class="pa-4" Style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 12px;">
+                            <div class="d-flex align-center justify-space-between">
+                                <div>
+                                    <MudText Typo="Typo.h3" Style="font-weight: 600; color: #1976D2;">
+                                        @(_service.Tools?.Count ?? 0)
+                                    </MudText>
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["TotalTools"]</MudText>
+                                </div>
+                                <MudIcon Icon="@Icons.Material.Outlined.Build" Color="Color.Primary" Size="Size.Large" />
+                            </div>
+                        </MudPaper>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <!-- Tools List Card -->
+        <MudItem xs="12">
+            <MudCard Elevation="1" Class="m3-card">
+                <MudCardContent>
+                    <div class="d-flex justify-space-between align-center m3-mb-md">
+                        <MudText Typo="Typo.h6" Style="font-weight: 500;">
+                            <MudIcon Icon="@Icons.Material.Outlined.Build" Class="mr-2" /> @Loc["AvailableTools"]
+                        </MudText>
+                        <MudTextField @bind-Value="_searchString" 
+                                     Placeholder="@Loc["SearchTools"]" 
+                                     Adornment="Adornment.Start" 
+                                     AdornmentIcon="@Icons.Material.Outlined.Search" 
+                                     IconSize="Size.Medium" 
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     Class="mt-0"
+                                     Style="max-width: 300px;"
+                                     Immediate="true"></MudTextField>
+                    </div>
+
+                    @if (_service.Tools == null || !_service.Tools.Any())
+                    {
+                        <div class="m3-empty-state">
+                            <MudIcon Icon="@Icons.Material.Outlined.BuildCircle" 
+                                     Color="Color.Default" 
+                                     Class="m3-empty-state-icon" />
+                            <MudText Typo="Typo.h6" Class="m3-mb-sm" Style="font-weight: 500;">
+                                @Loc["NoToolsFound"]
+                            </MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="m3-mb-lg">
+                                @Loc["SyncToolsToDiscover"]
+                            </MudText>
+                            <MudButton Variant="Variant.Filled" 
+                                       Color="Color.Primary" 
+                                       StartIcon="@Icons.Material.Outlined.Sync"
+                                       OnClick="SyncTools"
+                                       Class="m3-button">
+                                @Loc["SyncTools"]
+                            </MudButton>
+                        </div>
+                    }
+                    else
+                    {
+                        <MudGrid>
+                            @foreach (var tool in GetFilteredTools())
+                            {
+                                <MudItem xs="12" md="6" lg="4">
+                                    <MudCard Elevation="0" Outlined="true" Class="pa-4" Style="height: 100%; border-radius: 12px;">
+                                        <div class="d-flex align-start m3-gap-sm">
+                                            <MudIcon Icon="@Icons.Material.Outlined.Build" Color="Color.Primary" />
+                                            <div style="flex: 1; min-width: 0;">
+                                                <MudText Typo="Typo.body1" Style="font-weight: 500; word-break: break-word;">
+                                                    @tool.Name
+                                                </MudText>
+                                                @if (!string.IsNullOrEmpty(tool.Description))
+                                                {
+                                                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2" Style="word-break: break-word;">
+                                                        @tool.Description
+                                                    </MudText>
+                                                }
+                                                @if (!string.IsNullOrEmpty(tool.InputSchema))
+                                                {
+                                                    <MudChip T="string" 
+                                                            Size="Size.Small" 
+                                                            Variant="Variant.Text"
+                                                            Color="Color.Info"
+                                                            Icon="@Icons.Material.Outlined.Schema"
+                                                            Class="m3-chip mt-2">
+                                                        @Loc["HasSchema"]
+                                                    </MudChip>
+                                                }
+                                            </div>
+                                        </div>
+                                    </MudCard>
+                                </MudItem>
+                            }
+                        </MudGrid>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    private McpServiceConfigDto? _service;
+    private bool _loading = true;
+    private string _searchString = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadServiceAsync();
+    }
+
+    private async Task LoadServiceAsync()
+    {
+        if (string.IsNullOrEmpty(Id))
+        {
+            NavigateBack();
+            return;
+        }
+
+        try
+        {
+            _loading = true;
+            _service = await ServiceConfigService.GetServiceAsync(Id);
+            
+            if (_service == null)
+            {
+                Snackbar.Add(Loc["McpServiceNotFound"], Severity.Error);
+                NavigateBack();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format(Loc["ErrorLoadingMcpService"], ex.Message), Severity.Error);
+            NavigateBack();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task SyncTools()
+    {
+        if (string.IsNullOrEmpty(Id))
+            return;
+
+        try
+        {
+            await ServiceConfigService.SyncToolsAsync(Id);
+            Snackbar.Add(Loc["ToolsSyncedSuccess"], Severity.Success);
+            
+            // Reload to get updated tool list
+            await LoadServiceAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format(Loc["ErrorSyncingTools"], ex.Message), Severity.Error);
+        }
+    }
+
+    private void NavigateBack()
+    {
+        Navigation.NavigateTo("/mcp-services");
+    }
+
+    private IEnumerable<McpToolDto> GetFilteredTools()
+    {
+        if (_service?.Tools == null)
+            return Enumerable.Empty<McpToolDto>();
+
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return _service.Tools;
+
+        return _service.Tools.Where(t =>
+            t.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
+            (t.Description?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+    }
+}

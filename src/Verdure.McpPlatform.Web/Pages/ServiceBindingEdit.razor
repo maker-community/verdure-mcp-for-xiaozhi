@@ -1,9 +1,10 @@
 ﻿
 @page "/service-bindings/create"
-@page "/service-bindings/edit/{Id:int}"
+@page "/service-bindings/edit/{Id}"
 @attribute [Authorize]
 @inject IMcpServiceBindingClientService BindingService
 @inject IXiaozhiConnectionClientService ServerService
+@inject IMcpServiceConfigClientService McpServiceConfigService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @using Microsoft.Extensions.Localization
@@ -48,6 +49,72 @@
                                 <MudSelectItem Value="@server.Id">@server.Name</MudSelectItem>
                             }
                         </MudSelect>
+                    }
+
+                    <MudSelect @bind-Value="_model.McpServiceConfigId" 
+                              Label="@Loc["SelectMcpService"]" 
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              HelperText="@Loc["SelectMcpServiceHelp"]"
+                              Class="mb-4"
+                              T="string"
+                              OnClose="@(() => LoadToolsForSelectedService())">
+                        <MudSelectItem Value="@((string)null)">@Loc["None"]</MudSelectItem>
+                        @if (_myServices.Any())
+                        {
+                            <MudListSubheader>@Loc["MyServices"]</MudListSubheader>
+                            @foreach (var service in _myServices)
+                            {
+                                <MudSelectItem Value="@service.Id">@service.Name</MudSelectItem>
+                            }
+                        }
+                        @if (_publicServices.Any())
+                        {
+                            <MudListSubheader>@Loc["PublicServices"]</MudListSubheader>
+                            @foreach (var service in _publicServices)
+                            {
+                                <MudSelectItem Value="@service.Id">@service.Name (@Loc["Public"])</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+
+                    @if (!string.IsNullOrEmpty(_model.McpServiceConfigId))
+                    {
+                        @if (_loadingTools)
+                        {
+                            <div class="mb-4">
+                                <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">@Loc["LoadingTools"]</MudText>
+                            </div>
+                        }
+                        else if (_availableTools.Any())
+                        {
+                            <MudText Typo="Typo.subtitle2" Class="mb-2">@Loc["SelectTools"]</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2">@Loc["SelectToolsHelp"]</MudText>
+                            <MudPaper Elevation="0" Outlined="true" Class="pa-3 mb-4" Style="max-height: 300px; overflow-y: auto;">
+                                @foreach (var tool in _availableTools)
+                                {
+                                    <MudCheckBox T="bool" 
+                                                Checked="@_selectedTools.Contains(tool.Name)"
+                                                CheckedChanged="@((bool isChecked) => ToggleTool(tool.Name, isChecked))"
+                                                Color="Color.Primary"
+                                                Dense="true">
+                                        <MudText Typo="Typo.body2">@tool.Name</MudText>
+                                        @if (!string.IsNullOrEmpty(tool.Description))
+                                        {
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">@tool.Description</MudText>
+                                        }
+                                    </MudCheckBox>
+                                }
+                            </MudPaper>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-4">
+                                @string.Format(Loc["SelectedTools"], _selectedTools.Count)
+                            </MudText>
+                        }
+                        else
+                        {
+                            <MudAlert Severity="Severity.Info" Class="mb-4">@Loc["NoToolsAvailable"]</MudAlert>
+                        }
                     }
 
                     <MudTextField @bind-Value="_model.ServiceName" 
@@ -160,12 +227,18 @@
     private bool _isEdit => !string.IsNullOrEmpty(Id);
     private McpServiceBindingDto? _existingBinding;
     private List<XiaozhiConnectionDto> _servers = new();
+    private List<McpServiceConfigDto> _myServices = new();
+    private List<McpServiceConfigDto> _publicServices = new();
+    private List<McpToolDto> _availableTools = new();
+    private HashSet<string> _selectedTools = new();
+    private bool _loadingTools = false;
     
     private BindingFormModel _model = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadServersAsync();
+        await LoadMcpServicesAsync();
         
         if (_isEdit)
         {
@@ -190,6 +263,70 @@
         }
     }
 
+    private async Task LoadMcpServicesAsync()
+    {
+        try
+        {
+            var myServices = await McpServiceConfigService.GetServicesAsync();
+            _myServices = myServices.ToList();
+            
+            var publicServices = await McpServiceConfigService.GetPublicServicesAsync();
+            _publicServices = publicServices.ToList();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading MCP services: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task LoadToolsForSelectedService()
+    {
+        if (string.IsNullOrEmpty(_model.McpServiceConfigId))
+        {
+            _availableTools.Clear();
+            _selectedTools.Clear();
+            return;
+        }
+
+        try
+        {
+            _loadingTools = true;
+            var tools = await McpServiceConfigService.GetToolsAsync(_model.McpServiceConfigId);
+            _availableTools = tools.ToList();
+            
+            // If editing and this is the same service, restore selected tools
+            if (_isEdit && _existingBinding?.McpServiceConfigId == _model.McpServiceConfigId)
+            {
+                _selectedTools = _existingBinding.SelectedToolNames.ToHashSet();
+            }
+            else
+            {
+                _selectedTools.Clear();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading tools: {ex.Message}", Severity.Error);
+            _availableTools.Clear();
+        }
+        finally
+        {
+            _loadingTools = false;
+        }
+    }
+
+    private void ToggleTool(string toolName, bool isChecked)
+    {
+        if (isChecked)
+        {
+            _selectedTools.Add(toolName);
+        }
+        else
+        {
+            _selectedTools.Remove(toolName);
+        }
+    }
+
     private async Task LoadBindingAsync()
     {
         try
@@ -201,6 +338,13 @@
                 _model.ServiceName = _existingBinding.ServiceName;
                 _model.NodeAddress = _existingBinding.NodeAddress;
                 _model.Description = _existingBinding.Description ?? string.Empty;
+                _model.McpServiceConfigId = _existingBinding.McpServiceConfigId;
+                
+                // Load tools for the selected service
+                if (!string.IsNullOrEmpty(_model.McpServiceConfigId))
+                {
+                    await LoadToolsForSelectedService();
+                }
             }
             else
             {
@@ -230,7 +374,9 @@
                 {
                     ServiceName = _model.ServiceName,
                     NodeAddress = _model.NodeAddress,
-                    Description = _model.Description
+                    Description = _model.Description,
+                    McpServiceConfigId = _model.McpServiceConfigId,
+                    SelectedToolNames = _selectedTools.ToList()
                 };
                 await BindingService.UpdateBindingAsync(Id!, request);
                 Snackbar.Add("Service binding updated successfully", Severity.Success);
@@ -242,7 +388,9 @@
                     ServerId = _model.XiaozhiConnectionId,
                     ServiceName = _model.ServiceName,
                     NodeAddress = _model.NodeAddress,
-                    Description = _model.Description
+                    Description = _model.Description,
+                    McpServiceConfigId = _model.McpServiceConfigId,
+                    SelectedToolNames = _selectedTools.ToList()
                 };
                 await BindingService.CreateBindingAsync(request);
                 Snackbar.Add("Service binding created successfully", Severity.Success);
@@ -275,5 +423,6 @@
         public string ServiceName { get; set; } = string.Empty;
         public string NodeAddress { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string? McpServiceConfigId { get; set; }
     }
 }
