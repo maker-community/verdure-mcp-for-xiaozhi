@@ -102,4 +102,13 @@ public class McpServiceConfig : Entity, IAggregateRoot
         IsPublic = false;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    /// <summary>
+    /// Update only the authentication configuration (used when refreshing OAuth tokens)
+    /// </summary>
+    public void UpdateAuthenticationConfig(string authenticationConfig)
+    {
+        AuthenticationConfig = authenticationConfig;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }
