@@ -74,10 +74,8 @@
                                           Label="@Loc["Protocol"]" 
                                           Variant="Variant.Outlined"
                                           HelperText="@Loc["ProtocolHelp"]">
-                                    <MudSelectItem Value="@("stdio")">stdio</MudSelectItem>
                                     <MudSelectItem Value="@("sse")">SSE (Server-Sent Events)</MudSelectItem>
-                                    <MudSelectItem Value="@("websocket")">WebSocket</MudSelectItem>
-                                    <MudSelectItem Value="@("http")">HTTP</MudSelectItem>
+                                    <MudSelectItem Value="@("streamable-http")">StreamableHttp</MudSelectItem>
                                 </MudSelect>
                             </MudItem>
 
@@ -120,7 +118,7 @@
                         
                         <MudGrid>
                             <!-- Authentication Type -->
-                            <MudItem xs="12" md="6">
+                            <MudItem xs="12">
                                 <MudSelect @bind-Value="_model.AuthenticationType" 
                                           Label="@Loc["AuthenticationType"]" 
                                           Variant="Variant.Outlined"
@@ -134,14 +132,27 @@
                                 </MudSelect>
                             </MudItem>
 
-                            <!-- Authentication Config (Conditional) -->
+                            <!-- Authentication Config Forms (Conditional) -->
                             @if (!string.IsNullOrEmpty(_model.AuthenticationType))
                             {
-                                <MudItem xs="12" md="6">
-                                    <MudTextField @bind-Value="_model.AuthenticationConfig" 
-                                                 Label="@Loc["AuthenticationConfig"]" 
-                                                 Variant="Variant.Outlined"
-                                                 HelperText="@GetAuthConfigHelp()" />
+                                <MudItem xs="12">
+                                    <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+                                        @switch (_model.AuthenticationType)
+                                        {
+                                            case "bearer":
+                                                <BearerTokenConfigForm @bind-Config="_model.BearerTokenConfig" />
+                                                break;
+                                            case "basic":
+                                                <BasicAuthConfigForm @bind-Config="_model.BasicAuthConfig" />
+                                                break;
+                                            case "apikey":
+                                                <ApiKeyConfigForm @bind-Config="_model.ApiKeyConfig" />
+                                                break;
+                                            case "oauth2":
+                                                <OAuth2ConfigForm @bind-Config="_model.OAuth2Config" />
+                                                break;
+                                        }
+                                    </MudPaper>
                                 </MudItem>
                             }
                         </MudGrid>
@@ -206,9 +217,35 @@
                         Description = service.Description,
                         IsPublic = service.IsPublic,
                         AuthenticationType = service.AuthenticationType,
-                        AuthenticationConfig = service.AuthenticationConfig,
-                        Protocol = service.Protocol ?? "stdio"
+                        Protocol = service.Protocol ?? "sse"
                     };
+
+                    // Deserialize structured authentication config if exists
+                    if (!string.IsNullOrEmpty(service.AuthenticationConfig) && !string.IsNullOrEmpty(service.AuthenticationType))
+                    {
+                        try
+                        {
+                            switch (service.AuthenticationType)
+                            {
+                                case "bearer":
+                                    _model.BearerTokenConfig = System.Text.Json.JsonSerializer.Deserialize<BearerTokenAuthConfig>(service.AuthenticationConfig) ?? new();
+                                    break;
+                                case "basic":
+                                    _model.BasicAuthConfig = System.Text.Json.JsonSerializer.Deserialize<BasicAuthConfig>(service.AuthenticationConfig) ?? new();
+                                    break;
+                                case "apikey":
+                                    _model.ApiKeyConfig = System.Text.Json.JsonSerializer.Deserialize<ApiKeyAuthConfig>(service.AuthenticationConfig) ?? new();
+                                    break;
+                                case "oauth2":
+                                    _model.OAuth2Config = System.Text.Json.JsonSerializer.Deserialize<OAuth2AuthConfig>(service.AuthenticationConfig) ?? new();
+                                    break;
+                            }
+                        }
+                        catch
+                        {
+                            // If deserialization fails, use default values
+                        }
+                    }
                 }
                 else
                 {
@@ -219,7 +256,7 @@
             else
             {
                 // Default values for new service
-                _model.Protocol = "stdio";
+                _model.Protocol = "sse";
             }
         }
         catch (Exception ex)
@@ -239,6 +276,20 @@
         {
             _saving = true;
 
+            // Serialize the appropriate authentication config based on type
+            string? authConfigJson = null;
+            if (!string.IsNullOrEmpty(_model.AuthenticationType))
+            {
+                authConfigJson = _model.AuthenticationType switch
+                {
+                    "bearer" => System.Text.Json.JsonSerializer.Serialize(_model.BearerTokenConfig),
+                    "basic" => System.Text.Json.JsonSerializer.Serialize(_model.BasicAuthConfig),
+                    "apikey" => System.Text.Json.JsonSerializer.Serialize(_model.ApiKeyConfig),
+                    "oauth2" => System.Text.Json.JsonSerializer.Serialize(_model.OAuth2Config),
+                    _ => null
+                };
+            }
+
             if (IsEditMode && !string.IsNullOrEmpty(Id))
             {
                 var request = new UpdateMcpServiceConfigRequest
@@ -248,7 +299,7 @@
                     Description = _model.Description,
                     IsPublic = _model.IsPublic,
                     AuthenticationType = _model.AuthenticationType,
-                    AuthenticationConfig = _model.AuthenticationConfig,
+                    AuthenticationConfig = authConfigJson,
                     Protocol = _model.Protocol
                 };
 
@@ -264,7 +315,7 @@
                     Description = _model.Description,
                     IsPublic = _model.IsPublic,
                     AuthenticationType = _model.AuthenticationType,
-                    AuthenticationConfig = _model.AuthenticationConfig,
+                    AuthenticationConfig = authConfigJson,
                     Protocol = _model.Protocol
                 };
 
@@ -289,18 +340,6 @@
         Navigation.NavigateTo("/mcp-services");
     }
 
-    private string GetAuthConfigHelp()
-    {
-        return _model.AuthenticationType switch
-        {
-            "bearer" => Loc["BearerTokenHelp"],
-            "basic" => Loc["BasicAuthHelp"],
-            "apikey" => Loc["ApiKeyHelp"],
-            "oauth2" => Loc["OAuth2Help"],
-            _ => Loc["AuthenticationConfigHelp"]
-        };
-    }
-
     private class McpServiceConfigFormModel
     {
         public string Name { get; set; } = string.Empty;
@@ -308,7 +347,12 @@
         public string? Description { get; set; }
         public bool IsPublic { get; set; }
         public string? AuthenticationType { get; set; }
-        public string? AuthenticationConfig { get; set; }
-        public string Protocol { get; set; } = "stdio";
+        public string Protocol { get; set; } = "sse";
+        
+        // Structured authentication configurations
+        public BearerTokenAuthConfig BearerTokenConfig { get; set; } = new();
+        public BasicAuthConfig BasicAuthConfig { get; set; } = new();
+        public ApiKeyAuthConfig ApiKeyConfig { get; set; } = new();
+        public OAuth2AuthConfig OAuth2Config { get; set; } = new();
     }
 }

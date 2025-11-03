@@ -1,0 +1,65 @@
+@using Verdure.McpPlatform.Contracts.Models
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudGrid>
+    <MudItem xs="12" md="6">
+        <MudTextField @bind-Value="Config.Username"
+                     Label="@Loc["Username"]"
+                     Variant="Variant.Outlined"
+                     Required="true"
+                     HelperText="@Loc["BasicAuthUsernameHelp"]" />
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <MudTextField @bind-Value="Config.Password"
+                     Label="@Loc["Password"]"
+                     Variant="Variant.Outlined"
+                     Required="true"
+                     InputType="@_passwordInput"
+                     Adornment="Adornment.End"
+                     AdornmentIcon="@_passwordInputIcon"
+                     OnAdornmentClick="TogglePasswordVisibility"
+                     HelperText="@Loc["BasicAuthPasswordHelp"]" />
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudAlert Severity="Severity.Info" Dense="true">
+            @Loc["BasicAuthExample"]: <code>Authorization: Basic base64(username:password)</code>
+        </MudAlert>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public BasicAuthConfig Config { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<BasicAuthConfig> ConfigChanged { get; set; }
+
+    private bool _isPasswordVisible;
+    private InputType _passwordInput = InputType.Password;
+    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    void TogglePasswordVisibility()
+    {
+        if (_isPasswordVisible)
+        {
+            _isPasswordVisible = false;
+            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+            _passwordInput = InputType.Password;
+        }
+        else
+        {
+            _isPasswordVisible = true;
+            _passwordInputIcon = Icons.Material.Filled.Visibility;
+            _passwordInput = InputType.Text;
+        }
+    }
+
+    private async Task OnConfigChanged()
+    {
+        await ConfigChanged.InvokeAsync(Config);
+    }
+}

@@ -1,0 +1,184 @@
+@using Verdure.McpPlatform.Contracts.Models
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudGrid>
+    <!-- OAuth Client Configuration -->
+    <MudItem xs="12">
+        <MudText Typo="Typo.subtitle1" Class="mb-2">
+            <MudIcon Icon="@Icons.Material.Outlined.Key" Class="mr-2" Size="Size.Small" />
+            @Loc["OAuth2ClientConfiguration"]
+        </MudText>
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <MudTextField @bind-Value="Config.ClientId"
+                     Label="@Loc["OAuth2ClientId"]"
+                     Variant="Variant.Outlined"
+                     Required="true"
+                     HelperText="@Loc["OAuth2ClientIdHelp"]" />
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <MudTextField @bind-Value="Config.ClientSecret"
+                     Label="@Loc["OAuth2ClientSecret"]"
+                     Variant="Variant.Outlined"
+                     InputType="@_passwordInput"
+                     Adornment="Adornment.End"
+                     AdornmentIcon="@_passwordInputIcon"
+                     OnAdornmentClick="TogglePasswordVisibility"
+                     HelperText="@Loc["OAuth2ClientSecretHelp"]" />
+    </MudItem>
+
+    <!-- OAuth Endpoints -->
+    <MudItem xs="12">
+        <MudText Typo="Typo.subtitle1" Class="mb-2 mt-4">
+            <MudIcon Icon="@Icons.Material.Outlined.Link" Class="mr-2" Size="Size.Small" />
+            @Loc["OAuth2Endpoints"]
+        </MudText>
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudTextField @bind-Value="Config.AuthorizationEndpoint"
+                     Label="@Loc["OAuth2AuthorizationEndpoint"]"
+                     Variant="Variant.Outlined"
+                     Placeholder="https://oauth.example.com/authorize"
+                     HelperText="@Loc["OAuth2AuthorizationEndpointHelp"]" />
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudTextField @bind-Value="Config.TokenEndpoint"
+                     Label="@Loc["OAuth2TokenEndpoint"]"
+                     Variant="Variant.Outlined"
+                     Placeholder="https://oauth.example.com/token"
+                     HelperText="@Loc["OAuth2TokenEndpointHelp"]" />
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudTextField @bind-Value="Config.RedirectUri"
+                     Label="@Loc["OAuth2RedirectUri"]"
+                     Variant="Variant.Outlined"
+                     Required="true"
+                     Placeholder="http://localhost:1179/callback"
+                     HelperText="@Loc["OAuth2RedirectUriHelp"]" />
+    </MudItem>
+
+    <!-- OAuth Flow Configuration -->
+    <MudItem xs="12">
+        <MudText Typo="Typo.subtitle1" Class="mb-2 mt-4">
+            <MudIcon Icon="@Icons.Material.Outlined.Settings" Class="mr-2" Size="Size.Small" />
+            @Loc["OAuth2FlowConfiguration"]
+        </MudText>
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <MudSelect @bind-Value="Config.GrantType"
+                  Label="@Loc["OAuth2GrantType"]"
+                  Variant="Variant.Outlined"
+                  HelperText="@Loc["OAuth2GrantTypeHelp"]">
+            <MudSelectItem Value="@("authorization_code")">Authorization Code</MudSelectItem>
+            <MudSelectItem Value="@("client_credentials")">Client Credentials</MudSelectItem>
+            <MudSelectItem Value="@("refresh_token")">Refresh Token</MudSelectItem>
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <MudTextField @bind-Value="Config.Scope"
+                     Label="@Loc["OAuth2Scope"]"
+                     Variant="Variant.Outlined"
+                     Placeholder="read write profile"
+                     HelperText="@Loc["OAuth2ScopeHelp"]" />
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudSwitch @bind-Value="Config.UsePkce"
+                  Color="Color.Success"
+                  Label="@Loc["OAuth2UsePKCE"]">
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2">
+                @Loc["OAuth2UsePKCEHelp"]
+            </MudText>
+        </MudSwitch>
+    </MudItem>
+
+    <!-- Token Information (Read-only if exists) -->
+    @if (!string.IsNullOrEmpty(Config.AccessToken))
+    {
+        <MudItem xs="12">
+            <MudDivider Class="my-4" />
+            <MudText Typo="Typo.subtitle1" Class="mb-2">
+                <MudIcon Icon="@Icons.Material.Outlined.CheckCircle" Color="Color.Success" Class="mr-2" Size="Size.Small" />
+                @Loc["OAuth2TokenInfo"]
+            </MudText>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudTextField Value="@(Config.AccessToken.Length > 50 ? Config.AccessToken.Substring(0, 50) + "..." : Config.AccessToken)"
+                         Label="@Loc["OAuth2AccessToken"]"
+                         Variant="Variant.Outlined"
+                         ReadOnly="true"
+                         Adornment="Adornment.End"
+                         AdornmentIcon="@Icons.Material.Outlined.ContentCopy" />
+        </MudItem>
+
+        @if (Config.TokenExpiresAt.HasValue)
+        {
+            <MudItem xs="12">
+                <MudAlert Severity="@GetTokenExpirySeverity()" Dense="true">
+                    @Loc["OAuth2TokenExpires"]: @Config.TokenExpiresAt.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
+                </MudAlert>
+            </MudItem>
+        }
+    }
+
+    <MudItem xs="12">
+        <MudAlert Severity="Severity.Info" Dense="true" Class="mt-4">
+            <MudText Typo="Typo.body2">
+                @Loc["OAuth2ConfigurationGuide"]
+            </MudText>
+        </MudAlert>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public OAuth2AuthConfig Config { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<OAuth2AuthConfig> ConfigChanged { get; set; }
+
+    private bool _isPasswordVisible;
+    private InputType _passwordInput = InputType.Password;
+    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    void TogglePasswordVisibility()
+    {
+        if (_isPasswordVisible)
+        {
+            _isPasswordVisible = false;
+            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+            _passwordInput = InputType.Password;
+        }
+        else
+        {
+            _isPasswordVisible = true;
+            _passwordInputIcon = Icons.Material.Filled.Visibility;
+            _passwordInput = InputType.Text;
+        }
+    }
+
+    private Severity GetTokenExpirySeverity()
+    {
+        if (!Config.TokenExpiresAt.HasValue) return Severity.Info;
+
+        var timeUntilExpiry = Config.TokenExpiresAt.Value - DateTime.UtcNow;
+        if (timeUntilExpiry.TotalMinutes < 5) return Severity.Error;
+        if (timeUntilExpiry.TotalMinutes < 30) return Severity.Warning;
+        return Severity.Success;
+    }
+
+    private async Task OnConfigChanged()
+    {
+        await ConfigChanged.InvokeAsync(Config);
+    }
+}

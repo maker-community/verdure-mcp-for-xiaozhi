@@ -1,0 +1,65 @@
+@using Verdure.McpPlatform.Contracts.Models
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudTextField @bind-Value="Config.Token"
+                     Label="@Loc["BearerToken"]"
+                     Variant="Variant.Outlined"
+                     Required="true"
+                     InputType="@_passwordInput"
+                     Adornment="Adornment.End"
+                     AdornmentIcon="@_passwordInputIcon"
+                     OnAdornmentClick="TogglePasswordVisibility"
+                     HelperText="@Loc["BearerTokenHelp"]" />
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudTextField @bind-Value="Config.HeaderName"
+                     Label="@Loc["CustomHeaderName"]"
+                     Variant="Variant.Outlined"
+                     Placeholder="Authorization"
+                     HelperText="@Loc["CustomHeaderNameHelp"]" />
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudAlert Severity="Severity.Info" Dense="true">
+            @Loc["BearerTokenExample"]: <code>Authorization: Bearer your-token-here</code>
+        </MudAlert>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public BearerTokenAuthConfig Config { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<BearerTokenAuthConfig> ConfigChanged { get; set; }
+
+    private bool _isPasswordVisible;
+    private InputType _passwordInput = InputType.Password;
+    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    void TogglePasswordVisibility()
+    {
+        if (_isPasswordVisible)
+        {
+            _isPasswordVisible = false;
+            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+            _passwordInput = InputType.Password;
+        }
+        else
+        {
+            _isPasswordVisible = true;
+            _passwordInputIcon = Icons.Material.Filled.Visibility;
+            _passwordInput = InputType.Text;
+        }
+    }
+
+    private async Task OnConfigChanged()
+    {
+        await ConfigChanged.InvokeAsync(Config);
+    }
+}

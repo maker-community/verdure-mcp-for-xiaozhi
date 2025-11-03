@@ -1,0 +1,54 @@
+@using Verdure.McpPlatform.Contracts.Models
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
+
+<div class="auth-config-container">
+    @switch (AuthType)
+    {
+        case "bearer":
+            <BearerTokenConfigForm @bind-Config="BearerConfig" />
+            break;
+        case "basic":
+            <BasicAuthConfigForm @bind-Config="BasicConfig" />
+            break;
+        case "apikey":
+            <ApiKeyConfigForm @bind-Config="ApiKeyConfig" />
+            break;
+        case "oauth2":
+            <OAuth2ConfigForm @bind-Config="OAuth2Config" />
+            break;
+        default:
+            <MudAlert Severity="Severity.Info">@Loc["SelectAuthenticationType"]</MudAlert>
+            break;
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? AuthType { get; set; }
+
+    [Parameter]
+    public BearerTokenAuthConfig? BearerConfig { get; set; }
+
+    [Parameter]
+    public EventCallback<BearerTokenAuthConfig?> BearerConfigChanged { get; set; }
+
+    [Parameter]
+    public BasicAuthConfig? BasicConfig { get; set; }
+
+    [Parameter]
+    public EventCallback<BasicAuthConfig?> BasicConfigChanged { get; set; }
+
+    [Parameter]
+    public ApiKeyAuthConfig? ApiKeyConfig { get; set; }
+
+    [Parameter]
+    public EventCallback<ApiKeyAuthConfig?> ApiKeyConfigChanged { get; set; }
+
+    [Parameter]
+    public OAuth2AuthConfig? OAuth2Config { get; set; }
+
+    [Parameter]
+    public EventCallback<OAuth2AuthConfig?> OAuth2ConfigChanged { get; set; }
+}
