@@ -8,17 +8,25 @@
         @Loc["Navigation"]
     </div>
     
-    <!-- M3 导航链接 - Dashboard -->
+    <!-- M3 导航链接 - Home -->
     <MudNavLink Href="/" 
                 Match="NavLinkMatch.All" 
-                Icon="@Icons.Material.Outlined.Dashboard"
+                Icon="@Icons.Material.Outlined.Home"
                 IconColor="Color.Primary"
                 Class="m3-nav-item">
-        @Loc["Dashboard"]
+        首页
     </MudNavLink>
     
     <AuthorizeView>
         <Authorized>
+            <!-- M3 导航链接 - Dashboard -->
+            <MudNavLink Href="/dashboard" 
+                        Icon="@Icons.Material.Outlined.Dashboard"
+                        IconColor="Color.Primary"
+                        Class="m3-nav-item">
+                @Loc["Dashboard"]
+            </MudNavLink>
+
             <!-- M3 分组标题 -->
             <div class="m3-nav-section-title" style="margin-top: var(--m3-spacing-lg);">
                 @Loc["McpManagement"]

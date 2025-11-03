@@ -1,0 +1,147 @@
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inherits LayoutComponentBase
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudThemeProvider Theme="_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <!-- 全宽顶部导航栏 - 透明背景，固定在顶部 -->
+    <MudAppBar Elevation="0" Style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.08);">
+        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="d-flex align-center justify-space-between px-4" Style="width: 100%;">
+            <!-- Logo 和标题 -->
+            <div class="d-flex align-center gap-3">
+                <MudIcon Icon="@Icons.Material.Filled.Cloud" Size="Size.Large" Style="color: #1976D2;" />
+                <MudText Typo="Typo.h6" Style="color: #1976D2; font-weight: 600;">
+                    Verdure MCP Platform
+                </MudText>
+            </div>
+            
+            <!-- 右侧导航和操作 -->
+            <div class="d-flex align-center gap-4">
+                <!-- 导航链接 -->
+                <MudLink Href="/#features" Underline="Underline.None" Style="color: #424242; font-weight: 500;">
+                    特性
+                </MudLink>
+                <MudLink Href="/#architecture" Underline="Underline.None" Style="color: #424242; font-weight: 500;">
+                    架构
+                </MudLink>
+                <MudLink Href="/#community" Underline="Underline.None" Style="color: #424242; font-weight: 500;">
+                    社区
+                </MudLink>
+                
+                <MudDivider Vertical="true" FlexItem="true" Style="height: 30px;" />
+                
+                <!-- 社区图标链接 -->
+                <MudTooltip Text="GitHub 创客社区">
+                    <MudIconButton Icon="@Icons.Custom.Brands.GitHub" 
+                                  Size="Size.Medium"
+                                  Style="color: #424242;"
+                                  Href="https://github.com/maker-community" 
+                                  Target="_blank" />
+                </MudTooltip>
+                <MudTooltip Text="项目源码">
+                    <MudIconButton Icon="@Icons.Material.Filled.Code" 
+                                  Size="Size.Medium"
+                                  Style="color: #424242;"
+                                  Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" 
+                                  Target="_blank" />
+                </MudTooltip>
+                <MudTooltip Text="绿荫阿广 B站">
+                    <MudIconButton Icon="@Icons.Material.Filled.VideoLibrary" 
+                                  Size="Size.Medium"
+                                  Style="color: #424242;"
+                                  Href="https://space.bilibili.com/25228512" 
+                                  Target="_blank" />
+                </MudTooltip>
+                
+                <MudDivider Vertical="true" FlexItem="true" Style="height: 30px;" />
+                
+                <!-- 语言切换 -->
+                <CultureSelector />
+                
+                <!-- 登录/用户菜单 -->
+                <AuthorizeView>
+                    <Authorized>
+                        <MudButton Href="/dashboard" 
+                                  Variant="Variant.Filled" 
+                                  Color="Color.Primary"
+                                  StartIcon="@Icons.Material.Filled.Dashboard">
+                            控制台
+                        </MudButton>
+                    </Authorized>
+                    <NotAuthorized>
+                        <MudButton Href="/login" 
+                                  Variant="Variant.Filled" 
+                                  Color="Color.Primary" 
+                                  StartIcon="@Icons.Material.Filled.Login">
+                            @Loc["Login"]
+                        </MudButton>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </MudContainer>
+    </MudAppBar>
+    
+    <!-- 主内容区域 - 全宽，无侧边栏 -->
+    <MudMainContent Style="padding: 0; background: #FAFAFA;">
+        @Body
+        <Footer />
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private MudTheme _theme = new()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#1976D2",
+            PrimaryContrastText = "#FFFFFF",
+            PrimaryDarken = "#1565C0",
+            PrimaryLighten = "#BBDEFB",
+            
+            Secondary = "#0097A7",
+            SecondaryContrastText = "#FFFFFF",
+            SecondaryDarken = "#00838F",
+            SecondaryLighten = "#B2EBF2",
+            
+            Tertiary = "#5F6368",
+            TertiaryContrastText = "#FFFFFF",
+            TertiaryDarken = "#3C4043",
+            TertiaryLighten = "#E8EAED",
+            
+            Surface = "#FFFFFF",
+            Background = "#FAFAFA",
+            AppbarBackground = "#FFFFFF",
+            DrawerBackground = "#FFFFFF",
+            DrawerText = "#424242",
+            
+            Success = "#2E7D32",
+            Info = "#0288D1",
+            Warning = "#F57C00",
+            Error = "#D32F2F",
+            
+            TextPrimary = "#212121",
+            TextSecondary = "#757575",
+            TextDisabled = "#BDBDBD",
+            
+            Divider = "#E0E0E0",
+            DividerLight = "#F5F5F5",
+            
+            ActionDefault = "#757575",
+            ActionDisabled = "rgba(0, 0, 0, 0.26)",
+            ActionDisabledBackground = "rgba(0, 0, 0, 0.12)",
+            
+            HoverOpacity = 0.04,
+        },
+        
+        LayoutProperties = new LayoutProperties()
+        {
+            DefaultBorderRadius = "12px",
+            AppbarHeight = "72px",
+        }
+    };
+}

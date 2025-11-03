@@ -7,14 +7,19 @@
 
 <PageTitle>@Loc["Logout"] - @Loc["AppTitle"]</PageTitle>
 
-<div class="d-flex justify-center align-center" style="min-height: 80vh;">
+<div class="d-flex justify-center align-center" style="min-height: 70vh;">
     <MudCard Elevation="4" Style="max-width: 400px; width: 100%;">
         <MudCardContent Class="pa-8 text-center">
-            <MudIcon Icon="@Icons.Material.Filled.Logout" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
-            <MudText Typo="Typo.h5" Class="mb-2">@Loc["SigningOut"]</MudText>
-            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            <MudIcon Icon="@Icons.Material.Filled.Logout" 
+                    Size="Size.Large" 
+                    Color="Color.Primary" 
+                    Style="font-size: 4rem; margin-bottom: 1rem;" />
+            <MudText Typo="Typo.h5" Class="mb-4" Style="font-weight: 600;">
+                正在退出登录...
+            </MudText>
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
             <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-4">
-                @Loc["PleaseWaitSigningOut"]
+                请稍候，正在安全退出您的账号
             </MudText>
         </MudCardContent>
     </MudCard>

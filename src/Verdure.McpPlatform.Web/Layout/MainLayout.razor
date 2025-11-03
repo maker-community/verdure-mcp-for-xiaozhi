@@ -13,15 +13,46 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
         <MudText Typo="Typo.h6" Class="ml-3">@Loc["AppTitle"]</MudText>
         <MudSpacer />
-        <div class="d-flex align-center gap-4">
+        <div class="d-flex align-center gap-2">
+            <!-- 社区链接 -->
+            <MudTooltip Text="GitHub 创客社区">
+                <MudIconButton Icon="@Icons.Custom.Brands.GitHub" 
+                              Color="Color.Inherit" 
+                              Href="https://github.com/maker-community" 
+                              Target="_blank" />
+            </MudTooltip>
+            <MudTooltip Text="项目源码">
+                <MudIconButton Icon="@Icons.Material.Filled.Code" 
+                              Color="Color.Inherit" 
+                              Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" 
+                              Target="_blank" />
+            </MudTooltip>
+            <MudTooltip Text="绿荫阿广 B站">
+                <MudIconButton Icon="@Icons.Material.Filled.VideoLibrary" 
+                              Color="Color.Inherit" 
+                              Href="https://space.bilibili.com/25228512" 
+                              Target="_blank" />
+            </MudTooltip>
+            <MudDivider Vertical="true" FlexItem="true" Style="height: 30px; margin: 0 8px;" />
             <CultureSelector />
             <AuthorizeView>
                 <Authorized>
-                    <MudText Typo="Typo.body2" Class="mr-4">@context.User.Identity?.Name</MudText>
-                    <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
+                    <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                        <MudMenuItem>
+                            <div class="d-flex flex-column pa-2">
+                                <MudText Typo="Typo.body2" Style="font-weight: 600;">@context.User.Identity?.Name</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">@context.User.FindFirst("email")?.Value</MudText>
+                            </div>
+                        </MudMenuItem>
+                        <MudDivider />
+                        <MudMenuItem Href="/settings" Icon="@Icons.Material.Filled.Settings">@Loc["Settings"]</MudMenuItem>
+                        <MudMenuItem Href="/logout" Icon="@Icons.Material.Filled.Logout">@Loc["Logout"]</MudMenuItem>
+                    </MudMenu>
                 </Authorized>
                 <NotAuthorized>
-                    <MudButton Href="/login" Variant="Variant.Text" Color="Color.Inherit">@Loc["Login"]</MudButton>
+                    <MudButton Href="/login" Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Login">
+                        @Loc["Login"]
+                    </MudButton>
                 </NotAuthorized>
             </AuthorizeView>
         </div>
@@ -32,9 +63,10 @@
     </MudDrawer>
     
     <MudMainContent Class="pt-16 px-4">
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-6">
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-6" Style="min-height: calc(100vh - 400px);">
             @Body
         </MudContainer>
+        <Footer />
     </MudMainContent>
 </MudLayout>
 

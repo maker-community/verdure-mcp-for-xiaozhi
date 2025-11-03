@@ -1,0 +1,97 @@
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudPaper Elevation="0" Class="mt-8 py-6" Style="background-color: #FAFAFA; border-top: 1px solid #E0E0E0;">
+    <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+        <MudGrid>
+            <!-- 项目信息 -->
+            <MudItem xs="12" sm="6" md="3">
+                <MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 600; color: #1976D2;">
+                    Verdure MCP Platform
+                </MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">
+                    开源的多租户 MCP 服务管理平台
+                </MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    基于 .NET 9 和 Blazor WebAssembly
+                </MudText>
+            </MudItem>
+
+            <!-- 快速链接 -->
+            <MudItem xs="12" sm="6" md="3">
+                <MudText Typo="Typo.subtitle1" Class="mb-3" Style="font-weight: 600;">
+                    快速链接
+                </MudText>
+                <MudStack Spacing="2">
+                    <MudLink Href="/" Color="Color.Secondary" Typo="Typo.body2">首页</MudLink>
+                    <MudLink Href="/dashboard" Color="Color.Secondary" Typo="Typo.body2">仪表盘</MudLink>
+                    <MudLink Href="/connections" Color="Color.Secondary" Typo="Typo.body2">小智连接</MudLink>
+                    <MudLink Href="/mcp-services" Color="Color.Secondary" Typo="Typo.body2">MCP服务</MudLink>
+                </MudStack>
+            </MudItem>
+
+            <!-- 社区链接 -->
+            <MudItem xs="12" sm="6" md="3">
+                <MudText Typo="Typo.subtitle1" Class="mb-3" Style="font-weight: 600;">
+                    社区资源
+                </MudText>
+                <MudStack Spacing="2">
+                    <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary" Typo="Typo.body2">
+                        <div class="d-flex align-center gap-2">
+                            <MudIcon Icon="@Icons.Custom.Brands.GitHub" Size="Size.Small" />
+                            <span>GitHub 创客社区</span>
+                        </div>
+                    </MudLink>
+                    <MudLink Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" Target="_blank" Color="Color.Secondary" Typo="Typo.body2">
+                        <div class="d-flex align-center gap-2">
+                            <MudIcon Icon="@Icons.Material.Filled.Code" Size="Size.Small" />
+                            <span>项目源码</span>
+                        </div>
+                    </MudLink>
+                    <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Secondary" Typo="Typo.body2">
+                        <div class="d-flex align-center gap-2">
+                            <MudIcon Icon="@Icons.Material.Filled.VideoLibrary" Size="Size.Small" />
+                            <span>绿荫阿广 B站</span>
+                        </div>
+                    </MudLink>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        <div class="d-flex align-center gap-2">
+                            <MudIcon Icon="@Icons.Material.Filled.Group" Size="Size.Small" />
+                            <span>QQ群: 1023487000</span>
+                        </div>
+                    </MudText>
+                </MudStack>
+            </MudItem>
+
+            <!-- 技术栈 -->
+            <MudItem xs="12" sm="6" md="3">
+                <MudText Typo="Typo.subtitle1" Class="mb-3" Style="font-weight: 600;">
+                    技术栈
+                </MudText>
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">.NET 9</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Blazor WebAssembly</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">MudBlazor UI</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Entity Framework Core</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">PostgreSQL / SQLite</MudText>
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+
+        <MudDivider Class="my-4" />
+
+        <!-- 版权信息 -->
+        <MudGrid>
+            <MudItem xs="12" Class="text-center">
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    © @DateTime.Now.Year Verdure MCP Platform. 
+                    Made with ❤️ by <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Primary">绿荫阿广</MudLink>
+                </MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
+                    Licensed under MIT | Powered by <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary">Maker Community</MudLink>
+                </MudText>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+</MudPaper>

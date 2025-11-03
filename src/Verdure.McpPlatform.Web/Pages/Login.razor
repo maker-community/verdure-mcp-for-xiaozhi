@@ -6,40 +6,33 @@
 
 <PageTitle>@Loc["Login"] - @Loc["AppTitle"]</PageTitle>
 
-<div class="d-flex justify-center align-center" style="min-height: 80vh;">
-    <MudCard Elevation="4" Style="max-width: 500px; width: 100%;">
-        <MudCardContent Class="pa-8">
-            <div class="text-center mb-6">
-                <MudIcon Icon="@Icons.Material.Filled.Cloud" Size="Size.Large" Color="Color.Primary" />
-                <MudText Typo="Typo.h4" Class="mt-2">@Loc["AppTitle"]</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["SignInToManageMcpServices"]</MudText>
-            </div>
-
-            <MudAlert Severity="Severity.Info" Class="mb-4">
-                <MudText Typo="Typo.body2">
-                    @Loc["SecureAuthenticationInfo"]
-                </MudText>
-            </MudAlert>
+<div class="d-flex justify-center align-center" style="min-height: 70vh;">
+    <MudCard Elevation="4" Style="max-width: 450px; width: 100%;">
+        <MudCardContent Class="pa-8 text-center">
+            <MudIcon Icon="@Icons.Material.Filled.Cloud" 
+                    Size="Size.Large" 
+                    Color="Color.Primary" 
+                    Style="font-size: 4rem; margin-bottom: 1rem;" />
+            <MudText Typo="Typo.h4" Class="mb-2" Style="font-weight: 600;">
+                欢迎登录
+            </MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-6">
+                Verdure MCP Platform
+            </MudText>
 
             <MudButton Variant="Variant.Filled" 
                       Color="Color.Primary" 
                       FullWidth="true"
                       Size="Size.Large"
                       Href="authentication/login"
-                      StartIcon="@Icons.Material.Filled.Login">
-                @Loc["SignInWithKeycloak"]
+                      StartIcon="@Icons.Material.Filled.Login"
+                      Style="padding: 12px 24px; font-size: 1rem;">
+                使用 Keycloak 登录
             </MudButton>
 
-            <MudDivider Class="my-6" />
-
-            <div class="text-center">
-                <MudText Typo="Typo.body2" Color="Color.Secondary">
-                    @Loc["RedirectToKeycloakInfo"]
-                </MudText>
-                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
-                    @Loc["UsingOidcAuthFlow"]
-                </MudText>
-            </div>
+            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-6">
+                登录后即可管理您的 MCP 服务配置
+            </MudText>
         </MudCardContent>
     </MudCard>
 </div>

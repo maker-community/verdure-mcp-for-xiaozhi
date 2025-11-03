@@ -1,0 +1,203 @@
+@page "/dashboard"
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IXiaozhiConnectionClientService ServerService
+@inject IMcpServiceBindingClientService BindingService
+@inject IStringLocalizer<SharedResources> Loc
+@attribute [Authorize]
+
+<PageTitle>@Loc["Dashboard"] - @Loc["AppTitle"]</PageTitle>
+
+<MudGrid>
+    <!-- M3 Hero Banner - 统一蓝色渐变 -->
+    <MudItem xs="12">
+        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
+            <MudCardContent Class="pa-6">
+                <div class="d-flex align-center mb-2">
+                    <MudIcon Icon="@Icons.Material.Filled.Dashboard" Size="Size.Large" Style="color: #FFFFFF; margin-right: 12px;" />
+                    <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
+                        @Loc["Dashboard"]
+                    </MudText>
+                </div>
+                <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); margin-left: 48px;">
+                    @Loc["DashboardOverview"]
+                </MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- M3 统计卡片 - Primary Container -->
+    <MudItem xs="12" sm="6" md="3" Style="display: flex;">
+        <MudCard Elevation="1" Class="m3-stat-card m3-stat-card-primary m3-fade-in" Style="width: 100%;">
+            <MudCardContent Class="d-flex flex-column justify-space-between" Style="height: 100%;">
+                <div class="d-flex justify-space-between align-center">
+                    <div>
+                        <MudText Typo="Typo.h4" Style="color: #1565C0; font-weight: 600;">@_serverCount</MudText>
+                        <MudText Typo="Typo.body2" Style="color: #1976D2; font-weight: 500;">@Loc["XiaozhiConnections"]</MudText>
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.Dns" Size="Size.Large" Style="color: #1976D2;" />
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- M3 统计卡片 - Secondary Container -->
+    <MudItem xs="12" sm="6" md="3" Style="display: flex;">
+        <MudCard Elevation="1" Class="m3-stat-card m3-stat-card-secondary m3-fade-in" Style="animation-delay: 0.1s; width: 100%;">
+            <MudCardContent Class="d-flex flex-column justify-space-between" Style="height: 100%;">
+                <div class="d-flex justify-space-between align-center">
+                    <div>
+                        <MudText Typo="Typo.h4" Style="color: #00838F; font-weight: 600;">@_bindingCount</MudText>
+                        <MudText Typo="Typo.body2" Style="color: #0097A7; font-weight: 500;">@Loc["TotalBindings"]</MudText>
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.Link" Size="Size.Large" Style="color: #0097A7;" />
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- M3 统计卡片 - Success Container -->
+    <MudItem xs="12" sm="6" md="3" Style="display: flex;">
+        <MudCard Elevation="1" Class="m3-stat-card m3-stat-card-success m3-fade-in" Style="animation-delay: 0.2s; width: 100%;">
+            <MudCardContent Class="d-flex flex-column justify-space-between" Style="height: 100%;">
+                <div class="d-flex justify-space-between align-center">
+                    <div>
+                        <MudText Typo="Typo.h4" Style="color: #2E7D32; font-weight: 600;">@_activeBindingCount</MudText>
+                        <MudText Typo="Typo.body2" Style="color: #43A047; font-weight: 500;">@Loc["ActiveBindings"]</MudText>
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Large" Style="color: #43A047;" />
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- M3 统计卡片 - Warning Container -->
+    <MudItem xs="12" sm="6" md="3" Style="display: flex;">
+        <MudCard Elevation="1" Class="m3-stat-card m3-stat-card-warning m3-fade-in" Style="animation-delay: 0.3s; width: 100%;">
+            <MudCardContent Class="d-flex flex-column justify-space-between" Style="height: 100%;">
+                <div class="d-flex justify-space-between align-center">
+                    <div>
+                        <MudText Typo="Typo.h4" Style="color: #E65100; font-weight: 600;">@(_bindingCount - _activeBindingCount)</MudText>
+                        <MudText Typo="Typo.body2" Style="color: #FB8C00; font-weight: 500;">@Loc["InactiveBindings"]</MudText>
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Size="Size.Large" Style="color: #FB8C00;" />
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- M3 快速操作卡片 -->
+    <MudItem xs="12">
+        <MudCard Elevation="1" Class="m3-card">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6" Style="font-weight: 500;">@Loc["QuickActions"]</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <div class="d-flex m3-gap-lg flex-wrap">
+                    <MudButton Href="/connections/create" 
+                              Variant="Variant.Filled" 
+                              Color="Color.Primary" 
+                              StartIcon="@Icons.Material.Filled.Add"
+                              Class="m3-button">
+                        @Loc["AddXiaozhiConnection"]
+                    </MudButton>
+                    <MudButton Href="/service-bindings/create" 
+                              Variant="Variant.Filled" 
+                              Color="Color.Secondary" 
+                              StartIcon="@Icons.Material.Filled.Link"
+                              Class="m3-button">
+                        @Loc["CreateBinding"]
+                    </MudButton>
+                    <MudButton Href="/connections" 
+                              Variant="Variant.Outlined" 
+                              Color="Color.Primary" 
+                              StartIcon="@Icons.Material.Filled.List"
+                              Class="m3-button">
+                        @Loc["ViewAllConnections"]
+                    </MudButton>
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudCard Elevation="2">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">@Loc["RecentServers"]</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                @if (_loading)
+                {
+                    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                }
+                else if (_recentServers.Any())
+                {
+                    <MudList T="string">
+                        @foreach (var server in _recentServers.Take(5))
+                        {
+                            <MudListItem T="string">
+                                <div class="d-flex justify-space-between align-center w-100">
+                                    <div>
+                                        <MudText Typo="Typo.body1">@server.Name</MudText>
+                                        <MudText Typo="Typo.body2" Color="Color.Secondary">@server.Address</MudText>
+                                    </div>
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Info">
+                                        @string.Format(Loc["BindingsCount"], server.ServiceBindings.Count)
+                                    </MudChip>
+                                </div>
+                            </MudListItem>
+                            <MudDivider />
+                        }
+                    </MudList>
+                }
+                else
+                {
+                    <MudAlert Severity="Severity.Info">@Loc["NoServersYet"]</MudAlert>
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private bool _loading = true;
+    private int _serverCount = 0;
+    private int _bindingCount = 0;
+    private int _activeBindingCount = 0;
+    private List<XiaozhiConnectionDto> _recentServers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardDataAsync();
+    }
+
+    private async Task LoadDashboardDataAsync()
+    {
+        try
+        {
+            _loading = true;
+            
+            var servers = await ServerService.GetServersAsync();
+            _recentServers = servers.OrderByDescending(s => s.CreatedAt).ToList();
+            _serverCount = _recentServers.Count;
+            _bindingCount = _recentServers.Sum(s => s.ServiceBindings.Count);
+            _activeBindingCount = _recentServers.SelectMany(s => s.ServiceBindings).Count(b => b.IsActive);
+        }
+        catch (Exception)
+        {
+            // User not authenticated or error loading data
+            _serverCount = 0;
+            _bindingCount = 0;
+            _activeBindingCount = 0;
+            _recentServers = new List<XiaozhiConnectionDto>();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}
