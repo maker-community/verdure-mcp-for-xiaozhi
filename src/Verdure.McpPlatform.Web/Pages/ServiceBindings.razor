@@ -93,7 +93,11 @@
                                 }
                             </MudTd>
                             <MudTd DataLabel="MCP Service Endpoint">
-                                <MudText Typo="Typo.body2" Style="font-family: monospace;">@context.NodeAddress</MudText>
+                                <MudTooltip Text="@context.NodeAddress">
+                                    <MudText Typo="Typo.body2" Style="font-family: monospace; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        @context.NodeAddress
+                                    </MudText>
+                                </MudTooltip>
                             </MudTd>
                             <MudTd DataLabel="Status">
                                 @if (context.IsActive)
@@ -255,7 +259,7 @@
         var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>(Loc["ConfirmDelete"], parameters, options);
         var result = await dialog.Result;
 
-        if (!result.Canceled)
+        if (result != null && !result.Canceled)
         {
             try
             {

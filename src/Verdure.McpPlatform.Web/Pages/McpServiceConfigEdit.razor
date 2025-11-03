@@ -15,7 +15,7 @@
 <MudGrid>
     <!-- M3 Hero Banner -->
     <MudItem xs="12">
-        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #6A1B9A 0%, #8E24AA 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-lg">
+        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-lg">
             <MudCardContent Class="pa-6">
                 <div class="d-flex align-center" Style="gap: 1rem;">
                     <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" 
@@ -102,11 +102,10 @@
                             <MudItem xs="12">
                                 <MudSwitch @bind-Value="_model.IsPublic" 
                                           Color="Color.Success"
-                                          Label="@Loc["MakePublic"]">
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2">
-                                        @Loc["MakePublicHelp"]
-                                    </MudText>
-                                </MudSwitch>
+                                          Label="@Loc["MakePublic"]" />
+                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="ml-12 mt-1">
+                                    @Loc["MakePublicHelp"]
+                                </MudText>
                             </MudItem>
                         </MudGrid>
 

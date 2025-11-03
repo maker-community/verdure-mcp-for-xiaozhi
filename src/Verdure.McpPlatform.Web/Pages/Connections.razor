@@ -82,7 +82,11 @@
                                 }
                             </MudTd>
                             <MudTd DataLabel="Address">
-                                <MudText Typo="Typo.body2" Style="font-family: monospace;">@context.Address</MudText>
+                                <MudTooltip Text="@context.Address">
+                                    <MudText Typo="Typo.body2" Style="font-family: monospace; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        @context.Address
+                                    </MudText>
+                                </MudTooltip>
                             </MudTd>
                             <MudTd DataLabel="Status">
                                 <div class="d-flex align-center m3-gap-sm">
@@ -326,7 +330,7 @@
         var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>(Loc["ConfirmDelete"], parameters, options);
         var result = await dialog.Result;
 
-        if (!result.Canceled)
+        if (result != null && !result.Canceled)
         {
             try
             {
