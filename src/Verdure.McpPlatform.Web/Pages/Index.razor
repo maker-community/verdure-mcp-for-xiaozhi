@@ -3,19 +3,10 @@
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
 @inject IStringLocalizer<SharedResources> Loc
-@inject NavigationManager Navigation
 
 <PageTitle>@Loc["AppTitle"]</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        @{
-            // 已登录用户直接跳转到仪表盘
-            Navigation.NavigateTo("/dashboard");
-        }
-    </Authorized>
-    <NotAuthorized>
-        <!-- Hero Section - 全宽大气背景 -->
+<!-- Hero Section - 全宽大气背景 -->
         <div Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); padding: 120px 0 100px;">
             <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudGrid Justify="Justify.Center">
@@ -33,24 +24,48 @@
                         <MudText Typo="Typo.body1" Class="mb-8" Style="max-width: 700px; margin: 0 auto; color: rgba(255,255,255,0.85); font-size: 1.1rem;">
                             基于 .NET 9 和 Blazor WebAssembly 构建，为小智 AI 助手提供灵活的 Model Context Protocol 服务配置和管理能力
                         </MudText>
-                        <div class="d-flex justify-center gap-4 flex-wrap mb-4">
-                            <MudButton Href="/login" 
-                                      Variant="Variant.Filled" 
-                                      Color="Color.Surface" 
-                                      Size="Size.Large"
-                                      Style="color: #1976D2; font-weight: 600; padding: 12px 32px;"
-                                      StartIcon="@Icons.Material.Filled.Login">
-                                立即开始使用
-                            </MudButton>
-                            <MudButton Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" 
-                                      Target="_blank"
-                                      Variant="Variant.Outlined" 
-                                      Size="Size.Large"
-                                      Style="border-color: rgba(255,255,255,0.5); color: #FFFFFF; font-weight: 600; padding: 12px 32px;"
-                                      StartIcon="@Icons.Material.Filled.Code">
-                                查看源码
-                            </MudButton>
-                        </div>
+                        <AuthorizeView>
+                            <Authorized>
+                                <div class="d-flex justify-center gap-4 flex-wrap mb-4">
+                                    <MudButton Href="/dashboard" 
+                                              Variant="Variant.Filled" 
+                                              Color="Color.Surface" 
+                                              Size="Size.Large"
+                                              Style="color: #1976D2; font-weight: 600; padding: 12px 32px;"
+                                              StartIcon="@Icons.Material.Filled.Dashboard">
+                                        进入控制台
+                                    </MudButton>
+                                    <MudButton Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" 
+                                              Target="_blank"
+                                              Variant="Variant.Outlined" 
+                                              Size="Size.Large"
+                                              Style="border-color: rgba(255,255,255,0.5); color: #FFFFFF; font-weight: 600; padding: 12px 32px;"
+                                              StartIcon="@Icons.Material.Filled.Code">
+                                        查看源码
+                                    </MudButton>
+                                </div>
+                            </Authorized>
+                            <NotAuthorized>
+                                <div class="d-flex justify-center gap-4 flex-wrap mb-4">
+                                    <MudButton Href="authentication/login" 
+                                              Variant="Variant.Filled" 
+                                              Color="Color.Surface" 
+                                              Size="Size.Large"
+                                              Style="color: #1976D2; font-weight: 600; padding: 12px 32px;"
+                                              StartIcon="@Icons.Material.Filled.Login">
+                                        立即开始使用
+                                    </MudButton>
+                                    <MudButton Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" 
+                                              Target="_blank"
+                                              Variant="Variant.Outlined" 
+                                              Size="Size.Large"
+                                              Style="border-color: rgba(255,255,255,0.5); color: #FFFFFF; font-weight: 600; padding: 12px 32px;"
+                                              StartIcon="@Icons.Material.Filled.Code">
+                                        查看源码
+                                    </MudButton>
+                                </div>
+                            </NotAuthorized>
+                        </AuthorizeView>
                     </div>
                 </MudItem>
             </MudGrid>
@@ -259,8 +274,6 @@
             </MudGrid>
         </MudContainer>
         </div>
-    </NotAuthorized>
-</AuthorizeView>
 
 @code {
     private bool _showQQGroup = false;
