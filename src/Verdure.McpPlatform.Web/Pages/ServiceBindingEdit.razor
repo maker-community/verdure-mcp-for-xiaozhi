@@ -18,15 +18,20 @@
     <MudItem xs="12">
         <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
             <MudCardContent Class="pa-6">
-                <div class="d-flex align-center mb-2">
-                    <MudIcon Icon="@(_isEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)" Size="Size.Large" Style="color: #FFFFFF; margin-right: 12px;" />
-                    <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
-                        @(_isEdit ? Loc["EditServiceBinding"] : Loc["CreateServiceBinding"]) @Loc["McpServiceBinding"]
-                    </MudText>
+                <div class="d-flex align-center" Style="gap: 1rem;">
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" 
+                                  Style="color: #FFFFFF;"
+                                  OnClick="Cancel" 
+                                  Size="Size.Large" />
+                    <div>
+                        <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
+                            @(_isEdit ? Loc["EditServiceBinding"] : Loc["CreateServiceBinding"]) @Loc["McpServiceBinding"]
+                        </MudText>
+                        <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85);">
+                            @(_isEdit ? Loc["UpdateServiceBindingConfig"] : Loc["ConfigureNewServiceBinding"])
+                        </MudText>
+                    </div>
                 </div>
-                <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); margin-left: 48px;">
-                    @(_isEdit ? Loc["UpdateServiceBindingConfig"] : Loc["ConfigureNewServiceBinding"])
-                </MudText>
             </MudCardContent>
         </MudCard>
     </MudItem>
