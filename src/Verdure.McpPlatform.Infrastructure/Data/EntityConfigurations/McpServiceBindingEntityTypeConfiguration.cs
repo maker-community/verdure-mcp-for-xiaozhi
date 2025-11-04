@@ -20,21 +20,14 @@ public class McpServiceBindingEntityTypeConfiguration : IEntityTypeConfiguration
             .HasMaxLength(36)
             .IsRequired();
 
-        builder.Property(b => b.ServiceName)
-            .HasMaxLength(200)
-            .IsRequired();
-
-        builder.Property(b => b.NodeAddress)
-            .HasMaxLength(500)
-            .IsRequired();
-
         // Configure foreign key as string
         builder.Property(b => b.XiaozhiConnectionId)
             .HasMaxLength(36)
             .IsRequired();
 
         builder.Property(b => b.McpServiceConfigId)
-            .HasMaxLength(36);
+            .HasMaxLength(36)
+            .IsRequired();
 
         builder.Property(b => b.Description)
             .HasMaxLength(1000);

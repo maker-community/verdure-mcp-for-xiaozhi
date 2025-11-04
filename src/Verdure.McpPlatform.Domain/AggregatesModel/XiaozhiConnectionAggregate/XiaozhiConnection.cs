@@ -51,13 +51,11 @@ public class XiaozhiConnection : Entity, IAggregateRoot
     }
 
     public McpServiceBinding AddServiceBinding(
-        string serviceName, 
-        string nodeAddress, 
-        string? mcpServiceConfigId = null,
+        string mcpServiceConfigId,
         string? description = null,
         IEnumerable<string>? selectedToolNames = null)
     {
-        var binding = new McpServiceBinding(serviceName, nodeAddress, Id, mcpServiceConfigId, description, selectedToolNames);
+        var binding = new McpServiceBinding(Id, mcpServiceConfigId, description, selectedToolNames);
         _serviceBindings.Add(binding);
         return binding;
     }

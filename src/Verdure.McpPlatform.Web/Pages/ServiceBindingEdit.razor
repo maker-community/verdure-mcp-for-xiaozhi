@@ -296,12 +296,7 @@
         _selectedService = _myServices.FirstOrDefault(s => s.Id == serviceId) 
                           ?? _publicServices.FirstOrDefault(s => s.Id == serviceId);
 
-        if (_selectedService != null)
-        {
-            // Auto-fill service name and endpoint from the selected MCP service config
-            _model.ServiceName = _selectedService.Name;
-            _model.NodeAddress = _selectedService.Endpoint;
-        }
+        // Service name and endpoint are now directly from McpServiceConfig, no need to store in model
 
         await LoadToolsForSelectedService();
     }
@@ -394,8 +389,6 @@
             if (_existingBinding != null)
             {
                 _model.XiaozhiConnectionId = _existingBinding.XiaozhiConnectionId;
-                _model.ServiceName = _existingBinding.ServiceName;
-                _model.NodeAddress = _existingBinding.NodeAddress;
                 _model.Description = _existingBinding.Description ?? string.Empty;
                 _model.McpServiceConfigId = _existingBinding.McpServiceConfigId;
                 
@@ -437,13 +430,11 @@
             {
                 var request = new UpdateMcpServiceBindingRequest
                 {
-                    ServiceName = _model.ServiceName,
-                    NodeAddress = _model.NodeAddress,
-                    Description = _model.Description,
-                    McpServiceConfigId = _model.McpServiceConfigId,
+                    McpServiceConfigId = _model.McpServiceConfigId ?? string.Empty,
+                    Description = string.IsNullOrWhiteSpace(_model.Description) ? null : _model.Description,
                     SelectedToolNames = toolsList
                 };
-                Console.WriteLine($"[DEBUG] Update request: ServiceName={request.ServiceName}, Tools={request.SelectedToolNames?.Count ?? 0}");
+                Console.WriteLine($"[DEBUG] Update request: ConfigId={request.McpServiceConfigId}, Tools={request.SelectedToolNames?.Count ?? 0}");
                 await BindingService.UpdateBindingAsync(Id!, request);
                 Snackbar.Add("Service binding updated successfully", Severity.Success);
             }
@@ -451,14 +442,12 @@
             {
                 var request = new CreateMcpServiceBindingRequest
                 {
-                    ServerId = _model.XiaozhiConnectionId,
-                    ServiceName = _model.ServiceName,
-                    NodeAddress = _model.NodeAddress,
-                    Description = _model.Description,
-                    McpServiceConfigId = _model.McpServiceConfigId,
+                    ServerId = _model.XiaozhiConnectionId ?? string.Empty,
+                    McpServiceConfigId = _model.McpServiceConfigId ?? string.Empty,
+                    Description = string.IsNullOrWhiteSpace(_model.Description) ? null : _model.Description,
                     SelectedToolNames = toolsList
                 };
-                Console.WriteLine($"[DEBUG] Create request: ServiceName={request.ServiceName}, Tools={request.SelectedToolNames?.Count ?? 0}");
+                Console.WriteLine($"[DEBUG] Create request: ConfigId={request.McpServiceConfigId}, Tools={request.SelectedToolNames?.Count ?? 0}");
                 await BindingService.CreateBindingAsync(request);
                 Snackbar.Add("Service binding created successfully", Severity.Success);
             }
@@ -484,9 +473,7 @@
 
     private class BindingFormModel
     {
-        public string XiaozhiConnectionId { get; set; } = string.Empty;
-        public string ServiceName { get; set; } = string.Empty;
-        public string NodeAddress { get; set; } = string.Empty;
+        public string? XiaozhiConnectionId { get; set; }
         public string Description { get; set; } = string.Empty;
         public string? McpServiceConfigId { get; set; }
     }

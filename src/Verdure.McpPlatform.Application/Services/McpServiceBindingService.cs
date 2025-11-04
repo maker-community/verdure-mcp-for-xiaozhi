@@ -2,6 +2,7 @@
 using Verdure.McpPlatform.Contracts.DTOs;
 using Verdure.McpPlatform.Contracts.Requests;
 using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
 namespace Verdure.McpPlatform.Application.Services;
 
@@ -11,13 +12,16 @@ namespace Verdure.McpPlatform.Application.Services;
 public class McpServiceBindingService : IMcpServiceBindingService
 {
     private readonly IXiaozhiConnectionRepository _repository;
+    private readonly IMcpServiceConfigRepository _configRepository;
     private readonly ILogger<McpServiceBindingService> _logger;
 
     public McpServiceBindingService(
         IXiaozhiConnectionRepository repository,
+        IMcpServiceConfigRepository configRepository,
         ILogger<McpServiceBindingService> logger)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _configRepository = configRepository ?? throw new ArgumentNullException(nameof(configRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -31,8 +35,6 @@ public class McpServiceBindingService : IMcpServiceBindingService
         }
 
         var binding = server.AddServiceBinding(
-            request.ServiceName, 
-            request.NodeAddress,
             request.McpServiceConfigId,
             request.Description,
             request.SelectedToolNames);
@@ -41,11 +43,12 @@ public class McpServiceBindingService : IMcpServiceBindingService
         await _repository.UnitOfWork.SaveEntitiesAsync();
 
         _logger.LogInformation(
-            "Created MCP binding {BindingId} for server {ServerId}",
+            "Created MCP binding {BindingId} for server {ServerId} with config {ConfigId}",
             binding.Id,
-            request.ServerId);
+            request.ServerId,
+            request.McpServiceConfigId);
 
-        return MapToDto(binding);
+        return await MapToDtoAsync(binding);
     }
 
     public async Task<McpServiceBindingDto?> GetByIdAsync(string id, string userId)
@@ -64,7 +67,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
             return null;
         }
 
-        return MapToDto(binding);
+        return await MapToDtoAsync(binding);
     }
 
     public async Task<IEnumerable<McpServiceBindingDto>> GetByServerAsync(string serverId, string userId)
@@ -77,13 +80,23 @@ public class McpServiceBindingService : IMcpServiceBindingService
         }
 
         var bindings = await _repository.GetServiceBindingsByConnectionIdAsync(serverId);
-        return bindings.Select(MapToDto);
+        var dtos = new List<McpServiceBindingDto>();
+        foreach (var binding in bindings)
+        {
+            dtos.Add(await MapToDtoAsync(binding));
+        }
+        return dtos;
     }
 
     public async Task<IEnumerable<McpServiceBindingDto>> GetActiveServiceBindingsAsync()
     {
         var bindings = await _repository.GetActiveServiceBindingsAsync();
-        return bindings.Select(MapToDto);
+        var dtos = new List<McpServiceBindingDto>();
+        foreach (var binding in bindings)
+        {
+            dtos.Add(await MapToDtoAsync(binding));
+        }
+        return dtos;
     }
 
     public async Task UpdateAsync(string id, UpdateMcpServiceBindingRequest request, string userId)
@@ -102,15 +115,13 @@ public class McpServiceBindingService : IMcpServiceBindingService
         }
 
         binding.UpdateInfo(
-            request.ServiceName, 
-            request.NodeAddress,
             request.McpServiceConfigId,
             request.Description,
             request.SelectedToolNames);
         _repository.Update(server);
         await _repository.UnitOfWork.SaveEntitiesAsync();
 
-        _logger.LogInformation("Updated MCP binding {BindingId}", id);
+        _logger.LogInformation("Updated MCP binding {BindingId} with config {ConfigId}", id, request.McpServiceConfigId);
     }
 
     public async Task ActivateAsync(string id, string userId)
@@ -179,20 +190,47 @@ public class McpServiceBindingService : IMcpServiceBindingService
         _logger.LogInformation("Deleted MCP binding {BindingId}", id);
     }
 
-    private static McpServiceBindingDto MapToDto(McpServiceBinding binding)
+    private async Task<McpServiceBindingDto> MapToDtoAsync(McpServiceBinding binding)
     {
+        var config = await _configRepository.GetByIdAsync(binding.McpServiceConfigId);
+        
         return new McpServiceBindingDto
         {
             Id = binding.Id,
-            ServiceName = binding.ServiceName,
-            NodeAddress = binding.NodeAddress,
             XiaozhiConnectionId = binding.XiaozhiConnectionId,
             McpServiceConfigId = binding.McpServiceConfigId,
+            McpServiceConfig = config != null ? MapConfigToDto(config) : null,
+            ServiceName = config?.Name ?? string.Empty,
+            NodeAddress = config?.Endpoint ?? string.Empty,
             Description = binding.Description,
             IsActive = binding.IsActive,
             SelectedToolNames = binding.SelectedToolNames.ToList(),
             CreatedAt = binding.CreatedAt,
             UpdatedAt = binding.UpdatedAt
+        };
+    }
+
+    private static McpServiceConfigDto MapConfigToDto(McpServiceConfig config)
+    {
+        return new McpServiceConfigDto
+        {
+            Id = config.Id,
+            Name = config.Name,
+            Endpoint = config.Endpoint,
+            UserId = config.UserId,
+            Description = config.Description,
+            IsPublic = config.IsPublic,
+            AuthenticationType = config.AuthenticationType,
+            Protocol = config.Protocol,
+            CreatedAt = config.CreatedAt,
+            UpdatedAt = config.UpdatedAt,
+            LastSyncedAt = config.LastSyncedAt,
+            Tools = config.Tools.Select(t => new McpToolDto
+            {
+                Name = t.Name,
+                Description = t.Description,
+                InputSchema = t.InputSchema
+            }).ToList()
         };
     }
 }

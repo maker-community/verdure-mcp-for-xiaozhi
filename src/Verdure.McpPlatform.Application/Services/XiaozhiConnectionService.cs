@@ -2,6 +2,7 @@
 using Verdure.McpPlatform.Contracts.DTOs;
 using Verdure.McpPlatform.Contracts.Requests;
 using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
 namespace Verdure.McpPlatform.Application.Services;
 
@@ -11,13 +12,16 @@ namespace Verdure.McpPlatform.Application.Services;
 public class XiaozhiConnectionService : IXiaozhiConnectionService
 {
     private readonly IXiaozhiConnectionRepository _repository;
+    private readonly IMcpServiceConfigRepository _configRepository;
     private readonly ILogger<XiaozhiConnectionService> _logger;
 
     public XiaozhiConnectionService(
         IXiaozhiConnectionRepository repository,
+        IMcpServiceConfigRepository configRepository,
         ILogger<XiaozhiConnectionService> logger)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _configRepository = configRepository ?? throw new ArgumentNullException(nameof(configRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -33,7 +37,7 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
             server.Id,
             userId);
 
-        return MapToDto(server);
+        return await MapToDtoAsync(server);
     }
 
     public async Task<XiaozhiConnectionDto?> GetByIdAsync(string id, string userId)
@@ -46,13 +50,18 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
             return null;
         }
 
-        return MapToDto(server);
+        return await MapToDtoAsync(server);
     }
 
     public async Task<IEnumerable<XiaozhiConnectionDto>> GetByUserAsync(string userId)
     {
         var servers = await _repository.GetByUserIdAsync(userId);
-        return servers.Select(MapToDto);
+        var dtos = new List<XiaozhiConnectionDto>();
+        foreach (var server in servers)
+        {
+            dtos.Add(await MapToDtoAsync(server));
+        }
+        return dtos;
     }
 
     public async Task UpdateAsync(string id, UpdateXiaozhiConnectionRequest request, string userId)
@@ -130,7 +139,7 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
             userId);
     }
 
-    private static XiaozhiConnectionDto MapToDto(XiaozhiConnection server)
+    private async Task<XiaozhiConnectionDto> MapToDtoAsync(XiaozhiConnection server)
     {
         return new XiaozhiConnectionDto
         {
@@ -144,19 +153,30 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
             UpdatedAt = server.UpdatedAt,
             LastConnectedAt = server.LastConnectedAt,
             LastDisconnectedAt = server.LastDisconnectedAt,
-            ServiceBindings = server.ServiceBindings.Select(b => new McpServiceBindingDto
-            {
-                Id = b.Id,
-                ServiceName = b.ServiceName,
-                NodeAddress = b.NodeAddress,
-                XiaozhiConnectionId = b.XiaozhiConnectionId,
-                McpServiceConfigId = b.McpServiceConfigId,
-                Description = b.Description,
-                IsActive = b.IsActive,
-                SelectedToolNames = b.SelectedToolNames.ToList(),
-                CreatedAt = b.CreatedAt,
-                UpdatedAt = b.UpdatedAt
-            }).ToList()
+            ServiceBindings = await MapBindingsToDtoAsync(server.ServiceBindings)
         };
+    }
+
+    private async Task<List<McpServiceBindingDto>> MapBindingsToDtoAsync(IReadOnlyCollection<McpServiceBinding> bindings)
+    {
+        var dtos = new List<McpServiceBindingDto>();
+        foreach (var binding in bindings)
+        {
+            var config = await _configRepository.GetByIdAsync(binding.McpServiceConfigId);
+            dtos.Add(new McpServiceBindingDto
+            {
+                Id = binding.Id,
+                XiaozhiConnectionId = binding.XiaozhiConnectionId,
+                McpServiceConfigId = binding.McpServiceConfigId,
+                ServiceName = config?.Name ?? string.Empty,
+                NodeAddress = config?.Endpoint ?? string.Empty,
+                Description = binding.Description,
+                IsActive = binding.IsActive,
+                SelectedToolNames = binding.SelectedToolNames.ToList(),
+                CreatedAt = binding.CreatedAt,
+                UpdatedAt = binding.UpdatedAt
+            });
+        }
+        return dtos;
     }
 }

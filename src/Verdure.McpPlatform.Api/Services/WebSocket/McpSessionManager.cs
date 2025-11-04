@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
 namespace Verdure.McpPlatform.Api.Services.WebSocket;
 
@@ -53,6 +54,7 @@ public class McpSessionManager : IAsyncDisposable
             // Get server configuration using a scoped service
             using var scope = _serviceScopeFactory.CreateScope();
             var serverRepository = scope.ServiceProvider.GetRequiredService<IXiaozhiConnectionRepository>();
+            var configRepository = scope.ServiceProvider.GetRequiredService<IMcpServiceConfigRepository>();
             
             var server = await serverRepository.GetAsync(serverId);
             if (server == null)
@@ -67,22 +69,34 @@ public class McpSessionManager : IAsyncDisposable
                 return false;
             }
 
-            // Build session configuration
+            // Build session configuration with McpServiceConfig lookup
+            var mcpServiceEndpoints = new List<McpServiceEndpoint>();
+            foreach (var binding in server.ServiceBindings.Where(b => b.IsActive))
+            {
+                var serviceConfig = await configRepository.GetByIdAsync(binding.McpServiceConfigId);
+                if (serviceConfig != null)
+                {
+                    mcpServiceEndpoints.Add(new McpServiceEndpoint
+                    {
+                        BindingId = binding.Id,
+                        ServiceName = serviceConfig.Name,
+                        NodeAddress = serviceConfig.Endpoint,
+                        SelectedToolNames = binding.SelectedToolNames.ToList()
+                    });
+                }
+                else
+                {
+                    _logger.LogWarning("McpServiceConfig {ConfigId} not found for binding {BindingId}", 
+                        binding.McpServiceConfigId, binding.Id);
+                }
+            }
+
             var config = new McpSessionConfiguration
             {
                 ServerId = server.Id,
                 ServerName = server.Name,
                 WebSocketEndpoint = server.Address,
-                McpServices = server.ServiceBindings
-                    .Where(b => b.IsActive)
-                    .Select(b => new McpServiceEndpoint
-                    {
-                        BindingId = b.Id,
-                        ServiceName = b.ServiceName,
-                        NodeAddress = b.NodeAddress,
-                        SelectedToolNames = b.SelectedToolNames.ToList()
-                    })
-                    .ToList()
+                McpServices = mcpServiceEndpoints
             };
 
             // Create new session
