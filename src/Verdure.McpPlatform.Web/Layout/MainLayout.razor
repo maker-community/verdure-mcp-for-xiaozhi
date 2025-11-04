@@ -8,7 +8,7 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<MudLayout>
+<MudLayout Style="min-height: 100vh; display: flex; flex-direction: column;">
     <MudAppBar Elevation="1" Color="Color.Primary">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
         <MudText Typo="Typo.h6" Class="ml-3">@Loc["AppTitle"]</MudText>
@@ -62,11 +62,16 @@
         <NavMenu />
     </MudDrawer>
     
-    <MudMainContent Class="pt-16 px-4">
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-6" Style="min-height: calc(100vh - 400px);">
-            @Body
-        </MudContainer>
-        <Footer />
+    <MudMainContent Style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+        <!-- 主内容区域 - flex-grow: 1 确保占据剩余空间 -->
+        <div style="flex: 1; padding: 1rem;">
+            <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-6">
+                @Body
+            </MudContainer>
+        </div>
+        
+        <!-- Footer 始终在底部 -->
+        <Footer IsCompact="true" />
     </MudMainContent>
 </MudLayout>
 
