@@ -66,12 +66,37 @@
                 <!-- 登录/用户菜单 -->
                 <AuthorizeView>
                     <Authorized>
+                        <!-- 控制台按钮 -->
                         <MudButton Href="/dashboard" 
                                   Variant="Variant.Filled" 
                                   Color="Color.Primary"
-                                  StartIcon="@Icons.Material.Filled.Dashboard">
+                                  StartIcon="@Icons.Material.Filled.Dashboard"
+                                  Class="mr-2">
                             控制台
                         </MudButton>
+                        
+                        <!-- 用户菜单 -->
+                        <MudMenu Icon="@Icons.Material.Filled.AccountCircle" 
+                                 AnchorOrigin="Origin.BottomRight" 
+                                 TransformOrigin="Origin.TopRight"
+                                 Style="color: #424242;">
+                            <ActivatorContent>
+                                <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" 
+                                              Size="Size.Medium"
+                                              Style="color: #424242;" />
+                            </ActivatorContent>
+                            <ChildContent>
+                                <MudMenuItem>
+                                    <div class="d-flex flex-column pa-2">
+                                        <MudText Typo="Typo.body2" Style="font-weight: 600;">@context.User.Identity?.Name</MudText>
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">@context.User.FindFirst("email")?.Value</MudText>
+                                    </div>
+                                </MudMenuItem>
+                                <MudDivider />
+                                <MudMenuItem Href="/settings" Icon="@Icons.Material.Filled.Settings">@Loc["Settings"]</MudMenuItem>
+                                <MudMenuItem Href="/logout" Icon="@Icons.Material.Filled.Logout">@Loc["Logout"]</MudMenuItem>
+                            </ChildContent>
+                        </MudMenu>
                     </Authorized>
                     <NotAuthorized>
                         <MudButton Href="authentication/login" 
