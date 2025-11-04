@@ -13,7 +13,7 @@
     <ActivatorContent>
         <MudButton Variant="Variant.Text" 
                    StartIcon="@Icons.Material.Filled.Language"
-                   Style="color: #424242;">
+                   Style="@($"color: {TextColor};")">
             @GetCultureDisplayName(_currentCulture)
         </MudButton>
     </ActivatorContent>
@@ -39,6 +39,12 @@
 </MudMenu>
 
 @code {
+    /// <summary>
+    /// 控制文字颜色，首页使用黑色 (#424242)，仪表盘使用白色 (#FFFFFF)
+    /// </summary>
+    [Parameter]
+    public string TextColor { get; set; } = "#424242";
+    
     private string _currentCulture = CultureInfo.CurrentUICulture.Name;
     
     private readonly CultureInfo[] _supportedCultures = new[]
