@@ -1,11 +1,12 @@
 ﻿<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(LandingLayout)">
                 <NotAuthorized>
                     @if (context.User.Identity?.IsAuthenticated != true)
                     {
-                        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+                        <!-- 使用 LandingLayout 显示未认证消息 -->
+                        <MudContainer MaxWidth="MaxWidth.Medium" Style="margin-top: 120px;">
                             <MudCard Elevation="2" Class="pa-8 text-center">
                                 <MudCardContent>
                                     <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
@@ -25,7 +26,7 @@
                     }
                     else
                     {
-                        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+                        <MudContainer MaxWidth="MaxWidth.Medium" Style="margin-top: 120px;">
                             <MudAlert Severity="Severity.Error">
                                 You do not have permission to access this resource.
                             </MudAlert>
@@ -37,8 +38,8 @@
         </Found>
         <NotFound>
             <PageTitle>Not found</PageTitle>
-            <LayoutView Layout="@typeof(MainLayout)">
-                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+            <LayoutView Layout="@typeof(LandingLayout)">
+                <MudContainer MaxWidth="MaxWidth.Medium" Style="margin-top: 120px;">
                     <MudCard Elevation="2" Class="pa-8 text-center">
                         <MudCardContent>
                             <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Secondary" Class="mb-4" />
