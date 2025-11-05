@@ -13,6 +13,7 @@ public interface IXiaozhiConnectionRepository : IRepository<XiaozhiConnection>
     void Delete(XiaozhiConnection connection);
     Task<XiaozhiConnection?> GetAsync(string connectionId);
     Task<IEnumerable<XiaozhiConnection>> GetByUserIdAsync(string userId);
+    Task<IEnumerable<XiaozhiConnection>> GetEnabledServersAsync(CancellationToken cancellationToken = default);
     Task<McpServiceBinding?> GetServiceBindingAsync(string bindingId);
     Task<IEnumerable<McpServiceBinding>> GetServiceBindingsByConnectionIdAsync(string connectionId);
     Task<IEnumerable<McpServiceBinding>> GetActiveServiceBindingsAsync();

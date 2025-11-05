@@ -53,6 +53,16 @@ public class XiaozhiConnectionRepository : IXiaozhiConnectionRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<XiaozhiConnection>> GetEnabledServersAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.XiaozhiConnections
+            .AsNoTracking()
+            .Include(s => s.ServiceBindings)
+            .Where(s => s.IsEnabled)
+            .OrderBy(s => s.Name)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<McpServiceBinding?> GetServiceBindingAsync(string bindingId)
     {
         return await _context.McpServiceBindings

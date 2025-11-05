@@ -4,10 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Verdure.McpPlatform.Api.Services;
+using Verdure.McpPlatform.Api.Services.BackgroundServices;
+using Verdure.McpPlatform.Api.Services.ConnectionState;
+using Verdure.McpPlatform.Api.Services.DistributedLock;
+using Verdure.McpPlatform.Api.Services.WebSocket;
 using Verdure.McpPlatform.Api.Settings;
 using Verdure.McpPlatform.Application.Services;
-using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
 using Verdure.McpPlatform.Infrastructure.Data;
 using Verdure.McpPlatform.Infrastructure.Identity;
 using Verdure.McpPlatform.Infrastructure.Repositories;
@@ -132,13 +136,13 @@ internal static class Extensions
                      context.HandleResponse();
                      context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                      context.Response.ContentType = "application/json";
-                     
+
                      var result = System.Text.Json.JsonSerializer.Serialize(new
                      {
                          error = "Unauthorized",
                          message = "Invalid or missing JWT token"
                      });
-                     
+
                      return context.Response.WriteAsync(result);
                  }
              };
@@ -159,8 +163,27 @@ internal static class Extensions
         // Register identity service
         services.AddScoped<IIdentityService, IdentityService>();
 
+        // Register Redis connection
+        var redisConnectionString = builder.Configuration.GetConnectionString("Redis")
+            ?? "localhost:6379";
+        services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
+        {
+            var configuration = StackExchange.Redis.ConfigurationOptions.Parse(redisConnectionString);
+            configuration.AbortOnConnectFail = false;
+            configuration.ConnectTimeout = 5000;
+            configuration.SyncTimeout = 5000;
+            return StackExchange.Redis.ConnectionMultiplexer.Connect(configuration);
+        });
+
+        // Register distributed services
+        services.AddSingleton<IDistributedLockService, RedisDistributedLockService>();
+        services.AddSingleton<IConnectionStateService, RedisConnectionStateService>();
+
         // Register WebSocket session manager as singleton
-        services.AddSingleton<Verdure.McpPlatform.Api.Services.WebSocket.McpSessionManager>();
+        services.AddSingleton<McpSessionManager>();
+
+        // Register background services
+        services.AddHostedService<ConnectionMonitorHostedService>();
 
         // Add CORS
         services.AddCors(options =>

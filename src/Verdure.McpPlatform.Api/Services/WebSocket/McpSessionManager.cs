@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using Verdure.McpPlatform.Api.Services.ConnectionState;
+using Verdure.McpPlatform.Api.Services.DistributedLock;
 using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
@@ -7,12 +9,15 @@ namespace Verdure.McpPlatform.Api.Services.WebSocket;
 /// <summary>
 /// Manages multiple MCP sessions (WebSocket connections)
 /// Provides session lifecycle management and monitoring
+/// Supports distributed deployment with Redis-based coordination
 /// </summary>
 public class McpSessionManager : IAsyncDisposable
 {
     private readonly ILogger<McpSessionManager> _logger;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IDistributedLockService _lockService;
+    private readonly IConnectionStateService _connectionStateService;
     private readonly ReconnectionSettings _reconnectionSettings;
     
     private readonly ConcurrentDictionary<string, McpSessionService> _sessions = new();
@@ -20,10 +25,14 @@ public class McpSessionManager : IAsyncDisposable
     
     public McpSessionManager(
         ILoggerFactory loggerFactory,
-        IServiceScopeFactory serviceScopeFactory)
+        IServiceScopeFactory serviceScopeFactory,
+        IDistributedLockService lockService,
+        IConnectionStateService connectionStateService)
     {
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+        _lockService = lockService ?? throw new ArgumentNullException(nameof(lockService));
+        _connectionStateService = connectionStateService ?? throw new ArgumentNullException(nameof(connectionStateService));
         _logger = loggerFactory.CreateLogger<McpSessionManager>();
         
         // Default reconnection settings
@@ -38,16 +47,57 @@ public class McpSessionManager : IAsyncDisposable
 
     /// <summary>
     /// Start a session for a specific server
+    /// Uses distributed lock to ensure only one instance creates the connection
     /// </summary>
     public async Task<bool> StartSessionAsync(string serverId, CancellationToken cancellationToken = default)
     {
         await _sessionLock.WaitAsync(cancellationToken);
         try
         {
-            // Check if session already exists
+            // Check if session already exists locally
             if (_sessions.ContainsKey(serverId))
             {
-                _logger.LogWarning("Session for server {ServerId} already exists", serverId);
+                _logger.LogWarning("Session for server {ServerId} already exists locally", serverId);
+                return false;
+            }
+
+            // Check if another instance already owns this connection
+            var existingState = await _connectionStateService.GetConnectionStateAsync(serverId, cancellationToken);
+            if (existingState != null && existingState.Status == ConnectionStatus.Connected)
+            {
+                _logger.LogInformation(
+                    "Server {ServerId} is already connected on instance {InstanceId}",
+                    serverId,
+                    existingState.InstanceId);
+                return false;
+            }
+
+            // Try to acquire distributed lock for this connection
+            var lockKey = $"mcp:lock:connection:{serverId}";
+            await using var lockHandle = await _lockService.AcquireLockAsync(
+                lockKey,
+                expiryTime: TimeSpan.FromMinutes(5),
+                waitTime: TimeSpan.FromSeconds(10),
+                retryTime: TimeSpan.FromSeconds(1),
+                cancellationToken);
+
+            if (lockHandle == null || !lockHandle.IsAcquired)
+            {
+                _logger.LogWarning(
+                    "Failed to acquire distributed lock for server {ServerId}, another instance may be starting it",
+                    serverId);
+                return false;
+            }
+
+            _logger.LogInformation("Acquired distributed lock for server {ServerId}", serverId);
+
+            // Double-check connection state after acquiring lock
+            existingState = await _connectionStateService.GetConnectionStateAsync(serverId, cancellationToken);
+            if (existingState != null && existingState.Status == ConnectionStatus.Connected)
+            {
+                _logger.LogInformation(
+                    "Server {ServerId} was connected by another instance while waiting for lock",
+                    serverId);
                 return false;
             }
 
@@ -115,11 +165,24 @@ public class McpSessionManager : IAsyncDisposable
             _logger.LogInformation("Created session for server {ServerId} ({ServerName})", 
                 server.Id, server.Name);
 
+            // Register connection in Redis
+            await _connectionStateService.RegisterConnectionAsync(
+                serverId,
+                server.Name,
+                server.Address,
+                cancellationToken);
+
             // Start session in background
             _ = Task.Run(async () =>
             {
                 try
                 {
+                    // Update connection state to Connecting
+                    await _connectionStateService.UpdateConnectionStatusAsync(
+                        serverId,
+                        ConnectionStatus.Connecting,
+                        CancellationToken.None);
+
                     // Update server status to connected
                     using var backgroundScope = _serviceScopeFactory.CreateScope();
                     var backgroundRepository = backgroundScope.ServiceProvider.GetRequiredService<IXiaozhiConnectionRepository>();
@@ -130,6 +193,17 @@ public class McpSessionManager : IAsyncDisposable
                         serverToUpdate.SetConnected();
                         await backgroundRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     }
+
+                    // Update connection state to Connected
+                    await _connectionStateService.UpdateConnectionStatusAsync(
+                        serverId,
+                        ConnectionStatus.Connected,
+                        CancellationToken.None);
+
+                    // Reset reconnect attempts on successful connection
+                    await _connectionStateService.ResetReconnectAttemptsAsync(
+                        serverId,
+                        CancellationToken.None);
                     
                     await session.StartAsync(cancellationToken);
                 }
@@ -137,6 +211,12 @@ public class McpSessionManager : IAsyncDisposable
                 {
                     _logger.LogError(ex, "Session for server {ServerId} failed", serverId);
                     
+                    // Update connection state to Failed
+                    await _connectionStateService.UpdateConnectionStatusAsync(
+                        serverId,
+                        ConnectionStatus.Failed,
+                        CancellationToken.None);
+
                     // Update server status to disconnected
                     try
                     {
@@ -157,6 +237,9 @@ public class McpSessionManager : IAsyncDisposable
                     
                     // Remove failed session
                     _sessions.TryRemove(serverId, out _);
+                    
+                    // Unregister from Redis
+                    await _connectionStateService.UnregisterConnectionAsync(serverId, CancellationToken.None);
                 }
             }, cancellationToken);
 
@@ -170,12 +253,28 @@ public class McpSessionManager : IAsyncDisposable
 
     /// <summary>
     /// Stop a specific session
+    /// Unregisters from Redis connection state
     /// </summary>
     public async Task<bool> StopSessionAsync(string serverId)
     {
+        // Check if this instance owns the connection
+        var isOwned = await _connectionStateService.IsOwnedByThisInstanceAsync(serverId);
+        if (!isOwned)
+        {
+            _logger.LogWarning(
+                "Cannot stop session for server {ServerId} - not owned by this instance",
+                serverId);
+        }
+
         if (!_sessions.TryRemove(serverId, out var session))
         {
-            _logger.LogWarning("Session for server {ServerId} not found", serverId);
+            _logger.LogWarning("Session for server {ServerId} not found locally", serverId);
+            
+            // Still try to unregister from Redis if owned
+            if (isOwned)
+            {
+                await _connectionStateService.UnregisterConnectionAsync(serverId);
+            }
             return false;
         }
 
@@ -196,6 +295,9 @@ public class McpSessionManager : IAsyncDisposable
                 server.SetDisconnected();
                 await serverRepository.UnitOfWork.SaveEntitiesAsync();
             }
+
+            // Unregister from Redis
+            await _connectionStateService.UnregisterConnectionAsync(serverId);
             
             return true;
         }
