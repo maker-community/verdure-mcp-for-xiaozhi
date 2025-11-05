@@ -2,45 +2,110 @@
 
 A dedicated guide for AI coding agents working on the Verdure MCP Platform project.
 
----
-
-## 项目概述 (Project Overview)
-
-这是一个基于 .NET 9 的多租户 SaaS 平台，用于管理和提供 MCP (Model Context Protocol) 服务。
-
-**核心功能**：
-- 多用户身份认证系统（支持 ASP.NET Core Identity 和 Keycloak OpenID Connect）
-- 每个用户可配置自己的小智 AI 服务器地址
-- 将不同的 MCP 服务绑定到指定节点
-- 通过 WebSocket 连接提供对应的 MCP 服务
-- 仓储模式 (Repository Pattern) 实现数据访问层，支持多种数据库
-
-**架构模式**：
-- 前后端分离
-- 领域驱动设计 (DDD)
-- 仓储模式 (Repository Pattern)
-- 依赖注入 (Dependency Injection)
-- CQRS (可选)
+**This file follows the [agents.md](https://agents.md/) specification - a standard format for providing AI coding agents with project-specific context, conventions, and instructions.**
 
 ---
 
-## 技术栈 (Tech Stack)
+## 🎯 Quick Start for Agents
 
-### 后端
-- **.NET 9**
-- **ASP.NET Core Web API** - RESTful API
+### Essential Commands
+```powershell
+# Restore dependencies
+dotnet restore
+
+# Build entire solution
+dotnet build
+
+# Run with Aspire orchestration (recommended)
+dotnet run --project src/Verdure.McpPlatform.AppHost
+
+# Run API only
+dotnet run --project src/Verdure.McpPlatform.Api
+
+# Run Web frontend only
+dotnet run --project src/Verdure.McpPlatform.Web
+
+# Run all tests
+dotnet test
+
+# Database migrations (EF Core)
+dotnet ef migrations add <MigrationName> --project src/Verdure.McpPlatform.Infrastructure --startup-project src/Verdure.McpPlatform.Api
+dotnet ef database update --project src/Verdure.McpPlatform.Infrastructure --startup-project src/Verdure.McpPlatform.Api
+```
+
+### Testing Commands
+```powershell
+# Unit tests only
+dotnet test tests/Verdure.McpPlatform.UnitTests
+
+# Functional tests only
+dotnet test tests/Verdure.McpPlatform.FunctionalTests
+
+# Run with coverage
+dotnet test /p:CollectCoverage=true
+
+# Watch mode during development
+dotnet watch test --project tests/Verdure.McpPlatform.UnitTests
+```
+
+### Verification Script
+```powershell
+# Verify complete setup
+.\scripts\verify-setup.ps1
+
+# Start development environment
+.\scripts\start-dev.ps1
+```
+
+---
+
+## 📖 项目概述 (Project Overview)
+
+**Verdure MCP Platform** 是一个基于 .NET 9 的企业级多租户 SaaS 平台，为小智 AI 助手提供完整的 Model Context Protocol (MCP) 服务管理解决方案。
+
+### 核心功能 (Core Features)
+
+1. **多租户身份认证** - 基于 Keycloak OpenID Connect
+2. **小智连接管理** - 配置小智 AI 服务器的 WebSocket 端点地址
+3. **MCP 服务配置** - 管理各类 MCP 服务节点及其工具
+4. **服务绑定** - 将 MCP 服务动态绑定到小智连接节点
+5. **分布式 WebSocket 管理** - 支持多实例部署的 WebSocket 连接协调
+6. **自动重连机制** - 后台监控和自动恢复断开的连接
+
+### 架构模式 (Architecture Patterns)
+
+- **前后端分离** - Blazor WebAssembly SPA + ASP.NET Core Web API
+- **领域驱动设计 (DDD)** - 清晰的领域模型和聚合根
+- **仓储模式 (Repository Pattern)** - 数据访问抽象层
+- **依赖注入 (Dependency Injection)** - 完全基于 ASP.NET Core DI
+- **分布式协调** - 使用 Redis 实现跨实例状态管理和分布式锁
+
+---
+
+## 🛠️ 技术栈 (Tech Stack)
+
+### 后端 (Backend)
+- **.NET 9** - 最新的 .NET 平台
+- **ASP.NET Core Web API** - RESTful API with Minimal APIs pattern
 - **ASP.NET Core Identity** - 用户认证和授权
-- **OpenID Connect** - 与 Keycloak 集成
-- **Entity Framework Core 9.0** - ORM 框架
-- **仓储模式** - 数据访问抽象层
-- **PostgreSQL / SQLite** - 支持多种数据库
+- **OpenID Connect** - Keycloak 集成
+- **Entity Framework Core 9.0** - ORM 框架，支持自动迁移
+- **Redis** - 分布式缓存、状态管理和分布式锁
+- **PostgreSQL / SQLite** - 支持多数据库切换
 
-### 前端
-- **Blazor WebAssembly** - 客户端 Blazor（单页应用，更好的性能和离线支持）
-- **MudBlazor** - UI 组件库
+### 前端 (Frontend)
+- **Blazor WebAssembly** - 客户端 SPA，离线支持
+- **MudBlazor** - Material Design 3 UI 组件库
+- **国际化 (i18n)** - 完整的多语言支持（中文/英文）
 
-### 服务编排
-- **.NET Aspire** - 云原生应用编排
+### 服务编排 (Orchestration)
+- **.NET Aspire** - 云原生应用编排和开发仪表板
+
+### 分布式系统 (Distributed System)
+- **StackExchange.Redis 2.9.32** - Redis 客户端
+- **RedLock.net 2.3.2** - 分布式锁（RedLock 算法）
+- **WebSocket** - 实时双向通信
+- **Background Services** - 连接监控和自动重连
 
 ### 核心 NuGet 包
 ```xml
@@ -56,13 +121,17 @@ A dedicated guide for AI coding agents working on the Verdure MCP Platform proje
 <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.*" />
 <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.*" />
 
+<!-- Redis & Distributed Coordination -->
+<PackageReference Include="StackExchange.Redis" Version="2.9.32" />
+<PackageReference Include="RedLock.net" Version="2.3.2" />
+
 <!-- Blazor & UI -->
 <PackageReference Include="MudBlazor" Version="8.*" />
 ```
 
 ---
 
-## 参考项目 (Reference Projects)
+## 📚 参考项目 (Reference Projects)
 
 生成代码时，必须严格参考以下项目的架构和代码风格：
 
@@ -97,7 +166,125 @@ A dedicated guide for AI coding agents working on the Verdure MCP Platform proje
 
 ---
 
-## 命名空间约定 (Namespace Convention)
+## 📂 项目文档结构 (Documentation Structure)
+
+项目采用结构化文档组织，所有文档位于 `docs/` 目录：
+
+### 架构文档 (docs/architecture/)
+- `DISTRIBUTED_WEBSOCKET_GUIDE.md` - 分布式 WebSocket 连接管理详细指南
+- `FAILURE_RECOVERY_EXPLAINED.md` - 故障恢复机制说明
+- `IMPLEMENTATION_SUMMARY.md` - 分布式实现总结
+- `WEBSOCKET_FEATURES.md` - WebSocket 功能特性
+- `MCP_AUTH_ENHANCEMENT.md` - MCP 认证增强方案
+- `AGENTS.md` / `AGENTS_NEW.md` - AI 编程助手指南
+
+### 开发指南 (docs/guides/)
+- `QUICK_START_DISTRIBUTED.md` - 分布式部署快速开始
+- `API_EXAMPLES.md` - API 使用示例
+- `DEPLOYMENT.md` - 部署指南
+- `TESTING_GUIDE.md` - 测试指南
+- `UI_GUIDE.md` - UI 开发指南
+- `FRONTEND_IMPROVEMENTS.md` - 前端改进日志
+
+### 其他文档 (docs/)
+- `CHANGELOG.md` - 变更日志
+- `SUMMARY.md` - 项目总结
+
+### 脚本目录 (scripts/)
+- `verify-setup.ps1` - 环境验证脚本
+- `start-dev.ps1` - 启动开发环境
+- `fix-git-author.ps1` - Git 作者修复
+- `update-api-names.ps1` - API 命名更新
+- 其他维护脚本
+
+**重要**: 新增功能时应同步更新相关文档，保持文档与代码一致性。
+
+---
+
+## 🌐 分布式 WebSocket 管理 (Distributed WebSocket Management)
+
+### 核心问题
+
+在多实例部署场景下，需要解决：
+1. **避免重复连接** - 多个 API 实例不应同时创建到同一小智服务器的连接
+2. **连接状态共享** - 所有实例需要知道哪些连接已被持有
+3. **自动重连** - 服务重启后自动检测并重建断开的连接
+4. **故障恢复** - 实例崩溃时其他实例接管连接（2-3分钟恢复时间）
+
+### 解决方案架构
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     API 实例集群                              │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │  实例 1      │  │  实例 2      │  │  实例 3      │         │
+│  │ Session Mgr │  │ Session Mgr │  │ Session Mgr │         │
+│  │ Monitor Svc │  │ Monitor Svc │  │ Monitor Svc │         │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘         │
+└─────────┼─────────────────┼─────────────────┼─────────────────┘
+          └─────────────────┼─────────────────┘
+                           │
+                    ┌──────▼──────┐
+                    │    Redis     │
+                    │ • 连接状态    │
+                    │ • 分布式锁    │
+                    │ • 心跳数据    │
+                    └─────────────┘
+```
+
+### 关键组件
+
+#### 1. 分布式锁服务 (IDistributedLockService)
+- **位置**: `Services/DistributedLock/RedisDistributedLockService.cs`
+- **功能**: 使用 RedLock 算法确保互斥访问
+- **用途**: 防止多实例同时创建相同连接
+
+#### 2. 连接状态服务 (IConnectionStateService)
+- **位置**: `Services/ConnectionState/RedisConnectionStateService.cs`
+- **功能**: Redis 存储所有连接状态和心跳
+- **数据**: InstanceId (MachineName:ProcessId:Guid)、Status、Heartbeat
+
+#### 3. 会话管理器 (McpSessionManager)
+- **位置**: `Services/WebSocket/McpSessionManager.cs`
+- **改进**: 双重检查锁定模式，启动前后检查 Redis 状态
+- **流程**: 检查本地 → 检查 Redis → 获取锁 → 再次检查 → 创建连接
+
+#### 4. 连接监控服务 (ConnectionMonitorHostedService)
+- **位置**: `Services/BackgroundServices/ConnectionMonitorHostedService.cs`
+- **功能**: 
+  - 启动时自动连接所有已启用服务器
+  - 每30秒检查连接状态并更新心跳
+  - 检测过期连接（90秒超时）并自动重连
+  - 60秒冷却期防止频繁重连
+
+### 配置参数
+
+```json
+{
+  "ConnectionStrings": {
+    "redis": "localhost:6379"
+  },
+  "ConnectionMonitor": {
+    "CheckIntervalSeconds": 30,
+    "HeartbeatTimeoutSeconds": 90,
+    "ReconnectCooldownSeconds": 60
+  }
+}
+```
+
+### 故障恢复时间线
+
+- **实例崩溃**: 0秒
+- **心跳超时检测**: 最多90秒（HeartbeatTimeoutSeconds）
+- **其他实例发现**: 30秒内（CheckIntervalSeconds）
+- **冷却期**: 60秒（ReconnectCooldownSeconds）
+- **总恢复时间**: 约2-3分钟
+
+**详细说明**: 参考 `docs/architecture/DISTRIBUTED_WEBSOCKET_GUIDE.md` 和 `docs/architecture/FAILURE_RECOVERY_EXPLAINED.md`
+
+---
+
+## 📋 命名空间约定 (Namespace Convention)
 
 **所有项目必须使用 `Verdure` 作为根命名空间**
 
@@ -444,11 +631,78 @@ public static class AuthenticationExtensions
 
 ---
 
-## 领域模型 (Domain Models)
+## 🏛️ 领域模型 (Domain Models)
 
-### 核心实体
+### 核心聚合根
 
-**参考 eShop 的 DDD 模式和聚合根设计**：
+**重要**: 所有实体 ID 使用 `string` 类型（Guid Version 7），请参考现有实现。
+
+#### 1. XiaozhiConnection (小智连接聚合根)
+
+**位置**: `Domain/AggregatesModel/XiaozhiConnectionAggregate/XiaozhiConnection.cs`
+
+**职责**: 代表到小智 AI 的 WebSocket 端点连接
+
+**核心属性**:
+- `Name`: 连接名称
+- `Address`: WebSocket 端点地址
+- `UserId`: 所属用户
+- `IsEnabled`: 是否启用（用户可启用/禁用）
+- `IsConnected`: 当前连接状态
+- `ServiceBindings`: 绑定的 MCP 服务集合
+
+**关键方法**:
+```csharp
+public class XiaozhiConnection : Entity, IAggregateRoot
+{
+    public void Enable() // 启用连接
+    public void Disable() // 禁用连接并断开
+    public void MarkConnected() // 标记为已连接
+    public void MarkDisconnected() // 标记为已断开
+    public McpServiceBinding AddServiceBinding(...) // 添加服务绑定
+}
+```
+
+#### 2. McpServiceConfig (MCP服务配置聚合根)
+
+**位置**: `Domain/AggregatesModel/McpServiceConfigAggregate/McpServiceConfig.cs`
+
+**职责**: 代表一个 MCP 服务节点及其工具配置
+
+**核心属性**:
+- `Name`: 服务名称
+- `Endpoint`: 服务端点
+- `UserId`: 所属用户
+- `IsPublic`: 是否公开（可被其他用户使用）
+- `AuthenticationType`: 认证类型（Bearer/Basic/OAuth2/ApiKey）
+- `AuthenticationConfig`: 认证配置（JSON）
+- `Protocol`: 协议类型（stdio/http/sse）
+- `Tools`: 工具集合
+
+**关键方法**:
+```csharp
+public class McpServiceConfig : Entity, IAggregateRoot
+{
+    public void UpdateInfo(...) // 更新服务信息
+    public void UpdateTools(IEnumerable<McpTool> tools) // 更新工具列表
+}
+```
+
+#### 3. McpServiceBinding (值对象/实体)
+
+**位置**: `Domain/AggregatesModel/XiaozhiConnectionAggregate/McpServiceBinding.cs`
+
+**职责**: 绑定关系，连接 XiaozhiConnection 和 McpServiceConfig
+
+**核心属性**:
+- `XiaozhiConnectionId`: 小智连接ID
+- `McpServiceConfigId`: MCP服务配置ID
+- `SelectedToolNames`: 选中的工具名称列表（JSON）
+- `IsEnabled`: 绑定是否启用
+
+### DDD 基础设施
+
+**参考 eShop 的 DDD 模式**：
 
 ```csharp
 // Domain/SeedWork/Entity.cs
@@ -456,60 +710,29 @@ namespace Verdure.McpPlatform.Domain.SeedWork;
 
 public abstract class Entity
 {
-    string? _requestedHashCode;
-    string _Id;
+    private string _id = string.Empty;
     
     public virtual string Id 
     {
-        get => _Id;
-        protected set => _Id = value;
+        get => _id;
+        protected set => _id = value;
+    }
+    
+    protected void GenerateId()
+    {
+        _id = Guid.CreateVersion7().ToString();
     }
     
     // Domain events, equality comparison, etc.
 }
 
-新增的数据库表的实体Id 全部为string类型，请参考现有的实现。
+// Domain/SeedWork/IAggregateRoot.cs
+public interface IAggregateRoot { }
 
-// Domain/AggregatesModel/McpServerAggregate/McpServer.cs
-namespace Verdure.McpPlatform.Domain.AggregatesModel.McpServerAggregate;
-
-public class McpServer : Entity, IAggregateRoot
+// Domain/SeedWork/IRepository.cs
+public interface IRepository<T> where T : IAggregateRoot
 {
-    public string Name { get; private set; }
-    public string Address { get; private set; }
-    public string UserId { get; private set; }
-    public string Description { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    
-    private readonly List<McpBinding> _bindings;
-    public IReadOnlyCollection<McpBinding> Bindings => _bindings.AsReadOnly();
-
-    protected McpServer() 
-    { 
-        _bindings = new List<McpBinding>(); 
-    }
-
-    public McpServer(string name, string address, string userId) : this()
-    {
-        Name = name ?? throw new ArgumentNullException(nameof(name));
-        Address = address ?? throw new ArgumentNullException(nameof(address));
-        UserId = userId ?? throw new ArgumentNullException(nameof(userId));
-        CreatedAt = DateTime.UtcNow;
-    }
-
-    public void UpdateInfo(string name, string address, string description)
-    {
-        Name = name ?? throw new ArgumentNullException(nameof(name));
-        Address = address ?? throw new ArgumentNullException(nameof(address));
-        Description = description;
-    }
-
-    public McpBinding AddBinding(string serviceName, string nodeAddress)
-    {
-        var binding = new McpBinding(serviceName, nodeAddress, Id);
-        _bindings.Add(binding);
-        return binding;
-    }
+    IUnitOfWork UnitOfWork { get; }
 }
 ```
 
@@ -1879,14 +2102,85 @@ volumes:
 
 ---
 
-## 注意事项
+## 🔧 常见开发流程 (Common Development Workflows)
 
-### ⚠️ 重要提醒
-1. **代码风格**：必须严格遵循 microsoft/agent-framework 的 .NET 代码风格
-2. **自动迁移**：EF Core 必须配置为自动迁移，避免手动 SQL 操作
-3. **异步优先**：所有 I/O 操作必须使用异步方法
-4. **依赖注入**：使用 ASP.NET Core 的内置 DI 容器
-5. **日志记录**：关键操作必须记录日志
+### 添加新功能
+
+1. **确定需求** → 检查是否需要新的聚合根或实体
+2. **设计领域模型** → 在 `Domain/AggregatesModel/` 中创建
+3. **创建仓储** → 在 `Infrastructure/Repositories/` 中实现
+4. **创建应用服务** → 在 `Application/Services/` 中实现业务逻辑
+5. **创建 API 端点** → 在 `Api/Apis/` 中使用 Minimal API
+6. **创建前端页面** → 在 `Web/Pages/` 或 `Web/Components/` 中实现
+7. **编写测试** → 单元测试和功能测试
+8. **更新文档** → 同步更新相关文档
+
+### 修改数据库结构
+
+```powershell
+# 1. 修改 Domain 实体
+# 2. 修改或添加 EntityConfiguration
+# 3. 创建迁移
+dotnet ef migrations add <MigrationName> `
+  --project src/Verdure.McpPlatform.Infrastructure `
+  --startup-project src/Verdure.McpPlatform.Api
+
+# 4. 检查生成的迁移文件
+# 5. 应用迁移
+dotnet ef database update `
+  --project src/Verdure.McpPlatform.Infrastructure `
+  --startup-project src/Verdure.McpPlatform.Api
+```
+
+### 添加新的分布式服务
+
+对于需要跨实例协调的功能：
+
+1. 考虑使用 `IDistributedLockService` 避免竞态条件
+2. 使用 `IConnectionStateService` 共享状态
+3. 实现 `BackgroundService` 进行定期检查
+4. 配置合适的超时和重试策略
+5. 更新 `appsettings.json` 配置
+
+### 测试分布式功能
+
+```powershell
+# 启动 Redis
+docker run -d -p 6379:6379 redis:7-alpine
+
+# 启动多个 API 实例（不同端口）
+$env:ASPNETCORE_URLS="http://localhost:5000"; dotnet run --project src/Verdure.McpPlatform.Api
+$env:ASPNETCORE_URLS="http://localhost:5001"; dotnet run --project src/Verdure.McpPlatform.Api
+$env:ASPNETCORE_URLS="http://localhost:5002"; dotnet run --project src/Verdure.McpPlatform.Api
+
+# 观察 Redis 中的连接状态
+redis-cli
+> KEYS mcp:*
+> GET mcp:connection:state:<serverId>
+```
+
+---
+
+## 📝 注意事项 (Important Notes)
+
+### ⚠️ 关键提醒
+1. **代码风格**：必须严格遵循 eShop 的 .NET 代码风格
+2. **实体 ID**：所有实体 ID 使用 `string` 类型（Guid Version 7）
+3. **自动迁移**：EF Core 必须配置为自动迁移，避免手动 SQL 操作
+4. **异步优先**：所有 I/O 操作必须使用异步方法
+5. **依赖注入**：使用 ASP.NET Core 的内置 DI 容器
+6. **日志记录**：关键操作必须记录日志
+7. **文档同步**：新增功能必须同步更新文档
+
+### 数据库扩展性
+虽然默认使用 PostgreSQL，但代码应该设计为可以轻松切换到 SQLite，通过连接字符串和 EF Core Provider 配置。
+
+### 分布式系统注意事项
+- 总是考虑网络分区和时钟偏移
+- 使用适当的超时和重试策略
+- 避免长时间持有分布式锁
+- 心跳间隔要合理（不要太频繁）
+- 日志中记录 InstanceId 便于排查问题
 
 ### 数据库扩展性
 虽然默认使用 PostgreSQL，但代码应该设计为可以轻松切换到 SQLite，通过连接字符串和 EF Core Provider 配置。
@@ -1903,22 +2197,246 @@ volumes:
 
 ---
 
-## 资源链接
+## 📚 资源链接 (Resources)
 
+### 官方文档
 - [.NET 9 文档](https://learn.microsoft.com/dotnet/core/whats-new/dotnet-9)
 - [MudBlazor 文档](https://mudblazor.com/)
 - [.NET Aspire 文档](https://learn.microsoft.com/dotnet/aspire/)
 - [EF Core 文档](https://learn.microsoft.com/ef/core/)
 - [ModelContextProtocol GitHub](https://github.com/modelcontextprotocol)
 
+### 参考项目
+- [eShop](https://github.com/dotnet/eShop) - 架构参考
+- [MCP Calculator](https://github.com/maker-community/mcp-calculator/tree/dev_csharp/csharp) - MCP 实现参考
+- [Agent Framework Tutorial](https://github.com/GreenShadeZhang/agent-framework-tutorial-code) - 集成参考
+
+### 项目文档
+- `docs/architecture/` - 架构设计文档
+- `docs/guides/` - 开发指南
+- `scripts/` - 常用脚本
+
 ---
 
-## AI Agent 提示
+## 🤖 AI Agent 使用指南 (AI Agent Instructions)
 
-当使用此文档时：
-- 生成的代码必须符合上述所有规范
-- 优先参考 microsoft/agent-framework 的代码风格
-- 实现功能时考虑可扩展性和可维护性
-- 生成完整的文件，不要省略代码
-- 包含必要的注释和 XML 文档
-- 遵循 .NET 最佳实践和设计模式
+### 代码生成准则
+
+**必须遵循的原则**:
+1. ✅ **严格遵循 eShop 架构** - 所有代码必须符合 eShop 的 DDD 和仓储模式
+2. ✅ **使用 Guid Version 7** - 所有实体 ID 必须是 `string` 类型，使用 `Guid.CreateVersion7().ToString()`
+3. ✅ **Minimal API 模式** - 使用 Minimal API 而非 Controller
+4. ✅ **异步优先** - 所有 I/O 操作必须是异步的
+5. ✅ **完整实现** - 不要省略代码，不要使用 `// ... existing code ...` 占位符
+
+### 命名约定
+
+```csharp
+// ✅ 正确
+public class McpServerService  // PascalCase for classes
+private readonly ILogger<McpServerService> _logger;  // _camelCase for private fields
+public async Task<McpServerDto> GetAsync(string id)  // Async suffix for async methods
+
+// ❌ 错误
+public class mcpServerService  // Wrong casing
+private ILogger logger;  // Missing underscore
+public Task<McpServerDto> Get(string id)  // Missing Async suffix
+```
+
+### 创建新功能的步骤
+
+```
+1. Domain Layer (领域层)
+   - 创建聚合根: Domain/AggregatesModel/<Aggregate>/<Entity>.cs
+   - 定义仓储接口: Domain/AggregatesModel/<Aggregate>/I<Entity>Repository.cs
+   
+2. Infrastructure Layer (基础设施层)
+   - 实现仓储: Infrastructure/Repositories/<Entity>Repository.cs
+   - 配置实体: Infrastructure/Data/EntityConfigurations/<Entity>Configuration.cs
+   
+3. Application Layer (应用层)
+   - 创建服务接口: Application/Services/I<Entity>Service.cs
+   - 实现服务: Application/Services/<Entity>Service.cs
+   
+4. API Layer (API层)
+   - 创建端点: Api/Apis/<Entity>Api.cs
+   - 注册服务: Api/Extensions/Extensions.cs
+   
+5. Web Layer (前端层)
+   - 创建客户端服务: Web/Services/I<Entity>ClientService.cs
+   - 创建页面: Web/Pages/<Entity>.razor
+   
+6. Database (数据库)
+   - 生成迁移: dotnet ef migrations add <Name>
+   - 应用迁移: dotnet ef database update
+   
+7. Testing (测试)
+   - 单元测试: tests/UnitTests/<Entity>Tests.cs
+   - 功能测试: tests/FunctionalTests/<Entity>ApiTests.cs
+   
+8. Documentation (文档)
+   - 更新相关文档: docs/
+```
+
+### 分布式功能开发注意
+
+当开发需要跨实例协调的功能时：
+
+```csharp
+// ✅ 正确使用分布式锁
+await using var lockHandle = await _lockService.AcquireLockAsync(
+    $"mcp:lock:{resourceKey}",
+    expiryTime: TimeSpan.FromMinutes(5),
+    waitTime: TimeSpan.FromSeconds(10),
+    retryTime: TimeSpan.FromSeconds(1));
+
+if (lockHandle != null && lockHandle.IsAcquired)
+{
+    // 1. 再次检查状态（双重检查）
+    var state = await _stateService.GetConnectionStateAsync(serverId);
+    if (state != null && state.Status == ConnectionStatus.Connected)
+    {
+        return; // 已经有其他实例处理了
+    }
+    
+    // 2. 执行操作
+    // 3. 更新状态
+    // 4. 锁会自动释放（await using）
+}
+```
+
+### 常见错误及解决
+
+| 错误 | 正确做法 |
+|------|---------|
+| ❌ 使用 `int` 作为实体 ID | ✅ 使用 `string` 类型的 Guid Version 7 |
+| ❌ 直接修改数据库不创建迁移 | ✅ 修改实体后创建 EF Core 迁移 |
+| ❌ 使用 Controller | ✅ 使用 Minimal API |
+| ❌ 同步方法调用数据库 | ✅ 使用异步方法（async/await） |
+| ❌ 在多实例环境不加锁 | ✅ 使用 IDistributedLockService |
+| ❌ 硬编码连接字符串 | ✅ 使用配置文件和环境变量 |
+
+### 测试要求
+
+```powershell
+# 在提交代码前必须运行
+dotnet restore
+dotnet build
+dotnet test
+
+# 验证数据库迁移
+dotnet ef migrations add Test --project src/Verdure.McpPlatform.Infrastructure --startup-project src/Verdure.McpPlatform.Api
+dotnet ef migrations remove --project src/Verdure.McpPlatform.Infrastructure --startup-project src/Verdure.McpPlatform.Api
+```
+
+### 文档更新要求
+
+新增或修改功能时，必须同步更新：
+- [ ] API 端点文档 (`docs/guides/API_EXAMPLES.md`)
+- [ ] 相关架构文档 (`docs/architecture/`)
+- [ ] CHANGELOG.md
+- [ ] 如果涉及前端，更新 UI_GUIDE.md
+
+### 代码审查清单
+
+提交代码前确认：
+- [ ] 遵循 eShop 代码风格
+- [ ] 使用正确的命名空间 (`Verdure.McpPlatform.*`)
+- [ ] 所有实体 ID 为 `string` 类型
+- [ ] 使用异步方法处理 I/O
+- [ ] 添加了适当的日志记录
+- [ ] 实现了仓储模式
+- [ ] 注册了依赖注入
+- [ ] 创建了数据库迁移
+- [ ] 编写了单元测试
+- [ ] 更新了相关文档
+
+---
+
+## 🎓 学习路径 (Learning Path)
+
+### 新手上手
+
+1. **阅读项目概述** → 理解项目目标和核心功能
+2. **查看领域模型** → 了解 XiaozhiConnection 和 McpServiceConfig
+3. **研究分布式架构** → 阅读 `docs/architecture/DISTRIBUTED_WEBSOCKET_GUIDE.md`
+4. **运行项目** → 使用 `scripts/verify-setup.ps1` 和 `scripts/start-dev.ps1`
+5. **查看示例** → 阅读 `docs/guides/API_EXAMPLES.md`
+
+### 深入理解
+
+1. **DDD 模式** → 研究 eShop 的领域驱动设计
+2. **仓储模式** → 查看 `Infrastructure/Repositories/` 实现
+3. **分布式锁** → 理解 RedLock 算法和使用场景
+4. **WebSocket 管理** → 研究 `McpSessionManager` 实现
+5. **前端架构** → 学习 Blazor WebAssembly 和 MudBlazor
+
+### 进阶主题
+
+1. **多实例部署** → 测试分布式 WebSocket 协调
+2. **故障恢复** → 理解自动重连机制
+3. **性能优化** → Redis 缓存和查询优化
+4. **安全加固** → OpenID Connect 和多租户隔离
+5. **监控告警** → 日志聚合和健康检查
+
+---
+
+## 💡 最佳实践提示 (Best Practices)
+
+### Do's ✅
+
+- **参考 eShop 实现** - 遇到不确定的架构问题，先查看 eShop
+- **使用分布式锁** - 多实例环境下的关键操作必须加锁
+- **记录详细日志** - 包含足够的上下文信息（ServerId, UserId, InstanceId等）
+- **编写测试** - 每个新功能都应该有单元测试和功能测试
+- **保持文档更新** - 代码变更时同步更新文档
+
+### Don'ts ❌
+
+- **不要跳过迁移** - 必须使用 EF Core 迁移管理数据库变更
+- **不要硬编码** - 配置信息必须来自 appsettings.json 或环境变量
+- **不要忽略异常** - 所有异常必须适当处理和记录
+- **不要在生产环境直接修改数据库** - 使用迁移脚本
+- **不要长时间持有锁** - 分布式锁应该尽快释放
+
+---
+
+## 🆘 故障排查 (Troubleshooting)
+
+### 常见问题
+
+**问题**: WebSocket 连接在多实例环境下重复创建
+**解决**: 检查 Redis 连接，确认分布式锁服务正常工作
+
+**问题**: 实例崩溃后连接无法恢复
+**解决**: 检查 ConnectionMonitorHostedService 是否启动，查看心跳超时配置
+
+**问题**: 数据库迁移失败
+**解决**: 确认数据库连接字符串正确，检查迁移文件冲突
+
+**问题**: Blazor 前端无法连接 API
+**解决**: 检查 CORS 配置，确认 API 基址配置正确
+
+### 调试技巧
+
+```powershell
+# 查看 Redis 中的连接状态
+redis-cli
+> KEYS mcp:connection:state:*
+> GET mcp:connection:state:<serverId>
+
+# 查看分布式锁
+> KEYS mcp:lock:*
+
+# 启用详细日志
+# 修改 appsettings.Development.json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Verdure.McpPlatform": "Debug",
+      "Verdure.McpPlatform.Api.Services": "Trace"
+    }
+  }
+}
+```
