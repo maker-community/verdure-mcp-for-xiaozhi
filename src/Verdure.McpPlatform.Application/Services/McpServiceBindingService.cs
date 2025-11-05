@@ -116,6 +116,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
 
         binding.UpdateInfo(
             request.McpServiceConfigId,
+            userId,
             request.Description,
             request.SelectedToolNames);
         _repository.Update(server);

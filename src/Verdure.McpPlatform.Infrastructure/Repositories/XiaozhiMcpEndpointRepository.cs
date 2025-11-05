@@ -78,11 +78,29 @@ public class XiaozhiMcpEndpointRepository : IXiaozhiMcpEndpointRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<McpServiceBinding>> GetServiceBindingsByUserIdAsync(string userId)
+    {
+        return await _context.McpServiceBindings
+            .AsNoTracking()
+            .Where(b => b.UserId == userId)
+            .OrderByDescending(b => b.CreatedAt)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<McpServiceBinding>> GetActiveServiceBindingsAsync()
     {
         return await _context.McpServiceBindings
             .AsNoTracking()
             .Where(b => b.IsActive)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<McpServiceBinding>> GetActiveServiceBindingsByUserIdAsync(string userId)
+    {
+        return await _context.McpServiceBindings
+            .AsNoTracking()
+            .Where(b => b.UserId == userId && b.IsActive)
+            .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
     }
 }

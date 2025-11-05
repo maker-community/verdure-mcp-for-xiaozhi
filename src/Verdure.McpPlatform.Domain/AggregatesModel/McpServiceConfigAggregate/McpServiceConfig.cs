@@ -81,7 +81,7 @@ public class McpServiceConfig : Entity, IAggregateRoot
 
     public McpTool AddTool(string name, string? description, string? inputSchema)
     {
-        var tool = new McpTool(name, Id, description, inputSchema);
+        var tool = new McpTool(name, Id, UserId, description, inputSchema);
         _tools.Add(tool);
         return tool;
     }

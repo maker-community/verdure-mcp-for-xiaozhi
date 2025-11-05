@@ -12,6 +12,7 @@ public class McpServiceBinding : Entity
 {
     public string XiaozhiMcpEndpointId { get; private set; }
     public string McpServiceConfigId { get; private set; }
+    public string UserId { get; private set; }
     public string? Description { get; private set; }
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -36,17 +37,20 @@ public class McpServiceBinding : Entity
         _selectedToolNames = new List<string>();
         XiaozhiMcpEndpointId = string.Empty;
         McpServiceConfigId = string.Empty;
+        UserId = string.Empty;
     }
 
     public McpServiceBinding(
-        string XiaozhiMcpEndpointId, 
+        string xiaozhiMcpEndpointId, 
         string mcpServiceConfigId,
+        string userId,
         string? description = null,
         IEnumerable<string>? selectedToolNames = null)
     {
         GenerateId(); // Generate Guid Version 7 ID
-        XiaozhiMcpEndpointId = XiaozhiMcpEndpointId ?? throw new ArgumentNullException(nameof(XiaozhiMcpEndpointId));
+        XiaozhiMcpEndpointId = xiaozhiMcpEndpointId ?? throw new ArgumentNullException(nameof(xiaozhiMcpEndpointId));
         McpServiceConfigId = mcpServiceConfigId ?? throw new ArgumentNullException(nameof(mcpServiceConfigId));
+        UserId = userId ?? throw new ArgumentNullException(nameof(userId));
         Description = description;
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
@@ -67,10 +71,12 @@ public class McpServiceBinding : Entity
 
     public void UpdateInfo(
         string mcpServiceConfigId,
+        string userId,
         string? description = null,
         IEnumerable<string>? selectedToolNames = null)
     {
         McpServiceConfigId = mcpServiceConfigId ?? throw new ArgumentNullException(nameof(mcpServiceConfigId));
+        UserId = userId ?? throw new ArgumentNullException(nameof(userId));
         Description = description;
         if (selectedToolNames != null)
         {

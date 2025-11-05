@@ -67,4 +67,22 @@ public class McpServiceConfigRepository : IMcpServiceConfigRepository
         _context.McpServiceConfigs.Remove(config);
         return true;
     }
+
+    public async Task<IEnumerable<McpTool>> GetToolsByUserIdAsync(string userId)
+    {
+        return await _context.McpTools
+            .AsNoTracking()
+            .Where(t => t.UserId == userId)
+            .OrderBy(t => t.Name)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<McpTool>> GetToolsByServiceConfigIdAsync(string serviceConfigId)
+    {
+        return await _context.McpTools
+            .AsNoTracking()
+            .Where(t => t.McpServiceConfigId == serviceConfigId)
+            .OrderBy(t => t.Name)
+            .ToListAsync();
+    }
 }

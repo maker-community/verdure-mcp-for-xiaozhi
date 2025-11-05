@@ -28,6 +28,10 @@ public class McpToolEntityTypeConfiguration : IEntityTypeConfiguration<McpTool>
             .HasMaxLength(36)
             .IsRequired();
 
+        builder.Property(t => t.UserId)
+            .HasMaxLength(450)
+            .IsRequired();
+
         builder.Property(t => t.Description)
             .HasMaxLength(1000);
 
@@ -39,5 +43,9 @@ public class McpToolEntityTypeConfiguration : IEntityTypeConfiguration<McpTool>
 
         builder.HasIndex(t => t.McpServiceConfigId);
         builder.HasIndex(t => t.Name);
+        
+        // UserId indexes for data isolation and query performance
+        builder.HasIndex(t => t.UserId);
+        builder.HasIndex(t => new { t.UserId, t.McpServiceConfigId });
     }
 }

@@ -29,6 +29,10 @@ public class McpServiceBindingEntityTypeConfiguration : IEntityTypeConfiguration
             .HasMaxLength(36)
             .IsRequired();
 
+        builder.Property(b => b.UserId)
+            .HasMaxLength(450)
+            .IsRequired();
+
         builder.Property(b => b.Description)
             .HasMaxLength(1000);
 
@@ -49,5 +53,10 @@ public class McpServiceBindingEntityTypeConfiguration : IEntityTypeConfiguration
         builder.HasIndex(b => b.XiaozhiMcpEndpointId);
         builder.HasIndex(b => b.McpServiceConfigId);
         builder.HasIndex(b => b.IsActive);
+        
+        // UserId indexes for data isolation and query performance
+        builder.HasIndex(b => b.UserId);
+        builder.HasIndex(b => new { b.UserId, b.IsActive });
+        builder.HasIndex(b => new { b.UserId, b.XiaozhiMcpEndpointId });
     }
 }

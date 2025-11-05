@@ -13,4 +13,6 @@ public interface IMcpServiceConfigRepository : IRepository<McpServiceConfig>
     Task<IEnumerable<McpServiceConfig>> GetByUserAsync(string userId);
     Task<IEnumerable<McpServiceConfig>> GetPublicServicesAsync();
     Task<bool> DeleteAsync(string id);
+    Task<IEnumerable<McpTool>> GetToolsByUserIdAsync(string userId);
+    Task<IEnumerable<McpTool>> GetToolsByServiceConfigIdAsync(string serviceConfigId);
 }

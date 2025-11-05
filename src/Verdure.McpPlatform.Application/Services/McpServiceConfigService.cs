@@ -138,7 +138,7 @@ public class McpServiceConfigService : IMcpServiceConfigService
             
             // Convert tool infos to domain entities
             var tools = toolInfos.Select(info => 
-                new McpTool(info.Name, config.Id, info.Description, info.InputSchema)).ToList();
+                new McpTool(info.Name, config.Id, config.UserId, info.Description, info.InputSchema)).ToList();
             
             // Update the service config with the new tools
             config.UpdateTools(tools);

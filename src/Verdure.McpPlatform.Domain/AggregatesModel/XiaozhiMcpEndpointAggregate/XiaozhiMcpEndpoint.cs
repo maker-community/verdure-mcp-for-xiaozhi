@@ -55,7 +55,7 @@ public class XiaozhiMcpEndpoint : Entity, IAggregateRoot
         string? description = null,
         IEnumerable<string>? selectedToolNames = null)
     {
-        var binding = new McpServiceBinding(Id, mcpServiceConfigId, description, selectedToolNames);
+        var binding = new McpServiceBinding(Id, mcpServiceConfigId, UserId, description, selectedToolNames);
         _serviceBindings.Add(binding);
         return binding;
     }

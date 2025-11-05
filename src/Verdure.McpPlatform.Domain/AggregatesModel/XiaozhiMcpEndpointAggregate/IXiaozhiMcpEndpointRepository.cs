@@ -16,5 +16,7 @@ public interface IXiaozhiMcpEndpointRepository : IRepository<XiaozhiMcpEndpoint>
     Task<IEnumerable<XiaozhiMcpEndpoint>> GetEnabledServersAsync(CancellationToken cancellationToken = default);
     Task<McpServiceBinding?> GetServiceBindingAsync(string bindingId);
     Task<IEnumerable<McpServiceBinding>> GetServiceBindingsByConnectionIdAsync(string connectionId);
+    Task<IEnumerable<McpServiceBinding>> GetServiceBindingsByUserIdAsync(string userId);
     Task<IEnumerable<McpServiceBinding>> GetActiveServiceBindingsAsync();
+    Task<IEnumerable<McpServiceBinding>> GetActiveServiceBindingsByUserIdAsync(string userId);
 }
