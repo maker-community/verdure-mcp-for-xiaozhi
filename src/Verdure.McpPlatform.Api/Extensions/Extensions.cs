@@ -31,36 +31,9 @@ internal static class Extensions
         // Add HTTP Context Accessor
         services.AddHttpContextAccessor();
 
-        // Add database context with Aspire PostgreSQL support
-        var connectionString = configuration.GetConnectionString("mcpdb");
-
-        if (!string.IsNullOrEmpty(connectionString))
-        {
-            // Use Aspire PostgreSQL if available
-            builder.AddNpgsqlDbContext<McpPlatformContext>("mcpdb");
-        }
-        else
-        {
-            // Fallback to SQLite for development
-            // SQLite files are stored in Data directory and ignored by git
-            services.AddDbContext<McpPlatformContext>(options =>
-                options.UseSqlite("Data Source=Data/mcpplatform.db"));
-        }
-
-        // Add Identity database context
-        var identityConnectionString = configuration.GetConnectionString("identitydb");
-        if (!string.IsNullOrEmpty(identityConnectionString))
-        {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(identityConnectionString));
-        }
-        else
-        {
-            // Fallback to SQLite for development
-            // SQLite files are stored in Data directory and ignored by git
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite("Data Source=Data/identity.db"));
-        }
+        // Add database contexts with configured provider
+        builder.AddMcpPlatformDbContext("mcpdb");
+        builder.AddIdentityDbContext("identitydb");
 
         // Add Identity (仅用于用户管理，不用于认证)
         services.AddIdentityCore<ApplicationUser>(options =>
