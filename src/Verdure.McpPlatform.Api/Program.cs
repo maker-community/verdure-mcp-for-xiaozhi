@@ -1,3 +1,4 @@
+using Scalar.AspNetCore;
 using Verdure.McpPlatform.Api.Apis;
 using Verdure.McpPlatform.Api.Extensions;
 
@@ -9,17 +10,16 @@ builder.AddServiceDefaults();
 // Add application services (includes authentication)
 builder.AddApplicationServices();
 
-// Add OpenAPI/Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 // Apply database migrations

@@ -11,7 +11,12 @@
 <MudLayout Style="min-height: 100vh; display: flex; flex-direction: column;">
     <MudAppBar Elevation="1" Color="Color.Primary">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-        <MudText Typo="Typo.h6" Class="ml-3">@Loc["AppTitle"]</MudText>
+        <div class="d-flex align-center gap-2 ml-3">
+            <img src="app-logo.png" 
+                 alt="Verdure Logo" 
+                 style="width: 32px; height: 32px; filter: brightness(0) invert(1);" />
+            <MudText Typo="Typo.h6">@Loc["AppTitle"]</MudText>
+        </div>
         <MudSpacer />
         <div class="d-flex align-center gap-2">
             <!-- 社区链接 -->
