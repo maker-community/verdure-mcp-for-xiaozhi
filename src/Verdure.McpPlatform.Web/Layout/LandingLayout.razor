@@ -26,33 +26,33 @@
             <div class="d-flex align-center gap-4">
                 <!-- 导航链接 -->
                 <MudLink Href="/#features" Underline="Underline.None" Style="color: #424242; font-weight: 500;">
-                    特性
+                    @Loc["Features"]
                 </MudLink>
                 <MudLink Href="/#architecture" Underline="Underline.None" Style="color: #424242; font-weight: 500;">
-                    架构
+                    @Loc["Architecture"]
                 </MudLink>
                 <MudLink Href="/#community" Underline="Underline.None" Style="color: #424242; font-weight: 500;">
-                    社区
+                    @Loc["Community"]
                 </MudLink>
                 
                 <MudDivider Vertical="true" FlexItem="true" Style="height: 30px;" />
                 
                 <!-- 社区图标链接 -->
-                <MudTooltip Text="GitHub 创客社区">
+                <MudTooltip Text="@Loc["TooltipGitHubCommunity"]">
                     <MudIconButton Icon="@Icons.Custom.Brands.GitHub" 
                                   Size="Size.Medium"
                                   Style="color: #424242;"
                                   Href="https://github.com/maker-community" 
                                   Target="_blank" />
                 </MudTooltip>
-                <MudTooltip Text="项目源码">
+                <MudTooltip Text="@Loc["TooltipProjectSource"]">
                     <MudIconButton Icon="@Icons.Material.Filled.Code" 
                                   Size="Size.Medium"
                                   Style="color: #424242;"
                                   Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" 
                                   Target="_blank" />
                 </MudTooltip>
-                <MudTooltip Text="绿荫阿广 B站">
+                <MudTooltip Text="@Loc["TooltipBilibiliChannel"]">
                     <MudIconButton Icon="@Icons.Material.Filled.VideoLibrary" 
                                   Size="Size.Medium"
                                   Style="color: #424242;"
@@ -74,7 +74,7 @@
                                   Color="Color.Primary"
                                   StartIcon="@Icons.Material.Filled.Dashboard"
                                   Class="mr-2">
-                            控制台
+                            @Loc["Console"]
                         </MudButton>
                         
                         <!-- 用户菜单 -->

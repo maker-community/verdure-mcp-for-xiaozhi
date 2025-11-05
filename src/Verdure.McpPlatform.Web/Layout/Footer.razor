@@ -11,10 +11,10 @@
                 <MudItem xs="12" Class="text-center">
                     <MudText Typo="Typo.body2" Color="Color.Secondary">
                         © @DateTime.Now.Year Verdure MCP Platform. 
-                        Made with ❤️ by <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Primary">绿荫阿广</MudLink>
+                        @Loc["MadeWithLoveBy"] <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Primary">绿荫阿广</MudLink>
                     </MudText>
                     <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
-                        Licensed under MIT | Powered by <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary">Maker Community</MudLink>
+                        @Loc["LicensedUnderMIT"] | @Loc["PoweredBy"] <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary">@Loc["MakerCommunity"]</MudLink>
                     </MudText>
                 </MudItem>
             </MudGrid>
@@ -38,7 +38,7 @@ else
                         </MudText>
                     </div>
                     <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">
-                        开源的多租户 MCP 服务管理平台
+                        @Loc["OpenSourceMultiTenantPlatform"]
                     </MudText>
                     <MudText Typo="Typo.caption" Color="Color.Secondary">
                         基于 .NET 9 和 Blazor WebAssembly
@@ -48,44 +48,44 @@ else
                 <!-- 快速链接 -->
                 <MudItem xs="12" sm="6" md="3">
                     <MudText Typo="Typo.subtitle1" Class="mb-3" Style="font-weight: 600;">
-                        快速链接
+                        @Loc["QuickLinks"]
                     </MudText>
                     <MudStack Spacing="2">
-                        <MudLink Href="/" Color="Color.Secondary" Typo="Typo.body2">首页</MudLink>
-                        <MudLink Href="/dashboard" Color="Color.Secondary" Typo="Typo.body2">仪表盘</MudLink>
-                        <MudLink Href="/connections" Color="Color.Secondary" Typo="Typo.body2">小智连接</MudLink>
-                        <MudLink Href="/mcp-services" Color="Color.Secondary" Typo="Typo.body2">MCP服务</MudLink>
+                        <MudLink Href="/" Color="Color.Secondary" Typo="Typo.body2">@Loc["HomePage"]</MudLink>
+                        <MudLink Href="/dashboard" Color="Color.Secondary" Typo="Typo.body2">@Loc["Dashboard"]</MudLink>
+                        <MudLink Href="/connections" Color="Color.Secondary" Typo="Typo.body2">@Loc["XiaozhiConnections"]</MudLink>
+                        <MudLink Href="/mcp-services" Color="Color.Secondary" Typo="Typo.body2">@Loc["McpServices"]</MudLink>
                     </MudStack>
                 </MudItem>
 
                 <!-- 社区链接 -->
                 <MudItem xs="12" sm="6" md="3">
                     <MudText Typo="Typo.subtitle1" Class="mb-3" Style="font-weight: 600;">
-                        社区资源
+                        @Loc["CommunityResources"]
                     </MudText>
                     <MudStack Spacing="2">
                         <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary" Typo="Typo.body2">
                             <div class="d-flex align-center gap-2">
                                 <MudIcon Icon="@Icons.Custom.Brands.GitHub" Size="Size.Small" />
-                                <span>GitHub 创客社区</span>
+                                <span>@Loc["GitHubCommunity"]</span>
                             </div>
                         </MudLink>
                         <MudLink Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" Target="_blank" Color="Color.Secondary" Typo="Typo.body2">
                             <div class="d-flex align-center gap-2">
                                 <MudIcon Icon="@Icons.Material.Filled.Code" Size="Size.Small" />
-                                <span>项目源码</span>
+                                <span>@Loc["ProjectSource"]</span>
                             </div>
                         </MudLink>
                         <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Secondary" Typo="Typo.body2">
                             <div class="d-flex align-center gap-2">
                                 <MudIcon Icon="@Icons.Material.Filled.VideoLibrary" Size="Size.Small" />
-                                <span>绿荫阿广 B站</span>
+                                <span>@Loc["BilibiliChannel"]</span>
                             </div>
                         </MudLink>
                         <MudText Typo="Typo.body2" Color="Color.Secondary">
                             <div class="d-flex align-center gap-2">
                                 <MudIcon Icon="@Icons.Material.Filled.Group" Size="Size.Small" />
-                                <span>QQ群: 1023487000</span>
+                                <span>@Loc["QQGroup"]: 1023487000</span>
                             </div>
                         </MudText>
                     </MudStack>
@@ -94,7 +94,7 @@ else
                 <!-- 技术栈 -->
                 <MudItem xs="12" sm="6" md="3">
                     <MudText Typo="Typo.subtitle1" Class="mb-3" Style="font-weight: 600;">
-                        技术栈
+                        @Loc["TechStack"]
                     </MudText>
                     <MudStack Spacing="1">
                         <MudText Typo="Typo.body2" Color="Color.Secondary">.NET 9</MudText>
@@ -113,10 +113,10 @@ else
                 <MudItem xs="12" Class="text-center">
                     <MudText Typo="Typo.body2" Color="Color.Secondary">
                         © @DateTime.Now.Year Verdure MCP Platform. 
-                        Made with ❤️ by <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Primary">绿荫阿广</MudLink>
+                        @Loc["MadeWithLoveBy"] <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Primary">绿荫阿广</MudLink>
                     </MudText>
                     <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
-                        Licensed under MIT | Powered by <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary">Maker Community</MudLink>
+                        @Loc["LicensedUnderMIT"] | @Loc["PoweredBy"] <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary">@Loc["MakerCommunity"]</MudLink>
                     </MudText>
                 </MudItem>
             </MudGrid>

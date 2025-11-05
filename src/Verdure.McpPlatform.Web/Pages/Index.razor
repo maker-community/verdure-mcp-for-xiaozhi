@@ -19,10 +19,10 @@
                             Verdure MCP Platform
                         </MudText>
                         <MudText Typo="Typo.h5" Class="mb-6" Style="color: rgba(255,255,255,0.9);">
-                            开源的多租户 MCP 服务管理平台
+                            @Loc["OpenSourceMultiTenantPlatform"]
                         </MudText>
                         <MudText Typo="Typo.body1" Class="mb-8" Style="max-width: 700px; margin: 0 auto; color: rgba(255,255,255,0.85); font-size: 1.1rem;">
-                            基于 .NET 9 和 Blazor WebAssembly 构建，为小智 AI 助手提供灵活的 Model Context Protocol 服务配置和管理能力
+                            @Loc["LandingPageSubtitle"]
                         </MudText>
                         <AuthorizeView>
                             <Authorized>
@@ -32,7 +32,7 @@
                                               Size="Size.Large"
                                               Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; padding: 12px 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
                                               StartIcon="@Icons.Material.Filled.Dashboard">
-                                        进入控制台
+                                        @Loc["EnterDashboard"]
                                     </MudButton>
                                     <MudButton Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" 
                                               Target="_blank"
@@ -40,7 +40,7 @@
                                               Size="Size.Large"
                                               Style="border-color: rgba(255,255,255,0.8); border-width: 2px; color: #FFFFFF; font-weight: 600; padding: 12px 32px;"
                                               StartIcon="@Icons.Material.Filled.Code">
-                                        查看源码
+                                        @Loc["ViewSourceCode"]
                                     </MudButton>
                                 </div>
                             </Authorized>
@@ -51,7 +51,7 @@
                                               Size="Size.Large"
                                               Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; padding: 12px 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
                                               StartIcon="@Icons.Material.Filled.Login">
-                                        立即开始使用
+                                        @Loc["GetStarted"]
                                     </MudButton>
                                     <MudButton Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" 
                                               Target="_blank"
@@ -59,7 +59,7 @@
                                               Size="Size.Large"
                                               Style="border-color: rgba(255,255,255,0.8); border-width: 2px; color: #FFFFFF; font-weight: 600; padding: 12px 32px;"
                                               StartIcon="@Icons.Material.Filled.Code">
-                                        查看源码
+                                        @Loc["ViewSourceCode"]
                                     </MudButton>
                                 </div>
                             </NotAuthorized>
@@ -74,7 +74,7 @@
         <div id="features" Style="padding: 80px 0; background: #FFFFFF;">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-8" Style="font-weight: 500;">
-                核心特性
+                @Loc["CoreFeatures"]
             </MudText>
             <MudGrid>
                 <MudItem xs="12" md="4">
@@ -84,9 +84,9 @@
                                     Size="Size.Large" 
                                     Color="Color.Primary" 
                                     Class="mb-4" />
-                            <MudText Typo="Typo.h6" Class="mb-3">多租户支持</MudText>
+                            <MudText Typo="Typo.h6" Class="mb-3">@Loc["MultiTenantSupport"]</MudText>
                             <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                基于 Keycloak 的 OpenID Connect 认证，每个用户独立配置自己的 MCP 服务和小智连接
+                                @Loc["MultiTenantDescription"]
                             </MudText>
                         </MudCardContent>
                     </MudCard>
@@ -98,9 +98,9 @@
                                     Size="Size.Large" 
                                     Color="Color.Secondary" 
                                     Class="mb-4" />
-                            <MudText Typo="Typo.h6" Class="mb-3">灵活的服务绑定</MudText>
+                            <MudText Typo="Typo.h6" Class="mb-3">@Loc["FlexibleServiceBinding"]</MudText>
                             <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                将不同的 MCP 服务绑定到指定的小智节点，支持多种认证方式和配置模式
+                                @Loc["FlexibleServiceBindingDescription"]
                             </MudText>
                         </MudCardContent>
                     </MudCard>
@@ -112,9 +112,9 @@
                                     Size="Size.Large" 
                                     Color="Color.Tertiary" 
                                     Class="mb-4" />
-                            <MudText Typo="Typo.h6" Class="mb-3">现代化技术栈</MudText>
+                            <MudText Typo="Typo.h6" Class="mb-3">@Loc["ModernTechStack"]</MudText>
                             <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                使用 .NET 9、Blazor WebAssembly、MudBlazor UI 和 .NET Aspire 云原生编排
+                                @Loc["ModernTechStackDescription"]
                             </MudText>
                         </MudCardContent>
                     </MudCard>
@@ -127,7 +127,7 @@
         <div id="architecture" Style="padding: 80px 0; background: #FAFAFA;">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-8" Style="font-weight: 500;">
-                架构设计
+                @Loc["ArchitectureDesign"]
             </MudText>
             <MudGrid Justify="Justify.Center">
                 <MudItem xs="12" md="8">
@@ -135,19 +135,19 @@
                         <MudCardContent>
                             <MudList T="string">
                                 <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle" IconColor="Color.Success">
-                                    <MudText>领域驱动设计 (DDD) + 仓储模式 (Repository Pattern)</MudText>
+                                    <MudText>@Loc["DddAndRepositoryPattern"]</MudText>
                                 </MudListItem>
                                 <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle" IconColor="Color.Success">
-                                    <MudText>前后端分离，API 与 Web UI 独立部署</MudText>
+                                    <MudText>@Loc["FrontendBackendSeparation"]</MudText>
                                 </MudListItem>
                                 <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle" IconColor="Color.Success">
-                                    <MudText>支持 PostgreSQL 和 SQLite 多数据库</MudText>
+                                    <MudText>@Loc["MultiDatabaseSupport"]</MudText>
                                 </MudListItem>
                                 <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle" IconColor="Color.Success">
-                                    <MudText>Entity Framework Core 自动迁移</MudText>
+                                    <MudText>@Loc["EntityFrameworkAutoMigration"]</MudText>
                                 </MudListItem>
                                 <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle" IconColor="Color.Success">
-                                    <MudText>完整的国际化 (i18n) 支持</MudText>
+                                    <MudText>@Loc["CompleteI18nSupport"]</MudText>
                                 </MudListItem>
                             </MudList>
                         </MudCardContent>
@@ -161,14 +161,14 @@
         <div id="community" Style="padding: 80px 0; background: #FFFFFF;">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-8" Style="font-weight: 500;">
-                加入创客社区
+                @Loc["JoinMakerCommunity"]
             </MudText>
             <MudGrid Justify="Justify.Center">
                 <MudItem xs="12" md="10">
                     <MudPaper Elevation="2" Class="pa-8" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);">
                         <div class="text-center">
                             <MudText Typo="Typo.h5" Style="color: #FFFFFF; margin-bottom: 2rem;">
-                                关注绿荫阿广，一起探索 AI 与硬件创客世界
+                                @Loc["FollowLvYinAGang"]
                             </MudText>
                             <MudGrid>
                                 <MudItem xs="12" sm="6" md="3">
@@ -178,7 +178,7 @@
                                               FullWidth="true"
                                               StartIcon="@Icons.Custom.Brands.GitHub"
                                               Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                                        GitHub 社区
+                                        @Loc["GitHubCommunity"]
                                     </MudButton>
                                 </MudItem>
                                 <MudItem xs="12" sm="6" md="3">
@@ -188,7 +188,7 @@
                                               FullWidth="true"
                                               StartIcon="@Icons.Material.Filled.VideoLibrary"
                                               Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                                        B站主页
+                                        @Loc["BilibiliHomepage"]
                                     </MudButton>
                                 </MudItem>
                                 <MudItem xs="12" sm="6" md="3">
@@ -198,7 +198,7 @@
                                               FullWidth="true"
                                               StartIcon="@Icons.Material.Filled.Code"
                                               Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                                        项目源码
+                                        @Loc["ProjectSource"]
                                     </MudButton>
                                 </MudItem>
                                 <MudItem xs="12" sm="6" md="3">
@@ -207,7 +207,7 @@
                                               StartIcon="@Icons.Material.Filled.Group"
                                               Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
                                               OnClick="@(() => _showQQGroup = true)">
-                                        QQ交流群
+                                        @Loc["QQCommunicationGroup"]
                                     </MudButton>
                                 </MudItem>
                             </MudGrid>
@@ -215,7 +215,7 @@
                             {
                                 <MudAlert Severity="Severity.Info" Class="mt-4" Style="background-color: rgba(255,255,255,0.95);">
                                     <MudText Typo="Typo.body1" Style="color: #1565C0; font-weight: 600;">
-                                        绿荫DIY硬件交流群：1023487000
+                                        @Loc["QQGroupNumber"]
                                     </MudText>
                                 </MudAlert>
                             }
@@ -230,7 +230,7 @@
         <div Style="padding: 80px 0 100px; background: #FAFAFA;">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-8" Style="font-weight: 500;">
-                快速开始
+                @Loc["QuickStart"]
             </MudText>
             <MudGrid Justify="Justify.Center">
                 <MudItem xs="12" md="8">
@@ -238,27 +238,27 @@
                         <MudCardContent Class="pa-6">
                             <MudTimeline TimelineOrientation="TimelineOrientation.Vertical" TimelinePosition="TimelinePosition.Start">
                                 <MudTimelineItem Color="Color.Primary" Size="Size.Small">
-                                    <MudText Typo="Typo.h6" Class="mb-2">1. 登录系统</MudText>
+                                    <MudText Typo="Typo.h6" Class="mb-2">@Loc["Step1LoginSystem"]</MudText>
                                     <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                        使用 Keycloak 账号登录平台
+                                        @Loc["Step1LoginSystemDescription"]
                                     </MudText>
                                 </MudTimelineItem>
                                 <MudTimelineItem Color="Color.Secondary" Size="Size.Small">
-                                    <MudText Typo="Typo.h6" Class="mb-2">2. 配置小智连接</MudText>
+                                    <MudText Typo="Typo.h6" Class="mb-2">@Loc["Step2ConfigureXiaozhi"]</MudText>
                                     <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                        添加你的小智 AI 服务器地址
+                                        @Loc["Step2ConfigureXiaozhiDescription"]
                                     </MudText>
                                 </MudTimelineItem>
                                 <MudTimelineItem Color="Color.Tertiary" Size="Size.Small">
-                                    <MudText Typo="Typo.h6" Class="mb-2">3. 创建 MCP 服务</MudText>
+                                    <MudText Typo="Typo.h6" Class="mb-2">@Loc["Step3CreateMcpService"]</MudText>
                                     <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                        配置 MCP 服务，支持多种认证方式
+                                        @Loc["Step3CreateMcpServiceDescription"]
                                     </MudText>
                                 </MudTimelineItem>
                                 <MudTimelineItem Color="Color.Success" Size="Size.Small">
-                                    <MudText Typo="Typo.h6" Class="mb-2">4. 绑定服务到节点</MudText>
+                                    <MudText Typo="Typo.h6" Class="mb-2">@Loc["Step4BindService"]</MudText>
                                     <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                        将 MCP 服务绑定到小智节点，开始使用
+                                        @Loc["Step4BindServiceDescription"]
                                     </MudText>
                                 </MudTimelineItem>
                             </MudTimeline>

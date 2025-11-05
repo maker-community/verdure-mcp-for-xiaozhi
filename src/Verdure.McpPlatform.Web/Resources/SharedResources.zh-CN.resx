@@ -868,4 +868,170 @@
   <data name="MyServices" xml:space="preserve">
     <value>我的服务</value>
   </data>
+  
+  <!-- 页脚 -->
+  <data name="QuickLinks" xml:space="preserve">
+    <value>快速链接</value>
+  </data>
+  <data name="HomePage" xml:space="preserve">
+    <value>首页</value>
+  </data>
+  <data name="CommunityResources" xml:space="preserve">
+    <value>社区资源</value>
+  </data>
+  <data name="GitHubCommunity" xml:space="preserve">
+    <value>GitHub 创客社区</value>
+  </data>
+  <data name="ProjectSource" xml:space="preserve">
+    <value>项目源码</value>
+  </data>
+  <data name="BilibiliChannel" xml:space="preserve">
+    <value>绿荫阿广 B站</value>
+  </data>
+  <data name="QQGroup" xml:space="preserve">
+    <value>QQ群</value>
+  </data>
+  <data name="TechStack" xml:space="preserve">
+    <value>技术栈</value>
+  </data>
+  <data name="MadeWithLoveBy" xml:space="preserve">
+    <value>用 ❤️ 制作，作者</value>
+  </data>
+  <data name="LicensedUnderMIT" xml:space="preserve">
+    <value>MIT 许可证</value>
+  </data>
+  <data name="PoweredBy" xml:space="preserve">
+    <value>由</value>
+  </data>
+  <data name="MakerCommunity" xml:space="preserve">
+    <value>创客社区提供支持</value>
+  </data>
+  
+  <!-- 首页 - Index -->
+  <data name="OpenSourceMultiTenantPlatform" xml:space="preserve">
+    <value>开源的多租户 MCP 服务管理平台</value>
+  </data>
+  <data name="LandingPageSubtitle" xml:space="preserve">
+    <value>基于 .NET 9 和 Blazor WebAssembly 构建，为小智 AI 助手提供灵活的 Model Context Protocol 服务配置和管理能力</value>
+  </data>
+  <data name="EnterDashboard" xml:space="preserve">
+    <value>进入控制台</value>
+  </data>
+  <data name="ViewSourceCode" xml:space="preserve">
+    <value>查看源码</value>
+  </data>
+  <data name="GetStarted" xml:space="preserve">
+    <value>立即开始使用</value>
+  </data>
+  <data name="CoreFeatures" xml:space="preserve">
+    <value>核心特性</value>
+  </data>
+  <data name="MultiTenantSupport" xml:space="preserve">
+    <value>多租户支持</value>
+  </data>
+  <data name="MultiTenantDescription" xml:space="preserve">
+    <value>基于 Keycloak 的 OpenID Connect 认证，每个用户独立配置自己的 MCP 服务和小智连接</value>
+  </data>
+  <data name="FlexibleServiceBinding" xml:space="preserve">
+    <value>灵活的服务绑定</value>
+  </data>
+  <data name="FlexibleServiceBindingDescription" xml:space="preserve">
+    <value>将不同的 MCP 服务绑定到指定的小智节点，支持多种认证方式和配置模式</value>
+  </data>
+  <data name="ModernTechStack" xml:space="preserve">
+    <value>现代化技术栈</value>
+  </data>
+  <data name="ModernTechStackDescription" xml:space="preserve">
+    <value>使用 .NET 9、Blazor WebAssembly、MudBlazor UI 和 .NET Aspire 云原生编排</value>
+  </data>
+  <data name="ArchitectureDesign" xml:space="preserve">
+    <value>架构设计</value>
+  </data>
+  <data name="DddAndRepositoryPattern" xml:space="preserve">
+    <value>领域驱动设计 (DDD) + 仓储模式 (Repository Pattern)</value>
+  </data>
+  <data name="FrontendBackendSeparation" xml:space="preserve">
+    <value>前后端分离，API 与 Web UI 独立部署</value>
+  </data>
+  <data name="MultiDatabaseSupport" xml:space="preserve">
+    <value>支持 PostgreSQL 和 SQLite 多数据库</value>
+  </data>
+  <data name="EntityFrameworkAutoMigration" xml:space="preserve">
+    <value>Entity Framework Core 自动迁移</value>
+  </data>
+  <data name="CompleteI18nSupport" xml:space="preserve">
+    <value>完整的国际化 (i18n) 支持</value>
+  </data>
+  <data name="JoinMakerCommunity" xml:space="preserve">
+    <value>加入创客社区</value>
+  </data>
+  <data name="FollowLvYinAGang" xml:space="preserve">
+    <value>关注绿荫阿广，一起探索 AI 与硬件创客世界</value>
+  </data>
+  <data name="BilibiliHomepage" xml:space="preserve">
+    <value>B站主页</value>
+  </data>
+  <data name="QQCommunicationGroup" xml:space="preserve">
+    <value>QQ交流群</value>
+  </data>
+  <data name="QQGroupNumber" xml:space="preserve">
+    <value>绿荫DIY硬件交流群：1023487000</value>
+  </data>
+  <data name="QuickStart" xml:space="preserve">
+    <value>快速开始</value>
+  </data>
+  <data name="Step1LoginSystem" xml:space="preserve">
+    <value>1. 登录系统</value>
+  </data>
+  <data name="Step1LoginSystemDescription" xml:space="preserve">
+    <value>使用 Keycloak 账号登录平台</value>
+  </data>
+  <data name="Step2ConfigureXiaozhi" xml:space="preserve">
+    <value>2. 配置小智连接</value>
+  </data>
+  <data name="Step2ConfigureXiaozhiDescription" xml:space="preserve">
+    <value>添加你的小智 AI 服务器地址</value>
+  </data>
+  <data name="Step3CreateMcpService" xml:space="preserve">
+    <value>3. 创建 MCP 服务</value>
+  </data>
+  <data name="Step3CreateMcpServiceDescription" xml:space="preserve">
+    <value>配置 MCP 服务，支持多种认证方式</value>
+  </data>
+  <data name="Step4BindService" xml:space="preserve">
+    <value>4. 绑定服务到节点</value>
+  </data>
+  <data name="Step4BindServiceDescription" xml:space="preserve">
+    <value>将 MCP 服务绑定到小智节点，开始使用</value>
+  </data>
+  
+  <!-- 着陆页布局 - 导航 -->
+  <data name="Features" xml:space="preserve">
+    <value>特性</value>
+  </data>
+  <data name="Architecture" xml:space="preserve">
+    <value>架构</value>
+  </data>
+  <data name="Community" xml:space="preserve">
+    <value>社区</value>
+  </data>
+  <data name="Console" xml:space="preserve">
+    <value>控制台</value>
+  </data>
+  
+  <!-- 导航菜单 -->
+  <data name="McpServiceConfigurations" xml:space="preserve">
+    <value>MCP 服务配置</value>
+  </data>
+  
+  <!-- 提示文本 -->
+  <data name="TooltipGitHubCommunity" xml:space="preserve">
+    <value>GitHub 创客社区</value>
+  </data>
+  <data name="TooltipProjectSource" xml:space="preserve">
+    <value>项目源码</value>
+  </data>
+  <data name="TooltipBilibiliChannel" xml:space="preserve">
+    <value>绿荫阿广 B站</value>
+  </data>
 </root>

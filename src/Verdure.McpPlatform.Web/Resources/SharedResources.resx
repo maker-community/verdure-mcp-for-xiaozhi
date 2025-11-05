@@ -868,4 +868,170 @@
   <data name="MyServices" xml:space="preserve">
     <value>My Services</value>
   </data>
+  
+  <!-- Footer -->
+  <data name="QuickLinks" xml:space="preserve">
+    <value>Quick Links</value>
+  </data>
+  <data name="HomePage" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="CommunityResources" xml:space="preserve">
+    <value>Community Resources</value>
+  </data>
+  <data name="GitHubCommunity" xml:space="preserve">
+    <value>GitHub Maker Community</value>
+  </data>
+  <data name="ProjectSource" xml:space="preserve">
+    <value>Project Source</value>
+  </data>
+  <data name="BilibiliChannel" xml:space="preserve">
+    <value>Bilibili Channel - LvYin AGang</value>
+  </data>
+  <data name="QQGroup" xml:space="preserve">
+    <value>QQ Group</value>
+  </data>
+  <data name="TechStack" xml:space="preserve">
+    <value>Tech Stack</value>
+  </data>
+  <data name="MadeWithLoveBy" xml:space="preserve">
+    <value>Made with ❤️ by</value>
+  </data>
+  <data name="LicensedUnderMIT" xml:space="preserve">
+    <value>Licensed under MIT</value>
+  </data>
+  <data name="PoweredBy" xml:space="preserve">
+    <value>Powered by</value>
+  </data>
+  <data name="MakerCommunity" xml:space="preserve">
+    <value>Maker Community</value>
+  </data>
+  
+  <!-- Landing Page - Index -->
+  <data name="OpenSourceMultiTenantPlatform" xml:space="preserve">
+    <value>Open-source Multi-tenant MCP Service Management Platform</value>
+  </data>
+  <data name="LandingPageSubtitle" xml:space="preserve">
+    <value>Built with .NET 9 and Blazor WebAssembly, providing flexible Model Context Protocol service configuration and management capabilities for Xiaozhi AI Assistant</value>
+  </data>
+  <data name="EnterDashboard" xml:space="preserve">
+    <value>Enter Console</value>
+  </data>
+  <data name="ViewSourceCode" xml:space="preserve">
+    <value>View Source Code</value>
+  </data>
+  <data name="GetStarted" xml:space="preserve">
+    <value>Get Started Now</value>
+  </data>
+  <data name="CoreFeatures" xml:space="preserve">
+    <value>Core Features</value>
+  </data>
+  <data name="MultiTenantSupport" xml:space="preserve">
+    <value>Multi-tenant Support</value>
+  </data>
+  <data name="MultiTenantDescription" xml:space="preserve">
+    <value>Based on Keycloak OpenID Connect authentication, each user can independently configure their own MCP services and Xiaozhi connections</value>
+  </data>
+  <data name="FlexibleServiceBinding" xml:space="preserve">
+    <value>Flexible Service Binding</value>
+  </data>
+  <data name="FlexibleServiceBindingDescription" xml:space="preserve">
+    <value>Bind different MCP services to specified Xiaozhi nodes, supporting multiple authentication methods and configuration modes</value>
+  </data>
+  <data name="ModernTechStack" xml:space="preserve">
+    <value>Modern Tech Stack</value>
+  </data>
+  <data name="ModernTechStackDescription" xml:space="preserve">
+    <value>Using .NET 9, Blazor WebAssembly, MudBlazor UI, and .NET Aspire cloud-native orchestration</value>
+  </data>
+  <data name="ArchitectureDesign" xml:space="preserve">
+    <value>Architecture Design</value>
+  </data>
+  <data name="DddAndRepositoryPattern" xml:space="preserve">
+    <value>Domain-Driven Design (DDD) + Repository Pattern</value>
+  </data>
+  <data name="FrontendBackendSeparation" xml:space="preserve">
+    <value>Frontend-backend separation, API and Web UI independently deployed</value>
+  </data>
+  <data name="MultiDatabaseSupport" xml:space="preserve">
+    <value>Support for PostgreSQL and SQLite multiple databases</value>
+  </data>
+  <data name="EntityFrameworkAutoMigration" xml:space="preserve">
+    <value>Entity Framework Core automatic migration</value>
+  </data>
+  <data name="CompleteI18nSupport" xml:space="preserve">
+    <value>Complete internationalization (i18n) support</value>
+  </data>
+  <data name="JoinMakerCommunity" xml:space="preserve">
+    <value>Join Maker Community</value>
+  </data>
+  <data name="FollowLvYinAGang" xml:space="preserve">
+    <value>Follow LvYin AGang, explore the world of AI and hardware makers together</value>
+  </data>
+  <data name="BilibiliHomepage" xml:space="preserve">
+    <value>Bilibili Homepage</value>
+  </data>
+  <data name="QQCommunicationGroup" xml:space="preserve">
+    <value>QQ Communication Group</value>
+  </data>
+  <data name="QQGroupNumber" xml:space="preserve">
+    <value>LvYin DIY Hardware Communication Group: 1023487000</value>
+  </data>
+  <data name="QuickStart" xml:space="preserve">
+    <value>Quick Start</value>
+  </data>
+  <data name="Step1LoginSystem" xml:space="preserve">
+    <value>1. Login to System</value>
+  </data>
+  <data name="Step1LoginSystemDescription" xml:space="preserve">
+    <value>Login to the platform using your Keycloak account</value>
+  </data>
+  <data name="Step2ConfigureXiaozhi" xml:space="preserve">
+    <value>2. Configure Xiaozhi Connection</value>
+  </data>
+  <data name="Step2ConfigureXiaozhiDescription" xml:space="preserve">
+    <value>Add your Xiaozhi AI server address</value>
+  </data>
+  <data name="Step3CreateMcpService" xml:space="preserve">
+    <value>3. Create MCP Service</value>
+  </data>
+  <data name="Step3CreateMcpServiceDescription" xml:space="preserve">
+    <value>Configure MCP service, supporting multiple authentication methods</value>
+  </data>
+  <data name="Step4BindService" xml:space="preserve">
+    <value>4. Bind Service to Node</value>
+  </data>
+  <data name="Step4BindServiceDescription" xml:space="preserve">
+    <value>Bind MCP service to Xiaozhi node and start using</value>
+  </data>
+  
+  <!-- Landing Layout - Navigation -->
+  <data name="Features" xml:space="preserve">
+    <value>Features</value>
+  </data>
+  <data name="Architecture" xml:space="preserve">
+    <value>Architecture</value>
+  </data>
+  <data name="Community" xml:space="preserve">
+    <value>Community</value>
+  </data>
+  <data name="Console" xml:space="preserve">
+    <value>Console</value>
+  </data>
+  
+  <!-- NavMenu -->
+  <data name="McpServiceConfigurations" xml:space="preserve">
+    <value>MCP Service Configurations</value>
+  </data>
+  
+  <!-- Tooltips -->
+  <data name="TooltipGitHubCommunity" xml:space="preserve">
+    <value>GitHub Maker Community</value>
+  </data>
+  <data name="TooltipProjectSource" xml:space="preserve">
+    <value>Project Source Code</value>
+  </data>
+  <data name="TooltipBilibiliChannel" xml:space="preserve">
+    <value>LvYin AGang Bilibili Channel</value>
+  </data>
 </root>
