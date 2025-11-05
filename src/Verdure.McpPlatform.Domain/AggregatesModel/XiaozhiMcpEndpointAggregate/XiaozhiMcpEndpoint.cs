@@ -1,12 +1,12 @@
-using Verdure.McpPlatform.Domain.SeedWork;
+﻿using Verdure.McpPlatform.Domain.SeedWork;
 
-namespace Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+namespace Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 
 /// <summary>
-/// Xiaozhi Connection aggregate root - represents a connection to Xiaozhi AI's MCP endpoint
+/// Xiaozhi MCP Endpoint aggregate root - represents Xiaozhi AI's MCP endpoint configuration
 /// This configures the WebSocket endpoint where Xiaozhi AI connects to receive MCP services
 /// </summary>
-public class XiaozhiConnection : Entity, IAggregateRoot
+public class XiaozhiMcpEndpoint : Entity, IAggregateRoot
 {
     public string Name { get; private set; }
     public string Address { get; private set; }
@@ -22,7 +22,7 @@ public class XiaozhiConnection : Entity, IAggregateRoot
     private readonly List<McpServiceBinding> _serviceBindings;
     public IReadOnlyCollection<McpServiceBinding> ServiceBindings => _serviceBindings.AsReadOnly();
 
-    protected XiaozhiConnection()
+    protected XiaozhiMcpEndpoint()
     {
         _serviceBindings = new List<McpServiceBinding>();
         Name = string.Empty;
@@ -30,7 +30,7 @@ public class XiaozhiConnection : Entity, IAggregateRoot
         UserId = string.Empty;
     }
 
-    public XiaozhiConnection(string name, string address, string userId, string? description = null) : this()
+    public XiaozhiMcpEndpoint(string name, string address, string userId, string? description = null) : this()
     {
         GenerateId(); // Generate Guid Version 7 ID
         Name = name ?? throw new ArgumentNullException(nameof(name));

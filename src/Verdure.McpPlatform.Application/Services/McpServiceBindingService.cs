@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Verdure.McpPlatform.Contracts.DTOs;
 using Verdure.McpPlatform.Contracts.Requests;
-using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
 namespace Verdure.McpPlatform.Application.Services;
@@ -11,12 +11,12 @@ namespace Verdure.McpPlatform.Application.Services;
 /// </summary>
 public class McpServiceBindingService : IMcpServiceBindingService
 {
-    private readonly IXiaozhiConnectionRepository _repository;
+    private readonly IXiaozhiMcpEndpointRepository _repository;
     private readonly IMcpServiceConfigRepository _configRepository;
     private readonly ILogger<McpServiceBindingService> _logger;
 
     public McpServiceBindingService(
-        IXiaozhiConnectionRepository repository,
+        IXiaozhiMcpEndpointRepository repository,
         IMcpServiceConfigRepository configRepository,
         ILogger<McpServiceBindingService> logger)
     {
@@ -60,7 +60,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
             return null;
         }
 
-        var server = await _repository.GetAsync(binding.XiaozhiConnectionId);
+        var server = await _repository.GetAsync(binding.XiaozhiMcpEndpointId);
         if (server == null || server.UserId != userId)
         {
             _logger.LogWarning("Access denied to binding {BindingId} for user {UserId}", id, userId);
@@ -108,7 +108,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
             throw new KeyNotFoundException($"Binding {id} not found");
         }
 
-        var server = await _repository.GetAsync(binding.XiaozhiConnectionId);
+        var server = await _repository.GetAsync(binding.XiaozhiMcpEndpointId);
         if (server == null || server.UserId != userId)
         {
             throw new UnauthorizedAccessException("Access denied");
@@ -133,7 +133,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
             throw new KeyNotFoundException($"Binding {id} not found");
         }
 
-        var server = await _repository.GetAsync(binding.XiaozhiConnectionId);
+        var server = await _repository.GetAsync(binding.XiaozhiMcpEndpointId);
         if (server == null || server.UserId != userId)
         {
             throw new UnauthorizedAccessException("Access denied");
@@ -155,7 +155,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
             throw new KeyNotFoundException($"Binding {id} not found");
         }
 
-        var server = await _repository.GetAsync(binding.XiaozhiConnectionId);
+        var server = await _repository.GetAsync(binding.XiaozhiMcpEndpointId);
         if (server == null || server.UserId != userId)
         {
             throw new UnauthorizedAccessException("Access denied");
@@ -177,7 +177,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
             throw new KeyNotFoundException($"Binding {id} not found");
         }
 
-        var server = await _repository.GetAsync(binding.XiaozhiConnectionId);
+        var server = await _repository.GetAsync(binding.XiaozhiMcpEndpointId);
         if (server == null || server.UserId != userId)
         {
             throw new UnauthorizedAccessException("Access denied");
@@ -197,7 +197,7 @@ public class McpServiceBindingService : IMcpServiceBindingService
         return new McpServiceBindingDto
         {
             Id = binding.Id,
-            XiaozhiConnectionId = binding.XiaozhiConnectionId,
+            XiaozhiMcpEndpointId = binding.XiaozhiMcpEndpointId,
             McpServiceConfigId = binding.McpServiceConfigId,
             McpServiceConfig = config != null ? MapConfigToDto(config) : null,
             ServiceName = config?.Name ?? string.Empty,

@@ -1,4 +1,4 @@
-# Database Configuration Guide
+﻿# Database Configuration Guide
 
 ## Overview
 
@@ -114,7 +114,7 @@ The `TablePrefix` setting adds a prefix to all database table names. This is use
 
 #### With Prefix `"verdure_"`
 ```
-verdure_xiaozhi_connections
+verdure_xiaozhi_mcp_endpoints
 verdure_mcp_service_configs
 verdure_mcp_service_bindings
 verdure_mcp_tools
@@ -122,7 +122,7 @@ verdure_mcp_tools
 
 #### Without Prefix (empty string `""`)
 ```
-xiaozhi_connections
+xiaozhi_mcp_endpoints
 mcp_service_configs
 mcp_service_bindings
 mcp_tools
@@ -130,7 +130,7 @@ mcp_tools
 
 #### Custom Prefix `"prod_verdure_"`
 ```
-prod_verdure_xiaozhi_connections
+prod_verdure_xiaozhi_mcp_endpoints
 prod_verdure_mcp_service_configs
 prod_verdure_mcp_service_bindings
 prod_verdure_mcp_tools

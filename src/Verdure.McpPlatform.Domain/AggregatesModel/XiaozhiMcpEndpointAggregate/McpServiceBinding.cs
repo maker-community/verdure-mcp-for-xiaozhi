@@ -1,7 +1,7 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Verdure.McpPlatform.Domain.SeedWork;
 
-namespace Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+namespace Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 
 /// <summary>
 /// MCP Service Binding entity - represents an external MCP service that is bound to a Xiaozhi connection
@@ -10,7 +10,7 @@ namespace Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
 /// </summary>
 public class McpServiceBinding : Entity
 {
-    public string XiaozhiConnectionId { get; private set; }
+    public string XiaozhiMcpEndpointId { get; private set; }
     public string McpServiceConfigId { get; private set; }
     public string? Description { get; private set; }
     public bool IsActive { get; private set; }
@@ -34,18 +34,18 @@ public class McpServiceBinding : Entity
     protected McpServiceBinding()
     {
         _selectedToolNames = new List<string>();
-        XiaozhiConnectionId = string.Empty;
+        XiaozhiMcpEndpointId = string.Empty;
         McpServiceConfigId = string.Empty;
     }
 
     public McpServiceBinding(
-        string xiaozhiConnectionId, 
+        string XiaozhiMcpEndpointId, 
         string mcpServiceConfigId,
         string? description = null,
         IEnumerable<string>? selectedToolNames = null)
     {
         GenerateId(); // Generate Guid Version 7 ID
-        XiaozhiConnectionId = xiaozhiConnectionId ?? throw new ArgumentNullException(nameof(xiaozhiConnectionId));
+        XiaozhiMcpEndpointId = XiaozhiMcpEndpointId ?? throw new ArgumentNullException(nameof(XiaozhiMcpEndpointId));
         McpServiceConfigId = mcpServiceConfigId ?? throw new ArgumentNullException(nameof(mcpServiceConfigId));
         Description = description;
         IsActive = true;

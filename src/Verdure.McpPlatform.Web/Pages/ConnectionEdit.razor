@@ -2,14 +2,14 @@
 @page "/connections/create"
 @page "/connections/edit/{Id}"
 @attribute [Authorize]
-@inject IXiaozhiConnectionClientService ServerService
+@inject IXiaozhiMcpEndpointClientService ServerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
 @inject IStringLocalizer<SharedResources> Loc
 
-<PageTitle>@(_isEdit ? Loc["EditConnection"] : Loc["CreateConnection"]) @Loc["XiaozhiConnection"] - @Loc["AppTitle"]</PageTitle>
+<PageTitle>@(_isEdit ? Loc["EditConnection"] : Loc["CreateConnection"]) @Loc["XiaozhiMcpEndpoint"] - @Loc["AppTitle"]</PageTitle>
 
 <MudGrid>
     <!-- M3 Hero Banner - 统一蓝色渐变 -->
@@ -23,7 +23,7 @@
                                   Size="Size.Large" />
                     <div>
                         <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
-                            @(_isEdit ? Loc["EditConnection"] : Loc["CreateConnection"]) @Loc["XiaozhiConnection"]
+                            @(_isEdit ? Loc["EditConnection"] : Loc["CreateConnection"]) @Loc["XiaozhiMcpEndpoint"]
                         </MudText>
                         <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85);">
                             @(_isEdit ? Loc["UpdateConnectionSettings"] : Loc["AddNewConnection"])
@@ -131,7 +131,7 @@
     private bool _formValid;
     private bool _saving;
     private bool _isEdit => !string.IsNullOrEmpty(Id);
-    private XiaozhiConnectionDto? _existingServer;
+    private XiaozhiMcpEndpointDto? _existingServer;
     
     private ServerFormModel _model = new();
 
@@ -178,7 +178,7 @@
 
             if (_isEdit)
             {
-                var request = new UpdateXiaozhiConnectionRequest
+                var request = new UpdateXiaozhiMcpEndpointRequest
                 {
                     Name = _model.Name,
                     Address = _model.Address,
@@ -189,7 +189,7 @@
             }
             else
             {
-                var request = new CreateXiaozhiConnectionRequest
+                var request = new CreateXiaozhiMcpEndpointRequest
                 {
                     Name = _model.Name,
                     Address = _model.Address,

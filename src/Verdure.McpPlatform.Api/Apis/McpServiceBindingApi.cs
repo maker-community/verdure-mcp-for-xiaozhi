@@ -137,7 +137,7 @@ public static class McpServiceBindingApi
             await McpServiceBindingService.UpdateAsync(id, request, userId);
             
             // Restart session to pick up updated binding and tool selections
-            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiConnectionId));
+            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiMcpEndpointId));
             
             return TypedResults.NoContent();
         }
@@ -171,7 +171,7 @@ public static class McpServiceBindingApi
             await McpServiceBindingService.ActivateAsync(id, userId);
             
             // Restart session to activate binding
-            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiConnectionId));
+            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiMcpEndpointId));
             
             return TypedResults.NoContent();
         }
@@ -205,7 +205,7 @@ public static class McpServiceBindingApi
             await McpServiceBindingService.DeactivateAsync(id, userId);
             
             // Restart session to deactivate binding
-            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiConnectionId));
+            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiMcpEndpointId));
             
             return TypedResults.NoContent();
         }
@@ -239,7 +239,7 @@ public static class McpServiceBindingApi
             await McpServiceBindingService.DeleteAsync(id, userId);
             
             // Restart session to remove deleted binding
-            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiConnectionId));
+            _ = Task.Run(async () => await sessionManager.RestartSessionAsync(binding.XiaozhiMcpEndpointId));
             
             return TypedResults.NoContent();
         }

@@ -3,9 +3,9 @@
 namespace Verdure.McpPlatform.Contracts.Requests;
 
 /// <summary>
-/// Request to create a new MCP Server
+/// Request to update an existing MCP Server
 /// </summary>
-public record CreateXiaozhiConnectionRequest
+public record UpdateXiaozhiMcpEndpointRequest
 {
     [Required(ErrorMessage = "Server name is required")]
     [StringLength(200, ErrorMessage = "Name cannot exceed 200 characters")]

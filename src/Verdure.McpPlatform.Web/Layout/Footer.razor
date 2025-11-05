@@ -1,4 +1,4 @@
-@using Microsoft.Extensions.Localization
+﻿@using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
 @inject IStringLocalizer<SharedResources> Loc
 
@@ -53,7 +53,7 @@ else
                     <MudStack Spacing="2">
                         <MudLink Href="/" Color="Color.Secondary" Typo="Typo.body2">@Loc["HomePage"]</MudLink>
                         <MudLink Href="/dashboard" Color="Color.Secondary" Typo="Typo.body2">@Loc["Dashboard"]</MudLink>
-                        <MudLink Href="/connections" Color="Color.Secondary" Typo="Typo.body2">@Loc["XiaozhiConnections"]</MudLink>
+                        <MudLink Href="/connections" Color="Color.Secondary" Typo="Typo.body2">@Loc["XiaozhiMcpEndpoints"]</MudLink>
                         <MudLink Href="/mcp-services" Color="Color.Secondary" Typo="Typo.body2">@Loc["McpServices"]</MudLink>
                     </MudStack>
                 </MudItem>

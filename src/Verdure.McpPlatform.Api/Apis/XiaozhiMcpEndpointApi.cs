@@ -11,27 +11,27 @@ namespace Verdure.McpPlatform.Api.Apis;
 /// <summary>
 /// API endpoints for MCP Server management
 /// </summary>
-public static class XiaozhiConnectionApi
+public static class XiaozhiMcpEndpointApi
 {
-    public static RouteGroupBuilder MapXiaozhiConnectionApi(this IEndpointRouteBuilder app)
+    public static RouteGroupBuilder MapXiaozhiMcpEndpointApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("api/mcp-servers")
+        var api = app.MapGroup("api/xiaozhi-mcp-endpoints")
             .RequireAuthorization()
-            .WithTags("MCP Servers")
+            .WithTags("Xiaozhi MCP Endpoints")
             .WithOpenApi();
 
         api.MapGet("/", GetMcpServersAsync)
             .WithName("GetMcpServers")
-            .Produces<IEnumerable<XiaozhiConnectionDto>>();
+            .Produces<IEnumerable<XiaozhiMcpEndpointDto>>();
 
         api.MapGet("/{id}", GetMcpServerAsync)
             .WithName("GetMcpServer")
-            .Produces<XiaozhiConnectionDto>()
+            .Produces<XiaozhiMcpEndpointDto>()
             .Produces(StatusCodes.Status404NotFound);
 
         api.MapPost("/", CreateMcpServerAsync)
             .WithName("CreateMcpServer")
-            .Produces<XiaozhiConnectionDto>(StatusCodes.Status201Created)
+            .Produces<XiaozhiMcpEndpointDto>(StatusCodes.Status201Created)
             .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
 
         api.MapPut("/{id}", UpdateMcpServerAsync)
@@ -57,48 +57,48 @@ public static class XiaozhiConnectionApi
         return api;
     }
 
-    private static async Task<Ok<IEnumerable<XiaozhiConnectionDto>>> GetMcpServersAsync(
-        IXiaozhiConnectionService XiaozhiConnectionService,
+    private static async Task<Ok<IEnumerable<XiaozhiMcpEndpointDto>>> GetMcpServersAsync(
+        IXiaozhiMcpEndpointService XiaozhiMcpEndpointService,
         IIdentityService identityService)
     {
         var userId = identityService.GetUserIdentity();
-        var servers = await XiaozhiConnectionService.GetByUserAsync(userId);
+        var servers = await XiaozhiMcpEndpointService.GetByUserAsync(userId);
         return TypedResults.Ok(servers);
     }
 
-    private static async Task<Results<Ok<XiaozhiConnectionDto>, NotFound>> GetMcpServerAsync(
+    private static async Task<Results<Ok<XiaozhiMcpEndpointDto>, NotFound>> GetMcpServerAsync(
         string id,
-        IXiaozhiConnectionService XiaozhiConnectionService,
+        IXiaozhiMcpEndpointService XiaozhiMcpEndpointService,
         IIdentityService identityService)
     {
         var userId = identityService.GetUserIdentity();
-        var server = await XiaozhiConnectionService.GetByIdAsync(id, userId);
+        var server = await XiaozhiMcpEndpointService.GetByIdAsync(id, userId);
         
         return server is not null
             ? TypedResults.Ok(server)
             : TypedResults.NotFound();
     }
 
-    private static async Task<Results<Created<XiaozhiConnectionDto>, ValidationProblem>> CreateMcpServerAsync(
-        CreateXiaozhiConnectionRequest request,
-        IXiaozhiConnectionService XiaozhiConnectionService,
+    private static async Task<Results<Created<XiaozhiMcpEndpointDto>, ValidationProblem>> CreateMcpServerAsync(
+        CreateXiaozhiMcpEndpointRequest request,
+        IXiaozhiMcpEndpointService XiaozhiMcpEndpointService,
         IIdentityService identityService)
     {
         var userId = identityService.GetUserIdentity();
-        var server = await XiaozhiConnectionService.CreateAsync(request, userId);
+        var server = await XiaozhiMcpEndpointService.CreateAsync(request, userId);
         return TypedResults.Created($"/api/mcp-servers/{server.Id}", server);
     }
 
     private static async Task<Results<NoContent, NotFound>> UpdateMcpServerAsync(
         string id,
-        UpdateXiaozhiConnectionRequest request,
-        IXiaozhiConnectionService XiaozhiConnectionService,
+        UpdateXiaozhiMcpEndpointRequest request,
+        IXiaozhiMcpEndpointService XiaozhiMcpEndpointService,
         IIdentityService identityService)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
-            await XiaozhiConnectionService.UpdateAsync(id, request, userId);
+            await XiaozhiMcpEndpointService.UpdateAsync(id, request, userId);
             return TypedResults.NoContent();
         }
         catch (UnauthorizedAccessException)
@@ -109,13 +109,13 @@ public static class XiaozhiConnectionApi
 
     private static async Task<Results<NoContent, NotFound>> DeleteMcpServerAsync(
         string id,
-        IXiaozhiConnectionService XiaozhiConnectionService,
+        IXiaozhiMcpEndpointService XiaozhiMcpEndpointService,
         IIdentityService identityService)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
-            await XiaozhiConnectionService.DeleteAsync(id, userId);
+            await XiaozhiMcpEndpointService.DeleteAsync(id, userId);
             return TypedResults.NoContent();
         }
         catch (UnauthorizedAccessException)
@@ -126,14 +126,14 @@ public static class XiaozhiConnectionApi
 
     private static async Task<Results<NoContent, NotFound>> EnableMcpServerAsync(
         string id,
-        IXiaozhiConnectionService XiaozhiConnectionService,
+        IXiaozhiMcpEndpointService XiaozhiMcpEndpointService,
         IIdentityService identityService,
         McpSessionManager sessionManager)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
-            await XiaozhiConnectionService.EnableAsync(id, userId);
+            await XiaozhiMcpEndpointService.EnableAsync(id, userId);
             
             // Start WebSocket session
             _ = Task.Run(async () => await sessionManager.StartSessionAsync(id));
@@ -148,14 +148,14 @@ public static class XiaozhiConnectionApi
 
     private static async Task<Results<NoContent, NotFound>> DisableMcpServerAsync(
         string id,
-        IXiaozhiConnectionService XiaozhiConnectionService,
+        IXiaozhiMcpEndpointService XiaozhiMcpEndpointService,
         IIdentityService identityService,
         McpSessionManager sessionManager)
     {
         try
         {
             var userId = identityService.GetUserIdentity();
-            await XiaozhiConnectionService.DisableAsync(id, userId);
+            await XiaozhiMcpEndpointService.DisableAsync(id, userId);
             
             // Stop WebSocket session
             await sessionManager.StopSessionAsync(id);

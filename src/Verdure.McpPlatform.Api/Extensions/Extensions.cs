@@ -11,7 +11,7 @@ using Verdure.McpPlatform.Api.Services.WebSocket;
 using Verdure.McpPlatform.Api.Settings;
 using Verdure.McpPlatform.Application.Services;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
-using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 using Verdure.McpPlatform.Infrastructure.Data;
 using Verdure.McpPlatform.Infrastructure.Identity;
 using Verdure.McpPlatform.Infrastructure.Repositories;
@@ -124,11 +124,11 @@ internal static class Extensions
         services.AddAuthorization();
 
         // Register repositories
-        services.AddScoped<IXiaozhiConnectionRepository, XiaozhiConnectionRepository>();
+        services.AddScoped<IXiaozhiMcpEndpointRepository, XiaozhiMcpEndpointRepository>();
         services.AddScoped<IMcpServiceConfigRepository, McpServiceConfigRepository>();
 
         // Register application services
-        services.AddScoped<IXiaozhiConnectionService, XiaozhiConnectionService>();
+        services.AddScoped<IXiaozhiMcpEndpointService, XiaozhiMcpEndpointService>();
         services.AddScoped<IMcpServiceBindingService, McpServiceBindingService>();
         services.AddScoped<IMcpServiceConfigService, McpServiceConfigService>();
         services.AddScoped<IMcpClientService, McpClientService>();

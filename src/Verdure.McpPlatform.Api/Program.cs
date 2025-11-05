@@ -1,4 +1,4 @@
-using Scalar.AspNetCore;
+﻿using Scalar.AspNetCore;
 using Verdure.McpPlatform.Api.Apis;
 using Verdure.McpPlatform.Api.Extensions;
 
@@ -34,7 +34,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Map API endpoints
-app.MapXiaozhiConnectionApi();
+app.MapXiaozhiMcpEndpointApi();
 app.MapMcpServiceBindingApi();
 app.MapMcpServiceConfigApi();
 

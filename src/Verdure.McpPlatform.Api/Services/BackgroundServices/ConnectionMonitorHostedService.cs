@@ -1,6 +1,6 @@
-using Verdure.McpPlatform.Api.Services.ConnectionState;
+﻿using Verdure.McpPlatform.Api.Services.ConnectionState;
 using Verdure.McpPlatform.Api.Services.WebSocket;
-using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 
 namespace Verdure.McpPlatform.Api.Services.BackgroundServices;
 
@@ -85,7 +85,7 @@ public class ConnectionMonitorHostedService : BackgroundService
             _logger.LogInformation("Checking for enabled servers to connect on startup");
 
             using var scope = _serviceScopeFactory.CreateScope();
-            var serverRepository = scope.ServiceProvider.GetRequiredService<IXiaozhiConnectionRepository>();
+            var serverRepository = scope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
             var connectionStateService = scope.ServiceProvider.GetRequiredService<IConnectionStateService>();
             var sessionManager = scope.ServiceProvider.GetRequiredService<McpSessionManager>();
 
@@ -165,7 +165,7 @@ public class ConnectionMonitorHostedService : BackgroundService
         using var scope = _serviceScopeFactory.CreateScope();
         var connectionStateService = scope.ServiceProvider.GetRequiredService<IConnectionStateService>();
         var sessionManager = scope.ServiceProvider.GetRequiredService<McpSessionManager>();
-        var serverRepository = scope.ServiceProvider.GetRequiredService<IXiaozhiConnectionRepository>();
+        var serverRepository = scope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
 
         // Update heartbeats for local connections
         await UpdateLocalConnectionHeartbeatsAsync(sessionManager, connectionStateService, cancellationToken);

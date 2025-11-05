@@ -3,7 +3,7 @@
 @page "/service-bindings/edit/{Id}"
 @attribute [Authorize]
 @inject IMcpServiceBindingClientService BindingService
-@inject IXiaozhiConnectionClientService ServerService
+@inject IXiaozhiMcpEndpointClientService ServerService
 @inject IMcpServiceConfigClientService McpServiceConfigService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
@@ -42,10 +42,10 @@
                 <MudForm @ref="_form" @bind-IsValid="@_formValid">
                     @if (!_isEdit)
                     {
-                        <MudSelect @bind-Value="_model.XiaozhiConnectionId" 
-                                  Label="@Loc["XiaozhiConnection"]" 
+                        <MudSelect @bind-Value="_model.XiaozhiMcpEndpointId" 
+                                  Label="@Loc["XiaozhiMcpEndpoint"]" 
                                   Required="true"
-                                  RequiredError="@Loc["SelectXiaozhiConnection"]"
+                                  RequiredError="@Loc["SelectXiaozhiMcpEndpoint"]"
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
                                   Class="mb-4">
@@ -225,7 +225,7 @@
     private bool _saving;
     private bool _isEdit => !string.IsNullOrEmpty(Id);
     private McpServiceBindingDto? _existingBinding;
-    private List<XiaozhiConnectionDto> _servers = new();
+    private List<XiaozhiMcpEndpointDto> _servers = new();
     private List<McpServiceConfigDto> _myServices = new();
     private List<McpServiceConfigDto> _publicServices = new();
     private List<McpToolDto> _availableTools = new();
@@ -247,7 +247,7 @@
         }
         else if (!string.IsNullOrEmpty(ServerId))
         {
-            _model.XiaozhiConnectionId = ServerId;
+            _model.XiaozhiMcpEndpointId = ServerId;
         }
     }
 
@@ -388,7 +388,7 @@
             _existingBinding = await BindingService.GetBindingAsync(Id!);
             if (_existingBinding != null)
             {
-                _model.XiaozhiConnectionId = _existingBinding.XiaozhiConnectionId;
+                _model.XiaozhiMcpEndpointId = _existingBinding.XiaozhiMcpEndpointId;
                 _model.Description = _existingBinding.Description ?? string.Empty;
                 _model.McpServiceConfigId = _existingBinding.McpServiceConfigId;
                 
@@ -442,7 +442,7 @@
             {
                 var request = new CreateMcpServiceBindingRequest
                 {
-                    ServerId = _model.XiaozhiConnectionId ?? string.Empty,
+                    ServerId = _model.XiaozhiMcpEndpointId ?? string.Empty,
                     McpServiceConfigId = _model.McpServiceConfigId ?? string.Empty,
                     Description = string.IsNullOrWhiteSpace(_model.Description) ? null : _model.Description,
                     SelectedToolNames = toolsList
@@ -473,7 +473,7 @@
 
     private class BindingFormModel
     {
-        public string? XiaozhiConnectionId { get; set; }
+        public string? XiaozhiMcpEndpointId { get; set; }
         public string Description { get; set; } = string.Empty;
         public string? McpServiceConfigId { get; set; }
     }

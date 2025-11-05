@@ -1,4 +1,4 @@
-# AGENTS.md
+﻿# AGENTS.md
 
 A dedicated guide for AI coding agents working on the Verdure MCP Platform project.
 
@@ -637,9 +637,9 @@ public static class AuthenticationExtensions
 
 **重要**: 所有实体 ID 使用 `string` 类型（Guid Version 7），请参考现有实现。
 
-#### 1. XiaozhiConnection (小智连接聚合根)
+#### 1. XiaozhiMcpEndpoint (小智连接聚合根)
 
-**位置**: `Domain/AggregatesModel/XiaozhiConnectionAggregate/XiaozhiConnection.cs`
+**位置**: `Domain/AggregatesModel/XiaozhiMcpEndpointAggregate/XiaozhiMcpEndpoint.cs`
 
 **职责**: 代表到小智 AI 的 WebSocket 端点连接
 
@@ -653,7 +653,7 @@ public static class AuthenticationExtensions
 
 **关键方法**:
 ```csharp
-public class XiaozhiConnection : Entity, IAggregateRoot
+public class XiaozhiMcpEndpoint : Entity, IAggregateRoot
 {
     public void Enable() // 启用连接
     public void Disable() // 禁用连接并断开
@@ -690,12 +690,12 @@ public class McpServiceConfig : Entity, IAggregateRoot
 
 #### 3. McpServiceBinding (值对象/实体)
 
-**位置**: `Domain/AggregatesModel/XiaozhiConnectionAggregate/McpServiceBinding.cs`
+**位置**: `Domain/AggregatesModel/XiaozhiMcpEndpointAggregate/McpServiceBinding.cs`
 
-**职责**: 绑定关系，连接 XiaozhiConnection 和 McpServiceConfig
+**职责**: 绑定关系，连接 XiaozhiMcpEndpoint 和 McpServiceConfig
 
 **核心属性**:
-- `XiaozhiConnectionId`: 小智连接ID
+- `XiaozhiMcpEndpointId`: 小智连接ID
 - `McpServiceConfigId`: MCP服务配置ID
 - `SelectedToolNames`: 选中的工具名称列表（JSON）
 - `IsEnabled`: 绑定是否启用
@@ -2358,7 +2358,7 @@ dotnet ef migrations remove --project src/Verdure.McpPlatform.Infrastructure --s
 ### 新手上手
 
 1. **阅读项目概述** → 理解项目目标和核心功能
-2. **查看领域模型** → 了解 XiaozhiConnection 和 McpServiceConfig
+2. **查看领域模型** → 了解 XiaozhiMcpEndpoint 和 McpServiceConfig
 3. **研究分布式架构** → 阅读 `docs/architecture/DISTRIBUTED_WEBSOCKET_GUIDE.md`
 4. **运行项目** → 使用 `scripts/verify-setup.ps1` 和 `scripts/start-dev.ps1`
 5. **查看示例** → 阅读 `docs/guides/API_EXAMPLES.md`

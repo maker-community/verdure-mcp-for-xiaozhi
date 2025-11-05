@@ -7,26 +7,26 @@ namespace Verdure.McpPlatform.Web.Services;
 /// <summary>
 /// Implementation of MCP server client service
 /// </summary>
-public class XiaozhiConnectionClientService : IXiaozhiConnectionClientService
+public class XiaozhiMcpEndpointClientService : IXiaozhiMcpEndpointClientService
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<XiaozhiConnectionClientService> _logger;
-    private const string ApiEndpoint = "api/mcp-servers";
+    private readonly ILogger<XiaozhiMcpEndpointClientService> _logger;
+    private const string ApiEndpoint = "api/xiaozhi-mcp-endpoints";
 
-    public XiaozhiConnectionClientService(
+    public XiaozhiMcpEndpointClientService(
         HttpClient httpClient,
-        ILogger<XiaozhiConnectionClientService> logger)
+        ILogger<XiaozhiMcpEndpointClientService> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
     }
 
-    public async Task<IEnumerable<XiaozhiConnectionDto>> GetServersAsync()
+    public async Task<IEnumerable<XiaozhiMcpEndpointDto>> GetServersAsync()
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<IEnumerable<XiaozhiConnectionDto>>(ApiEndpoint);
-            return response ?? Enumerable.Empty<XiaozhiConnectionDto>();
+            var response = await _httpClient.GetFromJsonAsync<IEnumerable<XiaozhiMcpEndpointDto>>(ApiEndpoint);
+            return response ?? Enumerable.Empty<XiaozhiMcpEndpointDto>();
         }
         catch (HttpRequestException ex)
         {
@@ -35,11 +35,11 @@ public class XiaozhiConnectionClientService : IXiaozhiConnectionClientService
         }
     }
 
-    public async Task<XiaozhiConnectionDto?> GetServerAsync(string id)
+    public async Task<XiaozhiMcpEndpointDto?> GetServerAsync(string id)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<XiaozhiConnectionDto>($"{ApiEndpoint}/{id}");
+            return await _httpClient.GetFromJsonAsync<XiaozhiMcpEndpointDto>($"{ApiEndpoint}/{id}");
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -52,13 +52,13 @@ public class XiaozhiConnectionClientService : IXiaozhiConnectionClientService
         }
     }
 
-    public async Task<XiaozhiConnectionDto> CreateServerAsync(CreateXiaozhiConnectionRequest request)
+    public async Task<XiaozhiMcpEndpointDto> CreateServerAsync(CreateXiaozhiMcpEndpointRequest request)
     {
         try
         {
             var response = await _httpClient.PostAsJsonAsync(ApiEndpoint, request);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<XiaozhiConnectionDto>() 
+            return await response.Content.ReadFromJsonAsync<XiaozhiMcpEndpointDto>() 
                 ?? throw new InvalidOperationException("Failed to deserialize server response");
         }
         catch (HttpRequestException ex)
@@ -68,7 +68,7 @@ public class XiaozhiConnectionClientService : IXiaozhiConnectionClientService
         }
     }
 
-    public async Task UpdateServerAsync(string id, UpdateXiaozhiConnectionRequest request)
+    public async Task UpdateServerAsync(string id, UpdateXiaozhiMcpEndpointRequest request)
     {
         try
         {

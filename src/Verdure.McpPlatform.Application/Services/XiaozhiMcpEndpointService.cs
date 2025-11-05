@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Verdure.McpPlatform.Contracts.DTOs;
 using Verdure.McpPlatform.Contracts.Requests;
-using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
 namespace Verdure.McpPlatform.Application.Services;
@@ -9,25 +9,25 @@ namespace Verdure.McpPlatform.Application.Services;
 /// <summary>
 /// Service implementation for MCP Server operations
 /// </summary>
-public class XiaozhiConnectionService : IXiaozhiConnectionService
+public class XiaozhiMcpEndpointService : IXiaozhiMcpEndpointService
 {
-    private readonly IXiaozhiConnectionRepository _repository;
+    private readonly IXiaozhiMcpEndpointRepository _repository;
     private readonly IMcpServiceConfigRepository _configRepository;
-    private readonly ILogger<XiaozhiConnectionService> _logger;
+    private readonly ILogger<XiaozhiMcpEndpointService> _logger;
 
-    public XiaozhiConnectionService(
-        IXiaozhiConnectionRepository repository,
+    public XiaozhiMcpEndpointService(
+        IXiaozhiMcpEndpointRepository repository,
         IMcpServiceConfigRepository configRepository,
-        ILogger<XiaozhiConnectionService> logger)
+        ILogger<XiaozhiMcpEndpointService> logger)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _configRepository = configRepository ?? throw new ArgumentNullException(nameof(configRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<XiaozhiConnectionDto> CreateAsync(CreateXiaozhiConnectionRequest request, string userId)
+    public async Task<XiaozhiMcpEndpointDto> CreateAsync(CreateXiaozhiMcpEndpointRequest request, string userId)
     {
-        var server = new XiaozhiConnection(request.Name, request.Address, userId, request.Description);
+        var server = new XiaozhiMcpEndpoint(request.Name, request.Address, userId, request.Description);
         
         _repository.Add(server);
         await _repository.UnitOfWork.SaveEntitiesAsync();
@@ -40,7 +40,7 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
         return await MapToDtoAsync(server);
     }
 
-    public async Task<XiaozhiConnectionDto?> GetByIdAsync(string id, string userId)
+    public async Task<XiaozhiMcpEndpointDto?> GetByIdAsync(string id, string userId)
     {
         var server = await _repository.GetAsync(id);
         
@@ -53,10 +53,10 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
         return await MapToDtoAsync(server);
     }
 
-    public async Task<IEnumerable<XiaozhiConnectionDto>> GetByUserAsync(string userId)
+    public async Task<IEnumerable<XiaozhiMcpEndpointDto>> GetByUserAsync(string userId)
     {
         var servers = await _repository.GetByUserIdAsync(userId);
-        var dtos = new List<XiaozhiConnectionDto>();
+        var dtos = new List<XiaozhiMcpEndpointDto>();
         foreach (var server in servers)
         {
             dtos.Add(await MapToDtoAsync(server));
@@ -64,7 +64,7 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
         return dtos;
     }
 
-    public async Task UpdateAsync(string id, UpdateXiaozhiConnectionRequest request, string userId)
+    public async Task UpdateAsync(string id, UpdateXiaozhiMcpEndpointRequest request, string userId)
     {
         var server = await _repository.GetAsync(id);
         
@@ -139,9 +139,9 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
             userId);
     }
 
-    private async Task<XiaozhiConnectionDto> MapToDtoAsync(XiaozhiConnection server)
+    private async Task<XiaozhiMcpEndpointDto> MapToDtoAsync(XiaozhiMcpEndpoint server)
     {
-        return new XiaozhiConnectionDto
+        return new XiaozhiMcpEndpointDto
         {
             Id = server.Id,
             Name = server.Name,
@@ -166,7 +166,7 @@ public class XiaozhiConnectionService : IXiaozhiConnectionService
             dtos.Add(new McpServiceBindingDto
             {
                 Id = binding.Id,
-                XiaozhiConnectionId = binding.XiaozhiConnectionId,
+                XiaozhiMcpEndpointId = binding.XiaozhiMcpEndpointId,
                 McpServiceConfigId = binding.McpServiceConfigId,
                 ServiceName = config?.Name ?? string.Empty,
                 NodeAddress = config?.Endpoint ?? string.Empty,

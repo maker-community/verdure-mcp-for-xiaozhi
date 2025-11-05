@@ -1,7 +1,7 @@
-@page "/dashboard"
+﻿@page "/dashboard"
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
-@inject IXiaozhiConnectionClientService ServerService
+@inject IXiaozhiMcpEndpointClientService ServerService
 @inject IMcpServiceBindingClientService BindingService
 @inject IStringLocalizer<SharedResources> Loc
 @attribute [Authorize]
@@ -33,7 +33,7 @@
                 <div class="d-flex justify-space-between align-center">
                     <div>
                         <MudText Typo="Typo.h4" Style="color: #1565C0; font-weight: 600;">@_serverCount</MudText>
-                        <MudText Typo="Typo.body2" Style="color: #1976D2; font-weight: 500;">@Loc["XiaozhiConnections"]</MudText>
+                        <MudText Typo="Typo.body2" Style="color: #1976D2; font-weight: 500;">@Loc["XiaozhiMcpEndpoints"]</MudText>
                     </div>
                     <MudIcon Icon="@Icons.Material.Filled.Dns" Size="Size.Large" Style="color: #1976D2;" />
                 </div>
@@ -101,7 +101,7 @@
                               Color="Color.Primary" 
                               StartIcon="@Icons.Material.Filled.Add"
                               Class="m3-button">
-                        @Loc["AddXiaozhiConnection"]
+                        @Loc["AddXiaozhiMcpEndpoint"]
                     </MudButton>
                     <MudButton Href="/service-bindings/create" 
                               Variant="Variant.Filled" 
@@ -168,7 +168,7 @@
     private int _serverCount = 0;
     private int _bindingCount = 0;
     private int _activeBindingCount = 0;
-    private List<XiaozhiConnectionDto> _recentServers = new();
+    private List<XiaozhiMcpEndpointDto> _recentServers = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -193,7 +193,7 @@
             _serverCount = 0;
             _bindingCount = 0;
             _activeBindingCount = 0;
-            _recentServers = new List<XiaozhiConnectionDto>();
+            _recentServers = new List<XiaozhiMcpEndpointDto>();
         }
         finally
         {

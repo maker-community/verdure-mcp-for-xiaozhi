@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 
 namespace Verdure.McpPlatform.Infrastructure.Data.EntityConfigurations;
 
@@ -21,7 +21,7 @@ public class McpServiceBindingEntityTypeConfiguration : IEntityTypeConfiguration
             .IsRequired();
 
         // Configure foreign key as string
-        builder.Property(b => b.XiaozhiConnectionId)
+        builder.Property(b => b.XiaozhiMcpEndpointId)
             .HasMaxLength(36)
             .IsRequired();
 
@@ -46,7 +46,7 @@ public class McpServiceBindingEntityTypeConfiguration : IEntityTypeConfiguration
         // Use backing field for collection
         builder.Ignore(b => b.SelectedToolNames);
 
-        builder.HasIndex(b => b.XiaozhiConnectionId);
+        builder.HasIndex(b => b.XiaozhiMcpEndpointId);
         builder.HasIndex(b => b.McpServiceConfigId);
         builder.HasIndex(b => b.IsActive);
     }

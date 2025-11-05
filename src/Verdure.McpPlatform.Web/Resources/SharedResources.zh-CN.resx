@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -111,7 +111,7 @@
   </data>
   
   <!-- Navigation -->
-  <data name="XiaozhiConnections" xml:space="preserve">
+  <data name="XiaozhiMcpEndpoints" xml:space="preserve">
     <value>小智连接</value>
   </data>
   <data name="McpBindings" xml:space="preserve">
@@ -170,7 +170,7 @@
   <data name="QuickActions" xml:space="preserve">
     <value>快速操作</value>
   </data>
-  <data name="AddXiaozhiConnection" xml:space="preserve">
+  <data name="AddXiaozhiMcpEndpoint" xml:space="preserve">
     <value>添加小智连接</value>
   </data>
   <data name="CreateBinding" xml:space="preserve">
@@ -469,7 +469,7 @@
   <data name="CreateConnection" xml:space="preserve">
     <value>创建</value>
   </data>
-  <data name="XiaozhiConnection" xml:space="preserve">
+  <data name="XiaozhiMcpEndpoint" xml:space="preserve">
     <value>小智连接</value>
   </data>
   <data name="UpdateConnectionSettings" xml:space="preserve">
@@ -546,7 +546,7 @@
   <data name="ConfigureNewServiceBinding" xml:space="preserve">
     <value>为您的连接配置新的外部 MCP 服务绑定</value>
   </data>
-  <data name="SelectXiaozhiConnection" xml:space="preserve">
+  <data name="SelectXiaozhiMcpEndpoint" xml:space="preserve">
     <value>请选择一个小智连接</value>
   </data>
   <data name="ServiceNameRequired" xml:space="preserve">

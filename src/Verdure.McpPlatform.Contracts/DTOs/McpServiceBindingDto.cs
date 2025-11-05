@@ -10,9 +10,9 @@ public record McpServiceBindingDto
     /// </summary>
     public string Id { get; init; } = string.Empty;
     /// <summary>
-    /// Foreign key to XiaozhiConnection (Guid Version 7 as string)
+    /// Foreign key to XiaozhiMcpEndpoint (Guid Version 7 as string)
     /// </summary>
-    public string XiaozhiConnectionId { get; init; } = string.Empty;
+    public string XiaozhiMcpEndpointId { get; init; } = string.Empty;
     /// <summary>
     /// Reference to McpServiceConfig (Guid Version 7 as string) - required
     /// </summary>

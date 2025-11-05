@@ -1,51 +1,51 @@
-using Microsoft.EntityFrameworkCore;
-using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+﻿using Microsoft.EntityFrameworkCore;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 using Verdure.McpPlatform.Domain.SeedWork;
 using Verdure.McpPlatform.Infrastructure.Data;
 
 namespace Verdure.McpPlatform.Infrastructure.Repositories;
 
 /// <summary>
-/// Repository implementation for XiaozhiConnection aggregate
+/// Repository implementation for XiaozhiMcpEndpoint aggregate
 /// </summary>
-public class XiaozhiConnectionRepository : IXiaozhiConnectionRepository
+public class XiaozhiMcpEndpointRepository : IXiaozhiMcpEndpointRepository
 {
     private readonly McpPlatformContext _context;
 
     public IUnitOfWork UnitOfWork => _context;
 
-    public XiaozhiConnectionRepository(McpPlatformContext context)
+    public XiaozhiMcpEndpointRepository(McpPlatformContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public XiaozhiConnection Add(XiaozhiConnection connection)
+    public XiaozhiMcpEndpoint Add(XiaozhiMcpEndpoint connection)
     {
-        return _context.XiaozhiConnections.Add(connection).Entity;
+        return _context.XiaozhiMcpEndpoints.Add(connection).Entity;
     }
 
-    public void Update(XiaozhiConnection connection)
+    public void Update(XiaozhiMcpEndpoint connection)
     {
         _context.Entry(connection).State = EntityState.Modified;
     }
 
-    public void Delete(XiaozhiConnection connection)
+    public void Delete(XiaozhiMcpEndpoint connection)
     {
-        _context.XiaozhiConnections.Remove(connection);
+        _context.XiaozhiMcpEndpoints.Remove(connection);
     }
 
-    public async Task<XiaozhiConnection?> GetAsync(string connectionId)
+    public async Task<XiaozhiMcpEndpoint?> GetAsync(string connectionId)
     {
-        var connection = await _context.XiaozhiConnections
+        var connection = await _context.XiaozhiMcpEndpoints
             .Include(s => s.ServiceBindings)
             .FirstOrDefaultAsync(s => s.Id == connectionId);
 
         return connection;
     }
 
-    public async Task<IEnumerable<XiaozhiConnection>> GetByUserIdAsync(string userId)
+    public async Task<IEnumerable<XiaozhiMcpEndpoint>> GetByUserIdAsync(string userId)
     {
-        return await _context.XiaozhiConnections
+        return await _context.XiaozhiMcpEndpoints
             .AsNoTracking()
             .Include(s => s.ServiceBindings)
             .Where(s => s.UserId == userId)
@@ -53,9 +53,9 @@ public class XiaozhiConnectionRepository : IXiaozhiConnectionRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<XiaozhiConnection>> GetEnabledServersAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<XiaozhiMcpEndpoint>> GetEnabledServersAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.XiaozhiConnections
+        return await _context.XiaozhiMcpEndpoints
             .AsNoTracking()
             .Include(s => s.ServiceBindings)
             .Where(s => s.IsEnabled)
@@ -73,7 +73,7 @@ public class XiaozhiConnectionRepository : IXiaozhiConnectionRepository
     {
         return await _context.McpServiceBindings
             .AsNoTracking()
-            .Where(b => b.XiaozhiConnectionId == connectionId)
+            .Where(b => b.XiaozhiMcpEndpointId == connectionId)
             .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
     }

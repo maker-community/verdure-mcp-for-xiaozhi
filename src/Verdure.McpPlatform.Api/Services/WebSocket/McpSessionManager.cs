@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using Verdure.McpPlatform.Api.Services.ConnectionState;
 using Verdure.McpPlatform.Api.Services.DistributedLock;
-using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiConnectionAggregate;
+using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
 namespace Verdure.McpPlatform.Api.Services.WebSocket;
@@ -103,7 +103,7 @@ public class McpSessionManager : IAsyncDisposable
 
             // Get server configuration using a scoped service
             using var scope = _serviceScopeFactory.CreateScope();
-            var serverRepository = scope.ServiceProvider.GetRequiredService<IXiaozhiConnectionRepository>();
+            var serverRepository = scope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
             var configRepository = scope.ServiceProvider.GetRequiredService<IMcpServiceConfigRepository>();
             
             var server = await serverRepository.GetAsync(serverId);
@@ -185,7 +185,7 @@ public class McpSessionManager : IAsyncDisposable
 
                     // Update server status to connected
                     using var backgroundScope = _serviceScopeFactory.CreateScope();
-                    var backgroundRepository = backgroundScope.ServiceProvider.GetRequiredService<IXiaozhiConnectionRepository>();
+                    var backgroundRepository = backgroundScope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
                     
                     var serverToUpdate = await backgroundRepository.GetAsync(serverId);
                     if (serverToUpdate != null)
@@ -221,7 +221,7 @@ public class McpSessionManager : IAsyncDisposable
                     try
                     {
                         using var errorScope = _serviceScopeFactory.CreateScope();
-                        var errorRepository = errorScope.ServiceProvider.GetRequiredService<IXiaozhiConnectionRepository>();
+                        var errorRepository = errorScope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
                         
                         var serverToUpdate = await errorRepository.GetAsync(serverId);
                         if (serverToUpdate != null)
@@ -287,7 +287,7 @@ public class McpSessionManager : IAsyncDisposable
             
             // Update server status using a scoped service
             using var scope = _serviceScopeFactory.CreateScope();
-            var serverRepository = scope.ServiceProvider.GetRequiredService<IXiaozhiConnectionRepository>();
+            var serverRepository = scope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
             
             var server = await serverRepository.GetAsync(serverId);
             if (server != null)

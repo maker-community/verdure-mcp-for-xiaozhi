@@ -1,10 +1,10 @@
-using Verdure.McpPlatform.Domain.SeedWork;
+﻿using Verdure.McpPlatform.Domain.SeedWork;
 
 namespace Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
 /// <summary>
 /// MCP Service Configuration aggregate root - represents a configured MCP service with its tools
-/// This is independent from XiaozhiConnection and represents the actual MCP service node
+/// This is independent from XiaozhiMcpEndpoint and represents the actual MCP service node
 /// </summary>
 public class McpServiceConfig : Entity, IAggregateRoot
 {

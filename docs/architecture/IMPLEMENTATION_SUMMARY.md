@@ -1,4 +1,4 @@
-# WebSocket 分布式连接管理 - 实现总结
+﻿# WebSocket 分布式连接管理 - 实现总结
 
 ## 问题陈述
 
@@ -157,12 +157,12 @@ public class ConnectionStateInfo
 ### 5. Repository 扩展
 
 **文件**: 
-- `Domain/AggregatesModel/XiaozhiConnectionAggregate/IXiaozhiConnectionRepository.cs`
-- `Infrastructure/Repositories/XiaozhiConnectionRepository.cs`
+- `Domain/AggregatesModel/XiaozhiMcpEndpointAggregate/IXiaozhiMcpEndpointRepository.cs`
+- `Infrastructure/Repositories/XiaozhiMcpEndpointRepository.cs`
 
 **新增方法**:
 ```csharp
-Task<IEnumerable<XiaozhiConnection>> GetEnabledServersAsync(
+Task<IEnumerable<XiaozhiMcpEndpoint>> GetEnabledServersAsync(
     CancellationToken cancellationToken = default);
 ```
 
@@ -375,8 +375,8 @@ TTL: 300 seconds
 
 ### 修改文件
 1. `Services/WebSocket/McpSessionManager.cs` - 添加分布式锁和状态管理
-2. `Domain/AggregatesModel/XiaozhiConnectionAggregate/IXiaozhiConnectionRepository.cs` - 添加 GetEnabledServersAsync
-3. `Infrastructure/Repositories/XiaozhiConnectionRepository.cs` - 实现 GetEnabledServersAsync
+2. `Domain/AggregatesModel/XiaozhiMcpEndpointAggregate/IXiaozhiMcpEndpointRepository.cs` - 添加 GetEnabledServersAsync
+3. `Infrastructure/Repositories/XiaozhiMcpEndpointRepository.cs` - 实现 GetEnabledServersAsync
 4. `Extensions/Extensions.cs` - 注册新服务
 5. `appsettings.json` - 添加 Redis 和监控配置
 6. `appsettings.Development.json` - 开发环境配置

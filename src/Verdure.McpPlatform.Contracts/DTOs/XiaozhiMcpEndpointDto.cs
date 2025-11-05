@@ -3,7 +3,7 @@
 /// <summary>
 /// Data transfer object for MCP Server
 /// </summary>
-public record XiaozhiConnectionDto
+public record XiaozhiMcpEndpointDto
 {
     /// <summary>
     /// Unique identifier (Guid Version 7 as string)

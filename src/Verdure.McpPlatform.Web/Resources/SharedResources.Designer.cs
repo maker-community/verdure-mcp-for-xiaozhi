@@ -126,9 +126,9 @@ namespace Verdure.McpPlatform.Web.Resources {
         /// <summary>
         ///   查找类似 Add Xiaozhi Connection 的本地化字符串。
         /// </summary>
-        public static string AddXiaozhiConnection {
+        public static string AddXiaozhiMcpEndpoint {
             get {
-                return ResourceManager.GetString("AddXiaozhiConnection", resourceCulture);
+                return ResourceManager.GetString("AddXiaozhiMcpEndpoint", resourceCulture);
             }
         }
         
@@ -765,9 +765,9 @@ namespace Verdure.McpPlatform.Web.Resources {
         /// <summary>
         ///   查找类似 Xiaozhi Connections 的本地化字符串。
         /// </summary>
-        public static string XiaozhiConnections {
+        public static string XiaozhiMcpEndpoints {
             get {
-                return ResourceManager.GetString("XiaozhiConnections", resourceCulture);
+                return ResourceManager.GetString("XiaozhiMcpEndpoints", resourceCulture);
             }
         }
     }
