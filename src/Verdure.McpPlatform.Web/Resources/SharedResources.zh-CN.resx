@@ -1206,4 +1206,13 @@
   <data name="BindingsCount" xml:space="preserve">
     <value>{0} 个绑定</value>
   </data>
+  <data name="BindingRelationshipLocked" xml:space="preserve">
+    <value>绑定关系（连接 + 服务）不可更改。如需绑定到不同的连接或服务，请删除此绑定并创建新的绑定。</value>
+  </data>
+  <data name="MyService" xml:space="preserve">
+    <value>我的服务</value>
+  </data>
+  <data name="PublicService" xml:space="preserve">
+    <value>公开服务</value>
+  </data>
 </root>

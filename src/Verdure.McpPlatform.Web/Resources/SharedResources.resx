@@ -1176,4 +1176,13 @@
   <data name="BindingsCount" xml:space="preserve">
     <value>{0} bindings</value>
   </data>
+  <data name="BindingRelationshipLocked" xml:space="preserve">
+    <value>The binding relationship (Connection + Service) cannot be changed. To bind to a different connection or service, please delete this binding and create a new one.</value>
+  </data>
+  <data name="MyService" xml:space="preserve">
+    <value>My Service</value>
+  </data>
+  <data name="PublicService" xml:space="preserve">
+    <value>Public Service</value>
+  </data>
 </root>

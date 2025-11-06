@@ -39,33 +39,33 @@
         <MudCard Elevation="2">
             <MudCardContent>
                 <MudForm @ref="_form" @bind-IsValid="@_formValid">
-                    <MudSelect Value="_model.McpServiceConfigId" 
-                              ValueChanged="@OnMcpServiceChanged"
-                              Label="@Loc["SelectMcpService"]" 
-                              Variant="Variant.Outlined"
-                              Margin="Margin.Dense"
-                              HelperText="@Loc["SelectMcpServiceHelp"]"
-                              Class="mb-4"
-                              Required="true"
-                              RequiredError="@Loc["SelectMcpServiceRequired"]"
-                              T="string">
-                        @if (_myServices.Any())
-                        {
-                            <MudListSubheader>@Loc["MyServices"]</MudListSubheader>
-                            @foreach (var service in _myServices)
-                            {
-                                <MudSelectItem Value="@service.Id">@service.Name</MudSelectItem>
-                            }
-                        }
-                        @if (_publicServices.Any())
-                        {
-                            <MudListSubheader>@Loc["PublicServices"]</MudListSubheader>
-                            @foreach (var service in _publicServices)
-                            {
-                                <MudSelectItem Value="@service.Id">@service.Name (@Loc["Public"])</MudSelectItem>
-                            }
-                        }
-                    </MudSelect>
+                    <!-- 绑定关系：只读显示 -->
+                    <MudAlert Severity="Severity.Info" Class="mb-4" Variant="Variant.Outlined">
+                        <MudText Typo="Typo.body2">
+                            @Loc["BindingRelationshipLocked"]
+                        </MudText>
+                    </MudAlert>
+
+                    <MudTextField Value="@_existingBinding?.ConnectionName"
+                                 Label="@Loc["XiaozhiConnection"]"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 ReadOnly="true"
+                                 Class="mb-4"
+                                 Adornment="Adornment.Start"
+                                 AdornmentIcon="@Icons.Material.Filled.Link" />
+
+                    <MudTextField Value="@_existingBinding?.ServiceName"
+                                 Label="@Loc["McpService"]"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 ReadOnly="true"
+                                 Class="mb-4"
+                                 Adornment="Adornment.Start"
+                                 AdornmentIcon="@Icons.Material.Filled.Extension"
+                                 HelperText="@(_selectedService?.IsPublic == true ? Loc["PublicService"] : Loc["MyService"])" />
+
+                    <MudDivider Class="my-4" />
 
                     @if (!string.IsNullOrEmpty(_model.McpServiceConfigId))
                     {
@@ -201,72 +201,16 @@
     private bool _formValid;
     private bool _saving;
     private McpServiceBindingDto? _existingBinding;
-    private List<XiaozhiMcpEndpointDto> _servers = new();
-    private List<McpServiceConfigDto> _myServices = new();
-    private List<McpServiceConfigDto> _publicServices = new();
     private List<McpToolDto> _availableTools = new();
     private HashSet<string> _selectedTools = new();
     private bool _loadingTools = false;
     private McpServiceConfigDto? _selectedService;
-    private string? _lastLoadedServiceId;  // Track which service's tools are currently loaded
     
     private BindingFormModel _model = new();
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadServersAsync();
-        await LoadMcpServicesAsync();
         await LoadBindingAsync();
-    }
-
-    private async Task LoadServersAsync()
-    {
-        try
-        {
-            var servers = await ServerService.GetServersAsync();
-            _servers = servers.ToList();
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"Error loading connections: {ex.Message}", Severity.Error);
-        }
-    }
-
-    private async Task LoadMcpServicesAsync()
-    {
-        try
-        {
-            var myServices = await McpServiceConfigService.GetServicesAsync();
-            _myServices = myServices.ToList();
-            
-            var publicServices = await McpServiceConfigService.GetPublicServicesAsync();
-            _publicServices = publicServices.ToList();
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"Error loading MCP services: {ex.Message}", Severity.Error);
-        }
-    }
-
-    private async Task OnMcpServiceChanged(string? serviceId)
-    {
-        _model.McpServiceConfigId = serviceId;
-        
-        if (string.IsNullOrEmpty(serviceId))
-        {
-            _selectedService = null;
-            _availableTools.Clear();
-            _selectedTools.Clear();
-            return;
-        }
-
-        // Find the selected service from both lists
-        _selectedService = _myServices.FirstOrDefault(s => s.Id == serviceId) 
-                          ?? _publicServices.FirstOrDefault(s => s.Id == serviceId);
-
-        // Service name and endpoint are now directly from McpServiceConfig, no need to store in model
-
-        await LoadToolsForSelectedService();
     }
 
     private async Task LoadToolsForSelectedService()
@@ -275,7 +219,6 @@
         {
             _availableTools.Clear();
             _selectedTools.Clear();
-            _lastLoadedServiceId = null;
             Console.WriteLine("[DEBUG] LoadTools: Service cleared");
             return;
         }
@@ -294,15 +237,6 @@
                 _selectedTools = _existingBinding.SelectedToolNames.ToHashSet();
                 Console.WriteLine($"[DEBUG] LoadTools: Restored {_selectedTools.Count} tools from existing binding");
             }
-            else if (_lastLoadedServiceId != null && _lastLoadedServiceId != _model.McpServiceConfigId)
-            {
-                // Service changed: clear previous selections
-                _selectedTools.Clear();
-                Console.WriteLine($"[DEBUG] LoadTools: Service changed from {_lastLoadedServiceId} to {_model.McpServiceConfigId}");
-            }
-            
-            // Remember which service we loaded
-            _lastLoadedServiceId = _model.McpServiceConfigId;
         }
         catch (Exception ex)
         {
@@ -344,11 +278,15 @@
                 _model.Description = _existingBinding.Description ?? string.Empty;
                 _model.McpServiceConfigId = _existingBinding.McpServiceConfigId;
                 
-                // Load selected service and tools
+                // Load service details from the binding
+                if (_existingBinding.McpServiceConfig != null)
+                {
+                    _selectedService = _existingBinding.McpServiceConfig;
+                }
+                
+                // Load tools for this service
                 if (!string.IsNullOrEmpty(_model.McpServiceConfigId))
                 {
-                    _selectedService = _myServices.FirstOrDefault(s => s.Id == _model.McpServiceConfigId) 
-                                      ?? _publicServices.FirstOrDefault(s => s.Id == _model.McpServiceConfigId);
                     await LoadToolsForSelectedService();
                 }
             }
