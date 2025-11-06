@@ -62,10 +62,17 @@
                                  ReadOnly="true"
                                  Class="mb-4"
                                  Adornment="Adornment.Start"
-                                 AdornmentIcon="@Icons.Material.Filled.Extension"
-                                 HelperText="@(_selectedService?.IsPublic == true ? Loc["PublicService"] : Loc["MyService"])" />
+                                 AdornmentIcon="@Icons.Material.Filled.Extension" />
 
                     <MudDivider Class="my-4" />
+
+                    <MudTextField @bind-Value="_model.Description" 
+                                 Label="@Loc["Description"]" 
+                                 Lines="3"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HelperText="@Loc["ServiceBindingDescriptionOptional"]"
+                                 Class="mb-4" />
 
                     @if (!string.IsNullOrEmpty(_model.McpServiceConfigId))
                     {
@@ -84,17 +91,19 @@
                                 @foreach (var tool in _availableTools)
                                 {
                                     var toolName = tool.Name; // Capture for closure
-                                    <MudCheckBox T="bool" 
-                                                Value="@_selectedTools.Contains(toolName)"
-                                                ValueChanged="@((bool isChecked) => ToggleTool(toolName, isChecked))"
-                                                Color="Color.Primary"
-                                                Dense="true">
-                                        <MudText Typo="Typo.body2">@tool.Name</MudText>
-                                        @if (!string.IsNullOrEmpty(tool.Description))
-                                        {
-                                            <MudText Typo="Typo.caption" Color="Color.Secondary">@tool.Description</MudText>
-                                        }
-                                    </MudCheckBox>
+                                    <div class="mb-3">
+                                        <MudCheckBox T="bool" 
+                                                    Value="@_selectedTools.Contains(toolName)"
+                                                    ValueChanged="@((bool isChecked) => ToggleTool(toolName, isChecked))"
+                                                    Color="Color.Primary"
+                                                    Dense="true">
+                                            <MudText Typo="Typo.body2">@tool.Name</MudText>
+                                            @if (!string.IsNullOrEmpty(tool.Description))
+                                            {
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">@tool.Description</MudText>
+                                            }
+                                        </MudCheckBox>
+                                    </div>
                                 }
                             </MudPaper>
                             <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-4">
@@ -106,24 +115,6 @@
                             <MudAlert Severity="Severity.Info" Class="mb-4">@Loc["NoToolsAvailable"]</MudAlert>
                         }
                     }
-
-                    @if (!string.IsNullOrEmpty(_model.McpServiceConfigId) && _selectedService != null)
-                    {
-                        <MudPaper Elevation="0" Outlined="true" Class="pa-3 mb-4">
-                            <MudText Typo="Typo.caption" Color="Color.Secondary">@Loc["SelectedServiceInfo"]</MudText>
-                            <MudText Typo="Typo.body2" Class="mt-1"><strong>@Loc["ServiceName"]:</strong> @_selectedService.Name</MudText>
-                            <MudText Typo="Typo.body2"><strong>@Loc["Endpoint"]:</strong> @_selectedService.Endpoint</MudText>
-                            <MudText Typo="Typo.body2"><strong>@Loc["Protocol"]:</strong> @(_selectedService.Protocol ?? "http")</MudText>
-                        </MudPaper>
-                    }
-
-                    <MudTextField @bind-Value="_model.Description" 
-                                 Label="@Loc["Description"]" 
-                                 Lines="3"
-                                 Variant="Variant.Outlined"
-                                 Margin="Margin.Dense"
-                                 HelperText="@Loc["ServiceBindingDescriptionOptional"]"
-                                 Class="mb-4" />
                 </MudForm>
             </MudCardContent>
             <MudCardActions>
@@ -204,7 +195,6 @@
     private List<McpToolDto> _availableTools = new();
     private HashSet<string> _selectedTools = new();
     private bool _loadingTools = false;
-    private McpServiceConfigDto? _selectedService;
     
     private BindingFormModel _model = new();
 
@@ -277,12 +267,6 @@
             {
                 _model.Description = _existingBinding.Description ?? string.Empty;
                 _model.McpServiceConfigId = _existingBinding.McpServiceConfigId;
-                
-                // Load service details from the binding
-                if (_existingBinding.McpServiceConfig != null)
-                {
-                    _selectedService = _existingBinding.McpServiceConfig;
-                }
                 
                 // Load tools for this service
                 if (!string.IsNullOrEmpty(_model.McpServiceConfigId))

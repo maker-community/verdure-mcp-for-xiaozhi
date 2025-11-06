@@ -22,17 +22,9 @@ public record McpServiceBindingDto
     /// </summary>
     public string McpServiceConfigId { get; init; } = string.Empty;
     /// <summary>
-    /// MCP Service Configuration details (populated from McpServiceConfig)
-    /// </summary>
-    public McpServiceConfigDto? McpServiceConfig { get; init; }
-    /// <summary>
     /// Service name (from McpServiceConfig for convenience)
     /// </summary>
     public string ServiceName { get; init; } = string.Empty;
-    /// <summary>
-    /// Service endpoint (from McpServiceConfig for convenience)
-    /// </summary>
-    public string NodeAddress { get; init; } = string.Empty;
     public string? Description { get; init; }
     public bool IsActive { get; init; }
     public List<string> SelectedToolNames { get; init; } = new();

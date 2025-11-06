@@ -208,38 +208,12 @@ public class McpServiceBindingService : IMcpServiceBindingService
             XiaozhiMcpEndpointId = binding.XiaozhiMcpEndpointId,
             ConnectionName = endpoint?.Name ?? string.Empty,
             McpServiceConfigId = binding.McpServiceConfigId,
-            McpServiceConfig = config != null ? MapConfigToDto(config) : null,
             ServiceName = config?.Name ?? string.Empty,
-            NodeAddress = config?.Endpoint ?? string.Empty,
             Description = binding.Description,
             IsActive = binding.IsActive,
             SelectedToolNames = binding.SelectedToolNames.ToList(),
             CreatedAt = binding.CreatedAt,
             UpdatedAt = binding.UpdatedAt
-        };
-    }
-
-    private static McpServiceConfigDto MapConfigToDto(McpServiceConfig config)
-    {
-        return new McpServiceConfigDto
-        {
-            Id = config.Id,
-            Name = config.Name,
-            Endpoint = config.Endpoint,
-            UserId = config.UserId,
-            Description = config.Description,
-            IsPublic = config.IsPublic,
-            AuthenticationType = config.AuthenticationType,
-            Protocol = config.Protocol,
-            CreatedAt = config.CreatedAt,
-            UpdatedAt = config.UpdatedAt,
-            LastSyncedAt = config.LastSyncedAt,
-            Tools = config.Tools.Select(t => new McpToolDto
-            {
-                Name = t.Name,
-                Description = t.Description,
-                InputSchema = t.InputSchema
-            }).ToList()
         };
     }
 }

@@ -196,7 +196,6 @@ public class XiaozhiMcpEndpointService : IXiaozhiMcpEndpointService
                 ConnectionName = connectionName,
                 McpServiceConfigId = binding.McpServiceConfigId,
                 ServiceName = config?.Name ?? string.Empty,
-                NodeAddress = config?.Endpoint ?? string.Empty,
                 Description = binding.Description,
                 IsActive = binding.IsActive,
                 SelectedToolNames = binding.SelectedToolNames.ToList(),
