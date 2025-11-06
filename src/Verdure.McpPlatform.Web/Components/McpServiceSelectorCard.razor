@@ -1,0 +1,166 @@
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Contracts.DTOs
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudCard Elevation="2" 
+         Class="@($"service-selector-card m3-card-elevated {(IsSelected ? "selected" : "")}")" 
+         Style="@GetCardStyle()"
+         @onclick="@(() => OnSelect.InvokeAsync())">
+    
+    <!-- Header with Logo and Type -->
+    <MudCardHeader Style="@GetHeaderStyle()">
+        <CardHeaderContent>
+            <div class="d-flex align-center justify-space-between" style="width: 100%;">
+                <div class="d-flex align-center" style="gap: 12px; flex: 1; min-width: 0;">
+                    <!-- Logo/Icon -->
+                    <div style="position: relative;">
+                        <MudAvatar Size="Size.Medium" 
+                                   Color="@(IsSelected ? Color.Primary : Color.Default)"
+                                   Style="@GetAvatarStyle()">
+                            @if (!string.IsNullOrEmpty(Service.LogoUrl))
+                            {
+                                <MudImage Src="@Service.LogoUrl" Alt="@Service.Name" Style="width: 100%; height: 100%; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Settings" />
+                            }
+                        </MudAvatar>
+                        @if (Service.IsPublic)
+                        {
+                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #4CAF50; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);"></div>
+                        }
+                    </div>
+                    
+                    <!-- Service Name -->
+                    <div style="flex: 1; min-width: 0;">
+                        <MudText Typo="Typo.subtitle1" 
+                                 Style="font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1a1a1a;">
+                            @Service.Name
+                        </MudText>
+                        @if (Service.IsPublic)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                @Loc["PublicService"]
+                            </MudText>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Selection Indicator -->
+                @if (IsSelected)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" 
+                             Color="Color.Primary" 
+                             Style="flex-shrink: 0;" />
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Outlined.RadioButtonUnchecked" 
+                             Color="Color.Default" 
+                             Style="flex-shrink: 0; opacity: 0.5;" />
+                }
+            </div>
+        </CardHeaderContent>
+    </MudCardHeader>
+    
+    <!-- Card Content -->
+    <MudCardContent Style="flex-grow: 1; padding: 16px;">
+        <!-- Description -->
+        @if (!string.IsNullOrWhiteSpace(Service.Description))
+        {
+            <MudText Typo="Typo.body2" 
+                     Color="Color.Secondary" 
+                     Class="mb-3" 
+                     Style="line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 40px;">
+                @Service.Description
+            </MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.body2" 
+                     Color="Color.Secondary" 
+                     Class="mb-3" 
+                     Style="font-style: italic; opacity: 0.6; min-height: 40px;">
+                @Loc["NoDescription"]
+            </MudText>
+        }
+        
+        <!-- Info Pills -->
+        <div class="d-flex flex-wrap align-center" style="gap: 6px;">
+            <!-- Protocol -->
+            <MudChip T="string" 
+                     Size="Size.Small" 
+                     Variant="Variant.Text"
+                     Style="background: rgba(25, 118, 210, 0.08); color: #1976D2; font-size: 11px; height: 24px; border-radius: 12px;"
+                     Icon="@Icons.Material.Filled.Code">
+                @(Service.Protocol ?? "stdio")
+            </MudChip>
+            
+            <!-- Tools Count -->
+            <MudChip T="string" 
+                     Size="Size.Small" 
+                     Variant="Variant.Text"
+                     Style="background: rgba(25, 118, 210, 0.08); color: #1976D2; font-size: 11px; height: 24px; border-radius: 12px;"
+                     Icon="@Icons.Material.Filled.Build">
+                @string.Format(Loc["ToolsCount"], Service.Tools?.Count ?? 0)
+            </MudChip>
+        </div>
+    </MudCardContent>
+</MudCard>
+
+<style>
+    .service-selector-card {
+        cursor: pointer;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+    }
+    
+    .service-selector-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    }
+    
+    .service-selector-card.selected {
+        border-color: #1976D2;
+        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3) !important;
+    }
+</style>
+
+@code {
+    [Parameter, EditorRequired]
+    public McpServiceConfigDto Service { get; set; } = null!;
+    
+    [Parameter]
+    public bool IsSelected { get; set; }
+    
+    [Parameter]
+    public EventCallback OnSelect { get; set; }
+    
+    private string GetCardStyle()
+    {
+        return IsSelected
+            ? "height: 100%; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden;"
+            : "height: 100%; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden;";
+    }
+    
+    private string GetHeaderStyle()
+    {
+        return IsSelected
+            ? "background: linear-gradient(135deg, rgba(25, 118, 210, 0.15) 0%, rgba(25, 118, 210, 0.08) 100%); padding: 16px;"
+            : "background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%); padding: 16px;";
+    }
+    
+    private string GetAvatarStyle()
+    {
+        return IsSelected
+            ? "background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); color: white;"
+            : "background: #E3F2FD; color: #1976D2;";
+    }
+}

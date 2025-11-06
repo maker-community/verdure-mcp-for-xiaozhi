@@ -4,6 +4,7 @@
 @attribute [Authorize]
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
+@using Microsoft.AspNetCore.Components.Web.Virtualization
 @inject IMcpServiceBindingClientService BindingService
 @inject IXiaozhiMcpEndpointClientService ServerService
 @inject ISnackbar Snackbar
@@ -25,12 +26,19 @@
                             @(!string.IsNullOrEmpty(_connectionId) ? string.Format(Loc["ServicesFor"], _serverName) : Loc["McpServiceBindings"])
                         </MudText>
                         <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
-                            @(!string.IsNullOrEmpty(_connectionId) ? Loc["ManageServicesForConnection"] : Loc["ConfigureExternalServices"])
+                            @if (_totalCount > 0)
+                            {
+                                <span>@string.Format(Loc["TotalServiceBindings"], _totalCount)</span>
+                            }
+                            else
+                            {
+                                <span>@(!string.IsNullOrEmpty(_connectionId) ? Loc["ManageServicesForConnection"] : Loc["ConfigureExternalServices"])</span>
+                            }
                         </MudText>
                     </div>
                     <MudButton Href="@(!string.IsNullOrEmpty(_connectionId) ? $"/service-bindings/create?connectionId={_connectionId}" : "/service-bindings/create")" 
                               Variant="Variant.Filled" 
-                              Style="background: #FFFFFF; color: #0097A7;"
+                              Style="background: #FFFFFF; color: #1976D2;"
                               StartIcon="@Icons.Material.Filled.Add"
                               Size="Size.Large"
                               Class="m3-button-lg">
@@ -52,112 +60,111 @@
         </MudItem>
     }
 
+    <!-- Search and Filters -->
     <MudItem xs="12">
-        <MudCard Elevation="2">
-            <MudCardContent>
-                <MudTable Items="@_serviceBindings" 
-                         Loading="@_loading" 
-                         Hover="true" 
-                         Breakpoint="Breakpoint.Sm"
-                         Dense="true">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h6" Style="font-weight: 500;">@Loc["ExternalMcpServices"]</MudText>
-                        <MudSpacer />
-                        <MudTextField @bind-Value="_searchString" 
-                                     Placeholder="@Loc["SearchServices"]" 
-                                     Adornment="Adornment.Start" 
-                                     AdornmentIcon="@Icons.Material.Outlined.Search" 
-                                     IconSize="Size.Medium" 
-                                     Variant="Variant.Outlined"
-                                     Margin="Margin.Dense"
-                                     Class="mt-0"
-                                     Style="max-width: 300px;"
-                                     Immediate="true"></MudTextField>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>@Loc["ServiceName"]</MudTh>
-                        <MudTh>@Loc["McpServiceEndpoint"]</MudTh>
-                        <MudTh>@Loc["Status"]</MudTh>
-                        <MudTh>@Loc["CreatedAt"]</MudTh>
-                        <MudTh>@Loc["Actions"]</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        @if (string.IsNullOrWhiteSpace(_searchString) || 
-                             context.ServiceName.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
-                             context.NodeAddress.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-                        {
-                            <MudTd DataLabel="Service Name">
-                                <MudText Typo="Typo.body1" Style="font-weight: 500;">@context.ServiceName</MudText>
-                                @if (!string.IsNullOrWhiteSpace(context.Description))
-                                {
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Description</MudText>
-                                }
-                            </MudTd>
-                            <MudTd DataLabel="MCP Service Endpoint">
-                                <MudTooltip Text="@context.NodeAddress">
-                                    <MudText Typo="Typo.body2" Style="font-family: monospace; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        @context.NodeAddress
-                                    </MudText>
-                                </MudTooltip>
-                            </MudTd>
-                            <MudTd DataLabel="Status">
-                                @if (context.IsActive)
-                                {
-                                    <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle">
-                                        @Loc["Active"]
-                                    </MudChip>
-                                }
-                                else
-                                {
-                                    <MudChip T="string" Size="Size.Small" Color="Color.Default" Icon="@Icons.Material.Filled.PauseCircle">
-                                        @Loc["Inactive"]
-                                    </MudChip>
-                                }
-                            </MudTd>
-                            <MudTd DataLabel="Created">
-                                <MudText Typo="Typo.body2">@context.CreatedAt.ToString("MMM dd, yyyy")</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Actions">
-                                @if (context.IsActive)
-                                {
-                                    <MudIconButton Icon="@Icons.Material.Filled.Pause" 
-                                                 Size="Size.Small" 
-                                                 Color="Color.Warning"
-                                                 OnClick="@(() => DeactivateBinding(context))" 
-                                                 title="@Loc["Deactivate"]" />
-                                }
-                                else
-                                {
-                                    <MudIconButton Icon="@Icons.Material.Filled.PlayArrow" 
-                                                 Size="Size.Small" 
-                                                 Color="Color.Success"
-                                                 OnClick="@(() => ActivateBinding(context))" 
-                                                 title="@Loc["Activate"]" />
-                                }
-                                <MudIconButton Icon="@Icons.Material.Filled.Edit" 
-                                             Size="Size.Small" 
-                                             Color="Color.Primary"
-                                             OnClick="@(() => EditBinding(context.Id))" 
-                                             title="@Loc["Edit"]" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                                             Size="Size.Small" 
-                                             Color="Color.Error"
-                                             OnClick="@(() => DeleteBinding(context))" 
-                                             title="@Loc["Delete"]" />
-                            </MudTd>
-                        }
-                    </RowTemplate>
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudGrid>
+                <MudItem xs="12" sm="8">
+                    <MudTextField @bind-Value="_searchTerm"
+                                  Label="@Loc["Search"]"
+                                  Placeholder="@Loc["SearchServices"]"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search"
+                                  Immediate="true"
+                                  DebounceInterval="500"
+                                  OnDebounceIntervalElapsed="OnSearchChanged"
+                                  Clearable="true"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudSelect Value="_sortBy"
+                               Label="@Loc["SortBy"]"
+                               Variant="Variant.Outlined"
+                               T="string"
+                               ValueChanged="OnSortChanged">
+                        <MudSelectItem Value="@("CreatedAt")">@Loc["CreatedDate"]</MudSelectItem>
+                        <MudSelectItem Value="@("ServiceName")">@Loc["ServiceName"]</MudSelectItem>
+                        <MudSelectItem Value="@("Status")">@Loc["Status"]</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Cards Container with Virtualization -->
+    <MudItem xs="12">
+        <div style="height: calc(100vh - 400px); overflow-y: auto; overflow-x: hidden;">
+            <!-- Virtualized Cards Grid -->
+            <MudGrid Spacing="3" Class="px-4 py-2">
+                <MudVirtualize @ref="_virtualizeComponent"
+                              Enabled="true"
+                              ItemsProvider="@LoadBindingsVirtualized"
+                              OverscanCount="4"
+                              Context="binding">
+                    <ChildContent>
+                        <MudItem xs="12" sm="6" md="4" lg="3">
+                            <McpServiceBindingCard Binding="@binding"
+                                                   OnEdit="@(() => EditBinding(binding.Id))"
+                                                   OnDelete="@(() => DeleteBinding(binding))"
+                                                   OnActivate="@(() => ActivateBinding(binding))"
+                                                   OnDeactivate="@(() => DeactivateBinding(binding))" />
+                        </MudItem>
+                    </ChildContent>
+                    <Placeholder>
+                        <!-- Loading Skeleton -->
+                        <MudItem xs="12" sm="6" md="4" lg="3">
+                            <MudCard Style="height: 280px;" Elevation="2">
+                                <MudCardContent>
+                                    <MudSkeleton SkeletonType="SkeletonType.Circle" Width="40px" Height="40px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="30px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" Width="60%" />
+                                </MudCardContent>
+                            </MudCard>
+                        </MudItem>
+                    </Placeholder>
                     <NoRecordsContent>
-                        <MudAlert Severity="Severity.Info" Class="my-4">
-                            @Loc["NoServicesFound"]
-                        </MudAlert>
+                        <!-- No Data State -->
+                        <MudItem xs="12">
+                            <MudPaper Class="pa-8 d-flex flex-column align-center justify-center" Style="min-height: 400px;" Elevation="0">
+                                <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
+                                         Style="font-size: 120px;" 
+                                         Color="Color.Default" 
+                                         Class="mb-4" />
+                                <MudText Typo="Typo.h5" Class="mb-2">
+                                    @(string.IsNullOrWhiteSpace(_searchTerm) 
+                                        ? Loc["NoServiceBindingsYet"]
+                                        : Loc["NoServicesFound"])
+                                </MudText>
+                                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+                                    @(string.IsNullOrWhiteSpace(_searchTerm) 
+                                        ? Loc["CreateFirstBinding"]
+                                        : string.Format(Loc["NoMatchingBindings"], _searchTerm))
+                                </MudText>
+                                @if (string.IsNullOrWhiteSpace(_searchTerm))
+                                {
+                                    <MudButton Variant="Variant.Filled"
+                                               Color="Color.Primary"
+                                               StartIcon="@Icons.Material.Filled.Add"
+                                               Href="@(!string.IsNullOrEmpty(_connectionId) ? $"/service-bindings/create?connectionId={_connectionId}" : "/service-bindings/create")">
+                                        @Loc["CreateFirstBinding"]
+                                    </MudButton>
+                                }
+                                else
+                                {
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Primary"
+                                               StartIcon="@Icons.Material.Filled.Clear"
+                                               OnClick="ClearSearch">
+                                        @Loc["ClearSearch"]
+                                    </MudButton>
+                                }
+                            </MudPaper>
+                        </MudItem>
                     </NoRecordsContent>
-                    <LoadingContent>
-                        <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
-                    </LoadingContent>
-                </MudTable>
-            </MudCardContent>
-        </MudCard>
+                </MudVirtualize>
+            </MudGrid>
+        </div>
     </MudItem>
 </MudGrid>
 
@@ -165,51 +172,128 @@
     [Parameter]
     public string? ConnectionId { get; set; }
 
-    private List<McpServiceBindingDto> _serviceBindings = new();
-    private bool _loading = true;
-    private string _searchString = "";
+    // UI state
+    private string _searchTerm = "";
+    private string _sortBy = "CreatedAt";
+    private string _sortOrder = "desc";
+    private int _totalCount = 0;
     private string _serverName = string.Empty;
     private string? _connectionId => ConnectionId;
 
+    // Virtualization
+    private MudVirtualize<McpServiceBindingDto>? _virtualizeComponent;
+    private const int PageSize = 12;
+
     protected override async Task OnInitializedAsync()
     {
-        await LoadBindingsAsync();
-    }
-
-    private async Task LoadBindingsAsync()
-    {
-        try
+        // Load server name if viewing specific connection
+        if (!string.IsNullOrEmpty(_connectionId))
         {
-            _loading = true;
-            
-            if (!string.IsNullOrEmpty(_connectionId))
+            try
             {
                 var server = await ServerService.GetServerAsync(_connectionId);
                 if (server != null)
                 {
                     _serverName = server.Name;
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading server: {ex.Message}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// MudVirtualize 的数据提供函数
+    /// </summary>
+    private async ValueTask<ItemsProviderResult<McpServiceBindingDto>> LoadBindingsVirtualized(
+        ItemsProviderRequest request)
+    {
+        try
+        {
+            List<McpServiceBindingDto> allBindings;
+            
+            if (!string.IsNullOrEmpty(_connectionId))
+            {
+                // Load bindings for specific connection
                 var bindings = await BindingService.GetBindingsByServerAsync(_connectionId);
-                _serviceBindings = bindings.ToList();
+                allBindings = bindings.ToList();
             }
             else
             {
+                // Load all bindings from all connections
                 var servers = await ServerService.GetServersAsync();
-                _serviceBindings = servers.SelectMany(s => s.ServiceBindings).ToList();
+                allBindings = servers.SelectMany(s => s.ServiceBindings).ToList();
             }
-        }
-        catch (HttpRequestException ex)
-        {
-            Snackbar.Add(string.Format(Loc["ErrorLoadingServices"], ex.Message), Severity.Error);
+
+            // Apply search filter
+            if (!string.IsNullOrWhiteSpace(_searchTerm))
+            {
+                allBindings = allBindings.Where(b =>
+                    b.ServiceName.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    (b.Description != null && b.Description.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase))
+                ).ToList();
+            }
+
+            // Apply sorting
+            allBindings = _sortBy switch
+            {
+                "ServiceName" => _sortOrder == "asc" 
+                    ? allBindings.OrderBy(b => b.ServiceName).ToList()
+                    : allBindings.OrderByDescending(b => b.ServiceName).ToList(),
+                "Status" => _sortOrder == "asc"
+                    ? allBindings.OrderBy(b => b.IsActive).ToList()
+                    : allBindings.OrderByDescending(b => b.IsActive).ToList(),
+                _ => _sortOrder == "asc"
+                    ? allBindings.OrderBy(b => b.CreatedAt).ToList()
+                    : allBindings.OrderByDescending(b => b.CreatedAt).ToList()
+            };
+
+            _totalCount = allBindings.Count;
+
+            // Return paginated results
+            var items = allBindings
+                .Skip(request.StartIndex)
+                .Take(request.Count)
+                .ToList();
+
+            return new ItemsProviderResult<McpServiceBindingDto>(items, _totalCount);
         }
         catch (Exception ex)
         {
-            Snackbar.Add(string.Format(Loc["UnexpectedError"], ex.Message), Severity.Error);
+            Console.WriteLine($"❌ Error loading bindings: {ex.Message}");
+            Snackbar.Add(string.Format(Loc["ErrorLoadingServices"], ex.Message), Severity.Error);
+            return new ItemsProviderResult<McpServiceBindingDto>([], 0);
         }
-        finally
+    }
+
+    private async Task OnSearchChanged()
+    {
+        Console.WriteLine($"🔍 Search changed: '{_searchTerm}'");
+        await RefreshData();
+    }
+
+    private async Task OnSortChanged(string newSortBy)
+    {
+        Console.WriteLine($"📊 Sort changed: {_sortBy} → {newSortBy}");
+        _sortBy = newSortBy;
+        await RefreshData();
+    }
+
+    private async Task RefreshData()
+    {
+        if (_virtualizeComponent != null)
         {
-            _loading = false;
+            await _virtualizeComponent.RefreshDataAsync();
         }
+        StateHasChanged();
+    }
+
+    private void ClearSearch()
+    {
+        _searchTerm = "";
+        _ = RefreshData();
     }
 
     private void EditBinding(string id)
@@ -222,9 +306,8 @@
         try
         {
             await BindingService.ActivateBindingAsync(binding.Id);
-            binding = binding with { IsActive = true };
             Snackbar.Add(string.Format(Loc["ServiceActivated2"], binding.ServiceName), Severity.Success);
-            await LoadBindingsAsync();
+            await RefreshData();
         }
         catch (Exception ex)
         {
@@ -237,9 +320,8 @@
         try
         {
             await BindingService.DeactivateBindingAsync(binding.Id);
-            binding = binding with { IsActive = false };
             Snackbar.Add(string.Format(Loc["ServiceDeactivated2"], binding.ServiceName), Severity.Success);
-            await LoadBindingsAsync();
+            await RefreshData();
         }
         catch (Exception ex)
         {
@@ -265,8 +347,9 @@
             try
             {
                 await BindingService.DeleteBindingAsync(binding.Id);
-                _serviceBindings.Remove(binding);
+                _totalCount--;
                 Snackbar.Add(string.Format(Loc["ServiceDeletedSuccess"], binding.ServiceName), Severity.Success);
+                await RefreshData();
             }
             catch (Exception ex)
             {

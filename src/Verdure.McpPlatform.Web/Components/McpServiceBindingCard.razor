@@ -1,0 +1,238 @@
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Contracts.DTOs
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudCard Elevation="2" 
+         Class="service-binding-card m3-card-elevated" 
+         Style="height: 100%; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+    
+    <!-- Header with Service Info -->
+    <MudCardHeader Style="background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%); padding: 16px;">
+        <CardHeaderContent>
+            <div class="d-flex align-center justify-space-between" style="width: 100%;">
+                <div class="d-flex align-center" style="gap: 12px; flex: 1; min-width: 0;">
+                    <!-- Service Icon -->
+                    <div style="position: relative;">
+                        <MudIcon Icon="@Icons.Material.Outlined.Extension" 
+                                 Size="Size.Medium" 
+                                 Color="Color.Primary" />
+                        @if (Binding.IsActive)
+                        {
+                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #4CAF50; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);"></div>
+                        }
+                    </div>
+                    
+                    <div style="flex: 1; min-width: 0;">
+                        <!-- Connection Name → Service Name -->
+                        <div class="d-flex align-center" style="gap: 8px; margin-bottom: 4px;">
+                            <MudText Typo="Typo.body2" 
+                                     Style="color: #757575; font-weight: 500; white-space: nowrap;">
+                                @Binding.ConnectionName
+                            </MudText>
+                            <MudIcon Icon="@Icons.Material.Filled.ArrowForward" 
+                                     Size="Size.Small" 
+                                     Style="color: #BDBDBD; font-size: 16px;" />
+                        </div>
+                        
+                        <!-- Service Name -->
+                        <MudText Typo="Typo.h6" 
+                                 Style="font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1a1a1a;">
+                            @Binding.ServiceName
+                        </MudText>
+                    </div>
+                </div>
+                
+                <!-- Actions Menu -->
+                <MudMenu Icon="@Icons.Material.Filled.MoreVert" 
+                         Size="Size.Small" 
+                         AnchorOrigin="Origin.BottomRight"
+                         Style="flex-shrink: 0;">
+                    <MudMenuItem Icon="@Icons.Material.Outlined.Edit" OnClick="@OnEdit">
+                        @Loc["Edit"]
+                    </MudMenuItem>
+                    @if (Binding.IsActive)
+                    {
+                        <MudMenuItem Icon="@Icons.Material.Outlined.PauseCircle" OnClick="@OnDeactivate">
+                            @Loc["Deactivate"]
+                        </MudMenuItem>
+                    }
+                    else
+                    {
+                        <MudMenuItem Icon="@Icons.Material.Outlined.PlayArrow" OnClick="@OnActivate">
+                            @Loc["Activate"]
+                        </MudMenuItem>
+                    }
+                    <MudDivider />
+                    <MudMenuItem Icon="@Icons.Material.Outlined.Delete" 
+                                 IconColor="Color.Error" 
+                                 OnClick="@OnDelete">
+                        @Loc["Delete"]
+                    </MudMenuItem>
+                </MudMenu>
+            </div>
+        </CardHeaderContent>
+    </MudCardHeader>
+    
+    <!-- Card Content -->
+    <MudCardContent Style="flex-grow: 1; padding: 20px;">
+        <!-- Description -->
+        @if (!string.IsNullOrWhiteSpace(Binding.Description))
+        {
+            <MudText Typo="Typo.body2" 
+                     Color="Color.Secondary" 
+                     Class="mb-4" 
+                     Style="line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 44px;">
+                @Binding.Description
+            </MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.body2" 
+                     Color="Color.Secondary" 
+                     Class="mb-4" 
+                     Style="font-style: italic; opacity: 0.6; min-height: 44px;">
+                @Loc["NoDescription"]
+            </MudText>
+        }
+        
+        <!-- Status and Tools Count Pills -->
+        <div class="d-flex flex-wrap align-center mb-3" style="gap: 8px;">
+            <!-- Status -->
+            @if (Binding.IsActive)
+            {
+                <MudChip T="string" 
+                         Size="Size.Small" 
+                         Variant="Variant.Filled"
+                         Style="background: #E8F5E9; color: #2E7D32; font-weight: 500; border-radius: 16px;"
+                         Icon="@Icons.Material.Filled.CheckCircle">
+                    @Loc["Active"]
+                </MudChip>
+            }
+            else
+            {
+                <MudChip T="string" 
+                         Size="Size.Small" 
+                         Variant="Variant.Outlined"
+                         Style="border-color: #BDBDBD; color: #757575; font-weight: 500; border-radius: 16px;"
+                         Icon="@Icons.Material.Filled.PauseCircle">
+                    @Loc["Inactive"]
+                </MudChip>
+            }
+            
+            <!-- Tools Count -->
+            <MudChip T="string" 
+                     Size="Size.Small" 
+                     Variant="Variant.Outlined"
+                     Style="border-color: #1976D2; color: #1976D2; font-weight: 500; border-radius: 16px;"
+                     Icon="@Icons.Material.Filled.Build">
+                @string.Format(Loc["ToolsCount"], Binding.SelectedToolNames.Count)
+            </MudChip>
+        </div>
+        
+        <!-- Selected Tools - 显示前3个工具 -->
+        @if (Binding.SelectedToolNames.Any())
+        {
+            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-1">
+                @Loc["SelectedTools"]:
+            </MudText>
+            <div class="d-flex flex-wrap" style="gap: 4px; margin-bottom: 12px;">
+                @foreach (var tool in Binding.SelectedToolNames.Take(3))
+                {
+                    <MudChip T="string" 
+                             Size="Size.Small" 
+                             Variant="Variant.Text"
+                             Style="background: rgba(25, 118, 210, 0.08); color: #1976D2; font-size: 11px; height: 20px; border-radius: 10px;">
+                        @tool
+                    </MudChip>
+                }
+                @if (Binding.SelectedToolNames.Count > 3)
+                {
+                    <MudChip T="string" 
+                             Size="Size.Small" 
+                             Variant="Variant.Text"
+                             Style="background: rgba(25, 118, 210, 0.08); color: #1976D2; font-size: 11px; height: 20px; border-radius: 10px;">
+                        +@(Binding.SelectedToolNames.Count - 3)
+                    </MudChip>
+                }
+            </div>
+        }
+        
+        <!-- Metadata Footer -->
+        <div class="d-flex align-center" style="gap: 4px; margin-top: auto;">
+            <MudIcon Icon="@Icons.Material.Outlined.Schedule" 
+                     Size="Size.Small" 
+                     Style="color: #9E9E9E; font-size: 16px;" />
+            <MudText Typo="Typo.caption" 
+                     Style="color: #757575; font-weight: 400;">
+                @Binding.CreatedAt.ToString("MMM dd, yyyy")
+            </MudText>
+        </div>
+    </MudCardContent>
+    
+    <!-- Card Actions -->
+    <MudDivider Style="margin: 0;" />
+    <MudCardActions Style="padding: 12px 20px; background: rgba(0, 0, 0, 0.02);">
+        <div class="d-flex justify-space-between align-center" style="width: 100%;">
+            <!-- Quick Action Button -->
+            <div>
+                @if (Binding.IsActive)
+                {
+                    <MudButton Variant="Variant.Text" 
+                               Color="Color.Warning"
+                               StartIcon="@Icons.Material.Outlined.PauseCircle"
+                               Size="Size.Small"
+                               OnClick="@OnDeactivate"
+                               Style="text-transform: none; font-weight: 500; border-radius: 20px;">
+                        @Loc["Deactivate"]
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Text" 
+                               Color="Color.Success"
+                               StartIcon="@Icons.Material.Outlined.PlayArrow"
+                               Size="Size.Small"
+                               OnClick="@OnActivate"
+                               Style="text-transform: none; font-weight: 500; border-radius: 20px;">
+                        @Loc["Activate"]
+                    </MudButton>
+                }
+            </div>
+            
+            <!-- Primary Action Button -->
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       Size="Size.Small"
+                       OnClick="@OnEdit"
+                       EndIcon="@Icons.Material.Filled.Edit"
+                       Style="text-transform: none; font-weight: 600; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                @Loc["Edit"]
+            </MudButton>
+        </div>
+    </MudCardActions>
+</MudCard>
+
+<style>
+    .service-binding-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    }
+</style>
+
+@code {
+    [Parameter, EditorRequired]
+    public McpServiceBindingDto Binding { get; set; } = null!;
+    
+    [Parameter]
+    public EventCallback OnEdit { get; set; }
+    
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+    
+    [Parameter]
+    public EventCallback OnActivate { get; set; }
+    
+    [Parameter]
+    public EventCallback OnDeactivate { get; set; }
+}

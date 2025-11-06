@@ -1099,4 +1099,42 @@
   <data name="Error" xml:space="preserve">
     <value>Error</value>
   </data>
+  
+  <!-- New Service Bindings UI Resources -->
+  <data name="TotalServiceBindings" xml:space="preserve">
+    <value>{0} total bindings</value>
+  </data>
+  <data name="NoServiceBindingsYet" xml:space="preserve">
+    <value>No service bindings yet</value>
+  </data>
+  <data name="CreateFirstBinding" xml:space="preserve">
+    <value>Create your first service binding to connect Xiaozhi endpoints with MCP services</value>
+  </data>
+  <data name="NoMatchingBindings" xml:space="preserve">
+    <value>No bindings found matching "{0}"</value>
+  </data>
+  <data name="PublicService" xml:space="preserve">
+    <value>Public Service</value>
+  </data>
+  <data name="SelectConnection" xml:space="preserve">
+    <value>Select Connection</value>
+  </data>
+  <data name="SelectService" xml:space="preserve">
+    <value>Select Service</value>
+  </data>
+  <data name="ConfigureTools" xml:space="preserve">
+    <value>Configure Tools</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="ClearSearch" xml:space="preserve">
+    <value>Clear Search</value>
+  </data>
+  <data name="SelectedTools" xml:space="preserve">
+    <value>Selected tools</value>
+  </data>
 </root>

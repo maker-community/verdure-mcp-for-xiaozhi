@@ -177,11 +177,13 @@ public class XiaozhiMcpEndpointService : IXiaozhiMcpEndpointService
             UpdatedAt = server.UpdatedAt,
             LastConnectedAt = server.LastConnectedAt,
             LastDisconnectedAt = server.LastDisconnectedAt,
-            ServiceBindings = await MapBindingsToDtoAsync(server.ServiceBindings)
+            ServiceBindings = await MapBindingsToDtoAsync(server.ServiceBindings, server.Name)
         };
     }
 
-    private async Task<List<McpServiceBindingDto>> MapBindingsToDtoAsync(IReadOnlyCollection<McpServiceBinding> bindings)
+    private async Task<List<McpServiceBindingDto>> MapBindingsToDtoAsync(
+        IReadOnlyCollection<McpServiceBinding> bindings, 
+        string connectionName)
     {
         var dtos = new List<McpServiceBindingDto>();
         foreach (var binding in bindings)
@@ -191,6 +193,7 @@ public class XiaozhiMcpEndpointService : IXiaozhiMcpEndpointService
             {
                 Id = binding.Id,
                 XiaozhiMcpEndpointId = binding.XiaozhiMcpEndpointId,
+                ConnectionName = connectionName,
                 McpServiceConfigId = binding.McpServiceConfigId,
                 ServiceName = config?.Name ?? string.Empty,
                 NodeAddress = config?.Endpoint ?? string.Empty,

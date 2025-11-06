@@ -193,12 +193,20 @@ public class McpServiceBindingService : IMcpServiceBindingService
 
     private async Task<McpServiceBindingDto> MapToDtoAsync(McpServiceBinding binding)
     {
-        var config = await _configRepository.GetByIdAsync(binding.McpServiceConfigId);
+        // Fetch both endpoint and config in parallel for better performance
+        var endpointTask = _repository.GetAsync(binding.XiaozhiMcpEndpointId);
+        var configTask = _configRepository.GetByIdAsync(binding.McpServiceConfigId);
+        
+        await Task.WhenAll(endpointTask, configTask);
+        
+        var endpoint = await endpointTask;
+        var config = await configTask;
         
         return new McpServiceBindingDto
         {
             Id = binding.Id,
             XiaozhiMcpEndpointId = binding.XiaozhiMcpEndpointId,
+            ConnectionName = endpoint?.Name ?? string.Empty,
             McpServiceConfigId = binding.McpServiceConfigId,
             McpServiceConfig = config != null ? MapConfigToDto(config) : null,
             ServiceName = config?.Name ?? string.Empty,

@@ -14,6 +14,10 @@ public record McpServiceBindingDto
     /// </summary>
     public string XiaozhiMcpEndpointId { get; init; } = string.Empty;
     /// <summary>
+    /// Xiaozhi connection name (from XiaozhiMcpEndpoint for convenience)
+    /// </summary>
+    public string ConnectionName { get; init; } = string.Empty;
+    /// <summary>
     /// Reference to McpServiceConfig (Guid Version 7 as string) - required
     /// </summary>
     public string McpServiceConfigId { get; init; } = string.Empty;
