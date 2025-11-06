@@ -1135,6 +1135,45 @@
     <value>Clear Search</value>
   </data>
   <data name="SelectedTools" xml:space="preserve">
-    <value>Selected tools</value>
+    <value>{0} tools selected</value>
+  </data>
+  <data name="ChooseXiaozhiConnection" xml:space="preserve">
+    <value>Choose Xiaozhi Connection</value>
+  </data>
+  <data name="SelectConnectionHelp" xml:space="preserve">
+    <value>Select the Xiaozhi connection endpoint to bind the MCP service to</value>
+  </data>
+  <data name="ChooseMcpService" xml:space="preserve">
+    <value>Choose MCP Service</value>
+  </data>
+  <data name="SelectMcpServiceHelp" xml:space="preserve">
+    <value>Select the MCP service to bind to the connection (can be a private or public service)</value>
+  </data>
+  <data name="BindingSummary" xml:space="preserve">
+    <value>Binding Summary</value>
+  </data>
+  <data name="SelectedToolsCount" xml:space="preserve">
+    <value>Selected Tools</value>
+  </data>
+  <data name="SearchTools" xml:space="preserve">
+    <value>Search Tools</value>
+  </data>
+  <data name="FilterToolsByName" xml:space="preserve">
+    <value>Filter tools by name or description</value>
+  </data>
+  <data name="ServiceBindingCreatedSuccess" xml:space="preserve">
+    <value>Service binding created successfully</value>
+  </data>
+  <data name="ErrorLoadingTools" xml:space="preserve">
+    <value>Error loading tools</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="ToolsCount" xml:space="preserve">
+    <value>{0} tools</value>
+  </data>
+  <data name="BindingsCount" xml:space="preserve">
+    <value>{0} bindings</value>
   </data>
 </root>

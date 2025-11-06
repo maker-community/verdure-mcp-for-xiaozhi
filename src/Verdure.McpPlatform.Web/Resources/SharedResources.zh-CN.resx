@@ -1165,6 +1165,45 @@
     <value>清除搜索</value>
   </data>
   <data name="SelectedTools" xml:space="preserve">
-    <value>已选工具</value>
+    <value>已选 {0} 个工具</value>
+  </data>
+  <data name="ChooseXiaozhiConnection" xml:space="preserve">
+    <value>选择小智连接</value>
+  </data>
+  <data name="SelectConnectionHelp" xml:space="preserve">
+    <value>选择要绑定 MCP 服务的小智连接端点</value>
+  </data>
+  <data name="ChooseMcpService" xml:space="preserve">
+    <value>选择 MCP 服务</value>
+  </data>
+  <data name="SelectMcpServiceHelp" xml:space="preserve">
+    <value>选择要绑定到连接的 MCP 服务（可以是私有服务或公开服务）</value>
+  </data>
+  <data name="BindingSummary" xml:space="preserve">
+    <value>绑定摘要</value>
+  </data>
+  <data name="SelectedToolsCount" xml:space="preserve">
+    <value>已选工具数量</value>
+  </data>
+  <data name="SearchTools" xml:space="preserve">
+    <value>搜索工具</value>
+  </data>
+  <data name="FilterToolsByName" xml:space="preserve">
+    <value>按名称或描述筛选工具</value>
+  </data>
+  <data name="ServiceBindingCreatedSuccess" xml:space="preserve">
+    <value>服务绑定创建成功</value>
+  </data>
+  <data name="ErrorLoadingTools" xml:space="preserve">
+    <value>加载工具时出错</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>当前</value>
+  </data>
+  <data name="ToolsCount" xml:space="preserve">
+    <value>{0} 个工具</value>
+  </data>
+  <data name="BindingsCount" xml:space="preserve">
+    <value>{0} 个绑定</value>
   </data>
 </root>

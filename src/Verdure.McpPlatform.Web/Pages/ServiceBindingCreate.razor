@@ -1,0 +1,794 @@
+@page "/service-bindings/create"
+@layout MainLayout
+@attribute [Authorize]
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@using Verdure.McpPlatform.Contracts.DTOs
+@using Verdure.McpPlatform.Contracts.Models
+@using Verdure.McpPlatform.Contracts.Requests
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Verdure.McpPlatform.Web.Services
+@inject IMcpServiceBindingClientService BindingService
+@inject IXiaozhiMcpEndpointClientService ServerService
+@inject IMcpServiceConfigClientService McpServiceConfigService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@Loc["CreateServiceBinding"] - @Loc["AppTitle"]</PageTitle>
+
+<MudGrid>
+    <!-- M3 Hero Banner - 统一蓝色渐变 -->
+    <MudItem xs="12">
+        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
+            <MudCardContent Class="pa-6">
+                <div class="d-flex align-center" Style="gap: 1rem;">
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" 
+                                  Style="color: #FFFFFF;"
+                                  OnClick="Cancel" 
+                                  Size="Size.Large" />
+                    <div>
+                        <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
+                            @Loc["CreateServiceBinding"]
+                        </MudText>
+                        <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85);">
+                            @Loc["ConfigureNewServiceBinding"]
+                        </MudText>
+                    </div>
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- Wizard Progress -->
+    <MudItem xs="12">
+        <MudCard Elevation="2">
+            <MudCardHeader Style="background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%);">
+                <CardHeaderContent>
+                    <div class="d-flex align-center justify-space-between" style="gap: 16px;">
+                        <!-- Step 1 -->
+                        <div class="d-flex align-center" style="gap: 8px; flex: 1;">
+                            <MudAvatar Size="Size.Medium" Color="@(_currentStep >= 0 ? Color.Primary : Color.Default)">
+                                @if (_currentStep > 0)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Check" />
+                                }
+                                else
+                                {
+                                    <span>1</span>
+                                }
+                            </MudAvatar>
+                            <div>
+                                <MudText Typo="Typo.body2" Style="@(_currentStep == 0 ? "font-weight: 600;" : "")">@Loc["SelectConnection"]</MudText>
+                                @if (_currentStep == 0)
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Primary">@Loc["Active"]</MudText>
+                                }
+                            </div>
+                        </div>
+                        
+                        <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Default" Style="opacity: 0.3;" />
+                        
+                        <!-- Step 2 -->
+                        <div class="d-flex align-center" style="gap: 8px; flex: 1;">
+                            <MudAvatar Size="Size.Medium" Color="@(_currentStep >= 1 ? Color.Primary : Color.Default)">
+                                @if (_currentStep > 1)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Check" />
+                                }
+                                else
+                                {
+                                    <span>2</span>
+                                }
+                            </MudAvatar>
+                            <div>
+                                <MudText Typo="Typo.body2" Style="@(_currentStep == 1 ? "font-weight: 600;" : "")">@Loc["SelectMcpService"]</MudText>
+                                @if (_currentStep == 1)
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Primary">@Loc["Active"]</MudText>
+                                }
+                            </div>
+                        </div>
+                        
+                        <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Default" Style="opacity: 0.3;" />
+                        
+                        <!-- Step 3 -->
+                        <div class="d-flex align-center" style="gap: 8px; flex: 1;">
+                            <MudAvatar Size="Size.Medium" Color="@(_currentStep >= 2 ? Color.Primary : Color.Default)">
+                                <span>3</span>
+                            </MudAvatar>
+                            <div>
+                                <MudText Typo="Typo.body2" Style="@(_currentStep == 2 ? "font-weight: 600;" : "")">@Loc["ConfigureTools"]</MudText>
+                                @if (_currentStep == 2)
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Primary">@Loc["Active"]</MudText>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </CardHeaderContent>
+            </MudCardHeader>
+
+            <MudCardContent Class="pa-6" Style="min-height: 500px;">
+                @* Step 1: Select Connection *@
+                @if (_currentStep == 0)
+                {
+                    <div>
+                        <MudText Typo="Typo.h6" Class="mb-4">@Loc["ChooseXiaozhiConnection"]</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                            @Loc["SelectConnectionHelp"]
+                        </MudText>
+
+                        <!-- Search and Sort -->
+                        <MudGrid Class="mb-4">
+                            <MudItem xs="12" sm="8">
+                                <MudTextField @bind-Value="_connectionSearchTerm"
+                                              Label="@Loc["Search"]"
+                                              Placeholder="@Loc["SearchConnections"]"
+                                              Adornment="Adornment.Start"
+                                              AdornmentIcon="@Icons.Material.Filled.Search"
+                                              Immediate="true"
+                                              DebounceInterval="500"
+                                              OnDebounceIntervalElapsed="OnConnectionSearchChanged"
+                                              Clearable="true"
+                                              Variant="Variant.Outlined" />
+                            </MudItem>
+                            <MudItem xs="12" sm="4">
+                                <MudSelect Value="_connectionSortBy"
+                                           Label="@Loc["SortBy"]"
+                                           Variant="Variant.Outlined"
+                                           T="string"
+                                           ValueChanged="OnConnectionSortChanged">
+                                    <MudSelectItem Value="@("Name")">@Loc["Name"]</MudSelectItem>
+                                    <MudSelectItem Value="@("CreatedAt")">@Loc["CreatedDate"]</MudSelectItem>
+                                    <MudSelectItem Value="@("Status")">@Loc["Status"]</MudSelectItem>
+                                </MudSelect>
+                            </MudItem>
+                        </MudGrid>
+
+                        <!-- Virtualized Connection Cards -->
+                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid #e0e0e0; border-radius: 8px;">
+                            <MudGrid Spacing="3" Class="pa-3">
+                                <MudVirtualize @ref="_connectionVirtualize"
+                                              Enabled="true"
+                                              ItemsProvider="@LoadConnectionsVirtualized"
+                                              OverscanCount="4"
+                                              Context="connection">
+                                    <ChildContent>
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <ConnectionSelectorCard Connection="@connection"
+                                                                   IsSelected="@(_selectedConnectionId == connection.Id)"
+                                                                   OnSelect="@(() => SelectConnection(connection.Id, connection.Name))" />
+                                        </MudItem>
+                                    </ChildContent>
+                                    <Placeholder>
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <MudCard Style="height: 200px;">
+                                                <MudCardContent>
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="30px" Class="mb-2" />
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" />
+                                                </MudCardContent>
+                                            </MudCard>
+                                        </MudItem>
+                                    </Placeholder>
+                                </MudVirtualize>
+                            </MudGrid>
+                        </div>
+                    </div>
+                }
+
+                @* Step 2: Select Service *@
+                @if (_currentStep == 1)
+                {
+                    <div>
+                        <MudText Typo="Typo.h6" Class="mb-4">@Loc["ChooseMcpService"]</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                            @Loc["SelectMcpServiceHelp"]
+                        </MudText>
+
+                        <!-- Tabs for My/Public Services -->
+                        <MudTabs Elevation="0" Rounded="true" 
+                                 @bind-ActivePanelIndex="_serviceTabIndex"
+                                 PanelClass="pa-0" Class="mb-4">
+                            <MudTabPanel Text="@Loc["MyServices"]" Icon="@Icons.Material.Filled.Person" />
+                            <MudTabPanel Text="@Loc["PublicServices"]" Icon="@Icons.Material.Filled.Public" />
+                        </MudTabs>
+
+                        <!-- Search and Sort -->
+                        <MudGrid Class="mb-4">
+                            <MudItem xs="12" sm="8">
+                                <MudTextField @bind-Value="_serviceSearchTerm"
+                                              Label="@Loc["Search"]"
+                                              Placeholder="@Loc["SearchMcpServices"]"
+                                              Adornment="Adornment.Start"
+                                              AdornmentIcon="@Icons.Material.Filled.Search"
+                                              Immediate="true"
+                                              DebounceInterval="500"
+                                              OnDebounceIntervalElapsed="OnServiceSearchChanged"
+                                              Clearable="true"
+                                              Variant="Variant.Outlined" />
+                            </MudItem>
+                            <MudItem xs="12" sm="4">
+                                <MudSelect Value="_serviceSortBy"
+                                           Label="@Loc["SortBy"]"
+                                           Variant="Variant.Outlined"
+                                           T="string"
+                                           ValueChanged="OnServiceSortChanged">
+                                    <MudSelectItem Value="@("Name")">@Loc["Name"]</MudSelectItem>
+                                    <MudSelectItem Value="@("CreatedAt")">@Loc["CreatedDate"]</MudSelectItem>
+                                </MudSelect>
+                            </MudItem>
+                        </MudGrid>
+
+                        <!-- Virtualized Service Cards -->
+                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid #e0e0e0; border-radius: 8px;">
+                            <MudGrid Spacing="3" Class="pa-3">
+                                <MudVirtualize @ref="_serviceVirtualize"
+                                              Enabled="true"
+                                              ItemsProvider="@LoadServicesVirtualized"
+                                              OverscanCount="4"
+                                              Context="service">
+                                    <ChildContent>
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <McpServiceSelectorCard Service="@service"
+                                                                   IsSelected="@(_selectedServiceId == service.Id)"
+                                                                   OnSelect="@(() => SelectService(service.Id, service.Name))" />
+                                        </MudItem>
+                                    </ChildContent>
+                                    <Placeholder>
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <MudCard Style="height: 200px;">
+                                                <MudCardContent>
+                                                    <MudSkeleton SkeletonType="SkeletonType.Circle" Width="40px" Height="40px" Class="mb-2" />
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="30px" Class="mb-2" />
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" />
+                                                </MudCardContent>
+                                            </MudCard>
+                                        </MudItem>
+                                    </Placeholder>
+                                </MudVirtualize>
+                            </MudGrid>
+                        </div>
+                    </div>
+                }
+
+                @* Step 3: Configure Tools *@
+                @if (_currentStep == 2)
+                {
+                    <div>
+                        <MudText Typo="Typo.h6" Class="mb-4">@Loc["SelectTools"]</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                            @Loc["SelectToolsHelp"]
+                        </MudText>
+
+                        @if (_loadingTools)
+                        {
+                            <div class="d-flex flex-column align-center justify-center pa-8">
+                                <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-4">@Loc["LoadingTools"]</MudText>
+                            </div>
+                        }
+                        else if (_availableTools.Any())
+                        {
+                            <!-- Tool Selection with Search -->
+                            <MudTextField @bind-Value="_toolSearchTerm"
+                                          Label="@Loc["SearchTools"]"
+                                          Placeholder="@Loc["FilterToolsByName"]"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          Clearable="true"
+                                          Variant="Variant.Outlined"
+                                          Class="mb-4" />
+
+                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px;">
+                                @foreach (var tool in GetFilteredTools())
+                                {
+                                    var toolName = tool.Name;
+                                    <MudCheckBox T="bool" 
+                                                Value="@_selectedTools.Contains(toolName)"
+                                                ValueChanged="@((bool isChecked) => ToggleTool(toolName, isChecked))"
+                                                Color="Color.Primary"
+                                                Dense="true"
+                                                Class="mb-2">
+                                        <div>
+                                            <MudText Typo="Typo.body2" Style="font-weight: 500;">@tool.Name</MudText>
+                                            @if (!string.IsNullOrEmpty(tool.Description))
+                                            {
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">@tool.Description</MudText>
+                                            }
+                                        </div>
+                                    </MudCheckBox>
+                                }
+                            </div>
+
+                            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-3">
+                                @string.Format(Loc["SelectedTools"], _selectedTools.Count)
+                            </MudText>
+
+                            <!-- Description (Optional) -->
+                            <MudTextField @bind-Value="_description" 
+                                         Label="@Loc["Description"]" 
+                                         Lines="3"
+                                         Variant="Variant.Outlined"
+                                         HelperText="@Loc["ServiceBindingDescriptionOptional"]"
+                                         Class="mt-4" />
+
+                            <!-- Summary Card -->
+                            <MudCard Outlined="true" Class="mt-4">
+                                <MudCardHeader Style="background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%);">
+                                    <CardHeaderContent>
+                                        <MudText Typo="Typo.h6">@Loc["BindingSummary"]</MudText>
+                                    </CardHeaderContent>
+                                </MudCardHeader>
+                                <MudCardContent>
+                                    <MudGrid>
+                                        <MudItem xs="12" md="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">@Loc["XiaozhiMcpEndpoint"]</MudText>
+                                            <MudText Typo="Typo.body2" Style="font-weight: 500;">@_selectedConnectionName</MudText>
+                                        </MudItem>
+                                        <MudItem xs="12" md="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">@Loc["McpService"]</MudText>
+                                            <MudText Typo="Typo.body2" Style="font-weight: 500;">@_selectedServiceName</MudText>
+                                        </MudItem>
+                                        <MudItem xs="12">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">@Loc["SelectedToolsCount"]</MudText>
+                                            <MudText Typo="Typo.body2" Style="font-weight: 500;">@_selectedTools.Count / @_availableTools.Count</MudText>
+                                        </MudItem>
+                                    </MudGrid>
+                                </MudCardContent>
+                            </MudCard>
+                        }
+                        else
+                        {
+                            <MudAlert Severity="Severity.Info">@Loc["NoToolsAvailable"]</MudAlert>
+                        }
+                    </div>
+                }
+            </MudCardContent>
+
+            <!-- Action Buttons -->
+            <MudCardActions Class="pa-4">
+                <MudButton Variant="Variant.Text" 
+                          Color="Color.Default" 
+                          OnClick="Cancel">
+                    @Loc["Cancel"]
+                </MudButton>
+                <MudSpacer />
+                
+                @if (_currentStep > 0)
+                {
+                    <MudButton Variant="Variant.Text" 
+                              Color="Color.Primary" 
+                              OnClick="PreviousStep">
+                        @Loc["Previous"]
+                    </MudButton>
+                }
+                
+                @if (_currentStep < 2)
+                {
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Primary" 
+                              OnClick="NextStep"
+                              Disabled="@(!CanProceedToNextStep())">
+                        @Loc["Next"]
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Primary" 
+                              OnClick="SaveAsync" 
+                              Disabled="@(_saving || !CanComplete())"
+                              StartIcon="@Icons.Material.Filled.Save">
+                        @if (_saving)
+                        {
+                            <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" />
+                            <MudText>@Loc["Saving"]</MudText>
+                        }
+                        else
+                        {
+                            <MudText>@Loc["Create"]</MudText>
+                        }
+                    </MudButton>
+                }
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? ConnectionId { get; set; }
+
+    [SupplyParameterFromQuery]
+    public string? PublicServiceId { get; set; }
+
+    // Wizard State
+    private int _currentStep = 0;
+    private bool _saving;
+
+    // Step 1: Connection Selection
+    private MudVirtualize<XiaozhiMcpEndpointDto>? _connectionVirtualize;
+    private string _connectionSearchTerm = "";
+    private string _connectionSortBy = "Name";
+    private string? _selectedConnectionId;
+    private string _selectedConnectionName = "";
+    private const int ConnectionPageSize = 12;
+
+    // Step 2: Service Selection
+    private MudVirtualize<McpServiceConfigDto>? _serviceVirtualize;
+    private int _serviceTabIndex = 0;
+    private string _serviceSearchTerm = "";
+    private string _serviceSortBy = "Name";
+    private string? _selectedServiceId;
+    private string _selectedServiceName = "";
+    private const int ServicePageSize = 12;
+
+    // Step 3: Tool Configuration
+    private List<McpToolDto> _availableTools = new();
+    private HashSet<string> _selectedTools = new();
+    private bool _loadingTools = false;
+    private string _toolSearchTerm = "";
+    private string _description = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Pre-select connection if provided in query
+        if (!string.IsNullOrEmpty(ConnectionId))
+        {
+            _selectedConnectionId = ConnectionId;
+            await LoadConnectionName();
+        }
+
+        // Pre-select public service if provided
+        if (!string.IsNullOrEmpty(PublicServiceId))
+        {
+            _selectedServiceId = PublicServiceId;
+            _serviceTabIndex = 1; // Switch to public services tab
+            await LoadServiceName();
+            // Auto-advance to step 2 if connection is also pre-selected
+            if (!string.IsNullOrEmpty(_selectedConnectionId))
+            {
+                _currentStep = 1;
+            }
+        }
+    }
+
+    #region Step 1: Connection Selection
+
+    private async ValueTask<ItemsProviderResult<XiaozhiMcpEndpointDto>> LoadConnectionsVirtualized(
+        ItemsProviderRequest request)
+    {
+        try
+        {
+            var startPage = (request.StartIndex / ConnectionPageSize) + 1;
+            var endIndex = request.StartIndex + request.Count - 1;
+            var endPage = (endIndex / ConnectionPageSize) + 1;
+
+            var allItems = new List<XiaozhiMcpEndpointDto>();
+            int totalCount = 0;
+
+            for (var page = startPage; page <= endPage; page++)
+            {
+                var pagedRequest = new PagedRequest
+                {
+                    Page = page,
+                    PageSize = ConnectionPageSize,
+                    SearchTerm = _connectionSearchTerm,
+                    SortBy = _connectionSortBy,
+                    SortOrder = "asc"
+                };
+
+                var result = await ServerService.GetServersPagedAsync(pagedRequest);
+                allItems.AddRange(result.Items);
+                totalCount = result.TotalCount;
+            }
+
+            var skip = request.StartIndex % ConnectionPageSize;
+            var items = allItems.Skip(skip).Take(request.Count).ToList();
+
+            return new ItemsProviderResult<XiaozhiMcpEndpointDto>(items, totalCount);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"{Loc["Error"]}: {ex.Message}", Severity.Error);
+            return new ItemsProviderResult<XiaozhiMcpEndpointDto>([], 0);
+        }
+    }
+
+    private async Task OnConnectionSearchChanged()
+    {
+        if (_connectionVirtualize != null)
+        {
+            await _connectionVirtualize.RefreshDataAsync();
+        }
+    }
+
+    private async Task OnConnectionSortChanged(string newSort)
+    {
+        _connectionSortBy = newSort;
+        if (_connectionVirtualize != null)
+        {
+            await _connectionVirtualize.RefreshDataAsync();
+        }
+    }
+
+    private void SelectConnection(string connectionId, string connectionName)
+    {
+        _selectedConnectionId = connectionId;
+        _selectedConnectionName = connectionName;
+        StateHasChanged();
+    }
+
+    private async Task LoadConnectionName()
+    {
+        if (!string.IsNullOrEmpty(_selectedConnectionId))
+        {
+            try
+            {
+                var connection = await ServerService.GetServerAsync(_selectedConnectionId);
+                if (connection != null)
+                {
+                    _selectedConnectionName = connection.Name;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading connection: {ex.Message}");
+            }
+        }
+    }
+
+    #endregion
+
+    #region Step 2: Service Selection
+
+    private async ValueTask<ItemsProviderResult<McpServiceConfigDto>> LoadServicesVirtualized(
+        ItemsProviderRequest request)
+    {
+        try
+        {
+            var startPage = (request.StartIndex / ServicePageSize) + 1;
+            var endIndex = request.StartIndex + request.Count - 1;
+            var endPage = (endIndex / ServicePageSize) + 1;
+
+            var allItems = new List<McpServiceConfigDto>();
+            int totalCount = 0;
+
+            for (var page = startPage; page <= endPage; page++)
+            {
+                var pagedRequest = new PagedRequest
+                {
+                    Page = page,
+                    PageSize = ServicePageSize,
+                    SearchTerm = _serviceSearchTerm,
+                    SortBy = _serviceSortBy,
+                    SortOrder = "asc"
+                };
+
+                PagedResult<McpServiceConfigDto> result;
+                if (_serviceTabIndex == 0)
+                {
+                    result = await McpServiceConfigService.GetServicesPagedAsync(pagedRequest);
+                }
+                else
+                {
+                    result = await McpServiceConfigService.GetPublicServicesPagedAsync(pagedRequest);
+                }
+
+                allItems.AddRange(result.Items);
+                totalCount = result.TotalCount;
+            }
+
+            var skip = request.StartIndex % ServicePageSize;
+            var items = allItems.Skip(skip).Take(request.Count).ToList();
+
+            return new ItemsProviderResult<McpServiceConfigDto>(items, totalCount);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"{Loc["Error"]}: {ex.Message}", Severity.Error);
+            return new ItemsProviderResult<McpServiceConfigDto>([], 0);
+        }
+    }
+
+    private async Task OnServiceSearchChanged()
+    {
+        if (_serviceVirtualize != null)
+        {
+            await _serviceVirtualize.RefreshDataAsync();
+        }
+    }
+
+    private async Task OnServiceSortChanged(string newSort)
+    {
+        _serviceSortBy = newSort;
+        if (_serviceVirtualize != null)
+        {
+            await _serviceVirtualize.RefreshDataAsync();
+        }
+    }
+
+    private async Task SelectService(string serviceId, string serviceName)
+    {
+        _selectedServiceId = serviceId;
+        _selectedServiceName = serviceName;
+        StateHasChanged();
+    }
+
+    private async Task LoadServiceName()
+    {
+        if (!string.IsNullOrEmpty(_selectedServiceId))
+        {
+            try
+            {
+                var service = await McpServiceConfigService.GetServiceAsync(_selectedServiceId);
+                if (service != null)
+                {
+                    _selectedServiceName = service.Name;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading service: {ex.Message}");
+            }
+        }
+    }
+
+    #endregion
+
+    #region Step 3: Tool Configuration
+
+    private async Task LoadToolsForService()
+    {
+        if (string.IsNullOrEmpty(_selectedServiceId))
+        {
+            _availableTools.Clear();
+            _selectedTools.Clear();
+            return;
+        }
+
+        try
+        {
+            _loadingTools = true;
+            var tools = await McpServiceConfigService.GetToolsAsync(_selectedServiceId);
+            _availableTools = tools.ToList();
+            _selectedTools.Clear(); // Reset selection when changing service
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"{Loc["ErrorLoadingTools"]}: {ex.Message}", Severity.Error);
+            _availableTools.Clear();
+        }
+        finally
+        {
+            _loadingTools = false;
+        }
+    }
+
+    private void ToggleTool(string toolName, bool isChecked)
+    {
+        if (isChecked)
+        {
+            _selectedTools.Add(toolName);
+        }
+        else
+        {
+            _selectedTools.Remove(toolName);
+        }
+        StateHasChanged();
+    }
+
+    private IEnumerable<McpToolDto> GetFilteredTools()
+    {
+        if (string.IsNullOrWhiteSpace(_toolSearchTerm))
+        {
+            return _availableTools;
+        }
+
+        return _availableTools.Where(t =>
+            t.Name.Contains(_toolSearchTerm, StringComparison.OrdinalIgnoreCase) ||
+            (t.Description?.Contains(_toolSearchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
+        );
+    }
+
+    #endregion
+
+    #region Navigation and Validation
+
+    private bool CanProceedToNextStep()
+    {
+        return _currentStep switch
+        {
+            0 => !string.IsNullOrEmpty(_selectedConnectionId),
+            1 => !string.IsNullOrEmpty(_selectedServiceId),
+            _ => false
+        };
+    }
+
+    private bool CanComplete()
+    {
+        return !string.IsNullOrEmpty(_selectedConnectionId) 
+            && !string.IsNullOrEmpty(_selectedServiceId);
+        // Note: Tool selection is optional
+    }
+
+    private void PreviousStep()
+    {
+        if (_currentStep > 0)
+        {
+            _currentStep--;
+            StateHasChanged();
+        }
+    }
+
+    private async Task NextStep()
+    {
+        if (!CanProceedToNextStep())
+            return;
+
+        _currentStep++;
+        
+        // Load tools when entering step 3
+        if (_currentStep == 2)
+        {
+            await LoadToolsForService();
+        }
+        
+        StateHasChanged();
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!CanComplete())
+            return;
+
+        try
+        {
+            _saving = true;
+
+            var request = new CreateMcpServiceBindingRequest
+            {
+                ServerId = _selectedConnectionId!,
+                McpServiceConfigId = _selectedServiceId!,
+                Description = string.IsNullOrWhiteSpace(_description) ? null : _description,
+                SelectedToolNames = _selectedTools.ToList()
+            };
+
+            await BindingService.CreateBindingAsync(request);
+            Snackbar.Add(Loc["ServiceBindingCreatedSuccess"], Severity.Success);
+            Navigation.NavigateTo("/service-bindings");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"{Loc["Error"]}: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/service-bindings");
+    }
+
+    #endregion
+
+    // Watch for tab changes in step 2
+    private int _previousServiceTabIndex = 0;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        
+        if (_previousServiceTabIndex != _serviceTabIndex)
+        {
+            _previousServiceTabIndex = _serviceTabIndex;
+            if (_serviceVirtualize != null)
+            {
+                await _serviceVirtualize.RefreshDataAsync();
+            }
+        }
+    }
+}

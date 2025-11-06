@@ -1,5 +1,4 @@
-﻿@page "/service-bindings/create"
-@page "/service-bindings/edit/{Id}"
+﻿@page "/service-bindings/edit/{Id}"
 @layout MainLayout
 @attribute [Authorize]
 @inject IMcpServiceBindingClientService BindingService
@@ -11,7 +10,7 @@
 @using Verdure.McpPlatform.Web.Resources
 @inject IStringLocalizer<SharedResources> Loc
 
-<PageTitle>@(_isEdit ? Loc["EditServiceBinding"] : Loc["CreateServiceBinding"]) @Loc["McpServiceBinding"] - @Loc["AppTitle"]</PageTitle>
+<PageTitle>@Loc["EditServiceBinding"] - @Loc["AppTitle"]</PageTitle>
 
 <MudGrid>
     <!-- M3 Hero Banner - 统一蓝色渐变 -->
@@ -25,10 +24,10 @@
                                   Size="Size.Large" />
                     <div>
                         <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
-                            @(_isEdit ? Loc["EditServiceBinding"] : Loc["CreateServiceBinding"]) @Loc["McpServiceBinding"]
+                            @Loc["EditServiceBinding"]
                         </MudText>
                         <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85);">
-                            @(_isEdit ? Loc["UpdateServiceBindingConfig"] : Loc["ConfigureNewServiceBinding"])
+                            @Loc["UpdateServiceBindingConfig"]
                         </MudText>
                     </div>
                 </div>
@@ -40,22 +39,6 @@
         <MudCard Elevation="2">
             <MudCardContent>
                 <MudForm @ref="_form" @bind-IsValid="@_formValid">
-                    @if (!_isEdit)
-                    {
-                        <MudSelect @bind-Value="_model.XiaozhiMcpEndpointId" 
-                                  Label="@Loc["XiaozhiMcpEndpoint"]" 
-                                  Required="true"
-                                  RequiredError="@Loc["SelectXiaozhiMcpEndpoint"]"
-                                  Variant="Variant.Outlined"
-                                  Margin="Margin.Dense"
-                                  Class="mb-4">
-                            @foreach (var server in _servers)
-                            {
-                                <MudSelectItem Value="@server.Id">@server.Name</MudSelectItem>
-                            }
-                        </MudSelect>
-                    }
-
                     <MudSelect Value="_model.McpServiceConfigId" 
                               ValueChanged="@OnMcpServiceChanged"
                               Label="@Loc["SelectMcpService"]" 
@@ -169,61 +152,54 @@
         </MudCard>
     </MudItem>
 
-    @if (_isEdit && _existingBinding != null)
-    {
-        <MudItem xs="12" md="8" lg="6">
-            <MudCard Elevation="2">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">@Loc["ServiceBindingInformation"]</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudGrid>
-                        <MudItem xs="6">
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Status"]</MudText>
-                            @if (_existingBinding.IsActive)
-                            {
-                                <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle">
-                                    @Loc["Active"]
-                                </MudChip>
-                            }
-                            else
-                            {
-                                <MudChip T="string" Size="Size.Small" Color="Color.Default" Icon="@Icons.Material.Filled.PauseCircle">
-                                    @Loc["Inactive"]
-                                </MudChip>
-                            }
-                        </MudItem>
-                        <MudItem xs="6">
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Created"]</MudText>
-                            <MudText Typo="Typo.body1">@_existingBinding.CreatedAt.ToString("MMM dd, yyyy HH:mm")</MudText>
-                        </MudItem>
-                        @if (_existingBinding.UpdatedAt.HasValue)
+    <MudItem xs="12" md="8" lg="6">
+        <MudCard Elevation="2">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">@Loc["ServiceBindingInformation"]</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Status"]</MudText>
+                        @if (_existingBinding != null && _existingBinding.IsActive)
                         {
-                            <MudItem xs="6">
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["LastUpdated"]</MudText>
-                                <MudText Typo="Typo.body1">@_existingBinding.UpdatedAt.Value.ToString("MMM dd, yyyy HH:mm")</MudText>
-                            </MudItem>
+                            <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle">
+                                @Loc["Active"]
+                            </MudChip>
                         }
-                    </MudGrid>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    }
+                        else
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Default" Icon="@Icons.Material.Filled.PauseCircle">
+                                @Loc["Inactive"]
+                            </MudChip>
+                        }
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Created"]</MudText>
+                        <MudText Typo="Typo.body1">@(_existingBinding?.CreatedAt.ToString("MMM dd, yyyy HH:mm") ?? "")</MudText>
+                    </MudItem>
+                    @if (_existingBinding?.UpdatedAt.HasValue == true)
+                    {
+                        <MudItem xs="6">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["LastUpdated"]</MudText>
+                            <MudText Typo="Typo.body1">@_existingBinding.UpdatedAt.Value.ToString("MMM dd, yyyy HH:mm")</MudText>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
 </MudGrid>
 
 @code {
     [Parameter]
     public string? Id { get; set; }
 
-    [SupplyParameterFromQuery]
-    public string? ServerId { get; set; }
-
     private MudForm _form = null!;
     private bool _formValid;
     private bool _saving;
-    private bool _isEdit => !string.IsNullOrEmpty(Id);
     private McpServiceBindingDto? _existingBinding;
     private List<XiaozhiMcpEndpointDto> _servers = new();
     private List<McpServiceConfigDto> _myServices = new();
@@ -240,15 +216,7 @@
     {
         await LoadServersAsync();
         await LoadMcpServicesAsync();
-        
-        if (_isEdit)
-        {
-            await LoadBindingAsync();
-        }
-        else if (!string.IsNullOrEmpty(ServerId))
-        {
-            _model.XiaozhiMcpEndpointId = ServerId;
-        }
+        await LoadBindingAsync();
     }
 
     private async Task LoadServersAsync()
@@ -320,32 +288,17 @@
             _availableTools = tools.ToList();
             Console.WriteLine($"[DEBUG] LoadTools: Loaded {_availableTools.Count} tools");
             
-            // Determine if we should clear selected tools
-            bool shouldClearSelection = false;
-            
-            if (_isEdit && _existingBinding?.McpServiceConfigId == _model.McpServiceConfigId)
+            // Edit mode: restore previously saved tool selections
+            if (_existingBinding?.McpServiceConfigId == _model.McpServiceConfigId)
             {
-                // Editing mode: restore previously saved tool selections
                 _selectedTools = _existingBinding.SelectedToolNames.ToHashSet();
-                shouldClearSelection = false;
-                Console.WriteLine($"[DEBUG] LoadTools: Edit mode - restored {_selectedTools.Count} tools");
+                Console.WriteLine($"[DEBUG] LoadTools: Restored {_selectedTools.Count} tools from existing binding");
             }
             else if (_lastLoadedServiceId != null && _lastLoadedServiceId != _model.McpServiceConfigId)
             {
                 // Service changed: clear previous selections
-                shouldClearSelection = true;
-                Console.WriteLine($"[DEBUG] LoadTools: Service changed from {_lastLoadedServiceId} to {_model.McpServiceConfigId}");
-            }
-            else
-            {
-                Console.WriteLine($"[DEBUG] LoadTools: First load, current selections: {_selectedTools.Count}");
-            }
-            // else: first load in create mode, keep empty _selectedTools
-            
-            if (shouldClearSelection)
-            {
-                Console.WriteLine($"[DEBUG] LoadTools: Clearing {_selectedTools.Count} selected tools");
                 _selectedTools.Clear();
+                Console.WriteLine($"[DEBUG] LoadTools: Service changed from {_lastLoadedServiceId} to {_model.McpServiceConfigId}");
             }
             
             // Remember which service we loaded
@@ -388,7 +341,6 @@
             _existingBinding = await BindingService.GetBindingAsync(Id!);
             if (_existingBinding != null)
             {
-                _model.XiaozhiMcpEndpointId = _existingBinding.XiaozhiMcpEndpointId;
                 _model.Description = _existingBinding.Description ?? string.Empty;
                 _model.McpServiceConfigId = _existingBinding.McpServiceConfigId;
                 
@@ -426,33 +378,16 @@
             var toolsList = _selectedTools.ToList();
             Console.WriteLine($"[DEBUG] Saving binding with {toolsList.Count} tools: {string.Join(", ", toolsList)}");
 
-            if (_isEdit)
+            var request = new UpdateMcpServiceBindingRequest
             {
-                var request = new UpdateMcpServiceBindingRequest
-                {
-                    McpServiceConfigId = _model.McpServiceConfigId ?? string.Empty,
-                    Description = string.IsNullOrWhiteSpace(_model.Description) ? null : _model.Description,
-                    SelectedToolNames = toolsList
-                };
-                Console.WriteLine($"[DEBUG] Update request: ConfigId={request.McpServiceConfigId}, Tools={request.SelectedToolNames?.Count ?? 0}");
-                await BindingService.UpdateBindingAsync(Id!, request);
-                Snackbar.Add("Service binding updated successfully", Severity.Success);
-            }
-            else
-            {
-                var request = new CreateMcpServiceBindingRequest
-                {
-                    ServerId = _model.XiaozhiMcpEndpointId ?? string.Empty,
-                    McpServiceConfigId = _model.McpServiceConfigId ?? string.Empty,
-                    Description = string.IsNullOrWhiteSpace(_model.Description) ? null : _model.Description,
-                    SelectedToolNames = toolsList
-                };
-                Console.WriteLine($"[DEBUG] Create request: ConfigId={request.McpServiceConfigId}, Tools={request.SelectedToolNames?.Count ?? 0}");
-                await BindingService.CreateBindingAsync(request);
-                Snackbar.Add("Service binding created successfully", Severity.Success);
-            }
+                McpServiceConfigId = _model.McpServiceConfigId ?? string.Empty,
+                Description = string.IsNullOrWhiteSpace(_model.Description) ? null : _model.Description,
+                SelectedToolNames = toolsList
+            };
+            Console.WriteLine($"[DEBUG] Update request: ConfigId={request.McpServiceConfigId}, Tools={request.SelectedToolNames?.Count ?? 0}");
+            await BindingService.UpdateBindingAsync(Id!, request);
+            Snackbar.Add("Service binding updated successfully", Severity.Success);
 
-            // Always redirect to the main service bindings page
             Navigation.NavigateTo("/service-bindings");
         }
         catch (Exception ex)
@@ -467,13 +402,11 @@
 
     private void Cancel()
     {
-        // Always redirect to the main service bindings page
         Navigation.NavigateTo("/service-bindings");
     }
 
     private class BindingFormModel
     {
-        public string? XiaozhiMcpEndpointId { get; set; }
         public string Description { get; set; } = string.Empty;
         public string? McpServiceConfigId { get; set; }
     }
