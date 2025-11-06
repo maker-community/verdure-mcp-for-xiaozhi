@@ -4,6 +4,41 @@
 
 ### ✨ 新增功能
 
+#### UI 卡片重构 (Phase 1 & 2 完成)
+- **后端分页基础设施**
+  - 新增 `PagedRequest` 和 `PagedResult<T>` 通用分页模型
+  - 仓储层实现分页查询（支持搜索和排序）
+  - 服务层分页方法（XiaozhiMcpEndpoint, McpServiceConfig）
+  - API 分页端点（`/api/xiaozhi-mcp-endpoints/paged`, `/api/mcp-services/paged`）
+
+- **前端卡片组件系统**
+  - 新增 `ConnectionCard.razor` - 可复用的连接卡片组件
+  - 新增 `ServiceConfigCard.razor` - 可复用的服务卡片组件
+  - 新增 `ConnectionsCardView.razor` - 演示页面，展示完整的卡片网格布局
+
+- **响应式设计**
+  - MudGrid 布局：手机1列、平板2列、桌面3列、大屏4列
+  - 卡片悬停动画（GPU加速，`transform: translateY(-4px)`）
+  - 骨架加载状态（8个占位卡片，渐变动画）
+
+- **高级功能**
+  - 搜索功能（500ms防抖，多字段搜索）
+  - 加载更多（增量加载，避免一次性加载大量数据）
+  - 空状态处理（无数据、无搜索结果）
+  - 错误处理和用户反馈（Snackbar通知）
+
+- **性能优化**
+  - 数据库级分页（`Skip/Take`）
+  - 使用 `AsNoTracking()` 优化只读查询
+  - CSS 动画使用 GPU 加速
+  - 防抖搜索减少API调用
+
+- **文档和测试**
+  - 完整实施文档：`docs/guides/UI_CARD_REFACTORING_SUMMARY.md`
+  - 测试指南：`docs/guides/UI_TESTING_GUIDE.md`
+  - 自动化测试脚本：`scripts/test-ui-refactoring.ps1`
+  - 完成总结：`docs/UI_REFACTORING_COMPLETE.md`
+
 #### 前端界面改进
 - **新增欢迎首页** (`/`)
   - 为未登录用户展示平台介绍和核心特性

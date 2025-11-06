@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Verdure.McpPlatform.Api.Services;
 using Verdure.McpPlatform.Application.Services;
 using Verdure.McpPlatform.Contracts.DTOs;
+using Verdure.McpPlatform.Contracts.Models;
 using Verdure.McpPlatform.Contracts.Requests;
 
 namespace Verdure.McpPlatform.Api.Apis;
@@ -22,6 +23,10 @@ public static class McpServiceConfigApi
         api.MapGet("/", GetMcpServicesAsync)
             .WithName("GetMcpServices")
             .Produces<IEnumerable<McpServiceConfigDto>>();
+
+        api.MapGet("/paged", GetMcpServicesPagedAsync)
+            .WithName("GetMcpServicesPaged")
+            .Produces<PagedResult<McpServiceConfigDto>>();
 
         api.MapGet("/public", GetPublicMcpServicesAsync)
             .WithName("GetPublicMcpServices")
@@ -67,6 +72,16 @@ public static class McpServiceConfigApi
         var userId = identityService.GetUserIdentity();
         var services = await mcpServiceConfigService.GetByUserAsync(userId);
         return TypedResults.Ok(services);
+    }
+
+    private static async Task<Ok<PagedResult<McpServiceConfigDto>>> GetMcpServicesPagedAsync(
+        [AsParameters] PagedRequest request,
+        IMcpServiceConfigService mcpServiceConfigService,
+        IIdentityService identityService)
+    {
+        var userId = identityService.GetUserIdentity();
+        var result = await mcpServiceConfigService.GetByUserPagedAsync(userId, request);
+        return TypedResults.Ok(result);
     }
 
     private static async Task<Ok<IEnumerable<McpServiceConfigDto>>> GetPublicMcpServicesAsync(

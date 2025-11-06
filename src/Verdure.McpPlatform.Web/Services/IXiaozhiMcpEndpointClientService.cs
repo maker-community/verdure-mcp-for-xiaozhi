@@ -1,4 +1,5 @@
 ﻿using Verdure.McpPlatform.Contracts.DTOs;
+using Verdure.McpPlatform.Contracts.Models;
 using Verdure.McpPlatform.Contracts.Requests;
 
 namespace Verdure.McpPlatform.Web.Services;
@@ -9,6 +10,7 @@ namespace Verdure.McpPlatform.Web.Services;
 public interface IXiaozhiMcpEndpointClientService
 {
     Task<IEnumerable<XiaozhiMcpEndpointDto>> GetServersAsync();
+    Task<PagedResult<XiaozhiMcpEndpointDto>> GetServersPagedAsync(PagedRequest request);
     Task<XiaozhiMcpEndpointDto?> GetServerAsync(string id);
     Task<XiaozhiMcpEndpointDto> CreateServerAsync(CreateXiaozhiMcpEndpointRequest request);
     Task UpdateServerAsync(string id, UpdateXiaozhiMcpEndpointRequest request);

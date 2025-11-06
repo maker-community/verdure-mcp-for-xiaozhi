@@ -1,4 +1,5 @@
 using Verdure.McpPlatform.Contracts.DTOs;
+using Verdure.McpPlatform.Contracts.Models;
 using Verdure.McpPlatform.Contracts.Requests;
 
 namespace Verdure.McpPlatform.Web.Services;
@@ -12,6 +13,11 @@ public interface IMcpServiceConfigClientService
     /// Get all MCP services for the current user
     /// </summary>
     Task<IEnumerable<McpServiceConfigDto>> GetServicesAsync();
+
+    /// <summary>
+    /// Get paged MCP services for the current user
+    /// </summary>
+    Task<PagedResult<McpServiceConfigDto>> GetServicesPagedAsync(PagedRequest request);
 
     /// <summary>
     /// Get all public MCP services (available for other users to use)

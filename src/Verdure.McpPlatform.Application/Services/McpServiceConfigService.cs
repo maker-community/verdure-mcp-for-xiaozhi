@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Verdure.McpPlatform.Contracts.DTOs;
+using Verdure.McpPlatform.Contracts.Models;
 using Verdure.McpPlatform.Contracts.Requests;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
@@ -65,6 +66,25 @@ public class McpServiceConfigService : IMcpServiceConfigService
     {
         var configs = await _repository.GetByUserAsync(userId);
         return configs.Select(MapToDto);
+    }
+
+    public async Task<PagedResult<McpServiceConfigDto>> GetByUserPagedAsync(string userId, PagedRequest request)
+    {
+        var (items, totalCount) = await _repository.GetByUserPagedAsync(
+            userId,
+            request.GetSkip(),
+            request.GetSafePageSize(),
+            request.SearchTerm,
+            request.SortBy,
+            request.SortOrder?.ToLower() == "desc");
+
+        var dtos = items.Select(MapToDto);
+
+        return PagedResult<McpServiceConfigDto>.Create(
+            dtos,
+            totalCount,
+            request.GetSafePage(),
+            request.GetSafePageSize());
     }
 
     public async Task<IEnumerable<McpServiceConfigDto>> GetPublicServicesAsync()

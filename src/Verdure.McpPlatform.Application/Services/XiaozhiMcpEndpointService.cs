@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Verdure.McpPlatform.Contracts.DTOs;
+using Verdure.McpPlatform.Contracts.Models;
 using Verdure.McpPlatform.Contracts.Requests;
 using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
@@ -62,6 +63,29 @@ public class XiaozhiMcpEndpointService : IXiaozhiMcpEndpointService
             dtos.Add(await MapToDtoAsync(server));
         }
         return dtos;
+    }
+
+    public async Task<PagedResult<XiaozhiMcpEndpointDto>> GetByUserPagedAsync(string userId, PagedRequest request)
+    {
+        var (items, totalCount) = await _repository.GetByUserIdPagedAsync(
+            userId,
+            request.GetSkip(),
+            request.GetSafePageSize(),
+            request.SearchTerm,
+            request.SortBy,
+            request.SortOrder?.ToLower() == "desc");
+
+        var dtos = new List<XiaozhiMcpEndpointDto>();
+        foreach (var server in items)
+        {
+            dtos.Add(await MapToDtoAsync(server));
+        }
+
+        return PagedResult<XiaozhiMcpEndpointDto>.Create(
+            dtos,
+            totalCount,
+            request.GetSafePage(),
+            request.GetSafePageSize());
     }
 
     public async Task UpdateAsync(string id, UpdateXiaozhiMcpEndpointRequest request, string userId)

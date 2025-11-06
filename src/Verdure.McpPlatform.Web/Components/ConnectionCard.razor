@@ -1,0 +1,155 @@
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Contracts.DTOs
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudCard Elevation="2" Class="connection-card m3-card-elevated" Style="height: 100%; display: flex; flex-direction: column;">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <div class="d-flex align-center" style="gap: 8px;">
+                <MudIcon Icon="@Icons.Material.Outlined.Dns" Size="Size.Small" Color="Color.Primary" />
+                <MudText Typo="Typo.h6" Style="font-weight: 500; margin: 0;">@Connection.Name</MudText>
+            </div>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" AnchorOrigin="Origin.BottomRight">
+                <MudMenuItem Icon="@Icons.Material.Outlined.Edit" OnClick="@OnEdit">@Loc["Edit"]</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Outlined.Link" OnClick="@OnViewBindings">@Loc["ViewBindings"]</MudMenuItem>
+                <MudDivider />
+                <MudMenuItem Icon="@Icons.Material.Outlined.Delete" IconColor="Color.Error" OnClick="@OnDelete">@Loc["Delete"]</MudMenuItem>
+            </MudMenu>
+        </CardHeaderActions>
+    </MudCardHeader>
+    
+    <MudCardContent Style="flex-grow: 1;">
+        @if (!string.IsNullOrWhiteSpace(Connection.Description))
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-3" Style="min-height: 40px;">
+                @Connection.Description
+            </MudText>
+        }
+        else
+        {
+            <div style="min-height: 40px;"></div>
+        }
+        
+        <!-- Connection Address -->
+        <div class="mb-3">
+            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-1">@Loc["Address"]</MudText>
+            <MudTooltip Text="@Connection.Address">
+                <MudText Typo="Typo.body2" Style="font-family: monospace; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    @Connection.Address
+                </MudText>
+            </MudTooltip>
+        </div>
+        
+        <!-- Status and Bindings -->
+        <div class="d-flex flex-wrap" style="gap: 8px;">
+            @if (Connection.IsEnabled)
+            {
+                @if (Connection.IsConnected)
+                {
+                    <MudChip T="string" 
+                            Size="Size.Small" 
+                            Variant="Variant.Filled"
+                            Color="Color.Success" 
+                            Icon="@Icons.Material.Filled.CheckCircle"
+                            Class="m3-chip">
+                        @Loc["Connected"]
+                    </MudChip>
+                }
+                else
+                {
+                    <MudChip T="string" 
+                            Size="Size.Small" 
+                            Variant="Variant.Outlined"
+                            Color="Color.Warning" 
+                            Icon="@Icons.Material.Filled.Warning"
+                            Class="m3-chip">
+                        @Loc["Disconnected"]
+                    </MudChip>
+                }
+            }
+            else
+            {
+                <MudChip T="string" 
+                        Size="Size.Small" 
+                        Variant="Variant.Text"
+                        Color="Color.Default" 
+                        Icon="@Icons.Material.Filled.PowerSettingsNew"
+                        Class="m3-chip"
+                        Style="opacity: 0.6;">
+                    @Loc["NotStarted"]
+                </MudChip>
+            }
+            
+            <MudChip T="string" 
+                    Size="Size.Small" 
+                    Variant="Variant.Outlined"
+                    Color="Color.Info"
+                    Icon="@Icons.Material.Filled.Link"
+                    Class="m3-chip">
+                @string.Format(Loc["BindingsCount"], Connection.ServiceBindings.Count)
+            </MudChip>
+        </div>
+        
+        <!-- Created Date -->
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-3">
+            @Loc["CreatedAt"]: @Connection.CreatedAt.ToString("MMM dd, yyyy")
+        </MudText>
+    </MudCardContent>
+    
+    <MudCardActions Class="d-flex justify-space-between">
+        <div>
+            @if (Connection.IsEnabled)
+            {
+                <MudTooltip Text="@Loc["DisableConnection"]">
+                    <MudIconButton Icon="@Icons.Material.Outlined.PowerSettingsNew" 
+                                 Size="Size.Small" 
+                                 Color="Color.Warning"
+                                 OnClick="@OnDisable"
+                                 Class="m3-icon-button" />
+                </MudTooltip>
+            }
+            else
+            {
+                <MudTooltip Text="@Loc["EnableConnection"]">
+                    <MudIconButton Icon="@Icons.Material.Outlined.PlayArrow" 
+                                 Size="Size.Small" 
+                                 Color="Color.Success"
+                                 OnClick="@OnEnable"
+                                 Class="m3-icon-button" />
+                </MudTooltip>
+            }
+        </div>
+        <div>
+            <MudButton Size="Size.Small" 
+                      Variant="Variant.Text" 
+                      Color="Color.Primary" 
+                      OnClick="@OnViewBindings"
+                      StartIcon="@Icons.Material.Filled.Link">
+                @Loc["Manage"]
+            </MudButton>
+        </div>
+    </MudCardActions>
+</MudCard>
+
+@code {
+    [Parameter, EditorRequired]
+    public XiaozhiMcpEndpointDto Connection { get; set; } = null!;
+    
+    [Parameter]
+    public EventCallback OnEdit { get; set; }
+    
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+    
+    [Parameter]
+    public EventCallback OnEnable { get; set; }
+    
+    [Parameter]
+    public EventCallback OnDisable { get; set; }
+    
+    [Parameter]
+    public EventCallback OnViewBindings { get; set; }
+}

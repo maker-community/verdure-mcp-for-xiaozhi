@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using Verdure.McpPlatform.Contracts.DTOs;
+using Verdure.McpPlatform.Contracts.Models;
 using Verdure.McpPlatform.Contracts.Requests;
 
 namespace Verdure.McpPlatform.Web.Services;
@@ -31,6 +32,30 @@ public class XiaozhiMcpEndpointClientService : IXiaozhiMcpEndpointClientService
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Failed to get MCP servers");
+            throw;
+        }
+    }
+
+    public async Task<PagedResult<XiaozhiMcpEndpointDto>> GetServersPagedAsync(PagedRequest request)
+    {
+        try
+        {
+            var queryString = $"?Page={request.Page}&PageSize={request.PageSize}";
+            if (!string.IsNullOrEmpty(request.SearchTerm))
+            {
+                queryString += $"&SearchTerm={Uri.EscapeDataString(request.SearchTerm)}";
+            }
+            if (!string.IsNullOrEmpty(request.SortBy))
+            {
+                queryString += $"&SortBy={request.SortBy}&SortOrder={request.SortOrder}";
+            }
+
+            var response = await _httpClient.GetFromJsonAsync<PagedResult<XiaozhiMcpEndpointDto>>($"{ApiEndpoint}/paged{queryString}");
+            return response ?? PagedResult<XiaozhiMcpEndpointDto>.Empty(request.Page, request.PageSize);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to get paged MCP servers");
             throw;
         }
     }

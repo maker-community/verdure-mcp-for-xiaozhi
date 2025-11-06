@@ -410,3 +410,87 @@
     text-transform: none !important;
     font-weight: 500 !important;
 }
+
+/* ==========================================================================
+   Card Grid Enhancements (卡片网格增强)
+   ========================================================================== */
+.connection-card,
+.service-card {
+    transition: transform var(--m3-duration-medium) var(--m3-easing-standard),
+                box-shadow var(--m3-duration-medium) var(--m3-easing-standard) !important;
+    cursor: default;
+}
+
+.connection-card:hover,
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.15), 0px 8px 16px 4px rgba(0,0,0,0.1) !important;
+}
+
+/* Skeleton Loading Animation (骨架屏加载动画) */
+.skeleton-card {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite ease-in-out;
+    border-radius: var(--m3-shape-md);
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Empty State (空状态) */
+.m3-empty-state {
+    padding: var(--m3-spacing-4xl) var(--m3-spacing-xl);
+    text-align: center;
+}
+
+.m3-empty-state-icon {
+    font-size: 80px !important;
+    opacity: 0.3;
+    margin-bottom: var(--m3-spacing-lg);
+}
+
+/* Responsive Card Grid (响应式卡片网格) */
+@media (max-width: 599px) {
+    .connection-card,
+    .service-card {
+        margin-bottom: var(--m3-spacing-md);
+    }
+}
+
+@media (min-width: 600px) and (max-width: 959px) {
+    .connection-card:hover,
+    .service-card:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* Load More Section (加载更多区域) */
+.load-more-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--m3-spacing-2xl) 0;
+}
+
+/* Fade-in Animation for Cards (卡片淡入动画) */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-fade-in {
+    animation: fadeInUp var(--m3-duration-medium) var(--m3-easing-emphasized);
+}

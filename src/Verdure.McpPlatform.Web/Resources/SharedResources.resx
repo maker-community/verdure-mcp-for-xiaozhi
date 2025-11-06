@@ -1034,4 +1034,57 @@
   <data name="TooltipBilibiliChannel" xml:space="preserve">
     <value>LvYin AGang Bilibili Channel</value>
   </data>
+  
+  <!-- UI Card Refactoring - Phase 3 -->
+  <data name="ShowingItems" xml:space="preserve">
+    <value>Showing {0} of {1} items</value>
+  </data>
+  <data name="NoConnectionsYet" xml:space="preserve">
+    <value>No connections yet</value>
+  </data>
+  <data name="NoConnectionsFound" xml:space="preserve">
+    <value>No connections found</value>
+  </data>
+  <data name="CreateFirstConnection" xml:space="preserve">
+    <value>Create your first connection to get started</value>
+  </data>
+  <data name="NoMatchingConnections" xml:space="preserve">
+    <value>No connections match '{0}'</value>
+  </data>
+  <data name="SearchConnections" xml:space="preserve">
+    <value>Search by name or address...</value>
+  </data>
+  <data name="LoadingMore" xml:space="preserve">
+    <value>Loading more...</value>
+  </data>
+  <data name="AllItemsLoaded" xml:space="preserve">
+    <value>All items loaded ({0} total)</value>
+  </data>
+  <data name="ClearSearch" xml:space="preserve">
+    <value>Clear Search</value>
+  </data>
+  <data name="SortBy" xml:space="preserve">
+    <value>Sort by</value>
+  </data>
+  <data name="CreatedDate" xml:space="preserve">
+    <value>Created Date</value>
+  </data>
+  <data name="DeleteConnection" xml:space="preserve">
+    <value>Delete Connection</value>
+  </data>
+  <data name="DeleteConnectionConfirm" xml:space="preserve">
+    <value>Are you sure you want to delete '{0}'? This action cannot be undone.</value>
+  </data>
+  <data name="DeletedSuccessfully" xml:space="preserve">
+    <value>'{0}' deleted successfully</value>
+  </data>
+  <data name="EnabledSuccessfully" xml:space="preserve">
+    <value>'{0}' enabled successfully</value>
+  </data>
+  <data name="DisabledSuccessfully" xml:space="preserve">
+    <value>'{0}' disabled successfully</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
 </root>

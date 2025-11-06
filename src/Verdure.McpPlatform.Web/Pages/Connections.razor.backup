@@ -1,0 +1,348 @@
+﻿@page "/connections"
+@layout MainLayout
+@attribute [Authorize]
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IXiaozhiMcpEndpointClientService ServerService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@Loc["XiaozhiMcpEndpoints"] - @Loc["AppTitle"]</PageTitle>
+
+<MudGrid>
+    <!-- M3 Hero Banner - 蓝色背景 -->
+    <MudItem xs="12">
+        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
+            <MudCardContent Class="pa-6">
+                <div class="d-flex justify-space-between align-center flex-wrap" Style="gap: 1rem;">
+                    <div>
+                        <MudText Typo="Typo.h4" Class="m3-mb-sm" Style="font-weight: 600; color: #FFFFFF;">
+                            <MudIcon Icon="@Icons.Material.Outlined.Dns" Class="mr-2" Style="color: #FFFFFF;" /> @Loc["XiaozhiMcpEndpoints"]
+                        </MudText>
+                        <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
+                            @Loc["ManageConnections"]
+                        </MudText>
+                    </div>
+                    <MudButton Href="/connections/create" 
+                              Variant="Variant.Filled" 
+                              Style="background: #FFFFFF; color: #1976D2;"
+                              StartIcon="@Icons.Material.Filled.Add"
+                              Size="Size.Large"
+                              Class="m3-button-lg">
+                        @Loc["AddConnection"]
+                    </MudButton>
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- M3 表格容器 -->
+    <MudItem xs="12">
+        <MudCard Elevation="1" Class="m3-card">
+            <MudCardContent>
+                <MudTable Items="@_servers" 
+                         Loading="@_loading" 
+                         Hover="true" 
+                         Breakpoint="Breakpoint.Sm"
+                         Dense="false"
+                         Elevation="0">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6" Style="font-weight: 500;">@Loc["YourConnections"]</MudText>
+                        <MudSpacer />
+                        <MudTextField @bind-Value="_searchString" 
+                                     Placeholder="@Loc["SearchConnections"]" 
+                                     Adornment="Adornment.Start" 
+                                     AdornmentIcon="@Icons.Material.Outlined.Search" 
+                                     IconSize="Size.Medium" 
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     Class="mt-0"
+                                     Style="max-width: 300px;"
+                                     Immediate="true"></MudTextField>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>@Loc["Name"]</MudTh>
+                        <MudTh>@Loc["Address"]</MudTh>
+                        <MudTh>@Loc["Status"]</MudTh>
+                        <MudTh>@Loc["McpBindings"]</MudTh>
+                        <MudTh>@Loc["CreatedAt"]</MudTh>
+                        <MudTh>@Loc["Actions"]</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        @if (string.IsNullOrWhiteSpace(_searchString) || 
+                             context.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
+                             context.Address.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+                        {
+                            <MudTd DataLabel="Name">
+                                <MudText Typo="Typo.body1" Style="font-weight: 500;">@context.Name</MudText>
+                                @if (!string.IsNullOrWhiteSpace(context.Description))
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Description</MudText>
+                                }
+                            </MudTd>
+                            <MudTd DataLabel="Address">
+                                <MudTooltip Text="@context.Address">
+                                    <MudText Typo="Typo.body2" Style="font-family: monospace; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        @context.Address
+                                    </MudText>
+                                </MudTooltip>
+                            </MudTd>
+                            <MudTd DataLabel="Status">
+                                <div class="d-flex align-center m3-gap-sm">
+                                    @if (context.IsEnabled)
+                                    {
+                                        @if (context.IsConnected)
+                                        {
+                                            <MudChip T="string" 
+                                                    Size="Size.Small" 
+                                                    Variant="Variant.Filled"
+                                                    Color="Color.Success" 
+                                                    Icon="@Icons.Material.Filled.CheckCircle"
+                                                    Class="m3-chip">
+                                                @Loc["Connected"]
+                                            </MudChip>
+                                        }
+                                        else
+                                        {
+                                            <MudChip T="string" 
+                                                    Size="Size.Small" 
+                                                    Variant="Variant.Outlined"
+                                                    Color="Color.Warning" 
+                                                    Icon="@Icons.Material.Filled.Warning"
+                                                    Class="m3-chip">
+                                                @Loc["Disconnected"]
+                                            </MudChip>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <MudChip T="string" 
+                                                Size="Size.Small" 
+                                                Variant="Variant.Text"
+                                                Color="Color.Default" 
+                                                Icon="@Icons.Material.Filled.PowerSettingsNew"
+                                                Class="m3-chip"
+                                                Style="opacity: 0.6;">
+                                            @Loc["NotStarted"]
+                                        </MudChip>
+                                    }
+                                </div>
+                            </MudTd>
+                            <MudTd DataLabel="Bindings">
+                                <MudChip T="string" 
+                                        Size="Size.Small" 
+                                        Variant="Variant.Outlined"
+                                        Color="Color.Info"
+                                        Class="m3-chip">
+                                    @string.Format(Loc["BindingsCount"], context.ServiceBindings.Count)
+                                </MudChip>
+                            </MudTd>
+                            <MudTd DataLabel="Created">
+                                <MudText Typo="Typo.body2">@context.CreatedAt.ToString("MMM dd, yyyy")</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Actions">
+                                <div class="d-flex m3-gap-xs">
+                                    @if (context.IsEnabled)
+                                    {
+                                        <MudTooltip Text="@Loc["DisableConnection"]">
+                                            <MudIconButton Icon="@Icons.Material.Outlined.PowerSettingsNew" 
+                                                         Size="Size.Medium" 
+                                                         Color="Color.Warning"
+                                                         OnClick="@(() => DisableServer(context))"
+                                                         Class="m3-icon-button" />
+                                        </MudTooltip>
+                                    }
+                                    else
+                                    {
+                                        <MudTooltip Text="@Loc["EnableConnection"]">
+                                            <MudIconButton Icon="@Icons.Material.Outlined.PlayArrow" 
+                                                         Size="Size.Medium" 
+                                                         Color="Color.Success"
+                                                         OnClick="@(() => EnableServer(context))"
+                                                         Class="m3-icon-button" />
+                                        </MudTooltip>
+                                    }
+                                    <MudTooltip Text="@Loc["Edit"]">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" 
+                                                     Size="Size.Medium" 
+                                                     Color="Color.Primary"
+                                                     OnClick="@(() => EditServer(context.Id))"
+                                                     Class="m3-icon-button" />
+                                    </MudTooltip>
+                                    <MudTooltip Text="@Loc["ViewBindings"]">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Link" 
+                                                     Size="Size.Medium" 
+                                                     Color="Color.Secondary"
+                                                     OnClick="@(() => ViewBindings(context.Id))"
+                                                     Class="m3-icon-button" />
+                                    </MudTooltip>
+                                    <MudTooltip Text="@Loc["Delete"]">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" 
+                                                     Size="Size.Medium" 
+                                                     Color="Color.Error"
+                                                     OnClick="@(() => DeleteServer(context))"
+                                                     Class="m3-icon-button" />
+                                    </MudTooltip>
+                                </div>
+                            </MudTd>
+                        }
+                    </RowTemplate>
+                    <NoRecordsContent>
+                        <!-- M3 空状态设计 -->
+                        <div class="m3-empty-state">
+                            <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
+                                     Color="Color.Default" 
+                                     Class="m3-empty-state-icon" />
+                            <MudText Typo="Typo.h6" Class="m3-mb-sm" Style="font-weight: 500;">
+                                @Loc["NoConnectionsFound"]
+                            </MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="m3-mb-lg">
+                                @(_searchString?.Length > 0 
+                                    ? Loc["TryAdjustingSearch"]
+                                    : Loc["GetStartedCreateConnection"])
+                            </MudText>
+                            @if (string.IsNullOrEmpty(_searchString))
+                            {
+                                <MudButton Href="/connections/create" 
+                                           Variant="Variant.Filled" 
+                                           Color="Color.Primary" 
+                                           StartIcon="@Icons.Material.Filled.Add"
+                                           Class="m3-button">
+                                    @Loc["CreateConnection"]
+                                </MudButton>
+                            }
+                        </div>
+                    </NoRecordsContent>
+                    <LoadingContent>
+                        <div class="pa-4">
+                            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                        </div>
+                    </LoadingContent>
+                </MudTable>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private List<XiaozhiMcpEndpointDto> _servers = new();
+    private bool _loading = true;
+    private string _searchString = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadServersAsync();
+    }
+
+    private async Task LoadServersAsync()
+    {
+        try
+        {
+            _loading = true;
+            var servers = await ServerService.GetServersAsync();
+            _servers = servers.ToList();
+        }
+        catch (HttpRequestException ex)
+        {
+            Snackbar.Add(string.Format(Loc["ErrorLoadingConnections2"], ex.Message), Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format(Loc["UnexpectedError"], ex.Message), Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void EditServer(string id)
+    {
+        Navigation.NavigateTo($"/connections/edit/{id}");
+    }
+
+    private void ViewBindings(string id)
+    {
+        Navigation.NavigateTo($"/connections/{id}/service-bindings");
+    }
+
+    private async Task EnableServer(XiaozhiMcpEndpointDto server)
+    {
+        try
+        {
+            await ServerService.EnableServerAsync(server.Id);
+            
+            // Reload server data from backend to ensure consistency
+            var updatedServer = await ServerService.GetServerAsync(server.Id);
+            if (updatedServer != null)
+            {
+                var index = _servers.FindIndex(s => s.Id == server.Id);
+                if (index >= 0)
+                {
+                    _servers[index] = updatedServer;
+                }
+            }
+            
+            Snackbar.Add(string.Format(Loc["ConnectionEnabled"], server.Name), Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format(Loc["ErrorEnablingServer"], ex.Message), Severity.Error);
+        }
+    }
+
+    private async Task DisableServer(XiaozhiMcpEndpointDto server)
+    {
+        try
+        {
+            await ServerService.DisableServerAsync(server.Id);
+            
+            // Reload server data from backend to ensure consistency
+            var updatedServer = await ServerService.GetServerAsync(server.Id);
+            if (updatedServer != null)
+            {
+                var index = _servers.FindIndex(s => s.Id == server.Id);
+                if (index >= 0)
+                {
+                    _servers[index] = updatedServer;
+                }
+            }
+            
+            Snackbar.Add(string.Format(Loc["ConnectionDisabled"], server.Name), Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format(Loc["ErrorDisablingServer"], ex.Message), Severity.Error);
+        }
+    }
+
+    private async Task DeleteServer(XiaozhiMcpEndpointDto server)
+    {
+        var parameters = new DialogParameters<DeleteConfirmationDialog>
+        {
+            { x => x.ContentText, string.Format(Loc["ConfirmDeleteConnection"], server.Name) },
+            { x => x.ButtonText, Loc["Delete"] },
+            { x => x.Color, Color.Error }
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>(Loc["ConfirmDelete"], parameters, options);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled)
+        {
+            try
+            {
+                await ServerService.DeleteServerAsync(server.Id);
+                _servers.Remove(server);
+                Snackbar.Add(string.Format(Loc["ConnectionDeletedSuccess"], server.Name), Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(string.Format(Loc["ErrorDeletingServer"], ex.Message), Severity.Error);
+            }
+        }
+    }
+}

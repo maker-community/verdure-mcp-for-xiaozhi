@@ -11,6 +11,13 @@ public interface IMcpServiceConfigRepository : IRepository<McpServiceConfig>
     void Update(McpServiceConfig mcpServiceConfig);
     Task<McpServiceConfig?> GetByIdAsync(string id);
     Task<IEnumerable<McpServiceConfig>> GetByUserAsync(string userId);
+    Task<(IEnumerable<McpServiceConfig> Items, int TotalCount)> GetByUserPagedAsync(
+        string userId,
+        int skip,
+        int take,
+        string? searchTerm = null,
+        string? sortBy = null,
+        bool sortDescending = true);
     Task<IEnumerable<McpServiceConfig>> GetPublicServicesAsync();
     Task<bool> DeleteAsync(string id);
     Task<IEnumerable<McpTool>> GetToolsByUserIdAsync(string userId);

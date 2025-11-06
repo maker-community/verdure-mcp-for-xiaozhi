@@ -4,6 +4,7 @@ using Verdure.McpPlatform.Api.Services;
 using Verdure.McpPlatform.Api.Services.WebSocket;
 using Verdure.McpPlatform.Application.Services;
 using Verdure.McpPlatform.Contracts.DTOs;
+using Verdure.McpPlatform.Contracts.Models;
 using Verdure.McpPlatform.Contracts.Requests;
 
 namespace Verdure.McpPlatform.Api.Apis;
@@ -23,6 +24,10 @@ public static class XiaozhiMcpEndpointApi
         api.MapGet("/", GetMcpServersAsync)
             .WithName("GetMcpServers")
             .Produces<IEnumerable<XiaozhiMcpEndpointDto>>();
+
+        api.MapGet("/paged", GetMcpServersPagedAsync)
+            .WithName("GetMcpServersPaged")
+            .Produces<PagedResult<XiaozhiMcpEndpointDto>>();
 
         api.MapGet("/{id}", GetMcpServerAsync)
             .WithName("GetMcpServer")
@@ -64,6 +69,16 @@ public static class XiaozhiMcpEndpointApi
         var userId = identityService.GetUserIdentity();
         var servers = await XiaozhiMcpEndpointService.GetByUserAsync(userId);
         return TypedResults.Ok(servers);
+    }
+
+    private static async Task<Ok<PagedResult<XiaozhiMcpEndpointDto>>> GetMcpServersPagedAsync(
+        [AsParameters] PagedRequest request,
+        IXiaozhiMcpEndpointService XiaozhiMcpEndpointService,
+        IIdentityService identityService)
+    {
+        var userId = identityService.GetUserIdentity();
+        var result = await XiaozhiMcpEndpointService.GetByUserPagedAsync(userId, request);
+        return TypedResults.Ok(result);
     }
 
     private static async Task<Results<Ok<XiaozhiMcpEndpointDto>, NotFound>> GetMcpServerAsync(

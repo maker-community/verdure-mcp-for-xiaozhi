@@ -13,6 +13,13 @@ public interface IXiaozhiMcpEndpointRepository : IRepository<XiaozhiMcpEndpoint>
     void Delete(XiaozhiMcpEndpoint connection);
     Task<XiaozhiMcpEndpoint?> GetAsync(string connectionId);
     Task<IEnumerable<XiaozhiMcpEndpoint>> GetByUserIdAsync(string userId);
+    Task<(IEnumerable<XiaozhiMcpEndpoint> Items, int TotalCount)> GetByUserIdPagedAsync(
+        string userId, 
+        int skip, 
+        int take, 
+        string? searchTerm = null,
+        string? sortBy = null,
+        bool sortDescending = true);
     Task<IEnumerable<XiaozhiMcpEndpoint>> GetEnabledServersAsync(CancellationToken cancellationToken = default);
     Task<McpServiceBinding?> GetServiceBindingAsync(string bindingId);
     Task<IEnumerable<McpServiceBinding>> GetServiceBindingsByConnectionIdAsync(string connectionId);

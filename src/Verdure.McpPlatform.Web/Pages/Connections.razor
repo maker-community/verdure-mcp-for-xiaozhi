@@ -1,13 +1,20 @@
-﻿@page "/connections"
+@page "/connections"
 @layout MainLayout
-@attribute [Authorize]
+@using Verdure.McpPlatform.Contracts.DTOs
+@using Verdure.McpPlatform.Contracts.Models
+@using Verdure.McpPlatform.Web.Services
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
+@using Microsoft.JSInterop
 @inject IXiaozhiMcpEndpointClientService ServerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
 @inject IStringLocalizer<SharedResources> Loc
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+@attribute [Authorize]
 
 <PageTitle>@Loc["XiaozhiMcpEndpoints"] - @Loc["AppTitle"]</PageTitle>
 
@@ -22,7 +29,14 @@
                             <MudIcon Icon="@Icons.Material.Outlined.Dns" Class="mr-2" Style="color: #FFFFFF;" /> @Loc["XiaozhiMcpEndpoints"]
                         </MudText>
                         <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
-                            @Loc["ManageConnections"]
+                            @if (_totalCount > 0)
+                            {
+                                <span>@Loc["TotalConnections", _totalCount]</span>
+                            }
+                            else
+                            {
+                                <span>@Loc["ManageConnections"]</span>
+                            }
                         </MudText>
                     </div>
                     <MudButton Href="/connections/create" 
@@ -38,311 +52,336 @@
         </MudCard>
     </MudItem>
 
-    <!-- M3 表格容器 -->
+    <!-- Search and Filters -->
     <MudItem xs="12">
-        <MudCard Elevation="1" Class="m3-card">
-            <MudCardContent>
-                <MudTable Items="@_servers" 
-                         Loading="@_loading" 
-                         Hover="true" 
-                         Breakpoint="Breakpoint.Sm"
-                         Dense="false"
-                         Elevation="0">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h6" Style="font-weight: 500;">@Loc["YourConnections"]</MudText>
-                        <MudSpacer />
-                        <MudTextField @bind-Value="_searchString" 
-                                     Placeholder="@Loc["SearchConnections"]" 
-                                     Adornment="Adornment.Start" 
-                                     AdornmentIcon="@Icons.Material.Outlined.Search" 
-                                     IconSize="Size.Medium" 
-                                     Variant="Variant.Outlined"
-                                     Margin="Margin.Dense"
-                                     Class="mt-0"
-                                     Style="max-width: 300px;"
-                                     Immediate="true"></MudTextField>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>@Loc["Name"]</MudTh>
-                        <MudTh>@Loc["Address"]</MudTh>
-                        <MudTh>@Loc["Status"]</MudTh>
-                        <MudTh>@Loc["McpBindings"]</MudTh>
-                        <MudTh>@Loc["CreatedAt"]</MudTh>
-                        <MudTh>@Loc["Actions"]</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        @if (string.IsNullOrWhiteSpace(_searchString) || 
-                             context.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
-                             context.Address.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-                        {
-                            <MudTd DataLabel="Name">
-                                <MudText Typo="Typo.body1" Style="font-weight: 500;">@context.Name</MudText>
-                                @if (!string.IsNullOrWhiteSpace(context.Description))
-                                {
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Description</MudText>
-                                }
-                            </MudTd>
-                            <MudTd DataLabel="Address">
-                                <MudTooltip Text="@context.Address">
-                                    <MudText Typo="Typo.body2" Style="font-family: monospace; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        @context.Address
-                                    </MudText>
-                                </MudTooltip>
-                            </MudTd>
-                            <MudTd DataLabel="Status">
-                                <div class="d-flex align-center m3-gap-sm">
-                                    @if (context.IsEnabled)
-                                    {
-                                        @if (context.IsConnected)
-                                        {
-                                            <MudChip T="string" 
-                                                    Size="Size.Small" 
-                                                    Variant="Variant.Filled"
-                                                    Color="Color.Success" 
-                                                    Icon="@Icons.Material.Filled.CheckCircle"
-                                                    Class="m3-chip">
-                                                @Loc["Connected"]
-                                            </MudChip>
-                                        }
-                                        else
-                                        {
-                                            <MudChip T="string" 
-                                                    Size="Size.Small" 
-                                                    Variant="Variant.Outlined"
-                                                    Color="Color.Warning" 
-                                                    Icon="@Icons.Material.Filled.Warning"
-                                                    Class="m3-chip">
-                                                @Loc["Disconnected"]
-                                            </MudChip>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <MudChip T="string" 
-                                                Size="Size.Small" 
-                                                Variant="Variant.Text"
-                                                Color="Color.Default" 
-                                                Icon="@Icons.Material.Filled.PowerSettingsNew"
-                                                Class="m3-chip"
-                                                Style="opacity: 0.6;">
-                                            @Loc["NotStarted"]
-                                        </MudChip>
-                                    }
-                                </div>
-                            </MudTd>
-                            <MudTd DataLabel="Bindings">
-                                <MudChip T="string" 
-                                        Size="Size.Small" 
-                                        Variant="Variant.Outlined"
-                                        Color="Color.Info"
-                                        Class="m3-chip">
-                                    @string.Format(Loc["BindingsCount"], context.ServiceBindings.Count)
-                                </MudChip>
-                            </MudTd>
-                            <MudTd DataLabel="Created">
-                                <MudText Typo="Typo.body2">@context.CreatedAt.ToString("MMM dd, yyyy")</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Actions">
-                                <div class="d-flex m3-gap-xs">
-                                    @if (context.IsEnabled)
-                                    {
-                                        <MudTooltip Text="@Loc["DisableConnection"]">
-                                            <MudIconButton Icon="@Icons.Material.Outlined.PowerSettingsNew" 
-                                                         Size="Size.Medium" 
-                                                         Color="Color.Warning"
-                                                         OnClick="@(() => DisableServer(context))"
-                                                         Class="m3-icon-button" />
-                                        </MudTooltip>
-                                    }
-                                    else
-                                    {
-                                        <MudTooltip Text="@Loc["EnableConnection"]">
-                                            <MudIconButton Icon="@Icons.Material.Outlined.PlayArrow" 
-                                                         Size="Size.Medium" 
-                                                         Color="Color.Success"
-                                                         OnClick="@(() => EnableServer(context))"
-                                                         Class="m3-icon-button" />
-                                        </MudTooltip>
-                                    }
-                                    <MudTooltip Text="@Loc["Edit"]">
-                                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" 
-                                                     Size="Size.Medium" 
-                                                     Color="Color.Primary"
-                                                     OnClick="@(() => EditServer(context.Id))"
-                                                     Class="m3-icon-button" />
-                                    </MudTooltip>
-                                    <MudTooltip Text="@Loc["ViewBindings"]">
-                                        <MudIconButton Icon="@Icons.Material.Outlined.Link" 
-                                                     Size="Size.Medium" 
-                                                     Color="Color.Secondary"
-                                                     OnClick="@(() => ViewBindings(context.Id))"
-                                                     Class="m3-icon-button" />
-                                    </MudTooltip>
-                                    <MudTooltip Text="@Loc["Delete"]">
-                                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" 
-                                                     Size="Size.Medium" 
-                                                     Color="Color.Error"
-                                                     OnClick="@(() => DeleteServer(context))"
-                                                     Class="m3-icon-button" />
-                                    </MudTooltip>
-                                </div>
-                            </MudTd>
-                        }
-                    </RowTemplate>
-                    <NoRecordsContent>
-                        <!-- M3 空状态设计 -->
-                        <div class="m3-empty-state">
-                            <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
-                                     Color="Color.Default" 
-                                     Class="m3-empty-state-icon" />
-                            <MudText Typo="Typo.h6" Class="m3-mb-sm" Style="font-weight: 500;">
-                                @Loc["NoConnectionsFound"]
-                            </MudText>
-                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="m3-mb-lg">
-                                @(_searchString?.Length > 0 
-                                    ? Loc["TryAdjustingSearch"]
-                                    : Loc["GetStartedCreateConnection"])
-                            </MudText>
-                            @if (string.IsNullOrEmpty(_searchString))
-                            {
-                                <MudButton Href="/connections/create" 
-                                           Variant="Variant.Filled" 
-                                           Color="Color.Primary" 
-                                           StartIcon="@Icons.Material.Filled.Add"
-                                           Class="m3-button">
-                                    @Loc["CreateConnection"]
-                                </MudButton>
-                            }
-                        </div>
-                    </NoRecordsContent>
-                    <LoadingContent>
-                        <div class="pa-4">
-                            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
-                        </div>
-                    </LoadingContent>
-                </MudTable>
-            </MudCardContent>
-        </MudCard>
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudGrid>
+                <MudItem xs="12" sm="6" md="8">
+                    <MudTextField @bind-Value="_searchTerm"
+                                  Label="@Loc["Search"]"
+                                  Placeholder="@Loc["SearchConnections"]"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search"
+                                  Immediate="true"
+                                  DebounceInterval="500"
+                                  OnDebounceIntervalElapsed="OnSearchChanged"
+                                  Clearable="true"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4">
+                    <MudSelect Value="_sortBy"
+                               Label="@Loc["SortBy"]"
+                               Variant="Variant.Outlined"
+                               T="string"
+                               ValueChanged="OnSortChanged">
+                        <MudSelectItem Value="@("CreatedAt")">@Loc["CreatedDate"]</MudSelectItem>
+                        <MudSelectItem Value="@("Name")">@Loc["Name"]</MudSelectItem>
+                        <MudSelectItem Value="@("Address")">@Loc["Address"]</MudSelectItem>
+                        <MudSelectItem Value="@("Status")">@Loc["Status"]</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Cards Container with Infinite Scroll -->
+    <MudItem xs="12">
+        <div id="connections-scroll-container" 
+             style="height: calc(100vh - 400px); overflow-y: auto; overflow-x: hidden;">
+            
+            @if (_loading && _servers.Count == 0)
+            {
+                <!-- Initial Loading Skeleton -->
+                <MudGrid Spacing="3" Class="pa-4">
+                    @for (int i = 0; i < 8; i++)
+                    {
+                        <MudItem xs="12" sm="6" md="4" lg="3">
+                            <MudCard Style="height: 200px;" Elevation="2">
+                                <MudCardContent>
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="40px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" Width="60%" />
+                                </MudCardContent>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
+            else if (_servers.Count == 0)
+            {
+                <!-- No Data -->
+                <MudPaper Class="pa-8 d-flex flex-column align-center justify-center" Style="min-height: 400px;" Elevation="0">
+                    <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
+                             Style="font-size: 120px;" 
+                             Color="Color.Default" 
+                             Class="mb-4" />
+                    <MudText Typo="Typo.h5" Class="mb-2">
+                        @(string.IsNullOrWhiteSpace(_searchTerm) ? Loc["NoConnectionsYet"] : Loc["NoConnectionsFound"])
+                    </MudText>
+                    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+                        @(string.IsNullOrWhiteSpace(_searchTerm) 
+                            ? Loc["CreateFirstConnection"] 
+                            : Loc["NoMatchingConnections", _searchTerm])
+                    </MudText>
+                    @if (string.IsNullOrWhiteSpace(_searchTerm))
+                    {
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Add"
+                                   Href="/connections/create">
+                            @Loc["CreateFirstConnection"]
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Clear"
+                                   OnClick="ClearSearch">
+                            @Loc["ClearSearch"]
+                        </MudButton>
+                    }
+                </MudPaper>
+            }
+            else
+            {
+                <!-- Cards Grid -->
+                <MudGrid Spacing="3" Class="pa-4">
+                    @foreach (var server in _servers)
+                    {
+                        <MudItem xs="12" sm="6" md="4" lg="3">
+                            <ConnectionCard Connection="@server"
+                                            OnEdit="@(() => HandleEdit(server))"
+                                            OnDelete="@(() => HandleDelete(server))"
+                                            OnEnable="@(() => HandleEnable(server))"
+                                            OnDisable="@(() => HandleDisable(server))"
+                                            OnViewBindings="@(() => HandleViewBindings(server))" />
+                        </MudItem>
+                    }
+                </MudGrid>
+
+                <!-- Loading More Indicator -->
+                @if (_loadingMore)
+                {
+                    <div class="d-flex justify-center pa-4">
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    </div>
+                }
+
+                <!-- Scroll Sentinel -->
+                @if (_hasMoreData && !_loadingMore)
+                {
+                    <div id="scroll-sentinel" style="height: 1px;"></div>
+                }
+            }
+        </div>
     </MudItem>
 </MudGrid>
 
 @code {
+    // Data
     private List<XiaozhiMcpEndpointDto> _servers = new();
-    private bool _loading = true;
-    private string _searchString = "";
+
+    // UI state
+    private string _searchTerm = "";
+    private string _sortBy = "CreatedAt";
+    private string _sortOrder = "desc";
+    private int _totalCount = 0;
+    private bool _loading = false;
+    private bool _loadingMore = false;
+    private bool _hasMoreData = true;
+
+    // Pagination
+    private int _currentPage = 1;
+    private const int _pageSize = 12;
+
+    // JavaScript interop
+    private IJSObjectReference? _module;
+    private DotNetObjectReference<Connections>? _dotNetHelper;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadServersAsync();
     }
 
-    private async Task LoadServersAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (firstRender)
+        {
+            try
+            {
+                _module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/infinite-scroll.js");
+                _dotNetHelper = DotNetObjectReference.Create(this);
+                await _module.InvokeVoidAsync("initializeInfiniteScroll", "scroll-sentinel", _dotNetHelper);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"�?Failed to initialize infinite scroll: {ex.Message}");
+            }
+        }
+    }
+
+    [JSInvokable]
+    public async Task LoadMoreAsync()
+    {
+        if (_hasMoreData && !_loadingMore)
+        {
+            await LoadServersAsync(loadMore: true);
+        }
+    }
+
+    private async Task LoadServersAsync(bool loadMore = false)
+    {
+        if (_loading || _loadingMore) return;
+
+        if (loadMore)
+        {
+            _loadingMore = true;
+            _currentPage++;
+        }
+        else
         {
             _loading = true;
-            var servers = await ServerService.GetServersAsync();
-            _servers = servers.ToList();
+            _currentPage = 1;
+            _servers.Clear();
         }
-        catch (HttpRequestException ex)
+
+        try
         {
-            Snackbar.Add(string.Format(Loc["ErrorLoadingConnections2"], ex.Message), Severity.Error);
+            Console.WriteLine($"🔄 LoadServersAsync: Page={_currentPage}, PageSize={_pageSize}, LoadMore={loadMore}");
+
+            var pagedRequest = new PagedRequest
+            {
+                Page = _currentPage,
+                PageSize = _pageSize,
+                SearchTerm = _searchTerm,
+                SortBy = _sortBy,
+                SortOrder = _sortOrder
+            };
+
+            var result = await ServerService.GetServersPagedAsync(pagedRequest);
+            
+            _totalCount = result.TotalCount;
+            
+            if (loadMore)
+            {
+                _servers.AddRange(result.Items);
+            }
+            else
+            {
+                _servers = result.Items.ToList();
+            }
+
+            _hasMoreData = _servers.Count < _totalCount;
+
+            Console.WriteLine($"�?Loaded: Page={_currentPage}, Items={result.Items.Count()}, Total={_servers.Count}/{_totalCount}, HasMore={_hasMoreData}");
         }
         catch (Exception ex)
         {
-            Snackbar.Add(string.Format(Loc["UnexpectedError"], ex.Message), Severity.Error);
+            Console.WriteLine($"�?Error: {ex.Message}");
+            Snackbar.Add($"{Loc["Error"]}: {ex.Message}", Severity.Error);
         }
         finally
         {
             _loading = false;
+            _loadingMore = false;
+            StateHasChanged();
         }
     }
 
-    private void EditServer(string id)
+    private async Task OnSearchChanged()
     {
-        Navigation.NavigateTo($"/connections/edit/{id}");
+        Console.WriteLine($"🔍 Search changed: '{_searchTerm}'");
+        await LoadServersAsync();
     }
 
-    private void ViewBindings(string id)
+    private async Task OnSortChanged(string newSortBy)
     {
-        Navigation.NavigateTo($"/connections/{id}/service-bindings");
+        Console.WriteLine($"�?Sort changed: {_sortBy} �?{newSortBy}");
+        _sortBy = newSortBy;
+        await LoadServersAsync();
     }
 
-    private async Task EnableServer(XiaozhiMcpEndpointDto server)
+    private void ClearSearch()
     {
-        try
-        {
-            await ServerService.EnableServerAsync(server.Id);
-            
-            // Reload server data from backend to ensure consistency
-            var updatedServer = await ServerService.GetServerAsync(server.Id);
-            if (updatedServer != null)
-            {
-                var index = _servers.FindIndex(s => s.Id == server.Id);
-                if (index >= 0)
-                {
-                    _servers[index] = updatedServer;
-                }
-            }
-            
-            Snackbar.Add(string.Format(Loc["ConnectionEnabled"], server.Name), Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(string.Format(Loc["ErrorEnablingServer"], ex.Message), Severity.Error);
-        }
+        _searchTerm = "";
+        _ = LoadServersAsync();
     }
 
-    private async Task DisableServer(XiaozhiMcpEndpointDto server)
+    private void HandleEdit(XiaozhiMcpEndpointDto server)
     {
-        try
-        {
-            await ServerService.DisableServerAsync(server.Id);
-            
-            // Reload server data from backend to ensure consistency
-            var updatedServer = await ServerService.GetServerAsync(server.Id);
-            if (updatedServer != null)
-            {
-                var index = _servers.FindIndex(s => s.Id == server.Id);
-                if (index >= 0)
-                {
-                    _servers[index] = updatedServer;
-                }
-            }
-            
-            Snackbar.Add(string.Format(Loc["ConnectionDisabled"], server.Name), Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(string.Format(Loc["ErrorDisablingServer"], ex.Message), Severity.Error);
-        }
+        Navigation.NavigateTo($"/connections/edit/{server.Id}");
     }
 
-    private async Task DeleteServer(XiaozhiMcpEndpointDto server)
+    private async Task HandleDelete(XiaozhiMcpEndpointDto server)
     {
-        var parameters = new DialogParameters<DeleteConfirmationDialog>
-        {
-            { x => x.ContentText, string.Format(Loc["ConfirmDeleteConnection"], server.Name) },
-            { x => x.ButtonText, Loc["Delete"] },
-            { x => x.Color, Color.Error }
-        };
+        bool? confirm = await DialogService.ShowMessageBox(
+            Loc["DeleteConnection"],
+            Loc["DeleteConnectionConfirm", server.Name],
+            yesText: Loc["Delete"],
+            cancelText: Loc["Cancel"]);
 
-        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
-        var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>(Loc["ConfirmDelete"], parameters, options);
-        var result = await dialog.Result;
-
-        if (result != null && !result.Canceled)
+        if (confirm == true)
         {
             try
             {
                 await ServerService.DeleteServerAsync(server.Id);
-                _servers.Remove(server);
-                Snackbar.Add(string.Format(Loc["ConnectionDeletedSuccess"], server.Name), Severity.Success);
+                _totalCount--;
+                Snackbar.Add(Loc["DeletedSuccessfully", server.Name], Severity.Success);
+                
+                // Refresh the virtualized list
+                await LoadServersAsync();
             }
             catch (Exception ex)
             {
-                Snackbar.Add(string.Format(Loc["ErrorDeletingServer"], ex.Message), Severity.Error);
+                Snackbar.Add($"{Loc["Error"]}: {ex.Message}", Severity.Error);
             }
         }
+    }
+
+    private async Task HandleEnable(XiaozhiMcpEndpointDto server)
+    {
+        try
+        {
+            await ServerService.EnableServerAsync(server.Id);
+            Snackbar.Add(Loc["EnabledSuccessfully", server.Name], Severity.Success);
+            
+            // Refresh the virtualized list
+            await LoadServersAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"{Loc["Error"]}: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task HandleDisable(XiaozhiMcpEndpointDto server)
+    {
+        try
+        {
+            await ServerService.DisableServerAsync(server.Id);
+            Snackbar.Add(Loc["DisabledSuccessfully", server.Name], Severity.Success);
+            
+            // Refresh the virtualized list
+            await LoadServersAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"{Loc["Error"]}: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void HandleViewBindings(XiaozhiMcpEndpointDto server)
+    {
+        Navigation.NavigateTo($"/connections/{server.Id}/bindings");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module != null)
+        {
+            await _module.DisposeAsync();
+        }
+        _dotNetHelper?.Dispose();
     }
 }

@@ -1034,4 +1034,57 @@
   <data name="TooltipBilibiliChannel" xml:space="preserve">
     <value>绿荫阿广 B站</value>
   </data>
+  
+  <!-- UI 卡片重构 - Phase 3 -->
+  <data name="ShowingItems" xml:space="preserve">
+    <value>显示 {0} / {1} 项</value>
+  </data>
+  <data name="NoConnectionsYet" xml:space="preserve">
+    <value>暂无连接</value>
+  </data>
+  <data name="NoConnectionsFound" xml:space="preserve">
+    <value>未找到连接</value>
+  </data>
+  <data name="CreateFirstConnection" xml:space="preserve">
+    <value>创建您的第一个连接以开始使用</value>
+  </data>
+  <data name="NoMatchingConnections" xml:space="preserve">
+    <value>没有匹配 '{0}' 的连接</value>
+  </data>
+  <data name="SearchConnections" xml:space="preserve">
+    <value>按名称或地址搜索...</value>
+  </data>
+  <data name="LoadingMore" xml:space="preserve">
+    <value>加载更多...</value>
+  </data>
+  <data name="AllItemsLoaded" xml:space="preserve">
+    <value>已加载全部项目（共 {0} 个）</value>
+  </data>
+  <data name="ClearSearch" xml:space="preserve">
+    <value>清除搜索</value>
+  </data>
+  <data name="SortBy" xml:space="preserve">
+    <value>排序方式</value>
+  </data>
+  <data name="CreatedDate" xml:space="preserve">
+    <value>创建日期</value>
+  </data>
+  <data name="DeleteConnection" xml:space="preserve">
+    <value>删除连接</value>
+  </data>
+  <data name="DeleteConnectionConfirm" xml:space="preserve">
+    <value>确定要删除 '{0}' 吗？此操作无法撤销。</value>
+  </data>
+  <data name="DeletedSuccessfully" xml:space="preserve">
+    <value>'{0}' 删除成功</value>
+  </data>
+  <data name="EnabledSuccessfully" xml:space="preserve">
+    <value>'{0}' 启用成功</value>
+  </data>
+  <data name="DisabledSuccessfully" xml:space="preserve">
+    <value>'{0}' 禁用成功</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
 </root>
