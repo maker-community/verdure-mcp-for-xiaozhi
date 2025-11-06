@@ -228,6 +228,15 @@
   <data name="Description" xml:space="preserve">
     <value>Description</value>
   </data>
+  <data name="NoDescription" xml:space="preserve">
+    <value>No description provided</value>
+  </data>
+  <data name="Disable" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="Enable" xml:space="preserve">
+    <value>Enable</value>
+  </data>
   <data name="CreatedAt" xml:space="preserve">
     <value>Created</value>
   </data>
@@ -371,6 +380,9 @@
   </data>
   <data name="ViewBindings" xml:space="preserve">
     <value>View Bindings</value>
+  </data>
+  <data name="Manage" xml:space="preserve">
+    <value>Manage</value>
   </data>
   
   <!-- Settings Page - About Section -->

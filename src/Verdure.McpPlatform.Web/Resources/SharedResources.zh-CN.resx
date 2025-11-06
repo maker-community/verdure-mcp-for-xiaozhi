@@ -228,6 +228,15 @@
   <data name="Description" xml:space="preserve">
     <value>描述</value>
   </data>
+  <data name="NoDescription" xml:space="preserve">
+    <value>暂无描述</value>
+  </data>
+  <data name="Disable" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="Enable" xml:space="preserve">
+    <value>启用</value>
+  </data>
   <data name="CreatedAt" xml:space="preserve">
     <value>创建时间</value>
   </data>
@@ -371,6 +380,9 @@
   </data>
   <data name="ViewBindings" xml:space="preserve">
     <value>查看绑定</value>
+  </data>
+  <data name="Manage" xml:space="preserve">
+    <value>管理</value>
   </data>
   
   <!-- Settings Page - About Section -->
