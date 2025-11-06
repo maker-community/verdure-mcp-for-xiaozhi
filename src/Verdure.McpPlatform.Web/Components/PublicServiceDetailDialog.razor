@@ -1,0 +1,141 @@
+@using Microsoft.Extensions.Localization
+@using MudBlazor
+@using Verdure.McpPlatform.Contracts.DTOs
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="4">
+            <!-- Service Header -->
+            <div class="d-flex align-center" style="gap: 16px;">
+                <MudAvatar Size="Size.Large" 
+                           Color="Color.Primary"
+                           Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); color: white;">
+                    @if (!string.IsNullOrEmpty(Service.LogoUrl))
+                    {
+                        <MudImage Src="@Service.LogoUrl" Alt="@Service.Name" Style="width: 100%; height: 100%; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Settings" Size="Size.Large" />
+                    }
+                </MudAvatar>
+                <div>
+                    <MudText Typo="Typo.h5" Style="font-weight: 600; margin-bottom: 4px;">
+                        @Service.Name
+                    </MudText>
+                    <MudChip T="string" 
+                             Size="Size.Small" 
+                             Variant="Variant.Filled"
+                             Style="background: #E8F5E9; color: #2E7D32; font-weight: 500;"
+                             Icon="@Icons.Material.Filled.Public">
+                        @Loc["Public"]
+                    </MudChip>
+                </div>
+            </div>
+
+            <MudDivider />
+
+            <!-- Description -->
+            @if (!string.IsNullOrWhiteSpace(Service.Description))
+            {
+                <div>
+                    <MudText Typo="Typo.subtitle2" Style="font-weight: 600; margin-bottom: 8px;">
+                        @Loc["Description"]
+                    </MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        @Service.Description
+                    </MudText>
+                </div>
+            }
+
+            <!-- Protocol -->
+            <div>
+                <MudText Typo="Typo.subtitle2" Style="font-weight: 600; margin-bottom: 8px;">
+                    @Loc["Protocol"]
+                </MudText>
+                <MudChip T="string" 
+                         Size="Size.Small" 
+                         Variant="Variant.Outlined"
+                         Style="border-color: #1976D2; color: #1976D2; font-weight: 500; border-radius: 16px;"
+                         Icon="@Icons.Material.Filled.Code">
+                    @(Service.Protocol ?? "stdio")
+                </MudChip>
+            </div>
+
+            <!-- Tools List -->
+            @if (Service.Tools != null && Service.Tools.Any())
+            {
+                <div>
+                    <MudText Typo="Typo.subtitle2" Style="font-weight: 600; margin-bottom: 8px;">
+                        @Loc["AvailableTools"] (@Service.Tools.Count)
+                    </MudText>
+                    <MudStack Spacing="2">
+                        @foreach (var tool in Service.Tools)
+                        {
+                            <MudPaper Class="pa-3" Elevation="0" Style="background: rgba(0,0,0,0.02); border-radius: 8px;">
+                                <div class="d-flex align-center justify-space-between">
+                                    <div class="d-flex align-center" style="gap: 12px;">
+                                        <MudIcon Icon="@Icons.Material.Filled.Build" 
+                                                 Size="Size.Small" 
+                                                 Color="Color.Primary" />
+                                        <div>
+                                            <MudText Typo="Typo.body2" Style="font-weight: 500;">
+                                                @tool.Name
+                                            </MudText>
+                                            @if (!string.IsNullOrWhiteSpace(tool.Description))
+                                            {
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                                    @tool.Description
+                                                </MudText>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </MudPaper>
+                        }
+                    </MudStack>
+                </div>
+            }
+            else
+            {
+                <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true">
+                    @Loc["NoToolsAvailable"]
+                </MudAlert>
+            }
+
+            <!-- Created Date -->
+            <div>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    <MudIcon Icon="@Icons.Material.Outlined.CalendarToday" Size="Size.Small" Style="vertical-align: middle; margin-right: 4px;" />
+                    @Loc["CreatedAt"]: @Service.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                </MudText>
+            </div>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Default">
+            @Loc["Close"]
+        </MudButton>
+        <MudButton OnClick="UseService" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Link">
+            @Loc["UseThisService"]
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudBlazor.IDialogReference? MudDialog { get; set; }
+
+    [Parameter, EditorRequired]
+    public McpServiceConfigDto Service { get; set; } = null!;
+
+    private void Cancel() => MudDialog?.Close(DialogResult.Cancel());
+
+    private void UseService()
+    {
+        // 返回 true 表示用户想要使用这个服务
+        MudDialog?.Close(DialogResult.Ok(true));
+    }
+}

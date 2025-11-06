@@ -3,125 +3,212 @@
 @using Verdure.McpPlatform.Web.Resources
 @inject IStringLocalizer<SharedResources> Loc
 
-<MudCard Elevation="2" Class="service-card m3-card-elevated" Style="height: 100%; display: flex; flex-direction: column;">
-    <MudCardHeader>
+<MudCard Elevation="2" 
+         Class="service-config-card m3-card-elevated" 
+         Style="height: 100%; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+    
+    <!-- Header with Logo and Status -->
+    <MudCardHeader Style="background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%); padding: 16px;">
         <CardHeaderContent>
-            <div class="d-flex align-center" style="gap: 8px;">
-                <MudIcon Icon="@Icons.Material.Outlined.Settings" Size="Size.Small" Color="Color.Primary" />
-                <MudText Typo="Typo.h6" Style="font-weight: 500; margin: 0;">@Service.Name</MudText>
+            <div class="d-flex align-center justify-space-between" style="width: 100%;">
+                <div class="d-flex align-center" style="gap: 12px; flex: 1; min-width: 0;">
+                    <!-- Logo Placeholder (can be replaced with actual logo later) -->
+                    <div style="position: relative;">
+                        <MudAvatar Size="Size.Medium" 
+                                   Color="Color.Primary"
+                                   Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); color: white;">
+                            @if (!string.IsNullOrEmpty(Service.LogoUrl))
+                            {
+                                <MudImage Src="@Service.LogoUrl" Alt="@Service.Name" Style="width: 100%; height: 100%; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Settings" />
+                            }
+                        </MudAvatar>
+                        @if (Service.IsPublic)
+                        {
+                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #4CAF50; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);"></div>
+                        }
+                    </div>
+                    
+                    <!-- Service Name -->
+                    <MudText Typo="Typo.h6" 
+                             Style="font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1a1a1a;">
+                        @Service.Name
+                    </MudText>
+                </div>
+                
+                <!-- Actions Menu (only for owned services) -->
+                @if (!IsPublicView)
+                {
+                    <MudMenu Icon="@Icons.Material.Filled.MoreVert" 
+                             Size="Size.Small" 
+                             AnchorOrigin="Origin.BottomRight"
+                             Style="flex-shrink: 0;">
+                        <MudMenuItem Icon="@Icons.Material.Outlined.Visibility" OnClick="@OnViewDetails">
+                            @Loc["ViewDetails"]
+                        </MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Outlined.Sync" OnClick="@OnSyncTools">
+                            @Loc["SyncTools"]
+                        </MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Outlined.Edit" OnClick="@OnEdit">
+                            @Loc["Edit"]
+                        </MudMenuItem>
+                        <MudDivider />
+                        <MudMenuItem Icon="@Icons.Material.Outlined.Delete" 
+                                     IconColor="Color.Error" 
+                                     OnClick="@OnDelete">
+                            @Loc["Delete"]
+                        </MudMenuItem>
+                    </MudMenu>
+                }
+                else
+                {
+                    <MudIconButton Icon="@Icons.Material.Outlined.Visibility"
+                                   Size="Size.Small"
+                                   OnClick="@OnViewDetails"
+                                   Style="flex-shrink: 0;" />
+                }
             </div>
         </CardHeaderContent>
-        <CardHeaderActions>
-            <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" AnchorOrigin="Origin.BottomRight">
-                <MudMenuItem Icon="@Icons.Material.Outlined.Visibility" OnClick="@OnViewDetails">@Loc["ViewDetails"]</MudMenuItem>
-                <MudMenuItem Icon="@Icons.Material.Outlined.Sync" OnClick="@OnSyncTools">@Loc["SyncTools"]</MudMenuItem>
-                <MudMenuItem Icon="@Icons.Material.Outlined.Edit" OnClick="@OnEdit">@Loc["Edit"]</MudMenuItem>
-                <MudDivider />
-                <MudMenuItem Icon="@Icons.Material.Outlined.Delete" IconColor="Color.Error" OnClick="@OnDelete">@Loc["Delete"]</MudMenuItem>
-            </MudMenu>
-        </CardHeaderActions>
     </MudCardHeader>
     
-    <MudCardContent Style="flex-grow: 1;">
+    <!-- Card Content -->
+    <MudCardContent Style="flex-grow: 1; padding: 20px;">
+        <!-- Description -->
         @if (!string.IsNullOrWhiteSpace(Service.Description))
         {
-            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-3" Style="min-height: 40px;">
+            <MudText Typo="Typo.body2" 
+                     Color="Color.Secondary" 
+                     Class="mb-4" 
+                     Style="line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 44px;">
                 @Service.Description
             </MudText>
         }
         else
         {
-            <div style="min-height: 40px;"></div>
+            <MudText Typo="Typo.body2" 
+                     Color="Color.Secondary" 
+                     Class="mb-4" 
+                     Style="font-style: italic; opacity: 0.6; min-height: 44px;">
+                @Loc["NoDescription"]
+            </MudText>
         }
         
-        <!-- Service Endpoint -->
-        <div class="mb-3">
-            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-1">@Loc["Endpoint"]</MudText>
-            <MudTooltip Text="@Service.Endpoint">
-                <MudText Typo="Typo.body2" Style="font-family: monospace; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    @Service.Endpoint
-                </MudText>
-            </MudTooltip>
-        </div>
-        
-        <!-- Protocol, Visibility and Tools -->
-        <div class="d-flex flex-wrap" style="gap: 8px;">
+        <!-- Status Pills -->
+        <div class="d-flex flex-wrap align-center mb-3" style="gap: 8px;">
+            <!-- Protocol -->
             <MudChip T="string" 
-                    Size="Size.Small" 
-                    Variant="Variant.Outlined"
-                    Color="Color.Info"
-                    Icon="@Icons.Material.Filled.Code"
-                    Class="m3-chip">
+                     Size="Size.Small" 
+                     Variant="Variant.Outlined"
+                     Style="border-color: #1976D2; color: #1976D2; font-weight: 500; border-radius: 16px;"
+                     Icon="@Icons.Material.Filled.Code">
                 @(Service.Protocol ?? "stdio")
             </MudChip>
             
+            <!-- Visibility -->
             @if (Service.IsPublic)
             {
                 <MudChip T="string" 
-                        Size="Size.Small" 
-                        Variant="Variant.Filled"
-                        Color="Color.Success" 
-                        Icon="@Icons.Material.Filled.Public"
-                        Class="m3-chip">
+                         Size="Size.Small" 
+                         Variant="Variant.Filled"
+                         Style="background: #E8F5E9; color: #2E7D32; font-weight: 500; border-radius: 16px;"
+                         Icon="@Icons.Material.Filled.Public">
                     @Loc["Public"]
                 </MudChip>
             }
             else
             {
                 <MudChip T="string" 
-                        Size="Size.Small" 
-                        Variant="Variant.Outlined"
-                        Color="Color.Default" 
-                        Icon="@Icons.Material.Filled.Lock"
-                        Class="m3-chip">
+                         Size="Size.Small" 
+                         Variant="Variant.Outlined"
+                         Style="border-color: #BDBDBD; color: #757575; font-weight: 500; border-radius: 16px;"
+                         Icon="@Icons.Material.Filled.Lock">
                     @Loc["Private"]
                 </MudChip>
             }
             
+            <!-- Tools Count -->
             <MudChip T="string" 
-                    Size="Size.Small" 
-                    Variant="Variant.Text"
-                    Color="Color.Primary"
-                    Icon="@Icons.Material.Filled.Build"
-                    Class="m3-chip">
+                     Size="Size.Small" 
+                     Variant="Variant.Outlined"
+                     Style="border-color: #1976D2; color: #1976D2; font-weight: 500; border-radius: 16px;"
+                     Icon="@Icons.Material.Filled.Build">
                 @string.Format(Loc["ToolsCount"], Service.Tools?.Count ?? 0)
             </MudChip>
         </div>
         
-        <!-- Last Synced -->
-        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-3">
-            @if (Service.LastSyncedAt.HasValue)
-            {
-                @($"{Loc["LastSynced"]}: {Service.LastSyncedAt.Value:MMM dd, yyyy HH:mm}")
-            }
-            else
-            {
-                @Loc["NeverSynced"]
-            }
-        </MudText>
+        <!-- Last Synced (only for owned services) -->
+        @if (!IsPublicView)
+        {
+            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-3">
+                <MudIcon Icon="@Icons.Material.Outlined.Schedule" Size="Size.Small" Style="vertical-align: middle; margin-right: 4px;" />
+                @if (Service.LastSyncedAt.HasValue)
+                {
+                    @($"{Loc["LastSynced"]}: {Service.LastSyncedAt.Value:MMM dd, yyyy HH:mm}")
+                }
+                else
+                {
+                    @Loc["NeverSynced"]
+                }
+            </MudText>
+        }
+        else
+        {
+            <!-- Metadata Footer for Public Services -->
+            <div class="d-flex align-center" style="gap: 4px; margin-top: auto;">
+                <MudIcon Icon="@Icons.Material.Outlined.Schedule" 
+                         Size="Size.Small" 
+                         Style="color: #9E9E9E; font-size: 16px;" />
+                <MudText Typo="Typo.caption" 
+                         Style="color: #757575; font-weight: 400;">
+                    @Service.CreatedAt.ToString("MMM dd, yyyy")
+                </MudText>
+            </div>
+        }
     </MudCardContent>
     
-    <MudCardActions Class="d-flex justify-end" style="gap: 8px;">
-        <MudButton Size="Size.Small" 
-                  Variant="Variant.Text" 
-                  Color="Color.Secondary" 
-                  OnClick="@OnViewDetails"
-                  StartIcon="@Icons.Material.Filled.Visibility">
-            @Loc["Details"]
-        </MudButton>
-        <MudButton Size="Size.Small" 
-                  Variant="Variant.Text" 
-                  Color="Color.Primary" 
-                  OnClick="@OnSyncTools"
-                  StartIcon="@Icons.Material.Filled.Sync">
-            @Loc["Sync"]
-        </MudButton>
+    <!-- Card Actions -->
+    <MudDivider Style="margin: 0;" />
+    <MudCardActions Style="padding: 12px 20px; background: rgba(0, 0, 0, 0.02);">
+        <div class="d-flex justify-space-between align-center" style="width: 100%;">
+            <MudButton Size="Size.Small" 
+                       Variant="Variant.Text" 
+                       Color="Color.Primary" 
+                       OnClick="@OnViewDetails"
+                       StartIcon="@Icons.Material.Filled.Visibility"
+                       Style="text-transform: none; font-weight: 500; border-radius: 20px;">
+                @Loc["Details"]
+            </MudButton>
+            @if (!IsPublicView)
+            {
+                <MudButton Size="Size.Small" 
+                           Variant="Variant.Filled" 
+                           Color="Color.Primary" 
+                           OnClick="@OnSyncTools"
+                           StartIcon="@Icons.Material.Filled.Sync"
+                           Style="text-transform: none; font-weight: 600; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                    @Loc["Sync"]
+                </MudButton>
+            }
+        </div>
     </MudCardActions>
 </MudCard>
+
+<style>
+    .service-config-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    }
+</style>
 
 @code {
     [Parameter, EditorRequired]
     public McpServiceConfigDto Service { get; set; } = null!;
+    
+    [Parameter]
+    public bool IsPublicView { get; set; } = false;
     
     [Parameter]
     public EventCallback OnViewDetails { get; set; }
@@ -135,3 +222,4 @@
     [Parameter]
     public EventCallback OnDelete { get; set; }
 }
+

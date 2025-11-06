@@ -25,6 +25,11 @@ public interface IMcpServiceConfigClientService
     Task<IEnumerable<McpServiceConfigDto>> GetPublicServicesAsync();
 
     /// <summary>
+    /// Get paged public MCP services
+    /// </summary>
+    Task<PagedResult<McpServiceConfigDto>> GetPublicServicesPagedAsync(PagedRequest request);
+
+    /// <summary>
     /// Get a specific MCP service by ID
     /// </summary>
     Task<McpServiceConfigDto?> GetServiceAsync(string id);

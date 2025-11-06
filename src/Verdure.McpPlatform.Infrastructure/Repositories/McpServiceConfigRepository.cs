@@ -113,6 +113,61 @@ public class McpServiceConfigRepository : IMcpServiceConfigRepository
             .ToListAsync();
     }
 
+    public async Task<(IEnumerable<McpServiceConfig> Items, int TotalCount)> GetPublicServicesPagedAsync(
+        int skip,
+        int take,
+        string? searchTerm = null,
+        string? sortBy = null,
+        bool sortDescending = true)
+    {
+        var query = _context.McpServiceConfigs
+            .AsNoTracking()
+            .Include(s => s.Tools)
+            .Where(s => s.IsPublic);
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(s =>
+                s.Name.Contains(searchTerm) ||
+                (s.Description != null && s.Description.Contains(searchTerm)));
+        }
+
+        // Get total count before pagination
+        var totalCount = await query.CountAsync();
+
+        // Apply sorting
+        query = sortBy?.ToLower() switch
+        {
+            "name" => sortDescending
+                ? query.OrderByDescending(s => s.Name)
+                : query.OrderBy(s => s.Name),
+            "endpoint" => sortDescending
+                ? query.OrderByDescending(s => s.Endpoint)
+                : query.OrderBy(s => s.Endpoint),
+            "createdat" => sortDescending
+                ? query.OrderByDescending(s => s.CreatedAt)
+                : query.OrderBy(s => s.CreatedAt),
+            "updatedat" => sortDescending
+                ? query.OrderByDescending(s => s.UpdatedAt)
+                : query.OrderBy(s => s.UpdatedAt),
+            "lastsynced" => sortDescending
+                ? query.OrderByDescending(s => s.LastSyncedAt)
+                : query.OrderBy(s => s.LastSyncedAt),
+            _ => sortDescending
+                ? query.OrderByDescending(s => s.CreatedAt)
+                : query.OrderBy(s => s.CreatedAt)
+        };
+
+        // Apply pagination
+        var items = await query
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
     public async Task<bool> DeleteAsync(string id)
     {
         var config = await _context.McpServiceConfigs.FindAsync(id);

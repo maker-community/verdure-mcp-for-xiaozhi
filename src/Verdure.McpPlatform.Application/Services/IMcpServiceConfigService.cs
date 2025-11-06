@@ -14,6 +14,7 @@ public interface IMcpServiceConfigService
     Task<IEnumerable<McpServiceConfigDto>> GetByUserAsync(string userId);
     Task<PagedResult<McpServiceConfigDto>> GetByUserPagedAsync(string userId, PagedRequest request);
     Task<IEnumerable<McpServiceConfigDto>> GetPublicServicesAsync();
+    Task<PagedResult<McpServiceConfigDto>> GetPublicServicesPagedAsync(PagedRequest request);
     Task UpdateAsync(string id, UpdateMcpServiceConfigRequest request, string userId);
     Task DeleteAsync(string id, string userId);
     Task SyncToolsAsync(string id, string userId);

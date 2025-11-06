@@ -880,6 +880,9 @@
   <data name="MyServices" xml:space="preserve">
     <value>我的服务</value>
   </data>
+  <data name="UseThisService" xml:space="preserve">
+    <value>使用此服务</value>
+  </data>
   
   <!-- 页脚 -->
   <data name="QuickLinks" xml:space="preserve">
@@ -1098,5 +1101,32 @@
   </data>
   <data name="Error" xml:space="preserve">
     <value>错误</value>
+  </data>
+  <data name="TotalMcpServices" xml:space="preserve">
+    <value>共 {0} 个 MCP 服务</value>
+  </data>
+  <data name="NoPublicServicesYet" xml:space="preserve">
+    <value>暂无公开服务</value>
+  </data>
+  <data name="NoPublicServicesAvailable" xml:space="preserve">
+    <value>暂时没有可用的公开服务</value>
+  </data>
+  <data name="CreateFirstService" xml:space="preserve">
+    <value>创建您的第一个服务</value>
+  </data>
+  <data name="NoMatchingServices" xml:space="preserve">
+    <value>未找到与 "{0}" 匹配的服务</value>
+  </data>
+  <data name="TotalConnections" xml:space="preserve">
+    <value>共 {0} 个连接</value>
+  </data>
+  <data name="UpdatedDate" xml:space="preserve">
+    <value>更新日期</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>详情</value>
+  </data>
+  <data name="Sync" xml:space="preserve">
+    <value>同步</value>
   </data>
 </root>

@@ -14,6 +14,7 @@ public record McpServiceConfigDto
     public string UserId { get; init; } = string.Empty;
     public string? Description { get; init; }
     public bool IsPublic { get; init; }
+    public string? LogoUrl { get; init; }
     public string? AuthenticationType { get; init; }
     public string? AuthenticationConfig { get; init; }
     public string? Protocol { get; init; }

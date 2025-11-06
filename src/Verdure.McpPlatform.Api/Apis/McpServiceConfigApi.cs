@@ -32,6 +32,10 @@ public static class McpServiceConfigApi
             .WithName("GetPublicMcpServices")
             .Produces<IEnumerable<McpServiceConfigDto>>();
 
+        api.MapGet("/public/paged", GetPublicMcpServicesPagedAsync)
+            .WithName("GetPublicMcpServicesPaged")
+            .Produces<PagedResult<McpServiceConfigDto>>();
+
         api.MapGet("/{id}", GetMcpServiceAsync)
             .WithName("GetMcpService")
             .Produces<McpServiceConfigDto>()
@@ -89,6 +93,14 @@ public static class McpServiceConfigApi
     {
         var services = await mcpServiceConfigService.GetPublicServicesAsync();
         return TypedResults.Ok(services);
+    }
+
+    private static async Task<Ok<PagedResult<McpServiceConfigDto>>> GetPublicMcpServicesPagedAsync(
+        [AsParameters] PagedRequest request,
+        IMcpServiceConfigService mcpServiceConfigService)
+    {
+        var result = await mcpServiceConfigService.GetPublicServicesPagedAsync(request);
+        return TypedResults.Ok(result);
     }
 
     private static async Task<Results<Ok<McpServiceConfigDto>, NotFound>> GetMcpServiceAsync(

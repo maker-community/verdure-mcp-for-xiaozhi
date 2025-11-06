@@ -90,7 +90,25 @@ public class McpServiceConfigService : IMcpServiceConfigService
     public async Task<IEnumerable<McpServiceConfigDto>> GetPublicServicesAsync()
     {
         var configs = await _repository.GetPublicServicesAsync();
-        return configs.Select(MapToDto);
+        return configs.Select(MapToPublicDto);
+    }
+
+    public async Task<PagedResult<McpServiceConfigDto>> GetPublicServicesPagedAsync(PagedRequest request)
+    {
+        var (items, totalCount) = await _repository.GetPublicServicesPagedAsync(
+            request.GetSkip(),
+            request.GetSafePageSize(),
+            request.SearchTerm,
+            request.SortBy,
+            request.SortOrder?.ToLower() == "desc");
+
+        var dtos = items.Select(MapToPublicDto);
+
+        return PagedResult<McpServiceConfigDto>.Create(
+            dtos,
+            totalCount,
+            request.GetSafePage(),
+            request.GetSafePageSize());
     }
 
     public async Task UpdateAsync(string id, UpdateMcpServiceConfigRequest request, string userId)
@@ -210,6 +228,29 @@ public class McpServiceConfigService : IMcpServiceConfigService
             CreatedAt = config.CreatedAt,
             UpdatedAt = config.UpdatedAt,
             LastSyncedAt = config.LastSyncedAt,
+            Tools = config.Tools.Select(MapToolToDto).ToList()
+        };
+    }
+
+    /// <summary>
+    /// Map to DTO for public services - excludes sensitive information
+    /// </summary>
+    private static McpServiceConfigDto MapToPublicDto(McpServiceConfig config)
+    {
+        return new McpServiceConfigDto
+        {
+            Id = config.Id,
+            Name = config.Name,
+            Endpoint = string.Empty, // 隐藏 Endpoint
+            UserId = config.UserId,
+            Description = config.Description,
+            IsPublic = config.IsPublic,
+            AuthenticationType = null, // 隐藏认证类型
+            AuthenticationConfig = null, // 隐藏认证配置
+            Protocol = config.Protocol,
+            CreatedAt = config.CreatedAt,
+            UpdatedAt = config.UpdatedAt,
+            LastSyncedAt = null, // 隐藏最后同步时间
             Tools = config.Tools.Select(MapToolToDto).ToList()
         };
     }

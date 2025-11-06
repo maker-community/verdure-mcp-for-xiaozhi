@@ -4,6 +4,8 @@
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
 @using Verdure.McpPlatform.Contracts.DTOs
+@using Verdure.McpPlatform.Contracts.Models
+@using Microsoft.AspNetCore.Components.Web.Virtualization
 @inject IMcpServiceConfigClientService ServiceConfigService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
@@ -23,7 +25,14 @@
                             <MudIcon Icon="@Icons.Material.Outlined.Settings" Class="mr-2" Style="color: #FFFFFF;" /> @Loc["McpServices"]
                         </MudText>
                         <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
-                            @Loc["ManageMcpServices"]
+                            @if (_totalCount > 0)
+                            {
+                                <span>@Loc["TotalMcpServices", _totalCount]</span>
+                            }
+                            else
+                            {
+                                <span>@Loc["ManageMcpServices"]</span>
+                            }
                         </MudText>
                     </div>
                     <MudButton Href="/mcp-services/create" 
@@ -39,216 +48,285 @@
         </MudCard>
     </MudItem>
 
-    <!-- M3 Table Container -->
+    <!-- Tabs and Search -->
     <MudItem xs="12">
-        <MudCard Elevation="1" Class="m3-card">
-            <MudCardContent>
-                <MudTable Items="@_services" 
-                         Loading="@_loading" 
-                         Hover="true" 
-                         Breakpoint="Breakpoint.Sm"
-                         Dense="false"
-                         Elevation="0">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h6" Style="font-weight: 500;">@Loc["YourMcpServices"]</MudText>
-                        <MudSpacer />
-                        <MudTextField @bind-Value="_searchString" 
-                                     Placeholder="@Loc["SearchMcpServices"]" 
-                                     Adornment="Adornment.Start" 
-                                     AdornmentIcon="@Icons.Material.Outlined.Search" 
-                                     IconSize="Size.Medium" 
-                                     Variant="Variant.Outlined"
-                                     Margin="Margin.Dense"
-                                     Class="mt-0"
-                                     Style="max-width: 300px;"
-                                     Immediate="true"></MudTextField>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>@Loc["Name"]</MudTh>
-                        <MudTh>@Loc["Endpoint"]</MudTh>
-                        <MudTh>@Loc["Protocol"]</MudTh>
-                        <MudTh>@Loc["Visibility"]</MudTh>
-                        <MudTh>@Loc["Tools"]</MudTh>
-                        <MudTh>@Loc["LastSynced"]</MudTh>
-                        <MudTh>@Loc["Actions"]</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        @if (string.IsNullOrWhiteSpace(_searchString) || 
-                             context.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
-                             context.Endpoint.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-                        {
-                            <MudTd DataLabel="Name">
-                                <MudText Typo="Typo.body1" Style="font-weight: 500;">@context.Name</MudText>
-                                @if (!string.IsNullOrWhiteSpace(context.Description))
-                                {
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Description</MudText>
-                                }
-                            </MudTd>
-                            <MudTd DataLabel="Endpoint">
-                                <MudTooltip Text="@context.Endpoint">
-                                    <MudText Typo="Typo.body2" Style="font-family: monospace; font-size: 0.875rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        @context.Endpoint
-                                    </MudText>
-                                </MudTooltip>
-                            </MudTd>
-                            <MudTd DataLabel="Protocol">
-                                <MudChip T="string" 
-                                        Size="Size.Small" 
-                                        Variant="Variant.Outlined"
-                                        Color="Color.Info"
-                                        Class="m3-chip">
-                                    @(context.Protocol ?? "stdio")
-                                </MudChip>
-                            </MudTd>
-                            <MudTd DataLabel="Visibility">
-                                @if (context.IsPublic)
-                                {
-                                    <MudChip T="string" 
-                                            Size="Size.Small" 
-                                            Variant="Variant.Filled"
-                                            Color="Color.Success" 
-                                            Icon="@Icons.Material.Filled.Public"
-                                            Class="m3-chip">
-                                        @Loc["Public"]
-                                    </MudChip>
-                                }
-                                else
-                                {
-                                    <MudChip T="string" 
-                                            Size="Size.Small" 
-                                            Variant="Variant.Outlined"
-                                            Color="Color.Default" 
-                                            Icon="@Icons.Material.Filled.Lock"
-                                            Class="m3-chip">
-                                        @Loc["Private"]
-                                    </MudChip>
-                                }
-                            </MudTd>
-                            <MudTd DataLabel="Tools">
-                                <MudChip T="string" 
-                                        Size="Size.Small" 
-                                        Variant="Variant.Text"
-                                        Color="Color.Primary"
-                                        Class="m3-chip">
-                                    @string.Format(Loc["ToolsCount"], context.Tools?.Count ?? 0)
-                                </MudChip>
-                            </MudTd>
-                            <MudTd DataLabel="LastSynced">
-                                @if (context.LastSyncedAt.HasValue)
-                                {
-                                    <MudText Typo="Typo.body2">@context.LastSyncedAt.Value.ToString("MMM dd, yyyy HH:mm")</MudText>
-                                }
-                                else
-                                {
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["NeverSynced"]</MudText>
-                                }
-                            </MudTd>
-                            <MudTd DataLabel="Actions">
-                                <div class="d-flex m3-gap-xs flex-wrap">
-                                    <MudTooltip Text="@Loc["ViewDetails"]">
-                                        <MudIconButton Icon="@Icons.Material.Outlined.Visibility" 
-                                                     Size="Size.Medium" 
-                                                     Color="Color.Info"
-                                                     OnClick="@(() => ViewDetails(context.Id))"
-                                                     Class="m3-icon-button" />
-                                    </MudTooltip>
-                                    <MudTooltip Text="@Loc["SyncTools"]">
-                                        <MudIconButton Icon="@Icons.Material.Outlined.Sync" 
-                                                     Size="Size.Medium" 
-                                                     Color="Color.Secondary"
-                                                     OnClick="@(() => SyncTools(context))"
-                                                     Class="m3-icon-button" />
-                                    </MudTooltip>
-                                    <MudTooltip Text="@Loc["Edit"]">
-                                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" 
-                                                     Size="Size.Medium" 
-                                                     Color="Color.Primary"
-                                                     OnClick="@(() => EditService(context.Id))"
-                                                     Class="m3-icon-button" />
-                                    </MudTooltip>
-                                    <MudTooltip Text="@Loc["Delete"]">
-                                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" 
-                                                     Size="Size.Medium" 
-                                                     Color="Color.Error"
-                                                     OnClick="@(() => DeleteService(context))"
-                                                     Class="m3-icon-button" />
-                                    </MudTooltip>
-                                </div>
-                            </MudTd>
-                        }
-                    </RowTemplate>
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudGrid>
+                <!-- Tabs -->
+                <MudItem xs="12" md="6">
+                    <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" 
+                             @bind-ActivePanelIndex="_activeTabIndex"
+                             PanelClass="pa-0">
+                        <MudTabPanel Text="@Loc["MyServices"]" Icon="@Icons.Material.Filled.Person" />
+                        <MudTabPanel Text="@Loc["PublicServices"]" Icon="@Icons.Material.Filled.Public" />
+                    </MudTabs>
+                </MudItem>
+                
+                <!-- Search and Sort -->
+                <MudItem xs="12" md="6">
+                    <MudGrid>
+                        <MudItem xs="12" sm="8">
+                            <MudTextField @bind-Value="_searchTerm"
+                                          Label="@Loc["Search"]"
+                                          Placeholder="@Loc["SearchMcpServices"]"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          Immediate="true"
+                                          DebounceInterval="500"
+                                          OnDebounceIntervalElapsed="OnSearchChanged"
+                                          Clearable="true"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Dense" />
+                        </MudItem>
+                        <MudItem xs="12" sm="4">
+                            <MudSelect Value="_sortBy"
+                                       Label="@Loc["SortBy"]"
+                                       Variant="Variant.Outlined"
+                                       Margin="Margin.Dense"
+                                       T="string"
+                                       ValueChanged="OnSortChanged">
+                                <MudSelectItem Value="@("CreatedAt")">@Loc["CreatedDate"]</MudSelectItem>
+                                <MudSelectItem Value="@("Name")">@Loc["Name"]</MudSelectItem>
+                                <MudSelectItem Value="@("UpdatedAt")">@Loc["UpdatedDate"]</MudSelectItem>
+                            </MudSelect>
+                        </MudItem>
+                    </MudGrid>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Cards Container with Virtualization -->
+    <MudItem xs="12">
+        <div style="height: calc(100vh - 400px); overflow-y: auto; overflow-x: hidden;">
+            <!-- Virtualized Cards Grid -->
+            <MudGrid Spacing="3" Class="px-4 py-2">
+                <MudVirtualize @ref="_virtualizeComponent"
+                              Enabled="true"
+                              ItemsProvider="@LoadServicesVirtualized"
+                              OverscanCount="4"
+                              Context="service">
+                    <ChildContent>
+                        <MudItem xs="12" sm="6" md="4" lg="3">
+                            <ServiceConfigCard Service="@service"
+                                               IsPublicView="@IsPublicTab"
+                                               OnViewDetails="@(() => ViewDetails(service))"
+                                               OnSyncTools="@(() => SyncTools(service))"
+                                               OnEdit="@(() => EditService(service.Id))"
+                                               OnDelete="@(() => DeleteService(service))" />
+                        </MudItem>
+                    </ChildContent>
+                    <Placeholder>
+                        <!-- Loading Skeleton -->
+                        <MudItem xs="12" sm="6" md="4" lg="3">
+                            <MudCard Style="height: 280px;" Elevation="2">
+                                <MudCardContent>
+                                    <MudSkeleton SkeletonType="SkeletonType.Circle" Width="40px" Height="40px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="30px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" Width="60%" />
+                                </MudCardContent>
+                            </MudCard>
+                        </MudItem>
+                    </Placeholder>
                     <NoRecordsContent>
-                        <!-- M3 Empty State Design -->
-                        <div class="m3-empty-state">
-                            <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
-                                     Color="Color.Default" 
-                                     Class="m3-empty-state-icon" />
-                            <MudText Typo="Typo.h6" Class="m3-mb-sm" Style="font-weight: 500;">
-                                @Loc["NoMcpServicesFound"]
-                            </MudText>
-                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="m3-mb-lg">
-                                @(_searchString?.Length > 0 
-                                    ? Loc["TryAdjustingSearch"]
-                                    : Loc["GetStartedCreateMcpService"])
-                            </MudText>
-                            @if (string.IsNullOrEmpty(_searchString))
-                            {
-                                <MudButton Href="/mcp-services/create" 
-                                           Variant="Variant.Filled" 
-                                           Color="Color.Primary" 
-                                           StartIcon="@Icons.Material.Filled.Add"
-                                           Class="m3-button">
-                                    @Loc["CreateMcpService"]
-                                </MudButton>
-                            }
-                        </div>
+                        <!-- No Data State -->
+                        <MudItem xs="12">
+                            <MudPaper Class="pa-8 d-flex flex-column align-center justify-center" Style="min-height: 400px;" Elevation="0">
+                                <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
+                                         Style="font-size: 120px;" 
+                                         Color="Color.Default" 
+                                         Class="mb-4" />
+                                <MudText Typo="Typo.h5" Class="mb-2">
+                                    @(string.IsNullOrWhiteSpace(_searchTerm) 
+                                        ? (IsPublicTab ? Loc["NoPublicServicesYet"] : Loc["NoServicesYet"])
+                                        : Loc["NoServicesFound"])
+                                </MudText>
+                                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+                                    @(string.IsNullOrWhiteSpace(_searchTerm) 
+                                        ? (IsPublicTab ? Loc["NoPublicServicesAvailable"] : Loc["CreateFirstService"])
+                                        : Loc["NoMatchingServices", _searchTerm])
+                                </MudText>
+                                @if (string.IsNullOrWhiteSpace(_searchTerm) && !IsPublicTab)
+                                {
+                                    <MudButton Variant="Variant.Filled"
+                                               Color="Color.Primary"
+                                               StartIcon="@Icons.Material.Filled.Add"
+                                               Href="/mcp-services/create">
+                                        @Loc["CreateFirstService"]
+                                    </MudButton>
+                                }
+                                else if (!string.IsNullOrWhiteSpace(_searchTerm))
+                                {
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Primary"
+                                               StartIcon="@Icons.Material.Filled.Clear"
+                                               OnClick="ClearSearch">
+                                        @Loc["ClearSearch"]
+                                    </MudButton>
+                                }
+                            </MudPaper>
+                        </MudItem>
                     </NoRecordsContent>
-                    <LoadingContent>
-                        <div class="pa-4">
-                            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
-                        </div>
-                    </LoadingContent>
-                </MudTable>
-            </MudCardContent>
-        </MudCard>
+                </MudVirtualize>
+            </MudGrid>
+        </div>
     </MudItem>
 </MudGrid>
 
 @code {
-    private List<McpServiceConfigDto> _services = new();
-    private bool _loading = true;
-    private string _searchString = "";
+    // UI state
+    private int _activeTabIndex = 0;
+    private string _searchTerm = "";
+    private string _sortBy = "CreatedAt";
+    private string _sortOrder = "desc";
+    private int _totalCount = 0;
 
-    protected override async Task OnInitializedAsync()
+    // Virtualization
+    private MudVirtualize<McpServiceConfigDto>? _virtualizeComponent;
+    private const int PageSize = 12;
+
+    private bool IsPublicTab => _activeTabIndex == 1;
+
+    protected override void OnInitialized()
     {
-        await LoadServicesAsync();
+        // Subscribe to tab changes
+        StateHasChanged();
     }
 
-    private async Task LoadServicesAsync()
+    /// <summary>
+    /// MudVirtualize 的数据提供函数
+    /// 根据请求的起始索引和数量加载数据
+    /// </summary>
+    private async ValueTask<ItemsProviderResult<McpServiceConfigDto>> LoadServicesVirtualized(
+        ItemsProviderRequest request)
     {
         try
         {
-            _loading = true;
-            var services = await ServiceConfigService.GetServicesAsync();
-            _services = services.ToList();
-        }
-        catch (HttpRequestException ex)
-        {
-            Snackbar.Add(string.Format(Loc["ErrorLoadingMcpServices"], ex.Message), Severity.Error);
+            // 每页固定 12 个项
+            // 计算起始页和结束页
+            var startPage = (request.StartIndex / PageSize) + 1;
+            var endIndex = request.StartIndex + request.Count - 1;
+            var endPage = (endIndex / PageSize) + 1;
+            
+            Console.WriteLine($"🔄 LoadServicesVirtualized: Tab={_activeTabIndex}, StartIndex={request.StartIndex}, Count={request.Count}, Pages={startPage}-{endPage}");
+
+            // 收集所有需要的数据
+            var allItems = new List<McpServiceConfigDto>();
+            int totalCount = 0;
+
+            // 加载所有需要的页
+            for (var page = startPage; page <= endPage; page++)
+            {
+                var pagedRequest = new PagedRequest
+                {
+                    Page = page,
+                    PageSize = PageSize,
+                    SearchTerm = _searchTerm,
+                    SortBy = _sortBy,
+                    SortOrder = _sortOrder
+                };
+
+                PagedResult<McpServiceConfigDto> result;
+                
+                if (IsPublicTab)
+                {
+                    result = await ServiceConfigService.GetPublicServicesPagedAsync(pagedRequest);
+                }
+                else
+                {
+                    result = await ServiceConfigService.GetServicesPagedAsync(pagedRequest);
+                }
+
+                if (page == startPage)
+                {
+                    totalCount = result.TotalCount;
+                    _totalCount = totalCount;
+                }
+
+                allItems.AddRange(result.Items);
+            }
+
+            // 计算需要跳过的数量（当 startPage > 1 时）
+            var skipCount = request.StartIndex % PageSize;
+            var items = allItems.Skip(skipCount).Take(request.Count).ToList();
+
+            Console.WriteLine($"✅ Loaded {items.Count} items, TotalCount={totalCount}");
+
+            return new ItemsProviderResult<McpServiceConfigDto>(items, totalCount);
         }
         catch (Exception ex)
         {
-            Snackbar.Add(string.Format(Loc["UnexpectedError"], ex.Message), Severity.Error);
-        }
-        finally
-        {
-            _loading = false;
+            Console.WriteLine($"❌ Error loading services: {ex.Message}");
+            Snackbar.Add(string.Format(Loc["ErrorLoadingMcpServices"], ex.Message), Severity.Error);
+            return new ItemsProviderResult<McpServiceConfigDto>(new List<McpServiceConfigDto>(), 0);
         }
     }
 
-    private void ViewDetails(string id)
+    private async Task OnSearchChanged()
     {
-        Navigation.NavigateTo($"/mcp-services/{id}");
+        Console.WriteLine($"🔍 Search changed: '{_searchTerm}'");
+        await RefreshData();
+    }
+
+    private async Task OnSortChanged(string newSortBy)
+    {
+        Console.WriteLine($"🔄 Sort changed: {newSortBy}");
+        _sortBy = newSortBy;
+        await RefreshData();
+    }
+
+    private async Task RefreshData()
+    {
+        if (_virtualizeComponent != null)
+        {
+            Console.WriteLine("♻️ Refreshing virtualize component...");
+            await _virtualizeComponent.RefreshDataAsync();
+        }
+        StateHasChanged();
+    }
+
+    private void ClearSearch()
+    {
+        _searchTerm = "";
+        _ = RefreshData();
+    }
+
+    private async Task ViewDetails(McpServiceConfigDto service)
+    {
+        // 如果是公开服务，显示对话框
+        if (IsPublicTab)
+        {
+            var parameters = new DialogParameters<PublicServiceDetailDialog>
+            {
+                { x => x.Service, service }
+            };
+
+            var options = new DialogOptions 
+            { 
+                MaxWidth = MaxWidth.Medium,
+                FullWidth = true,
+                CloseButton = true
+            };
+
+            var dialog = await DialogService.ShowAsync<PublicServiceDetailDialog>(
+                service.Name, 
+                parameters, 
+                options);
+            
+            var result = await dialog.Result;
+
+            if (result != null && !result.Canceled)
+            {
+                // 用户点击了"使用此服务"按钮，跳转到服务绑定页面
+                Navigation.NavigateTo($"/service-bindings/create?publicServiceId={service.Id}");
+            }
+        }
+        else
+        {
+            // 个人服务，跳转到详情页面
+            Navigation.NavigateTo($"/mcp-services/{service.Id}");
+        }
     }
 
     private void EditService(string id)
@@ -264,7 +342,7 @@
             Snackbar.Add(string.Format(Loc["ToolsSyncedSuccess"], service.Name), Severity.Success);
             
             // Reload to get updated tool list
-            await LoadServicesAsync();
+            await RefreshData();
         }
         catch (Exception ex)
         {
@@ -290,8 +368,8 @@
             try
             {
                 await ServiceConfigService.DeleteServiceAsync(service.Id);
-                _services.Remove(service);
                 Snackbar.Add(string.Format(Loc["McpServiceDeletedSuccess"], service.Name), Severity.Success);
+                await RefreshData();
             }
             catch (Exception ex)
             {
@@ -300,4 +378,22 @@
         }
     }
 
+    // Watch for tab changes
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+    }
+
+    private int _previousTabIndex = 0;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        
+        if (_previousTabIndex != _activeTabIndex)
+        {
+            Console.WriteLine($"📑 Tab changed from {_previousTabIndex} to {_activeTabIndex}");
+            _previousTabIndex = _activeTabIndex;
+            await RefreshData();
+        }
+    }
 }
