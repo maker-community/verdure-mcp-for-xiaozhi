@@ -6,14 +6,12 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
-@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Web.Virtualization
 @inject IXiaozhiMcpEndpointClientService ServerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
 @inject IStringLocalizer<SharedResources> Loc
-@inject IJSRuntime JS
-@implements IAsyncDisposable
 @attribute [Authorize]
 
 <PageTitle>@Loc["XiaozhiMcpEndpoints"] - @Loc["AppTitle"]</PageTitle>
@@ -84,17 +82,28 @@
         </MudPaper>
     </MudItem>
 
-    <!-- Cards Container with Infinite Scroll -->
+    <!-- Cards Container with Virtualization -->
     <MudItem xs="12">
-        <div id="connections-scroll-container" 
-             style="height: calc(100vh - 400px); overflow-y: auto; overflow-x: hidden;">
-            
-            @if (_loading && _servers.Count == 0)
-            {
-                <!-- Initial Loading Skeleton -->
-                <MudGrid Spacing="3" Class="pa-4">
-                    @for (int i = 0; i < 8; i++)
-                    {
+        <div style="height: calc(100vh - 350px); overflow-y: auto; overflow-x: hidden;">
+            <!-- Virtualized Cards Grid - 始终渲染 -->
+            <MudGrid Spacing="3" Class="px-4 py-2">
+                <MudVirtualize @ref="_virtualizeComponent"
+                              Enabled="true"
+                              ItemsProvider="@LoadServersVirtualized"
+                              OverscanCount="4"
+                              Context="server">
+                    <ChildContent>
+                        <MudItem xs="12" sm="6" md="4" lg="3">
+                            <ConnectionCard Connection="@server"
+                                            OnEdit="@(() => HandleEdit(server))"
+                                            OnDelete="@(() => HandleDelete(server))"
+                                            OnEnable="@(() => HandleEnable(server))"
+                                            OnDisable="@(() => HandleDisable(server))"
+                                            OnViewBindings="@(() => HandleViewBindings(server))" />
+                        </MudItem>
+                    </ChildContent>
+                    <Placeholder>
+                        <!-- Loading Skeleton -->
                         <MudItem xs="12" sm="6" md="4" lg="3">
                             <MudCard Style="height: 200px;" Elevation="2">
                                 <MudCardContent>
@@ -104,208 +113,166 @@
                                 </MudCardContent>
                             </MudCard>
                         </MudItem>
-                    }
-                </MudGrid>
-            }
-            else if (_servers.Count == 0)
-            {
-                <!-- No Data -->
-                <MudPaper Class="pa-8 d-flex flex-column align-center justify-center" Style="min-height: 400px;" Elevation="0">
-                    <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
-                             Style="font-size: 120px;" 
-                             Color="Color.Default" 
-                             Class="mb-4" />
-                    <MudText Typo="Typo.h5" Class="mb-2">
-                        @(string.IsNullOrWhiteSpace(_searchTerm) ? Loc["NoConnectionsYet"] : Loc["NoConnectionsFound"])
-                    </MudText>
-                    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
-                        @(string.IsNullOrWhiteSpace(_searchTerm) 
-                            ? Loc["CreateFirstConnection"] 
-                            : Loc["NoMatchingConnections", _searchTerm])
-                    </MudText>
-                    @if (string.IsNullOrWhiteSpace(_searchTerm))
-                    {
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   StartIcon="@Icons.Material.Filled.Add"
-                                   Href="/connections/create">
-                            @Loc["CreateFirstConnection"]
-                        </MudButton>
-                    }
-                    else
-                    {
-                        <MudButton Variant="Variant.Outlined"
-                                   Color="Color.Primary"
-                                   StartIcon="@Icons.Material.Filled.Clear"
-                                   OnClick="ClearSearch">
-                            @Loc["ClearSearch"]
-                        </MudButton>
-                    }
-                </MudPaper>
-            }
-            else
-            {
-                <!-- Cards Grid -->
-                <MudGrid Spacing="3" Class="pa-4">
-                    @foreach (var server in _servers)
-                    {
-                        <MudItem xs="12" sm="6" md="4" lg="3">
-                            <ConnectionCard Connection="@server"
-                                            OnEdit="@(() => HandleEdit(server))"
-                                            OnDelete="@(() => HandleDelete(server))"
-                                            OnEnable="@(() => HandleEnable(server))"
-                                            OnDisable="@(() => HandleDisable(server))"
-                                            OnViewBindings="@(() => HandleViewBindings(server))" />
-                        </MudItem>
-                    }
-                </MudGrid>
-
-                <!-- Loading More Indicator -->
-                @if (_loadingMore)
-                {
-                    <div class="d-flex justify-center pa-4">
-                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-                    </div>
-                }
-
-                <!-- Scroll Sentinel -->
-                @if (_hasMoreData && !_loadingMore)
-                {
-                    <div id="scroll-sentinel" style="height: 1px;"></div>
-                }
-            }
+                    </Placeholder>
+                <NoRecordsContent>
+                    <!-- No Data State - 当 TotalCount = 0 时显示 -->
+                    <MudItem xs="12">
+                        <MudPaper Class="pa-8 d-flex flex-column align-center justify-center" Style="min-height: 400px;" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
+                                     Style="font-size: 120px;" 
+                                     Color="Color.Default" 
+                                     Class="mb-4" />
+                            <MudText Typo="Typo.h5" Class="mb-2">
+                                @(string.IsNullOrWhiteSpace(_searchTerm) ? Loc["NoConnectionsYet"] : Loc["NoConnectionsFound"])
+                            </MudText>
+                            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+                                @(string.IsNullOrWhiteSpace(_searchTerm) 
+                                    ? Loc["CreateFirstConnection"] 
+                                    : Loc["NoMatchingConnections", _searchTerm])
+                            </MudText>
+                            @if (string.IsNullOrWhiteSpace(_searchTerm))
+                            {
+                                <MudButton Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Add"
+                                           Href="/connections/create">
+                                    @Loc["CreateFirstConnection"]
+                                </MudButton>
+                            }
+                            else
+                            {
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Clear"
+                                           OnClick="ClearSearch">
+                                    @Loc["ClearSearch"]
+                                </MudButton>
+                            }
+                        </MudPaper>
+                    </MudItem>
+                </NoRecordsContent>
+            </MudVirtualize>
+        </MudGrid>
         </div>
     </MudItem>
 </MudGrid>
 
 @code {
-    // Data
-    private List<XiaozhiMcpEndpointDto> _servers = new();
-
     // UI state
     private string _searchTerm = "";
     private string _sortBy = "CreatedAt";
     private string _sortOrder = "desc";
     private int _totalCount = 0;
-    private bool _loading = false;
-    private bool _loadingMore = false;
-    private bool _hasMoreData = true;
 
-    // Pagination
-    private int _currentPage = 1;
-    private const int _pageSize = 12;
+    // Virtualization
+    private MudVirtualize<XiaozhiMcpEndpointDto>? _virtualizeComponent;
+    private const int PageSize = 12;
 
-    // JavaScript interop
-    private IJSObjectReference? _module;
-    private DotNetObjectReference<Connections>? _dotNetHelper;
-
-    protected override async Task OnInitializedAsync()
+    /// <summary>
+    /// MudVirtualize 的数据提供函数
+    /// 根据请求的起始索引和数量加载数据
+    /// </summary>
+    private async ValueTask<ItemsProviderResult<XiaozhiMcpEndpointDto>> LoadServersVirtualized(
+        ItemsProviderRequest request)
     {
-        await LoadServersAsync();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            try
-            {
-                _module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/infinite-scroll.js");
-                _dotNetHelper = DotNetObjectReference.Create(this);
-                await _module.InvokeVoidAsync("initializeInfiniteScroll", "scroll-sentinel", _dotNetHelper);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"�?Failed to initialize infinite scroll: {ex.Message}");
-            }
-        }
-    }
-
-    [JSInvokable]
-    public async Task LoadMoreAsync()
-    {
-        if (_hasMoreData && !_loadingMore)
-        {
-            await LoadServersAsync(loadMore: true);
-        }
-    }
-
-    private async Task LoadServersAsync(bool loadMore = false)
-    {
-        if (_loading || _loadingMore) return;
-
-        if (loadMore)
-        {
-            _loadingMore = true;
-            _currentPage++;
-        }
-        else
-        {
-            _loading = true;
-            _currentPage = 1;
-            _servers.Clear();
-        }
-
         try
         {
-            Console.WriteLine($"🔄 LoadServersAsync: Page={_currentPage}, PageSize={_pageSize}, LoadMore={loadMore}");
-
-            var pagedRequest = new PagedRequest
-            {
-                Page = _currentPage,
-                PageSize = _pageSize,
-                SearchTerm = _searchTerm,
-                SortBy = _sortBy,
-                SortOrder = _sortOrder
-            };
-
-            var result = await ServerService.GetServersPagedAsync(pagedRequest);
+            // 每页固定 12 个项
+            // 计算起始页和结束页
+            var startPage = (request.StartIndex / PageSize) + 1;
+            var endIndex = request.StartIndex + request.Count - 1;
+            var endPage = (endIndex / PageSize) + 1;
             
-            _totalCount = result.TotalCount;
+            Console.WriteLine($"🔄 LoadServersVirtualized: StartIndex={request.StartIndex}, Count={request.Count}, Pages={startPage}-{endPage}");
+
+            // 收集所有需要的数据
+            var allItems = new List<XiaozhiMcpEndpointDto>();
+            int totalCount = 0;
+
+            // 加载所有需要的页
+            for (var page = startPage; page <= endPage; page++)
+            {
+                var pagedRequest = new PagedRequest
+                {
+                    Page = page,
+                    PageSize = PageSize,  // 固定每页 12 个
+                    SearchTerm = _searchTerm,
+                    SortBy = _sortBy,
+                    SortOrder = _sortOrder
+                };
+
+                var result = await ServerService.GetServersPagedAsync(pagedRequest);
+                allItems.AddRange(result.Items);
+                totalCount = result.TotalCount;  // 总数保持一致
+                
+                Console.WriteLine($"  📄 Loaded Page {page}: {result.Items.Count()} items");
+            }
+
+            // 更新总数（用于标题显示）
+            _totalCount = totalCount;
+
+            // 从合并的结果中提取需要的子集
+            var skip = request.StartIndex % PageSize;  // 在第一页中的偏移量
+            var items = allItems.Skip(skip).Take(request.Count).ToList();
             
-            if (loadMore)
-            {
-                _servers.AddRange(result.Items);
-            }
-            else
-            {
-                _servers = result.Items.ToList();
-            }
+            Console.WriteLine($"✅ Returned: {items.Count} items (from {allItems.Count} loaded), Total={_totalCount}");
 
-            _hasMoreData = _servers.Count < _totalCount;
-
-            Console.WriteLine($"�?Loaded: Page={_currentPage}, Items={result.Items.Count()}, Total={_servers.Count}/{_totalCount}, HasMore={_hasMoreData}");
+            return new ItemsProviderResult<XiaozhiMcpEndpointDto>(
+                items,
+                totalCount
+            );
+        }
+        catch (OperationCanceledException)
+        {
+            // 请求被取消（例如用户快速滚动），返回空结果
+            Console.WriteLine("⏸️ Request cancelled");
+            return new ItemsProviderResult<XiaozhiMcpEndpointDto>([], 0);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"�?Error: {ex.Message}");
+            Console.WriteLine($"❌ Error loading data: {ex.Message}");
             Snackbar.Add($"{Loc["Error"]}: {ex.Message}", Severity.Error);
-        }
-        finally
-        {
-            _loading = false;
-            _loadingMore = false;
-            StateHasChanged();
+            return new ItemsProviderResult<XiaozhiMcpEndpointDto>([], 0);
         }
     }
 
+    /// <summary>
+    /// 搜索框变化时刷新虚拟化列表
+    /// </summary>
     private async Task OnSearchChanged()
     {
         Console.WriteLine($"🔍 Search changed: '{_searchTerm}'");
-        await LoadServersAsync();
+        
+        // 刷新虚拟化组件
+        if (_virtualizeComponent != null)
+        {
+            await _virtualizeComponent.RefreshDataAsync();
+        }
+        
+        StateHasChanged();
     }
 
+    /// <summary>
+    /// 排序变化时刷新虚拟化列表
+    /// </summary>
     private async Task OnSortChanged(string newSortBy)
     {
-        Console.WriteLine($"�?Sort changed: {_sortBy} �?{newSortBy}");
+        Console.WriteLine($"📊 Sort changed: {_sortBy} → {newSortBy}");
         _sortBy = newSortBy;
-        await LoadServersAsync();
+        
+        // 刷新虚拟化组件
+        if (_virtualizeComponent != null)
+        {
+            await _virtualizeComponent.RefreshDataAsync();
+        }
+        
+        StateHasChanged();
     }
 
     private void ClearSearch()
     {
         _searchTerm = "";
-        _ = LoadServersAsync();
+        _ = OnSearchChanged();
     }
 
     private void HandleEdit(XiaozhiMcpEndpointDto server)
@@ -329,8 +296,11 @@
                 _totalCount--;
                 Snackbar.Add(Loc["DeletedSuccessfully", server.Name], Severity.Success);
                 
-                // Refresh the virtualized list
-                await LoadServersAsync();
+                // 刷新虚拟化列表
+                if (_virtualizeComponent != null)
+                {
+                    await _virtualizeComponent.RefreshDataAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -346,8 +316,11 @@
             await ServerService.EnableServerAsync(server.Id);
             Snackbar.Add(Loc["EnabledSuccessfully", server.Name], Severity.Success);
             
-            // Refresh the virtualized list
-            await LoadServersAsync();
+            // 刷新虚拟化列表
+            if (_virtualizeComponent != null)
+            {
+                await _virtualizeComponent.RefreshDataAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -362,8 +335,11 @@
             await ServerService.DisableServerAsync(server.Id);
             Snackbar.Add(Loc["DisabledSuccessfully", server.Name], Severity.Success);
             
-            // Refresh the virtualized list
-            await LoadServersAsync();
+            // 刷新虚拟化列表
+            if (_virtualizeComponent != null)
+            {
+                await _virtualizeComponent.RefreshDataAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -374,14 +350,5 @@
     private void HandleViewBindings(XiaozhiMcpEndpointDto server)
     {
         Navigation.NavigateTo($"/connections/{server.Id}/bindings");
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_module != null)
-        {
-            await _module.DisposeAsync();
-        }
-        _dotNetHelper?.Dispose();
     }
 }
