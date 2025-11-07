@@ -297,9 +297,11 @@
         // 如果是公开服务，显示对话框
         if (IsPublicTab)
         {
-            var parameters = new DialogParameters<PublicServiceDetailDialog>
+            Console.WriteLine($"[McpServiceConfigs] ViewDetails called for public service: {service.Name} (ID: {service.Id})");
+            
+            var parameters = new DialogParameters
             {
-                { x => x.Service, service }
+                ["Service"] = service
             };
 
             var options = new DialogOptions 
@@ -309,17 +311,26 @@
                 CloseButton = true
             };
 
+            Console.WriteLine("[McpServiceConfigs] Showing dialog...");
             var dialog = await DialogService.ShowAsync<PublicServiceDetailDialog>(
                 service.Name, 
                 parameters, 
                 options);
             
+            Console.WriteLine("[McpServiceConfigs] Dialog shown, waiting for result...");
             var result = await dialog.Result;
+
+            Console.WriteLine($"[McpServiceConfigs] Dialog result received - Canceled: {result?.Canceled}, Data: {result?.Data}");
 
             if (result != null && !result.Canceled)
             {
+                Console.WriteLine($"[McpServiceConfigs] User clicked 'Use This Service', navigating to /service-bindings/create?publicServiceId={service.Id}");
                 // 用户点击了"使用此服务"按钮，跳转到服务绑定页面
                 Navigation.NavigateTo($"/service-bindings/create?publicServiceId={service.Id}");
+            }
+            else
+            {
+                Console.WriteLine("[McpServiceConfigs] Dialog was canceled or result is null");
             }
         }
         else

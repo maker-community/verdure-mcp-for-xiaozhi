@@ -1,5 +1,4 @@
 @using Microsoft.Extensions.Localization
-@using MudBlazor
 @using Verdure.McpPlatform.Contracts.DTOs
 @using Verdure.McpPlatform.Web.Resources
 @inject IStringLocalizer<SharedResources> Loc
@@ -115,6 +114,7 @@
         </MudStack>
     </DialogContent>
     <DialogActions>
+        <MudButton OnClick="Cancel">@Loc["Cancel"]</MudButton>
         <MudButton OnClick="UseService" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Link">
             @Loc["UseThisService"]
         </MudButton>
@@ -128,9 +128,18 @@
     [Parameter, EditorRequired]
     public McpServiceConfigDto Service { get; set; } = null!;
 
-    private void UseService()
+    protected override void OnInitialized()
     {
-        // 返回 true 表示用户想要使用这个服务
+        Console.WriteLine($"[PublicServiceDetailDialog] Initialized with Service: {Service?.Name}");
+        Console.WriteLine($"[PublicServiceDetailDialog] MudDialog is null: {MudDialog == null}");
+    }
+
+    void Cancel() => MudDialog?.Close(DialogResult.Cancel());
+    
+    void UseService()
+    {
+        Console.WriteLine($"[PublicServiceDetailDialog] UseService called for: {Service?.Name}");
+        Console.WriteLine($"[PublicServiceDetailDialog] MudDialog is null: {MudDialog == null}");
         MudDialog?.Close(DialogResult.Ok(true));
     }
 }

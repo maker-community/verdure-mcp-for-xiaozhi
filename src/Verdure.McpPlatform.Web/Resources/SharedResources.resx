@@ -1191,4 +1191,13 @@
   <data name="NoToolsSelected" xml:space="preserve">
     <value>No tools selected</value>
   </data>
+  <data name="SelectedService" xml:space="preserve">
+    <value>Selected Service</value>
+  </data>
+  <data name="NowSelectConnectionAndTools" xml:space="preserve">
+    <value>Now select a Xiaozhi connection and configure tools</value>
+  </data>
+  <data name="UseThisService" xml:space="preserve">
+    <value>Use This Service</value>
+  </data>
 </root>

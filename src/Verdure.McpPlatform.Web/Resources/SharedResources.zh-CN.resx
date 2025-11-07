@@ -1221,4 +1221,13 @@
   <data name="NoToolsSelected" xml:space="preserve">
     <value>未选择工具</value>
   </data>
+  <data name="SelectedService" xml:space="preserve">
+    <value>已选服务</value>
+  </data>
+  <data name="NowSelectConnectionAndTools" xml:space="preserve">
+    <value>现在选择小智连接并配置工具</value>
+  </data>
+  <data name="UseThisService" xml:space="preserve">
+    <value>使用此服务</value>
+  </data>
 </root>

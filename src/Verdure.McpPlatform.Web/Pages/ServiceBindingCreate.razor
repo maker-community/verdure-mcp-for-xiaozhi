@@ -40,78 +40,152 @@
         </MudCard>
     </MudItem>
 
+    <!-- Selected Service Info (when coming from public service) -->
+    @if (IsFromPublicService && !string.IsNullOrEmpty(_selectedServiceName))
+    {
+        <MudItem xs="12">
+            <MudAlert Severity="Severity.Success" 
+                      Icon="@Icons.Material.Filled.CheckCircle"
+                      Elevation="1"
+                      Variant="Variant.Filled">
+                <div class="d-flex align-center justify-space-between">
+                    <div>
+                        <MudText Typo="Typo.body1" Style="font-weight: 600;">
+                            @Loc["SelectedService"]: @_selectedServiceName
+                        </MudText>
+                        <MudText Typo="Typo.caption">
+                            @Loc["NowSelectConnectionAndTools"]
+                        </MudText>
+                    </div>
+                    <MudChip T="string" 
+                             Size="Size.Small" 
+                             Variant="Variant.Text"
+                             Style="background: rgba(255,255,255,0.2); color: white;"
+                             Icon="@Icons.Material.Filled.Public">
+                        @Loc["Public"]
+                    </MudChip>
+                </div>
+            </MudAlert>
+        </MudItem>
+    }
+
     <!-- Wizard Progress -->
     <MudItem xs="12">
         <MudCard Elevation="2">
             <MudCardHeader Style="background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%);">
                 <CardHeaderContent>
                     <div class="d-flex align-center justify-space-between" style="gap: 16px;">
-                        <!-- Step 1 -->
-                        <div class="d-flex align-center" style="gap: 8px; flex: 1;">
-                            <MudAvatar Size="Size.Medium" Color="@(_currentStep >= 0 ? Color.Primary : Color.Default)">
-                                @if (_currentStep > 0)
-                                {
-                                    <MudIcon Icon="@Icons.Material.Filled.Check" />
-                                }
-                                else
-                                {
-                                    <span>1</span>
-                                }
-                            </MudAvatar>
-                            <div>
-                                <MudText Typo="Typo.body2" Style="@(_currentStep == 0 ? "font-weight: 600;" : "")">@Loc["SelectConnection"]</MudText>
-                                @if (_currentStep == 0)
-                                {
-                                    <MudText Typo="Typo.caption" Color="Color.Primary">@Loc["Active"]</MudText>
-                                }
+                        @if (!IsFromPublicService)
+                        {
+                            <!-- Normal 3-step flow -->
+                            <!-- Step 1 -->
+                            <div class="d-flex align-center" style="gap: 8px; flex: 1;">
+                                <MudAvatar Size="Size.Medium" Color="@(_currentStep >= 0 ? Color.Primary : Color.Default)">
+                                    @if (_currentStep > 0)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Check" />
+                                    }
+                                    else
+                                    {
+                                        <span>1</span>
+                                    }
+                                </MudAvatar>
+                                <div>
+                                    <MudText Typo="Typo.body2" Style="@(_currentStep == 0 ? "font-weight: 600;" : "")">@Loc["SelectConnection"]</MudText>
+                                    @if (_currentStep == 0)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Primary">@Loc["Active"]</MudText>
+                                    }
+                                </div>
                             </div>
-                        </div>
-                        
-                        <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Default" Style="opacity: 0.3;" />
-                        
-                        <!-- Step 2 -->
-                        <div class="d-flex align-center" style="gap: 8px; flex: 1;">
-                            <MudAvatar Size="Size.Medium" Color="@(_currentStep >= 1 ? Color.Primary : Color.Default)">
-                                @if (_currentStep > 1)
-                                {
-                                    <MudIcon Icon="@Icons.Material.Filled.Check" />
-                                }
-                                else
-                                {
+                            
+                            <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Default" Style="opacity: 0.3;" />
+                            
+                            <!-- Step 2 -->
+                            <div class="d-flex align-center" style="gap: 8px; flex: 1;">
+                                <MudAvatar Size="Size.Medium" Color="@(_currentStep >= 1 ? Color.Primary : Color.Default)">
+                                    @if (_currentStep > 1)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Check" />
+                                    }
+                                    else
+                                    {
+                                        <span>2</span>
+                                    }
+                                </MudAvatar>
+                                <div>
+                                    <MudText Typo="Typo.body2" Style="@(_currentStep == 1 ? "font-weight: 600;" : "")">@Loc["SelectMcpService"]</MudText>
+                                    @if (_currentStep == 1)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Primary">@Loc["Active"]</MudText>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Default" Style="opacity: 0.3;" />
+                            
+                            <!-- Step 3 -->
+                            <div class="d-flex align-center" style="gap: 8px; flex: 1;">
+                                <MudAvatar Size="Size.Medium" Color="@(_currentStep >= 2 ? Color.Primary : Color.Default)">
+                                    <span>3</span>
+                                </MudAvatar>
+                                <div>
+                                    <MudText Typo="Typo.body2" Style="@(_currentStep == 2 ? "font-weight: 600;" : "")">@Loc["ConfigureTools"]</MudText>
+                                    @if (_currentStep == 2)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Primary">@Loc["Active"]</MudText>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Simplified 2-step flow for public service -->
+                            <!-- Step 1: Select Connection -->
+                            <div class="d-flex align-center" style="gap: 8px; flex: 1;">
+                                <MudAvatar Size="Size.Medium" Color="@(_currentStep >= 0 ? Color.Primary : Color.Default)">
+                                    @if (_currentStep > 0)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Check" />
+                                    }
+                                    else
+                                    {
+                                        <span>1</span>
+                                    }
+                                </MudAvatar>
+                                <div>
+                                    <MudText Typo="Typo.body2" Style="@(_currentStep == 0 ? "font-weight: 600;" : "")">@Loc["SelectConnection"]</MudText>
+                                    @if (_currentStep == 0)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Primary">@Loc["Active"]</MudText>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Default" Style="opacity: 0.3;" />
+                            
+                            <!-- Step 2: Configure Tools -->
+                            <div class="d-flex align-center" style="gap: 8px; flex: 1;">
+                                <MudAvatar Size="Size.Medium" Color="@(_currentStep >= 1 ? Color.Primary : Color.Default)">
                                     <span>2</span>
-                                }
-                            </MudAvatar>
-                            <div>
-                                <MudText Typo="Typo.body2" Style="@(_currentStep == 1 ? "font-weight: 600;" : "")">@Loc["SelectMcpService"]</MudText>
-                                @if (_currentStep == 1)
-                                {
-                                    <MudText Typo="Typo.caption" Color="Color.Primary">@Loc["Active"]</MudText>
-                                }
+                                </MudAvatar>
+                                <div>
+                                    <MudText Typo="Typo.body2" Style="@(_currentStep == 1 ? "font-weight: 600;" : "")">@Loc["ConfigureTools"]</MudText>
+                                    @if (_currentStep == 1)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Primary">@Loc["Active"]</MudText>
+                                    }
+                                </div>
                             </div>
-                        </div>
-                        
-                        <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Default" Style="opacity: 0.3;" />
-                        
-                        <!-- Step 3 -->
-                        <div class="d-flex align-center" style="gap: 8px; flex: 1;">
-                            <MudAvatar Size="Size.Medium" Color="@(_currentStep >= 2 ? Color.Primary : Color.Default)">
-                                <span>3</span>
-                            </MudAvatar>
-                            <div>
-                                <MudText Typo="Typo.body2" Style="@(_currentStep == 2 ? "font-weight: 600;" : "")">@Loc["ConfigureTools"]</MudText>
-                                @if (_currentStep == 2)
-                                {
-                                    <MudText Typo="Typo.caption" Color="Color.Primary">@Loc["Active"]</MudText>
-                                }
-                            </div>
-                        </div>
+                        }
                     </div>
                 </CardHeaderContent>
             </MudCardHeader>
 
             <MudCardContent Class="pa-6" Style="min-height: 500px;">
-                @* Step 1: Select Connection *@
-                @if (_currentStep == 0)
+                @* Step 0: Select Connection (always first step when from public service) *@
+                @* Step 1: Select Service (skipped when from public service) *@
+                @if (_currentStep == 0 && !IsFromPublicService)
                 {
                     <div>
                         <MudText Typo="Typo.h6" Class="mb-4">@Loc["ChooseXiaozhiConnection"]</MudText>
@@ -177,8 +251,75 @@
                     </div>
                 }
 
-                @* Step 2: Select Service *@
-                @if (_currentStep == 1)
+                @* Step 1: Select Connection (when from public service) *@
+                @if (_currentStep == 0 && IsFromPublicService)
+                {
+                    <div>
+                        <MudText Typo="Typo.h6" Class="mb-4">@Loc["ChooseXiaozhiConnection"]</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                            @Loc["SelectConnectionHelp"]
+                        </MudText>
+
+                        <!-- Search and Sort -->
+                        <MudGrid Class="mb-4">
+                            <MudItem xs="12" sm="8">
+                                <MudTextField @bind-Value="_connectionSearchTerm"
+                                              Label="@Loc["Search"]"
+                                              Placeholder="@Loc["SearchConnections"]"
+                                              Adornment="Adornment.Start"
+                                              AdornmentIcon="@Icons.Material.Filled.Search"
+                                              Immediate="true"
+                                              DebounceInterval="500"
+                                              OnDebounceIntervalElapsed="OnConnectionSearchChanged"
+                                              Clearable="true"
+                                              Variant="Variant.Outlined" />
+                            </MudItem>
+                            <MudItem xs="12" sm="4">
+                                <MudSelect Value="_connectionSortBy"
+                                           Label="@Loc["SortBy"]"
+                                           Variant="Variant.Outlined"
+                                           T="string"
+                                           ValueChanged="OnConnectionSortChanged">
+                                    <MudSelectItem Value="@("Name")">@Loc["Name"]</MudSelectItem>
+                                    <MudSelectItem Value="@("CreatedAt")">@Loc["CreatedDate"]</MudSelectItem>
+                                    <MudSelectItem Value="@("Status")">@Loc["Status"]</MudSelectItem>
+                                </MudSelect>
+                            </MudItem>
+                        </MudGrid>
+
+                        <!-- Virtualized Connection Cards -->
+                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid #e0e0e0; border-radius: 8px;">
+                            <MudGrid Spacing="3" Class="pa-3">
+                                <MudVirtualize @ref="_connectionVirtualize"
+                                              Enabled="true"
+                                              ItemsProvider="@LoadConnectionsVirtualized"
+                                              OverscanCount="4"
+                                              Context="connection">
+                                    <ChildContent>
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <ConnectionSelectorCard Connection="@connection"
+                                                                   IsSelected="@(_selectedConnectionId == connection.Id)"
+                                                                   OnSelect="@(() => SelectConnection(connection.Id, connection.Name))" />
+                                        </MudItem>
+                                    </ChildContent>
+                                    <Placeholder>
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <MudCard Style="height: 200px;">
+                                                <MudCardContent>
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="30px" Class="mb-2" />
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" />
+                                                </MudCardContent>
+                                            </MudCard>
+                                        </MudItem>
+                                    </Placeholder>
+                                </MudVirtualize>
+                            </MudGrid>
+                        </div>
+                    </div>
+                }
+
+                @* Step 2: Select Service (normal flow) *@
+                @if (_currentStep == 1 && !IsFromPublicService)
                 {
                     <div>
                         <MudText Typo="Typo.h6" Class="mb-4">@Loc["ChooseMcpService"]</MudText>
@@ -252,8 +393,9 @@
                     </div>
                 }
 
-                @* Step 3: Configure Tools *@
-                @if (_currentStep == 2)
+                @* Step 2: Configure Tools (when from public service) *@
+                @* Step 3: Configure Tools (normal flow) *@
+                @if ((_currentStep == 1 && IsFromPublicService) || (_currentStep == 2 && !IsFromPublicService))
                 {
                     <div>
                         <MudText Typo="Typo.h6" Class="mb-4">@Loc["SelectTools"]</MudText>
@@ -364,7 +506,7 @@
                     </MudButton>
                 }
                 
-                @if (_currentStep < 2)
+                @if (!IsAtFinalStep())
                 {
                     <MudButton Variant="Variant.Filled" 
                               Color="Color.Primary" 
@@ -403,6 +545,9 @@
     [SupplyParameterFromQuery]
     public string? PublicServiceId { get; set; }
 
+    // Flag to track if this is from public service "Use This Service" flow
+    private bool IsFromPublicService => !string.IsNullOrEmpty(PublicServiceId);
+
     // Wizard State
     private int _currentStep = 0;
     private bool _saving;
@@ -433,24 +578,22 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Pre-select connection if provided in query
-        if (!string.IsNullOrEmpty(ConnectionId))
-        {
-            _selectedConnectionId = ConnectionId;
-            await LoadConnectionName();
-        }
-
-        // Pre-select public service if provided
+        // Pre-select public service if provided (from "Use This Service" button)
         if (!string.IsNullOrEmpty(PublicServiceId))
         {
             _selectedServiceId = PublicServiceId;
             _serviceTabIndex = 1; // Switch to public services tab
             await LoadServiceName();
-            // Auto-advance to step 2 if connection is also pre-selected
-            if (!string.IsNullOrEmpty(_selectedConnectionId))
-            {
-                _currentStep = 1;
-            }
+            // Start from step 0 (Select Connection) in simplified flow
+            _currentStep = 0;
+        }
+        // Pre-select connection if provided in query
+        else if (!string.IsNullOrEmpty(ConnectionId))
+        {
+            _selectedConnectionId = ConnectionId;
+            await LoadConnectionName();
+            // Normal flow starts from step 0
+            _currentStep = 0;
         }
     }
 
@@ -696,14 +839,34 @@
 
     #region Navigation and Validation
 
+    private bool IsAtFinalStep()
+    {
+        // In public service flow: final step is 1 (Configure Tools)
+        // In normal flow: final step is 2 (Configure Tools)
+        return IsFromPublicService ? _currentStep == 1 : _currentStep == 2;
+    }
+
     private bool CanProceedToNextStep()
     {
-        return _currentStep switch
+        if (IsFromPublicService)
         {
-            0 => !string.IsNullOrEmpty(_selectedConnectionId),
-            1 => !string.IsNullOrEmpty(_selectedServiceId),
-            _ => false
-        };
+            // Simplified flow: Service → Connection → Tools
+            return _currentStep switch
+            {
+                0 => !string.IsNullOrEmpty(_selectedConnectionId), // Step 1: Connection selected
+                _ => false
+            };
+        }
+        else
+        {
+            // Normal flow: Connection → Service → Tools
+            return _currentStep switch
+            {
+                0 => !string.IsNullOrEmpty(_selectedConnectionId), // Step 1: Connection selected
+                1 => !string.IsNullOrEmpty(_selectedServiceId),    // Step 2: Service selected
+                _ => false
+            };
+        }
     }
 
     private bool CanComplete()
@@ -729,8 +892,8 @@
 
         _currentStep++;
         
-        // Load tools when entering step 3
-        if (_currentStep == 2)
+        // Load tools when entering the final step (Configure Tools)
+        if (IsAtFinalStep())
         {
             await LoadToolsForService();
         }
