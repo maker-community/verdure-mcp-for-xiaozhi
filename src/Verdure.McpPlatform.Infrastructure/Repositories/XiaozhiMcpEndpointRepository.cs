@@ -43,6 +43,19 @@ public class XiaozhiMcpEndpointRepository : IXiaozhiMcpEndpointRepository
         return connection;
     }
 
+    public async Task<IEnumerable<XiaozhiMcpEndpoint>> GetByIdsAsync(IEnumerable<string> connectionIds)
+    {
+        if (connectionIds == null || !connectionIds.Any())
+        {
+            return Enumerable.Empty<XiaozhiMcpEndpoint>();
+        }
+
+        return await _context.XiaozhiMcpEndpoints
+            .AsNoTracking()
+            .Where(s => connectionIds.Contains(s.Id))
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<XiaozhiMcpEndpoint>> GetByUserIdAsync(string userId)
     {
         return await _context.XiaozhiMcpEndpoints

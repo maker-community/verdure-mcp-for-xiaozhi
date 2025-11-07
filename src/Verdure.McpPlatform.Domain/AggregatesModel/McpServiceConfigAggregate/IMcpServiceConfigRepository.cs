@@ -10,6 +10,7 @@ public interface IMcpServiceConfigRepository : IRepository<McpServiceConfig>
     McpServiceConfig Add(McpServiceConfig mcpServiceConfig);
     void Update(McpServiceConfig mcpServiceConfig);
     Task<McpServiceConfig?> GetByIdAsync(string id);
+    Task<IEnumerable<McpServiceConfig>> GetByIdsAsync(IEnumerable<string> ids);
     Task<IEnumerable<McpServiceConfig>> GetByUserAsync(string userId);
     Task<(IEnumerable<McpServiceConfig> Items, int TotalCount)> GetByUserPagedAsync(
         string userId,

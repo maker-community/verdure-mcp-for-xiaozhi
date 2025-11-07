@@ -38,6 +38,19 @@ public class McpServiceConfigRepository : IMcpServiceConfigRepository
         return config;
     }
 
+    public async Task<IEnumerable<McpServiceConfig>> GetByIdsAsync(IEnumerable<string> ids)
+    {
+        if (ids == null || !ids.Any())
+        {
+            return Enumerable.Empty<McpServiceConfig>();
+        }
+
+        return await _context.McpServiceConfigs
+            .AsNoTracking()
+            .Where(s => ids.Contains(s.Id))
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<McpServiceConfig>> GetByUserAsync(string userId)
     {
         return await _context.McpServiceConfigs

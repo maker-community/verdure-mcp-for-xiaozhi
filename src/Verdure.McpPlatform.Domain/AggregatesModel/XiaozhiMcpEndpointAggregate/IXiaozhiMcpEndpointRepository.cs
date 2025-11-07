@@ -12,6 +12,7 @@ public interface IXiaozhiMcpEndpointRepository : IRepository<XiaozhiMcpEndpoint>
     void Update(XiaozhiMcpEndpoint connection);
     void Delete(XiaozhiMcpEndpoint connection);
     Task<XiaozhiMcpEndpoint?> GetAsync(string connectionId);
+    Task<IEnumerable<XiaozhiMcpEndpoint>> GetByIdsAsync(IEnumerable<string> connectionIds);
     Task<IEnumerable<XiaozhiMcpEndpoint>> GetByUserIdAsync(string userId);
     Task<(IEnumerable<XiaozhiMcpEndpoint> Items, int TotalCount)> GetByUserIdPagedAsync(
         string userId, 

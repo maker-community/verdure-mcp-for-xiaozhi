@@ -80,23 +80,13 @@ public class McpServiceBindingService : IMcpServiceBindingService
         }
 
         var bindings = await _repository.GetServiceBindingsByConnectionIdAsync(serverId);
-        var dtos = new List<McpServiceBindingDto>();
-        foreach (var binding in bindings)
-        {
-            dtos.Add(await MapToDtoAsync(binding));
-        }
-        return dtos;
+        return await MapToDtosAsync(bindings);
     }
 
     public async Task<IEnumerable<McpServiceBindingDto>> GetActiveServiceBindingsAsync()
     {
         var bindings = await _repository.GetActiveServiceBindingsAsync();
-        var dtos = new List<McpServiceBindingDto>();
-        foreach (var binding in bindings)
-        {
-            dtos.Add(await MapToDtoAsync(binding));
-        }
-        return dtos;
+        return await MapToDtosAsync(bindings);
     }
 
     public async Task UpdateAsync(string id, UpdateMcpServiceBindingRequest request, string userId)
@@ -191,16 +181,16 @@ public class McpServiceBindingService : IMcpServiceBindingService
         _logger.LogInformation("Deleted MCP binding {BindingId}", id);
     }
 
+    /// <summary>
+    /// Map a single binding to DTO (used when we already have endpoint and config loaded)
+    /// </summary>
     private async Task<McpServiceBindingDto> MapToDtoAsync(McpServiceBinding binding)
     {
-        // Fetch both endpoint and config in parallel for better performance
-        var endpointTask = _repository.GetAsync(binding.XiaozhiMcpEndpointId);
-        var configTask = _configRepository.GetByIdAsync(binding.McpServiceConfigId);
-        
-        await Task.WhenAll(endpointTask, configTask);
-        
-        var endpoint = await endpointTask;
-        var config = await configTask;
+        // Fetch endpoint and config sequentially to avoid EF Core concurrency issues
+        // Note: Parallel execution with Task.WhenAll causes "A second operation was started" 
+        // error with PostgreSQL as the same DbContext instance is used concurrently
+        var endpoint = await _repository.GetAsync(binding.XiaozhiMcpEndpointId);
+        var config = await _configRepository.GetByIdAsync(binding.McpServiceConfigId);
         
         return new McpServiceBindingDto
         {
@@ -215,5 +205,47 @@ public class McpServiceBindingService : IMcpServiceBindingService
             CreatedAt = binding.CreatedAt,
             UpdatedAt = binding.UpdatedAt
         };
+    }
+
+    /// <summary>
+    /// Map multiple bindings to DTOs efficiently using batch loading
+    /// This prevents N+1 query problem by loading all endpoints and configs in two queries
+    /// </summary>
+    private async Task<IEnumerable<McpServiceBindingDto>> MapToDtosAsync(IEnumerable<McpServiceBinding> bindings)
+    {
+        var bindingList = bindings.ToList();
+        if (!bindingList.Any())
+        {
+            return Enumerable.Empty<McpServiceBindingDto>();
+        }
+
+        // Collect all unique IDs
+        var endpointIds = bindingList.Select(b => b.XiaozhiMcpEndpointId).Distinct().ToList();
+        var configIds = bindingList.Select(b => b.McpServiceConfigId).Distinct().ToList();
+
+        // Batch load all endpoints and configs in just 2 queries instead of N queries
+        var endpoints = (await _repository.GetByIdsAsync(endpointIds))
+            .ToDictionary(e => e.Id, e => e);
+        var configs = (await _configRepository.GetByIdsAsync(configIds))
+            .ToDictionary(c => c.Id, c => c);
+
+        // Map bindings to DTOs using the pre-loaded data
+        return bindingList.Select(binding => new McpServiceBindingDto
+        {
+            Id = binding.Id,
+            XiaozhiMcpEndpointId = binding.XiaozhiMcpEndpointId,
+            ConnectionName = endpoints.TryGetValue(binding.XiaozhiMcpEndpointId, out var endpoint) 
+                ? endpoint.Name 
+                : string.Empty,
+            McpServiceConfigId = binding.McpServiceConfigId,
+            ServiceName = configs.TryGetValue(binding.McpServiceConfigId, out var config) 
+                ? config.Name 
+                : string.Empty,
+            Description = binding.Description,
+            IsActive = binding.IsActive,
+            SelectedToolNames = binding.SelectedToolNames.ToList(),
+            CreatedAt = binding.CreatedAt,
+            UpdatedAt = binding.UpdatedAt
+        }).ToList();
     }
 }
