@@ -20,21 +20,32 @@
         <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
             <MudCardContent Class="pa-6">
                 <div class="d-flex justify-space-between align-center flex-wrap" Style="gap: 1rem;">
-                    <div>
-                        <MudText Typo="Typo.h4" Class="m3-mb-sm" Style="font-weight: 600; color: #FFFFFF;">
-                            <MudIcon Icon="@Icons.Material.Filled.Link" Class="mr-2" Style="color: #FFFFFF;" /> 
-                            @(!string.IsNullOrEmpty(_connectionId) ? string.Format(Loc["ServicesFor"], _serverName) : Loc["McpServiceBindings"])
-                        </MudText>
-                        <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
-                            @if (_totalCount > 0)
-                            {
-                                <span>@string.Format(Loc["TotalServiceBindings"], _totalCount)</span>
-                            }
-                            else
-                            {
-                                <span>@(!string.IsNullOrEmpty(_connectionId) ? Loc["ManageServicesForConnection"] : Loc["ConfigureExternalServices"])</span>
-                            }
-                        </MudText>
+                    <div class="d-flex align-center" Style="gap: 0.5rem; flex: 1;">
+                        @if (!string.IsNullOrEmpty(_connectionId))
+                        {
+                            <!-- 返回按钮 - 集成到标题左侧 -->
+                            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" 
+                                          Href="/connections"
+                                          Style="color: #FFFFFF; background: rgba(255, 255, 255, 0.1);"
+                                          Size="Size.Large"
+                                          Title="@Loc["BackToServers"]" />
+                        }
+                        <div>
+                            <MudText Typo="Typo.h4" Class="m3-mb-sm" Style="font-weight: 600; color: #FFFFFF;">
+                                <MudIcon Icon="@Icons.Material.Filled.Link" Class="mr-2" Style="color: #FFFFFF;" /> 
+                                @(!string.IsNullOrEmpty(_connectionId) ? string.Format(Loc["ServicesFor"], _serverName) : Loc["McpServiceBindings"])
+                            </MudText>
+                            <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
+                                @if (_totalCount > 0)
+                                {
+                                    <span>@string.Format(Loc["TotalServiceBindings"], _totalCount)</span>
+                                }
+                                else
+                                {
+                                    <span>@(!string.IsNullOrEmpty(_connectionId) ? Loc["ManageServicesForConnection"] : Loc["ConfigureExternalServices"])</span>
+                                }
+                            </MudText>
+                        </div>
                     </div>
                     <MudButton Href="@(!string.IsNullOrEmpty(_connectionId) ? $"/service-bindings/create?connectionId={_connectionId}" : "/service-bindings/create")" 
                               Variant="Variant.Filled" 
@@ -48,17 +59,6 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
-
-    @if (!string.IsNullOrEmpty(_connectionId))
-    {
-        <MudItem xs="12">
-            <MudButton Href="/connections" 
-                      Variant="Variant.Text" 
-                      StartIcon="@Icons.Material.Filled.ArrowBack">
-                @Loc["BackToServers"]
-            </MudButton>
-        </MudItem>
-    }
 
     <!-- Search and Filters -->
     <MudItem xs="12">
