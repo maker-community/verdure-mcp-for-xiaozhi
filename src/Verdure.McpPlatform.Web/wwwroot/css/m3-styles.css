@@ -523,3 +523,62 @@
 .card-fade-in {
     animation: fadeInUp var(--m3-duration-medium) var(--m3-easing-emphasized);
 }
+
+/* ==========================================================================
+   Responsive Utilities (响应式工具类)
+   ========================================================================== */
+
+/* 响应式间距 - 小屏减少间距 */
+@media (max-width: 600px) {
+    /* xs breakpoint */
+    .m3-container-compact,
+    .m3-container-medium,
+    .m3-container-expanded,
+    .m3-container-full {
+        padding: var(--m3-spacing-sm);
+    }
+    
+    /* 减少卡片内边距 */
+    .m3-card {
+        padding: var(--m3-spacing-md);
+    }
+    
+    /* 小屏标题字体缩小 */
+    .mud-typography-h4 {
+        font-size: 1.5rem !important;
+    }
+    
+    .mud-typography-h5 {
+        font-size: 1.25rem !important;
+    }
+    
+    /* 按钮在小屏占满宽 */
+    .m3-button-responsive {
+        width: 100%;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 960px) {
+    /* sm breakpoint */
+    .m3-container-compact,
+    .m3-container-medium,
+    .m3-container-expanded,
+    .m3-container-full {
+        padding: var(--m3-spacing-lg);
+    }
+}
+
+/* 响应式间距类 */
+.m3-mb-xs { margin-bottom: var(--m3-spacing-xs) !important; }
+.m3-mb-sm { margin-bottom: var(--m3-spacing-sm) !important; }
+.m3-mb-md { margin-bottom: var(--m3-spacing-md) !important; }
+.m3-mb-lg { margin-bottom: var(--m3-spacing-lg) !important; }
+.m3-mb-xl { margin-bottom: var(--m3-spacing-xl) !important; }
+
+/* 响应式间距 - 在小屏上减少 */
+@media (max-width: 600px) {
+    .m3-mb-sm-xs { margin-bottom: var(--m3-spacing-xs) !important; }
+    .m3-mb-sm-sm { margin-bottom: var(--m3-spacing-sm) !important; }
+    .m3-mb-sm-md { margin-bottom: var(--m3-spacing-md) !important; }
+    .m3-mb-xl { margin-bottom: var(--m3-spacing-lg) !important; }
+}

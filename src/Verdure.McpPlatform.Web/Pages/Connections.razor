@@ -7,86 +7,51 @@
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
 @using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
 @inject IXiaozhiMcpEndpointClientService ServerService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
 @inject IStringLocalizer<SharedResources> Loc
+@inject IJSRuntime JS
+@implements IDisposable
 @attribute [Authorize]
 
 <PageTitle>@Loc["XiaozhiMcpEndpoints"] - @Loc["AppTitle"]</PageTitle>
 
 <MudGrid>
-    <!-- M3 Hero Banner - 蓝色背景 -->
+    <!-- Responsive Hero Banner -->
     <MudItem xs="12">
-        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
-            <MudCardContent Class="pa-6">
-                <div class="d-flex justify-space-between align-center flex-wrap" Style="gap: 1rem;">
-                    <div>
-                        <MudText Typo="Typo.h4" Class="m3-mb-sm" Style="font-weight: 600; color: #FFFFFF;">
-                            <MudIcon Icon="@Icons.Material.Outlined.Dns" Class="mr-2" Style="color: #FFFFFF;" /> @Loc["XiaozhiMcpEndpoints"]
-                        </MudText>
-                        <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
-                            @if (_totalCount > 0)
-                            {
-                                <span>@Loc["TotalConnections", _totalCount]</span>
-                            }
-                            else
-                            {
-                                <span>@Loc["ManageConnections"]</span>
-                            }
-                        </MudText>
-                    </div>
-                    <MudButton Href="/connections/create" 
-                              Variant="Variant.Filled" 
-                              Style="background: #FFFFFF; color: #1976D2;"
-                              StartIcon="@Icons.Material.Filled.Add"
-                              Size="Size.Large"
-                              Class="m3-button-lg">
-                        @Loc["AddConnection"]
-                    </MudButton>
-                </div>
-            </MudCardContent>
-        </MudCard>
+        <PageHeader Icon="@Icons.Material.Outlined.Dns"
+                    Title="@Loc["XiaozhiMcpEndpoints"]"
+                    TotalCount="_totalCount"
+                    CountMessage="@Loc["TotalConnections", _totalCount]"
+                    EmptyMessage="@Loc["ManageConnections"]"
+                    ActionHref="/connections/create"
+                    ActionText="@Loc["AddConnection"]"
+                    IsSmallScreen="_isSmallScreen" />
     </MudItem>
 
-    <!-- Search and Filters -->
+    <!-- Responsive Search and Filters -->
     <MudItem xs="12">
-        <MudPaper Class="pa-4" Elevation="1">
-            <MudGrid>
-                <MudItem xs="12" sm="6" md="8">
-                    <MudTextField @bind-Value="_searchTerm"
-                                  Label="@Loc["Search"]"
-                                  Placeholder="@Loc["SearchConnections"]"
-                                  Adornment="Adornment.Start"
-                                  AdornmentIcon="@Icons.Material.Filled.Search"
-                                  Immediate="true"
-                                  DebounceInterval="500"
-                                  OnDebounceIntervalElapsed="OnSearchChanged"
-                                  Clearable="true"
-                                  Variant="Variant.Outlined" />
-                </MudItem>
-                <MudItem xs="12" sm="6" md="4">
-                    <MudSelect Value="_sortBy"
-                               Label="@Loc["SortBy"]"
-                               Variant="Variant.Outlined"
-                               T="string"
-                               ValueChanged="OnSortChanged">
-                        <MudSelectItem Value="@("CreatedAt")">@Loc["CreatedDate"]</MudSelectItem>
-                        <MudSelectItem Value="@("Name")">@Loc["Name"]</MudSelectItem>
-                        <MudSelectItem Value="@("Address")">@Loc["Address"]</MudSelectItem>
-                        <MudSelectItem Value="@("Status")">@Loc["Status"]</MudSelectItem>
-                    </MudSelect>
-                </MudItem>
-            </MudGrid>
-        </MudPaper>
+        <SearchFilterBar SearchTerm="@_searchTerm"
+                         SearchTermChanged="@(value => _searchTerm = value)"
+                         SortBy="@_sortBy"
+                         SortByChanged="@(value => _sortBy = value)"
+                         SortOptions="@_sortOptions"
+                         SearchLabel="@Loc["Search"]"
+                         SearchPlaceholder="@Loc["SearchConnections"]"
+                         SortByLabel="@Loc["SortBy"]"
+                         OnSearchChanged="@OnSearchChanged"
+                         OnSortChanged="@OnSortChangedAsync"
+                         IsSmallScreen="_isSmallScreen" />
     </MudItem>
 
     <!-- Cards Container with Virtualization -->
     <MudItem xs="12">
-        <div style="height: calc(100vh - 350px); overflow-y: auto; overflow-x: hidden;">
+        <div style="height: calc(100vh - @(_isSmallScreen ? "280px" : "350px")); overflow-y: auto; overflow-x: hidden;">
             <!-- Virtualized Cards Grid - 始终渲染 -->
-            <MudGrid Spacing="3" Class="px-4 py-2">
+            <MudGrid Spacing="@(_isSmallScreen ? 2 : 3)" Class="@(_isSmallScreen ? "px-2 py-1" : "px-4 py-2")">
                 <MudVirtualize @ref="_virtualizeComponent"
                               Enabled="true"
                               ItemsProvider="@LoadServersVirtualized"
@@ -163,10 +128,71 @@
     private string _sortBy = "CreatedAt";
     private string _sortOrder = "desc";
     private int _totalCount = 0;
+    private bool _isSmallScreen = false;
 
     // Virtualization
     private MudVirtualize<XiaozhiMcpEndpointDto>? _virtualizeComponent;
     private const int PageSize = 12;
+    
+    // Browser resize detection
+    private DotNetObjectReference<Connections>? _dotNetRef;
+
+    // Sort options for SearchFilterBar
+    private List<SearchFilterBar.SortOption> _sortOptions = new();
+
+    protected override void OnInitialized()
+    {
+        // Initialize sort options
+        _sortOptions = new List<SearchFilterBar.SortOption>
+        {
+            new() { Value = "CreatedAt", Text = Loc["CreatedDate"] },
+            new() { Value = "Name", Text = Loc["Name"] },
+            new() { Value = "Address", Text = Loc["Address"] },
+            new() { Value = "Status", Text = Loc["Status"] }
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await CheckScreenSize();
+        }
+    }
+
+    [JSInvokable]
+    public void OnResize(int width)
+    {
+        var wasSmallScreen = _isSmallScreen;
+        _isSmallScreen = width < 600; // MudBlazor's xs/sm breakpoint
+        
+        if (wasSmallScreen != _isSmallScreen)
+        {
+            StateHasChanged();
+        }
+    }
+
+    private async Task CheckScreenSize()
+    {
+        try
+        {
+            // Try to get initial screen size
+            var width = await JS.InvokeAsync<int>("eval", "window.innerWidth");
+            _isSmallScreen = width < 600;
+            StateHasChanged();
+        }
+        catch
+        {
+            // Fallback to default
+            _isSmallScreen = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        _dotNetRef?.Dispose();
+    }
 
     /// <summary>
     /// MudVirtualize 的数据提供函数
@@ -255,10 +281,9 @@
     /// <summary>
     /// 排序变化时刷新虚拟化列表
     /// </summary>
-    private async Task OnSortChanged(string newSortBy)
+    private async Task OnSortChangedAsync()
     {
-        Console.WriteLine($"📊 Sort changed: {_sortBy} → {newSortBy}");
-        _sortBy = newSortBy;
+        Console.WriteLine($"📊 Sort changed: {_sortBy}");
         
         // 刷新虚拟化组件
         if (_virtualizeComponent != null)

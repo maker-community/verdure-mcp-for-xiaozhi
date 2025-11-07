@@ -1,0 +1,96 @@
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@using MudBlazor
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudPaper Class="@(_isSmallScreen ? "pa-2" : "pa-4")" Elevation="1">
+    <MudGrid Spacing="@(_isSmallScreen ? 1 : 2)">
+        <!-- Search Field -->
+        <MudItem xs="12" sm="8">
+            <MudTextField @bind-Value="SearchTerm"
+                          Label="@SearchLabel"
+                          Placeholder="@SearchPlaceholder"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Immediate="true"
+                          DebounceInterval="500"
+                          OnDebounceIntervalElapsed="OnSearchChangedInternal"
+                          Clearable="true"
+                          Variant="Variant.Outlined"
+                          Margin="@(_isSmallScreen ? Margin.Dense : Margin.Normal)" />
+        </MudItem>
+        
+        <!-- Sort By Dropdown -->
+        <MudItem xs="12" sm="4">
+            <MudSelect Value="SortBy"
+                       Label="@SortByLabel"
+                       Variant="Variant.Outlined"
+                       Margin="@(_isSmallScreen ? Margin.Dense : Margin.Normal)"
+                       T="string"
+                       ValueChanged="OnSortChangedInternal">
+                @if (SortOptions != null)
+                {
+                    @foreach (var option in SortOptions)
+                    {
+                        <MudSelectItem Value="@option.Value">@option.Text</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public string SearchTerm { get; set; } = "";
+    
+    [Parameter]
+    public EventCallback<string> SearchTermChanged { get; set; }
+    
+    [Parameter]
+    public string SortBy { get; set; } = "";
+    
+    [Parameter]
+    public EventCallback<string> SortByChanged { get; set; }
+    
+    [Parameter]
+    public List<SortOption>? SortOptions { get; set; }
+    
+    [Parameter]
+    public string SearchLabel { get; set; } = "";
+    
+    [Parameter]
+    public string SearchPlaceholder { get; set; } = "";
+    
+    [Parameter]
+    public string SortByLabel { get; set; } = "";
+    
+    [Parameter]
+    public EventCallback OnSearchChanged { get; set; }
+    
+    [Parameter]
+    public EventCallback OnSortChanged { get; set; }
+    
+    [Parameter]
+    public bool IsSmallScreen { get; set; }
+    
+    private bool _isSmallScreen => IsSmallScreen;
+    
+    private async Task OnSearchChangedInternal()
+    {
+        await SearchTermChanged.InvokeAsync(SearchTerm);
+        await OnSearchChanged.InvokeAsync();
+    }
+    
+    private async Task OnSortChangedInternal(string newValue)
+    {
+        await SortByChanged.InvokeAsync(newValue);
+        await OnSortChanged.InvokeAsync();
+    }
+    
+    public class SortOption
+    {
+        public string Value { get; set; } = "";
+        public string Text { get; set; } = "";
+    }
+}

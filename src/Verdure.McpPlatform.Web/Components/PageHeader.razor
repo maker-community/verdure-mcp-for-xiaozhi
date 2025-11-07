@@ -1,0 +1,73 @@
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@using MudBlazor
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudCard Elevation="2" 
+         Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" 
+         Class="m3-mb-xl">
+    <MudCardContent Class="pa-3 pa-sm-4 pa-md-6">
+        <div class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center" Style="gap: 0.75rem;">
+            <!-- Title Section -->
+            <div class="flex-grow-1" style="min-width: 0;">
+                <MudText Typo="@(IsSmallScreen ? Typo.h5 : Typo.h4)" 
+                         Class="m3-mb-xs m3-mb-sm-sm" 
+                         Style="font-weight: 600; color: #FFFFFF; word-break: break-word;">
+                    <MudIcon Icon="@Icon" Class="mr-2" Style="color: #FFFFFF; vertical-align: middle;" /> 
+                    <span style="vertical-align: middle;">@Title</span>
+                </MudText>
+                <MudText Typo="@(IsSmallScreen ? Typo.body2 : Typo.body1)" 
+                         Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
+                    @if (TotalCount > 0)
+                    {
+                        <span>@CountMessage</span>
+                    }
+                    else
+                    {
+                        <span>@EmptyMessage</span>
+                    }
+                </MudText>
+            </div>
+            
+            <!-- Action Button -->
+            @if (!string.IsNullOrEmpty(ActionHref))
+            {
+                <MudButton Href="@ActionHref" 
+                          Variant="Variant.Filled" 
+                          Style="background: #FFFFFF; color: #1976D2; flex-shrink: 0;"
+                          StartIcon="@Icons.Material.Filled.Add"
+                          Size="@(IsSmallScreen ? Size.Medium : Size.Large)"
+                          Class="@(IsSmallScreen ? "m3-button" : "m3-button-lg")"
+                          FullWidth="@IsSmallScreen">
+                    @ActionText
+                </MudButton>
+            }
+        </div>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public string Icon { get; set; } = Icons.Material.Outlined.Dns;
+    
+    [Parameter]
+    public string Title { get; set; } = "";
+    
+    [Parameter]
+    public int TotalCount { get; set; }
+    
+    [Parameter]
+    public string CountMessage { get; set; } = "";
+    
+    [Parameter]
+    public string EmptyMessage { get; set; } = "";
+    
+    [Parameter]
+    public string ActionHref { get; set; } = "";
+    
+    [Parameter]
+    public string ActionText { get; set; } = "";
+    
+    [Parameter]
+    public bool IsSmallScreen { get; set; }
+}
