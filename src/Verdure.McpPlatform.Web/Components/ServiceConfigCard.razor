@@ -192,6 +192,17 @@
                     @Loc["Sync"]
                 </MudButton>
             }
+            else
+            {
+                <MudButton Size="Size.Small" 
+                           Variant="Variant.Filled" 
+                           Color="Color.Primary" 
+                           OnClick="@OnUseService"
+                           StartIcon="@Icons.Material.Filled.Link"
+                           Style="text-transform: none; font-weight: 600; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                    @Loc["UseThisService"]
+                </MudButton>
+            }
         </div>
     </MudCardActions>
 </MudCard>
@@ -221,5 +232,8 @@
     
     [Parameter]
     public EventCallback OnDelete { get; set; }
+    
+    [Parameter]
+    public EventCallback OnUseService { get; set; }
 }
 
