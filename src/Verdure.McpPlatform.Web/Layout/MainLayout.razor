@@ -11,11 +11,13 @@
 <MudLayout Style="min-height: 100vh; display: flex; flex-direction: column;">
     <MudAppBar Elevation="1" Color="Color.Primary">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-        <div class="d-flex align-center gap-2 ml-3">
+        <!-- Logo 和标题：窄屏时移除 gap 以节省空间 -->
+        <div class="d-flex align-center ml-3" style="gap: 0;">
             <img src="app-logo.png" 
                  alt="Verdure Logo" 
                  style="width: 32px; height: 32px; filter: brightness(0) invert(1);" />
-            <MudText Typo="Typo.h6">@Loc["AppTitle"]</MudText>
+            <!-- 应用标题：在手机等窄屏幕设备上隐藏，以节省空间 -->
+            <MudText Typo="Typo.h6" Class="d-none d-sm-block" Style="margin-left: 0.5rem;">@Loc["AppTitle"]</MudText>
         </div>
         <MudSpacer />
         <div class="d-flex align-center gap-2">
@@ -55,7 +57,18 @@
                     </MudMenu>
                 </Authorized>
                 <NotAuthorized>
-                    <MudButton Href="/login" Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Login">
+                    <!-- 登录按钮：窄屏仅图标，宽屏带文字 -->
+                    <MudIconButton Icon="@Icons.Material.Filled.Login"
+                                  Size="Size.Medium"
+                                  Color="Color.Inherit"
+                                  Href="/login"
+                                  Class="d-inline-flex d-sm-none" />
+                    <MudButton Href="/login" 
+                              Variant="Variant.Text" 
+                              Color="Color.Inherit" 
+                              StartIcon="@Icons.Material.Filled.Login"
+                              Size="Size.Small"
+                              Class="d-none d-sm-inline-flex">
                         @Loc["Login"]
                     </MudButton>
                 </NotAuthorized>

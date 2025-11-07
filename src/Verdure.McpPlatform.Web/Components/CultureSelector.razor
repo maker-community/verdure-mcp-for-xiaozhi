@@ -11,8 +11,17 @@
          TransformOrigin="Origin.TopCenter"
          Dense="true">
     <ActivatorContent>
+        <!-- 窄屏：仅图标按钮 -->
+        <MudIconButton Icon="@Icons.Material.Filled.Language"
+                       Size="Size.Medium"
+                       Class="d-inline-flex d-sm-none"
+                       Style="@($"color: {TextColor};")">
+        </MudIconButton>
+        <!-- 宽屏：带文字的按钮 -->
         <MudButton Variant="Variant.Text" 
                    StartIcon="@Icons.Material.Filled.Language"
+                   Size="Size.Small"
+                   Class="d-none d-sm-inline-flex"
                    Style="@($"color: {TextColor};")">
             @GetCultureDisplayName(_currentCulture)
         </MudButton>
