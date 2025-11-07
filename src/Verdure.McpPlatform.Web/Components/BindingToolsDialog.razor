@@ -1,0 +1,86 @@
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@using MudBlazor
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <DialogContent>
+        <div style="padding: 8px 0;">
+            <!-- Service Name Header -->
+            <div class="d-flex align-center mb-4" style="gap: 12px;">
+                <MudIcon Icon="@Icons.Material.Outlined.Extension" 
+                         Color="Color.Primary" 
+                         Size="Size.Large" />
+                <div>
+                    <MudText Typo="Typo.h6" Style="font-weight: 600; color: #1a1a1a;">
+                        @ServiceName
+                    </MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        @string.Format(Loc["ToolsCount"], ToolNames.Count)
+                    </MudText>
+                </div>
+            </div>
+            
+            <MudDivider Class="mb-4" />
+            
+            <!-- Tools List -->
+            @if (ToolNames.Any())
+            {
+                <div class="d-flex flex-column" style="gap: 8px;">
+                    @foreach (var tool in ToolNames.OrderBy(t => t))
+                    {
+                        <div class="d-flex align-center tool-item" 
+                             style="padding: 12px 16px; 
+                                    background: rgba(25, 118, 210, 0.04); 
+                                    border-radius: 8px; 
+                                    border-left: 3px solid #1976D2;">
+                            <MudIcon Icon="@Icons.Material.Filled.Build" 
+                                     Size="Size.Small" 
+                                     Color="Color.Primary" 
+                                     Class="mr-3" />
+                            <MudText Typo="Typo.body2" 
+                                     Style="color: #424242;">
+                                @tool
+                            </MudText>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column align-center justify-center" style="padding: 40px 0;">
+                    <MudIcon Icon="@Icons.Material.Outlined.BuildCircle" 
+                             Size="Size.Large" 
+                             Color="Color.Default" 
+                             Class="mb-3" />
+                    <MudText Typo="Typo.body1" Color="Color.Secondary">
+                        @Loc["NoToolsSelected"]
+                    </MudText>
+                </div>
+            }
+        </div>
+    </DialogContent>
+</MudDialog>
+
+<style>
+    .tool-item {
+        transition: all 0.2s ease;
+    }
+    
+    .tool-item:hover {
+        background: rgba(25, 118, 210, 0.08) !important;
+        transform: translateX(4px);
+        border-left-color: #1565C0 !important;
+    }
+</style>
+
+@code {
+    [CascadingParameter]
+    private MudBlazor.IDialogReference? MudDialog { get; set; }
+    
+    [Parameter]
+    public string ServiceName { get; set; } = string.Empty;
+    
+    [Parameter]
+    public List<string> ToolNames { get; set; } = new();
+}

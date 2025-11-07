@@ -1215,4 +1215,10 @@
   <data name="PublicService" xml:space="preserve">
     <value>公开服务</value>
   </data>
+  <data name="BindingTools" xml:space="preserve">
+    <value>绑定工具</value>
+  </data>
+  <data name="NoToolsSelected" xml:space="preserve">
+    <value>未选择工具</value>
+  </data>
 </root>

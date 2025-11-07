@@ -2,6 +2,7 @@
 @using Verdure.McpPlatform.Contracts.DTOs
 @using Verdure.McpPlatform.Web.Resources
 @inject IStringLocalizer<SharedResources> Loc
+@inject IDialogService DialogService
 
 <MudCard Elevation="2" 
          Class="service-binding-card m3-card-elevated" 
@@ -120,43 +121,17 @@
                 </MudChip>
             }
             
-            <!-- Tools Count -->
+            <!-- Tools Count - Clickable -->
             <MudChip T="string" 
                      Size="Size.Small" 
                      Variant="Variant.Outlined"
-                     Style="border-color: #1976D2; color: #1976D2; font-weight: 500; border-radius: 16px;"
-                     Icon="@Icons.Material.Filled.Build">
+                     Style="border-color: #1976D2; color: #1976D2; font-weight: 500; border-radius: 16px; cursor: pointer; transition: all 0.2s ease;"
+                     Class="tools-chip"
+                     Icon="@Icons.Material.Filled.Build"
+                     OnClick="@ShowToolsDialog">
                 @string.Format(Loc["ToolsCount"], Binding.SelectedToolNames.Count)
             </MudChip>
         </div>
-        
-        <!-- Selected Tools - 显示前3个工具 -->
-        @if (Binding.SelectedToolNames.Any())
-        {
-            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-1">
-                @Loc["SelectedTools"]:
-            </MudText>
-            <div class="d-flex flex-wrap" style="gap: 4px; margin-bottom: 12px;">
-                @foreach (var tool in Binding.SelectedToolNames.Take(3))
-                {
-                    <MudChip T="string" 
-                             Size="Size.Small" 
-                             Variant="Variant.Text"
-                             Style="background: rgba(25, 118, 210, 0.08); color: #1976D2; font-size: 11px; height: 20px; border-radius: 10px;">
-                        @tool
-                    </MudChip>
-                }
-                @if (Binding.SelectedToolNames.Count > 3)
-                {
-                    <MudChip T="string" 
-                             Size="Size.Small" 
-                             Variant="Variant.Text"
-                             Style="background: rgba(25, 118, 210, 0.08); color: #1976D2; font-size: 11px; height: 20px; border-radius: 10px;">
-                        +@(Binding.SelectedToolNames.Count - 3)
-                    </MudChip>
-                }
-            </div>
-        }
         
         <!-- Metadata Footer -->
         <div class="d-flex align-center" style="gap: 4px; margin-top: auto;">
@@ -218,6 +193,11 @@
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
     }
+    
+    .tools-chip:hover {
+        background: rgba(25, 118, 210, 0.08) !important;
+        transform: scale(1.05);
+    }
 </style>
 
 @code {
@@ -235,4 +215,25 @@
     
     [Parameter]
     public EventCallback OnDeactivate { get; set; }
+    
+    private async Task ShowToolsDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            { nameof(BindingToolsDialog.ServiceName), Binding.ServiceName },
+            { nameof(BindingToolsDialog.ToolNames), Binding.SelectedToolNames }
+        };
+
+        var options = new DialogOptions 
+        { 
+            CloseButton = true, 
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+        
+        await DialogService.ShowAsync<BindingToolsDialog>(
+            Loc["BindingTools"], 
+            parameters, 
+            options);
+    }
 }

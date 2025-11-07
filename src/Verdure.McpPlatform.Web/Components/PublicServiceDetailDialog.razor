@@ -115,9 +115,6 @@
         </MudStack>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Default">
-            @Loc["Close"]
-        </MudButton>
         <MudButton OnClick="UseService" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Link">
             @Loc["UseThisService"]
         </MudButton>
@@ -130,8 +127,6 @@
 
     [Parameter, EditorRequired]
     public McpServiceConfigDto Service { get; set; } = null!;
-
-    private void Cancel() => MudDialog?.Close(DialogResult.Cancel());
 
     private void UseService()
     {

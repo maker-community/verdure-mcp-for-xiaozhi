@@ -1344,6 +1344,104 @@ builder.Services.AddBlazoredLocalStorage();
 }
 ```
 
+### ⚠️ MudBlazor Dialog 组件的正确用法
+
+**这是一个经常出错的地方，请务必记住！**
+
+#### ❌ 错误的做法
+```csharp
+// 不要使用 MudDialogInstance
+[CascadingParameter]
+MudDialogInstance MudDialog { get; set; } = null!;
+
+private void Close() => MudDialog.Close(DialogResult.Ok(true));
+```
+
+#### ✅ 正确的做法
+```csharp
+// 使用 MudBlazor.IDialogReference（注意是可空类型）
+[CascadingParameter]
+private MudBlazor.IDialogReference? MudDialog { get; set; }
+
+private void Close() => MudDialog?.Close(DialogResult.Ok(true));
+```
+
+#### Dialog 组件完整示例
+
+参考 `DeleteConfirmationDialog.razor` 的实现：
+
+```razor
+<MudDialog>
+    <DialogContent>
+        <MudText>@ContentText</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudBlazor.IDialogReference? MudDialog { get; set; }
+
+    [Parameter] 
+    public string ContentText { get; set; } = "Are you sure?";
+
+    [Parameter] 
+    public string ButtonText { get; set; } = "Confirm";
+
+    [Parameter] 
+    public Color Color { get; set; } = Color.Primary;
+
+    void Submit() => MudDialog?.Close(DialogResult.Ok(true));
+    void Cancel() => MudDialog?.Close(DialogResult.Cancel());
+}
+```
+
+#### 调用 Dialog 的正确方式
+
+```csharp
+// 在调用 Dialog 的组件中
+@inject IDialogService DialogService
+
+private async Task ShowDialog()
+{
+    var parameters = new DialogParameters
+    {
+        { nameof(MyDialog.PropertyName), propertyValue },
+        { nameof(MyDialog.AnotherProperty), anotherValue }
+    };
+
+    var options = new DialogOptions 
+    { 
+        CloseButton = true, 
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true
+    };
+    
+    var dialog = await DialogService.ShowAsync<MyDialog>(
+        "Dialog Title", 
+        parameters, 
+        options);
+        
+    var result = await dialog.Result;
+    
+    if (result != null && !result.Canceled)
+    {
+        // 处理确认逻辑
+    }
+}
+```
+
+#### 关键注意事项
+
+1. **CascadingParameter 类型**: 必须是 `MudBlazor.IDialogReference?`（可空）
+2. **访问修饰符**: 建议使用 `private`
+3. **空安全调用**: 使用 `?.` 操作符调用 `Close()` 方法
+4. **参数传递**: 使用 `nameof()` 确保类型安全
+5. **DialogParameters**: 不是泛型类型，使用普通的 `DialogParameters`
+
 ---
 
 ## .NET Aspire 配置 (Aspire Orchestration)
@@ -2315,6 +2413,8 @@ if (lockHandle != null && lockHandle.IsAcquired)
 | ❌ 同步方法调用数据库 | ✅ 使用异步方法（async/await） |
 | ❌ 在多实例环境不加锁 | ✅ 使用 IDistributedLockService |
 | ❌ 硬编码连接字符串 | ✅ 使用配置文件和环境变量 |
+| ❌ 使用 `MudDialogInstance` | ✅ 使用 `MudBlazor.IDialogReference?`（可空） |
+| ❌ Dialog 参数使用 `DialogParameters<T>` | ✅ 使用 `DialogParameters` + `nameof()` |
 
 ### 测试要求
 

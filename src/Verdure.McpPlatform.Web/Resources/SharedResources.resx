@@ -1185,4 +1185,10 @@
   <data name="PublicService" xml:space="preserve">
     <value>Public Service</value>
   </data>
+  <data name="BindingTools" xml:space="preserve">
+    <value>Binding Tools</value>
+  </data>
+  <data name="NoToolsSelected" xml:space="preserve">
+    <value>No tools selected</value>
+  </data>
 </root>
