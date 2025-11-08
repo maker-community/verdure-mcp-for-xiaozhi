@@ -2,9 +2,37 @@
 
 ## 核心问题回答
 
-**问题**: 如果三个服务都有对应的 Socket 连接，但是其中一个服务挂掉了，是不是通过后台任务会自动在其他的两个服务上进行重建连接？
+**问题 1**: 如果三个服务都有对应的 Socket 连接，但是其中一个服务挂掉了，是不是通过后台任务会自动在其他的两个服务上进行重建连接？
 
 **答案**: ✅ **是的！** 完全正确。后台监控服务 (`ConnectionMonitorHostedService`) 会自动检测故障并在存活的实例上重建连接。
+
+**问题 2**: 如果数据库中服务器已启用但 Redis 中完全没有连接状态数据，会自动恢复吗？
+
+**答案**: ✅ **是的！** 新增的一致性检查机制会主动对比数据库和 Redis，自动恢复缺失的连接。
+
+---
+
+## 三层恢复机制
+
+系统提供三层互补的恢复机制，确保连接的高可用性：
+
+### 1️⃣ 启动时自动连接（冷启动恢复）
+- **触发时机**: 服务启动后 10 秒
+- **检查范围**: 数据库中所有 `IsEnabled=true` 的服务器
+- **恢复条件**: Redis 中不存在或状态不是 `Connected`
+- **适用场景**: 全新部署、服务重启、集群扩容
+
+### 2️⃣ 一致性检查恢复（数据丢失恢复）⭐ NEW
+- **触发时机**: 每个监控周期（默认30秒）
+- **检查范围**: 对比数据库启用的服务器和 Redis 连接状态
+- **恢复条件**: 数据库中启用但 Redis 中缺失
+- **适用场景**: Redis 重启、手动清空、连接失败未留记录
+
+### 3️⃣ 心跳超时恢复（故障转移恢复）
+- **触发时机**: 心跳超过 90 秒未更新
+- **检查范围**: Redis 中所有连接状态
+- **恢复条件**: 心跳超时 + 冷却期（60秒）已过
+- **适用场景**: 实例崩溃、进程终止、网络分区
 
 ---
 
@@ -193,7 +221,64 @@
 
 ## 关键机制
 
-### 1. 心跳检测机制
+### 1. 一致性检查机制 ⭐ NEW
+
+```csharp
+// 每个监控周期执行（默认 30 秒）
+private async Task CheckDatabaseRedisConsistencyAsync(...)
+{
+    // 1. 获取数据库中所有启用的服务器
+    var enabledServers = await serverRepository.GetEnabledServersAsync(cancellationToken);
+    
+    // 2. 获取 Redis 中所有连接状态
+    var allRedisStates = await connectionStateService.GetAllConnectionStatesAsync(cancellationToken);
+    var redisServerIds = new HashSet<string>(allRedisStates.Select(s => s.ServerId));
+
+    // 3. 找出数据库启用但 Redis 缺失的服务器
+    var missingServers = enabledServers
+        .Where(server => !redisServerIds.Contains(server.Id))
+        .ToList();
+
+    // 4. 尝试恢复缺失的连接
+    foreach (var server in missingServers)
+    {
+        _logger.LogInformation(
+            "Recovering missing connection for enabled server {ServerId} ({ServerName})",
+            server.Id, server.Name);
+        
+        await sessionManager.StartSessionAsync(server.Id, cancellationToken);
+    }
+}
+```
+
+**覆盖场景**:
+- ✅ Redis 重启（数据丢失）
+- ✅ 手动清空 Redis
+- ✅ 启动时连接失败（未写入 Redis）
+- ✅ 手动启用服务器后连接创建失败
+
+**示例流程**:
+```
+T0: Redis 重启，所有数据丢失
+    数据库: [Server-1 ✅, Server-2 ✅, Server-3 ✅] (IsEnabled=true)
+    Redis:  [] (空)
+
+T1 (30秒后): 监控循环检测到不一致
+    [警告] Found 3 enabled servers in database but missing from Redis
+    
+T2: 尝试恢复
+    [信息] Recovering missing connection for enabled server Server-1
+    [信息] Successfully recovered connection for server Server-1
+    [信息] Recovering missing connection for enabled server Server-2
+    [信息] Successfully recovered connection for server Server-2
+    [信息] Recovering missing connection for enabled server Server-3
+    [信息] Successfully recovered connection for server Server-3
+
+T3: 恢复完成
+    Redis:  [Server-1: Connected, Server-2: Connected, Server-3: Connected] ✅
+```
+
+### 2. 心跳检测机制
 
 ```csharp
 // 每 30 秒执行一次
@@ -214,7 +299,7 @@ private async Task UpdateLocalConnectionHeartbeatsAsync(...)
 }
 ```
 
-### 2. 僵尸连接检测
+### 3. 僵尸连接检测
 
 ```csharp
 // 查找心跳超时的连接 (默认 90 秒)

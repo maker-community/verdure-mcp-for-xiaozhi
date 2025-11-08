@@ -205,6 +205,13 @@ public class ConnectionMonitorHostedService : BackgroundService
             }
         }
 
+        // ✅ NEW: Check for database-enabled servers missing from Redis
+        await CheckDatabaseRedisConsistencyAsync(
+            serverRepository,
+            connectionStateService,
+            sessionManager,
+            cancellationToken);
+
         // Check for disconnected servers that should be reconnected
         var allStates = await connectionStateService.GetAllConnectionStatesAsync(cancellationToken);
         var disconnectedStates = allStates.Where(
@@ -275,6 +282,83 @@ public class ConnectionMonitorHostedService : BackgroundService
                     "Error attempting to reconnect server {ServerId}",
                     disconnectedState.ServerId);
             }
+        }
+    }
+
+    /// <summary>
+    /// Check consistency between database (enabled servers) and Redis (connection states)
+    /// Recovers servers that are enabled in database but missing from Redis
+    /// </summary>
+    private async Task CheckDatabaseRedisConsistencyAsync(
+        IXiaozhiMcpEndpointRepository serverRepository,
+        IConnectionStateService connectionStateService,
+        McpSessionManager sessionManager,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            // Get all enabled servers from database
+            var enabledServers = await serverRepository.GetEnabledServersAsync(cancellationToken);
+            
+            // Get all connection states from Redis
+            var allRedisStates = await connectionStateService.GetAllConnectionStatesAsync(cancellationToken);
+            var redisServerIds = new HashSet<string>(allRedisStates.Select(s => s.ServerId));
+
+            // Find enabled servers missing from Redis
+            var missingServers = enabledServers
+                .Where(server => !redisServerIds.Contains(server.Id))
+                .ToList();
+
+            if (missingServers.Any())
+            {
+                _logger.LogWarning(
+                    "Found {Count} enabled servers in database but missing from Redis - attempting recovery",
+                    missingServers.Count);
+
+                foreach (var server in missingServers)
+                {
+                    try
+                    {
+                        _logger.LogInformation(
+                            "Recovering missing connection for enabled server {ServerId} ({ServerName})",
+                            server.Id,
+                            server.Name);
+
+                        // Attempt to start connection
+                        var started = await sessionManager.StartSessionAsync(server.Id, cancellationToken);
+
+                        if (started)
+                        {
+                            _logger.LogInformation(
+                                "Successfully recovered connection for server {ServerId} ({ServerName})",
+                                server.Id,
+                                server.Name);
+                        }
+                        else
+                        {
+                            _logger.LogWarning(
+                                "Failed to recover connection for server {ServerId} ({ServerName}) - may be handled by another instance",
+                                server.Id,
+                                server.Name);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(
+                            ex,
+                            "Error recovering connection for server {ServerId} ({ServerName})",
+                            server.Id,
+                            server.Name);
+                    }
+
+                    // Small delay between recovery attempts
+                    await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking database-Redis consistency");
         }
     }
 

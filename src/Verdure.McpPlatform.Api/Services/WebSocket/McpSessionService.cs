@@ -181,6 +181,15 @@ public class McpSessionService : IAsyncDisposable
                         Name = $"McpService_{service.ServiceName}",
                     };
 
+                    if (service.Protocol == "sse")
+                    {
+                        transportOptions.TransportMode = HttpTransportMode.Sse;
+                    }
+                    else if (service.Protocol == "streamable-http" || service.Protocol == "http")
+                    {
+                        transportOptions.TransportMode = HttpTransportMode.StreamableHttp;
+                    }
+
                     // ✅ Apply authentication configuration if present
                     if (McpAuthenticationHelper.IsAuthenticationConfigured(
                         service.AuthenticationType, 

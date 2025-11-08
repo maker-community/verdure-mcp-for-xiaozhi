@@ -4,6 +4,25 @@
 
 ### 🐛 Bug 修复
 
+#### Database-Redis 一致性恢复机制修复
+- **问题**: 数据库中启用的服务器（IsEnabled=true）在 Redis 中完全没有连接状态数据时，后台监控服务无法自动恢复连接
+- **根因**: 监控循环只检查 Redis 中已存在的连接状态，不会主动对比数据库和 Redis 的一致性
+- **场景**:
+  - Redis 重启导致数据丢失
+  - 手动清空 Redis 数据
+  - 服务启动时连接失败后未在 Redis 中留下记录
+- **修复**: 在监控循环中新增 `CheckDatabaseRedisConsistencyAsync()` 方法
+  - 每个监控周期（默认30秒）主动对比数据库启用的服务器和 Redis 中的连接状态
+  - 发现数据库中启用但 Redis 中缺失的服务器时，自动尝试恢复连接
+  - 添加详细日志记录一致性检查和恢复过程
+- **性能影响**: 每30秒增加1次数据库查询和1次哈希集合对比，开销可忽略（< 100ms）
+- **测试场景**:
+  - Redis 重启后自动恢复所有连接
+  - 手动清空 Redis 后下一监控周期恢复
+  - 服务启动失败后持续重试直到成功
+- **文档**: 详见 `docs/DATABASE_REDIS_CONSISTENCY_FIX.md`
+- **修复文件**: `src/Verdure.McpPlatform.Api/Services/BackgroundServices/ConnectionMonitorHostedService.cs`
+
 #### EF Core PostgreSQL 并发问题修复
 - **问题**: 使用 PostgreSQL 时出现 "A second operation was started on this context instance" 错误
 - **原因**: `MapToDtoAsync` 中使用 `Task.WhenAll` 并行执行查询，导致同一 DbContext 实例被并发访问
