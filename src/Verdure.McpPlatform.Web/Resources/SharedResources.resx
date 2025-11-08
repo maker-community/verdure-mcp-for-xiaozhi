@@ -180,13 +180,13 @@
     <value>View All Connections</value>
   </data>
   <data name="RecentServers" xml:space="preserve">
-    <value>Recent Servers</value>
+    <value>Recent Xiaozhi Connections</value>
   </data>
   <data name="BindingsCount" xml:space="preserve">
     <value>{0} binding(s)</value>
   </data>
   <data name="NoServersYet" xml:space="preserve">
-    <value>No servers yet. Create Xiaozhi Connection to get started!</value>
+    <value>No Xiaozhi connections yet. Create one to get started!</value>
   </data>
   <data name="WelcomeToPlatform" xml:space="preserve">
     <value>Welcome to Verdure MCP Platform</value>

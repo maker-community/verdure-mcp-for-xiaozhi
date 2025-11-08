@@ -124,31 +124,87 @@
     </MudItem>
 
     <MudItem xs="12">
-        <MudCard Elevation="2">
+        <MudCard Elevation="1" Class="m3-card">
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudText Typo="Typo.h6">@Loc["RecentServers"]</MudText>
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.History" Class="mr-2" />
+                        <MudText Typo="Typo.h6" Style="font-weight: 500;">@Loc["RecentServers"]</MudText>
+                    </div>
                 </CardHeaderContent>
             </MudCardHeader>
-            <MudCardContent>
+            <MudCardContent Class="pa-0">
                 @if (_loading)
                 {
-                    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                    <div class="pa-4">
+                        <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                    </div>
                 }
                 else if (_recentServers.Any())
                 {
-                    <MudList T="string">
+                    <MudList T="string" Class="pa-0">
                         @foreach (var server in _recentServers.Take(5))
                         {
-                            <MudListItem T="string">
-                                <div class="d-flex justify-space-between align-center w-100">
-                                    <div>
-                                        <MudText Typo="Typo.body1">@server.Name</MudText>
-                                        <MudText Typo="Typo.body2" Color="Color.Secondary">@server.Address</MudText>
+                            <MudListItem T="string" Class="px-4 py-3">
+                                <div class="d-flex flex-column flex-sm-row justify-space-between w-100" style="gap: 16px;">
+                                    <!-- 左侧信息区域 -->
+                                    <div class="d-flex flex-column flex-grow-1" style="min-width: 0;">
+                                        <div class="d-flex align-center mb-1" style="gap: 8px;">
+                                            <MudIcon Icon="@Icons.Material.Filled.Dns" Size="Size.Small" Color="Color.Primary" />
+                                            <MudText Typo="Typo.subtitle1" Style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                @server.Name
+                                            </MudText>
+                                        </div>
+                                        @if (!string.IsNullOrWhiteSpace(server.Description))
+                                        {
+                                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2" Style="line-height: 1.5;">
+                                                @server.Description
+                                            </MudText>
+                                        }
+                                        <div class="d-flex align-center flex-wrap" style="gap: 12px;">
+                                            <div class="d-flex align-center" style="gap: 4px;">
+                                                <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Small" Color="Color.Info" />
+                                                <MudText Typo="Typo.caption" Color="Color.Info">
+                                                    @server.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                                </MudText>
+                                            </div>
+                                            @if (server.LastConnectedAt.HasValue)
+                                            {
+                                                <div class="d-flex align-center" style="gap: 4px;">
+                                                    <MudIcon Icon="@Icons.Material.Filled.AccessTime" Size="Size.Small" Color="Color.Success" />
+                                                    <MudText Typo="Typo.caption" Color="Color.Success">
+                                                        @Loc["LastConnected"]: @server.LastConnectedAt.Value.ToLocalTime().ToString("MM-dd HH:mm")
+                                                    </MudText>
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
-                                    <MudChip T="string" Size="Size.Small" Color="Color.Info">
-                                        @string.Format(Loc["BindingsCount"], server.ServiceBindings.Count)
-                                    </MudChip>
+                                    
+                                    <!-- 右侧状态标签区域 -->
+                                    <div class="d-flex flex-row flex-sm-column align-center align-sm-end justify-start" style="gap: 8px; flex-shrink: 0;">
+                                        <MudChip T="string" 
+                                                 Size="Size.Small" 
+                                                 Icon="@Icons.Material.Filled.Link"
+                                                 Color="Color.Info" 
+                                                 Variant="Variant.Filled"
+                                                 Style="font-weight: 500;">
+                                            @server.ServiceBindings.Count @Loc["Bindings"]
+                                        </MudChip>
+                                        <MudChip T="string" 
+                                                 Size="Size.Small" 
+                                                 Icon="@(server.IsEnabled ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
+                                                 Color="@(server.IsEnabled ? Color.Success : Color.Default)" 
+                                                 Variant="Variant.Outlined">
+                                            @(server.IsEnabled ? Loc["Enabled"] : Loc["Disabled"])
+                                        </MudChip>
+                                        <MudChip T="string" 
+                                                 Size="Size.Small" 
+                                                 Icon="@(server.IsConnected ? Icons.Material.Filled.CloudDone : Icons.Material.Filled.CloudOff)"
+                                                 Color="@(server.IsConnected ? Color.Success : Color.Error)" 
+                                                 Variant="Variant.Outlined">
+                                            @(server.IsConnected ? Loc["Connected"] : Loc["Disconnected"])
+                                        </MudChip>
+                                    </div>
                                 </div>
                             </MudListItem>
                             <MudDivider />
@@ -157,7 +213,9 @@
                 }
                 else
                 {
-                    <MudAlert Severity="Severity.Info">@Loc["NoServersYet"]</MudAlert>
+                    <div class="pa-4">
+                        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">@Loc["NoServersYet"]</MudAlert>
+                    </div>
                 }
             </MudCardContent>
         </MudCard>

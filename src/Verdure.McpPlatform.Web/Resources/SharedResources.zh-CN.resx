@@ -180,13 +180,13 @@
     <value>查看所有连接</value>
   </data>
   <data name="RecentServers" xml:space="preserve">
-    <value>最近的服务器</value>
+    <value>最近的小智连接</value>
   </data>
   <data name="BindingsCount" xml:space="preserve">
     <value>{0} 个绑定</value>
   </data>
   <data name="NoServersYet" xml:space="preserve">
-    <value>暂无服务器。创建小智连接以开始使用！</value>
+    <value>暂无小智连接。立即创建一个开始使用！</value>
   </data>
   <data name="WelcomeToPlatform" xml:space="preserve">
     <value>欢迎使用 Verdure MCP 平台</value>
