@@ -30,9 +30,15 @@ public class McpSessionService : IAsyncDisposable
     private readonly List<McpClient> _mcpClients = new();
     private bool _isRunning = false;
     
+    // Connection status events
+    public event Func<Task>? OnConnected;
+    public event Func<string, Task>? OnConnectionFailed;
+    
     public string ServerId => _config.ServerId;
     public string ServerName => _config.ServerName;
     public bool IsConnected => _webSocket?.State == WebSocketState.Open && _mcpClients.Count > 0;
+    public int ConnectedClientsCount => _mcpClients.Count;
+    public int TotalConfiguredClients => _config.McpServices.Count;
     public DateTime? LastConnectedTime { get; private set; }
     public DateTime? LastDisconnectedTime { get; private set; }
     public int ReconnectAttempts => _reconnectAttempt;
@@ -246,6 +252,40 @@ public class McpSessionService : IAsyncDisposable
             _reconnectAttempt = 0;
             _currentBackoffMs = _reconnectionSettings.InitialBackoffMs;
             LastConnectedTime = DateTime.UtcNow;
+
+            // Notify connection success if at least one MCP client connected
+            if (_mcpClients.Count > 0)
+            {
+                _logger.LogInformation(
+                    "Server {ServerId}: Connection established with {ConnectedCount}/{TotalCount} MCP services",
+                    ServerId, _mcpClients.Count, _config.McpServices.Count);
+                
+                try
+                {
+                    await (OnConnected?.Invoke() ?? Task.CompletedTask);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in OnConnected callback for server {ServerId}", ServerId);
+                }
+            }
+            else
+            {
+                var errorMsg = $"No MCP clients connected (0/{_config.McpServices.Count})";
+                _logger.LogWarning("Server {ServerId}: {Message}", ServerId, errorMsg);
+                
+                try
+                {
+                    await (OnConnectionFailed?.Invoke(errorMsg) ?? Task.CompletedTask);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in OnConnectionFailed callback for server {ServerId}", ServerId);
+                }
+                
+                // Still throw to trigger retry mechanism
+                throw new InvalidOperationException(errorMsg);
+            }
 
             // Run bidirectional communication
             var tasks = new[]

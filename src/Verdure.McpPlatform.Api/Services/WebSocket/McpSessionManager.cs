@@ -173,6 +173,78 @@ public class McpSessionManager : IAsyncDisposable
                 _reconnectionSettings,
                 _loggerFactory);
 
+            // Subscribe to connection events
+            session.OnConnected += async () =>
+            {
+                try
+                {
+                    _logger.LogInformation(
+                        "Session for server {ServerId} ({ServerName}) successfully connected with {ConnectedCount}/{TotalCount} MCP services",
+                        serverId, server.Name, session.ConnectedClientsCount, session.TotalConfiguredClients);
+
+                    // Update server status to connected in database
+                    using var connectedScope = _serviceScopeFactory.CreateScope();
+                    var connectedRepository = connectedScope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
+                    
+                    var serverToUpdate = await connectedRepository.GetAsync(serverId);
+                    if (serverToUpdate != null)
+                    {
+                        serverToUpdate.SetConnected();
+                        await connectedRepository.UnitOfWork.SaveEntitiesAsync(CancellationToken.None);
+                        
+                        _logger.LogDebug("Updated database status to Connected for server {ServerId}", serverId);
+                    }
+
+                    // Update connection state to Connected in Redis
+                    await _connectionStateService.UpdateConnectionStatusAsync(
+                        serverId,
+                        ConnectionStatus.Connected,
+                        CancellationToken.None);
+
+                    // Reset reconnect attempts on successful connection
+                    await _connectionStateService.ResetReconnectAttemptsAsync(
+                        serverId,
+                        CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error handling OnConnected for server {ServerId}", serverId);
+                }
+            };
+
+            session.OnConnectionFailed += async (errorMessage) =>
+            {
+                try
+                {
+                    _logger.LogError(
+                        "Session for server {ServerId} ({ServerName}) failed to connect: {Error}",
+                        serverId, server.Name, errorMessage);
+
+                    // Update server status to disconnected in database
+                    using var failedScope = _serviceScopeFactory.CreateScope();
+                    var failedRepository = failedScope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
+                    
+                    var serverToUpdate = await failedRepository.GetAsync(serverId);
+                    if (serverToUpdate != null)
+                    {
+                        serverToUpdate.SetDisconnected();
+                        await failedRepository.UnitOfWork.SaveEntitiesAsync(CancellationToken.None);
+                        
+                        _logger.LogDebug("Updated database status to Disconnected for server {ServerId}", serverId);
+                    }
+
+                    // Update connection state to Failed in Redis
+                    await _connectionStateService.UpdateConnectionStatusAsync(
+                        serverId,
+                        ConnectionStatus.Failed,
+                        CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error handling OnConnectionFailed for server {ServerId}", serverId);
+                }
+            };
+
             // Add to dictionary
             if (!_sessions.TryAdd(serverId, session))
             {
@@ -200,34 +272,15 @@ public class McpSessionManager : IAsyncDisposable
                         serverId,
                         ConnectionStatus.Connecting,
                         CancellationToken.None);
-
-                    // Update server status to connected
-                    using var backgroundScope = _serviceScopeFactory.CreateScope();
-                    var backgroundRepository = backgroundScope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
                     
-                    var serverToUpdate = await backgroundRepository.GetAsync(serverId);
-                    if (serverToUpdate != null)
-                    {
-                        serverToUpdate.SetConnected();
-                        await backgroundRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
-                    }
-
-                    // Update connection state to Connected
-                    await _connectionStateService.UpdateConnectionStatusAsync(
-                        serverId,
-                        ConnectionStatus.Connected,
-                        CancellationToken.None);
-
-                    // Reset reconnect attempts on successful connection
-                    await _connectionStateService.ResetReconnectAttemptsAsync(
-                        serverId,
-                        CancellationToken.None);
+                    _logger.LogInformation("Starting session for server {ServerId} ({ServerName})", serverId, server.Name);
                     
+                    // Start the session - status will be updated via OnConnected/OnConnectionFailed callbacks
                     await session.StartAsync(cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Session for server {ServerId} failed", serverId);
+                    _logger.LogError(ex, "Session for server {ServerId} encountered an error", serverId);
                     
                     // Update connection state to Failed
                     await _connectionStateService.UpdateConnectionStatusAsync(
