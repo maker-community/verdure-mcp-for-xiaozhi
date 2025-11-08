@@ -1,14 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using Verdure.McpPlatform.Api.Services;
 using Verdure.McpPlatform.Api.Services.BackgroundServices;
 using Verdure.McpPlatform.Api.Services.ConnectionState;
 using Verdure.McpPlatform.Api.Services.DistributedLock;
 using Verdure.McpPlatform.Api.Services.WebSocket;
-using Verdure.McpPlatform.Api.Settings;
 using Verdure.McpPlatform.Application.Services;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
@@ -49,85 +45,8 @@ internal static class Extensions
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
 
-        var oidcSettings = new OidcSettings();
-        configuration.GetSection("Oidc").Bind(oidcSettings);
-
-        if (!oidcSettings.IsValid())
-        {
-            throw new InvalidOperationException("OIDC configuration is invalid. Please check Authority, Realm, and ClientId settings.");
-        }
-
-        services.Configure<OidcSettings>(configuration.GetSection("Oidc"));
-
-        var issuer = oidcSettings.GetIssuerUrl();
-
-        // Add JWT Bearer Authentication（设置为默认认证方案）
-        services.AddAuthentication(options =>
-         {
-             // 设置 JWT Bearer 为默认认证和挑战方案
-             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-         })
-         .AddJwtBearer(options =>
-         {
-             options.Authority = issuer;
-             options.Audience = oidcSettings.Audience;
-             options.RequireHttpsMetadata = builder.Environment.IsDevelopment() ? oidcSettings.RequireHttpsMetadata : true;
-
-             options.TokenValidationParameters = new TokenValidationParameters
-             {
-                 ValidateIssuer = true,
-                 ValidateAudience = !string.IsNullOrEmpty(oidcSettings.Audience),
-                 ValidateLifetime = true,
-                 ValidateIssuerSigningKey = true,
-                 ValidIssuer = issuer,
-                 ValidAudience = oidcSettings.Audience,
-                 ClockSkew = TimeSpan.FromMinutes(oidcSettings.ClockSkewMinutes),
-                 // 映射标准Claims
-                 NameClaimType = ClaimTypes.Name,
-                 RoleClaimType = ClaimTypes.Role
-             };
-
-             // 配置事件处理
-             options.Events = new JwtBearerEvents
-             {
-                 OnTokenValidated = context =>
-                 {
-                     return Task.CompletedTask;
-                 },
-                 OnAuthenticationFailed = context =>
-                 {
-                     // 记录认证失败的详细信息
-                     var logger = context.HttpContext.RequestServices
-                         .GetRequiredService<ILogger<Program>>();
-                     logger.LogWarning("JWT authentication failed: {Message}", context.Exception.Message);
-                     return Task.CompletedTask;
-                 },
-                 OnChallenge = context =>
-                 {
-                     // 阻止默认的重定向行为，直接返回 401
-                     context.HandleResponse();
-                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                     context.Response.ContentType = "application/json";
-
-                     var result = System.Text.Json.JsonSerializer.Serialize(new
-                     {
-                         error = "Unauthorized",
-                         message = "Invalid or missing JWT token"
-                     });
-
-                     return context.Response.WriteAsync(result);
-                 }
-             };
-         });
-
-        services.AddAuthorization(options =>
-        {
-            // Add Admin policy
-            options.AddPolicy("AdminOnly", policy => 
-                policy.RequireRole("Admin"));
-        });
+        // Add Keycloak authentication with role mapping
+        services.AddKeycloakAuthentication(configuration, builder.Environment);
 
         // Register repositories
         services.AddScoped<IXiaozhiMcpEndpointRepository, XiaozhiMcpEndpointRepository>();
