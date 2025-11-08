@@ -709,6 +709,12 @@
   <data name="SyncTools" xml:space="preserve">
     <value>同步工具</value>
   </data>
+  <data name="Sync" xml:space="preserve">
+    <value>同步</value>
+  </data>
+  <data name="Syncing" xml:space="preserve">
+    <value>同步中...</value>
+  </data>
   <data name="NoMcpServicesFound" xml:space="preserve">
     <value>未找到 MCP 服务</value>
   </data>

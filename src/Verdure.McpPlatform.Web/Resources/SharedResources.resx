@@ -709,6 +709,12 @@
   <data name="SyncTools" xml:space="preserve">
     <value>Sync Tools</value>
   </data>
+  <data name="Sync" xml:space="preserve">
+    <value>Sync</value>
+  </data>
+  <data name="Syncing" xml:space="preserve">
+    <value>Syncing...</value>
+  </data>
   <data name="NoMcpServicesFound" xml:space="preserve">
     <value>No MCP Services Found</value>
   </data>

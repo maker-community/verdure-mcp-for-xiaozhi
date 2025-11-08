@@ -110,6 +110,7 @@
                         <MudItem xs="12" sm="6" md="4" lg="3">
                             <ServiceConfigCard Service="@service"
                                                IsPublicView="@IsPublicTab"
+                                               IsSyncing="@IsSyncing(service.Id)"
                                                OnViewDetails="@(() => ViewDetails(service))"
                                                OnSyncTools="@(() => SyncTools(service))"
                                                OnEdit="@(() => EditService(service.Id))"
@@ -186,6 +187,9 @@
     // Virtualization
     private MudVirtualize<McpServiceConfigDto>? _virtualizeComponent;
     private const int PageSize = 12;
+
+    // Sync tools state - prevent concurrent clicks
+    private readonly HashSet<string> _syncingServices = new();
 
     private bool IsPublicTab => _activeTabIndex == 1;
 
@@ -333,10 +337,26 @@
         Navigation.NavigateTo($"/mcp-services/edit/{id}");
     }
 
+    private bool IsSyncing(string serviceId)
+    {
+        return _syncingServices.Contains(serviceId);
+    }
+
     private async Task SyncTools(McpServiceConfigDto service)
     {
+        // 防止并发执行
+        if (_syncingServices.Contains(service.Id))
+        {
+            Console.WriteLine($"⏸️ Already syncing service {service.Id}, skipping...");
+            return;
+        }
+
         try
         {
+            // 添加到同步中的服务集合
+            _syncingServices.Add(service.Id);
+            StateHasChanged(); // 更新UI，禁用按钮
+
             await ServiceConfigService.SyncToolsAsync(service.Id);
             Snackbar.Add(string.Format(Loc["ToolsSyncedSuccess"], service.Name), Severity.Success);
             
@@ -346,6 +366,12 @@
         catch (Exception ex)
         {
             Snackbar.Add(string.Format(Loc["ErrorSyncingTools"], ex.Message), Severity.Error);
+        }
+        finally
+        {
+            // 从同步中的服务集合移除
+            _syncingServices.Remove(service.Id);
+            StateHasChanged(); // 更新UI，启用按钮
         }
     }
 
