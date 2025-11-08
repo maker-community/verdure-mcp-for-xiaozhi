@@ -131,8 +131,17 @@ public class McpSessionManager : IAsyncDisposable
                         BindingId = binding.Id,
                         ServiceName = serviceConfig.Name,
                         NodeAddress = serviceConfig.Endpoint,
-                        SelectedToolNames = binding.SelectedToolNames.ToList()
+                        SelectedToolNames = binding.SelectedToolNames.ToList(),
+                        // ✅ Pass authentication configuration from McpServiceConfig
+                        AuthenticationType = serviceConfig.AuthenticationType,
+                        AuthenticationConfig = serviceConfig.AuthenticationConfig,
+                        Protocol = serviceConfig.Protocol
                     });
+                    
+                    _logger.LogDebug(
+                        "Added service endpoint {ServiceName} with authentication: {AuthType}",
+                        serviceConfig.Name,
+                        serviceConfig.AuthenticationType ?? "none");
                 }
                 else
                 {

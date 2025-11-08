@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using ModelContextProtocol.Client;
+using Verdure.McpPlatform.Application.Services;
 
 namespace Verdure.McpPlatform.Api.Services.WebSocket;
 
@@ -174,12 +175,51 @@ public class McpSessionService : IAsyncDisposable
             {
                 try
                 {
-                    var transport = new HttpClientTransport(new HttpClientTransportOptions
+                    var transportOptions = new HttpClientTransportOptions
                     {
                         Endpoint = new Uri(service.NodeAddress),
                         Name = $"McpService_{service.ServiceName}",
-                    });
+                    };
 
+                    // ✅ Apply authentication configuration if present
+                    if (McpAuthenticationHelper.IsAuthenticationConfigured(
+                        service.AuthenticationType, 
+                        service.AuthenticationConfig))
+                    {
+                        var authType = service.AuthenticationType!.ToLowerInvariant();
+
+                        if (authType == "oauth2")
+                        {
+                            // Use SDK's OAuth support
+                            transportOptions.OAuth = McpAuthenticationHelper.BuildOAuth2Options(
+                                service.AuthenticationConfig!,
+                                _logger);
+                            
+                            _logger.LogInformation(
+                                "Server {ServerId}: Applied OAuth 2.0 authentication for service {ServiceName}",
+                                ServerId, service.ServiceName);
+                        }
+                        else
+                        {
+                            // Use AdditionalHeaders for Bearer, Basic, and API Key
+                            transportOptions.AdditionalHeaders = McpAuthenticationHelper.BuildAuthenticationHeaders(
+                                service.AuthenticationType!,
+                                service.AuthenticationConfig!,
+                                _logger);
+                            
+                            _logger.LogInformation(
+                                "Server {ServerId}: Applied {AuthType} authentication for service {ServiceName}",
+                                ServerId, authType, service.ServiceName);
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogDebug(
+                            "Server {ServerId}: No authentication configured for service {ServiceName}",
+                            ServerId, service.ServiceName);
+                    }
+
+                    var transport = new HttpClientTransport(transportOptions);
                     var mcpClient = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
                     _mcpClients.Add(mcpClient);
                     

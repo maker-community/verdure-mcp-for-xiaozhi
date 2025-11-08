@@ -1,8 +1,5 @@
 using Microsoft.Extensions.Logging;
-using ModelContextProtocol.Authentication;
 using ModelContextProtocol.Client;
-using System.Text;
-using System.Text.Json;
 using Verdure.McpPlatform.Contracts.Models;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
@@ -103,12 +100,17 @@ public class McpClientService : IMcpClientService
                 if (authType == "oauth2")
                 {
                     // Use SDK's OAuth support
-                    transportOptions.OAuth = BuildOAuth2Options(config);
+                    transportOptions.OAuth = McpAuthenticationHelper.BuildOAuth2Options(
+                        config.AuthenticationConfig,
+                        _logger);
                 }
                 else
                 {
                     // Use AdditionalHeaders for Bearer, Basic, and API Key
-                    transportOptions.AdditionalHeaders = BuildAuthenticationHeaders(config);
+                    transportOptions.AdditionalHeaders = McpAuthenticationHelper.BuildAuthenticationHeaders(
+                        config.AuthenticationType,
+                        config.AuthenticationConfig,
+                        _logger);
                 }
             }
 
@@ -177,178 +179,5 @@ public class McpClientService : IMcpClientService
             config.Name);
 
         return await GetToolsViaHttpAsync(config);
-    }
-
-    /// <summary>
-    /// Builds authentication headers based on the service configuration
-    /// </summary>
-    /// <param name="config">The MCP service configuration</param>
-    /// <returns>Dictionary of authentication headers</returns>
-    private Dictionary<string, string> BuildAuthenticationHeaders(McpServiceConfig config)
-    {
-        try
-        {
-            var authType = config.AuthenticationType!.ToLowerInvariant();
-
-            return authType switch
-            {
-                "bearer" => BuildBearerTokenHeaders(config),
-                "basic" => BuildBasicAuthHeaders(config),
-                "apikey" => BuildApiKeyHeaders(config),
-                _ => throw new InvalidOperationException($"Unsupported authentication type: {config.AuthenticationType}")
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                ex,
-                "Failed to build authentication headers for service {ServiceName}",
-                config.Name);
-            throw new InvalidOperationException(
-                $"Failed to configure authentication for service '{config.Name}': {ex.Message}",
-                ex);
-        }
-    }
-
-    /// <summary>
-    /// Build Bearer Token authentication headers
-    /// </summary>
-    private Dictionary<string, string> BuildBearerTokenHeaders(McpServiceConfig config)
-    {
-        var authConfig = JsonSerializer.Deserialize<BearerTokenAuthConfig>(
-            config.AuthenticationConfig!,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        if (authConfig == null || string.IsNullOrEmpty(authConfig.Token))
-        {
-            throw new InvalidOperationException("Bearer token is required but not configured");
-        }
-
-        var headerName = string.IsNullOrEmpty(authConfig.HeaderName)
-            ? "Authorization"
-            : authConfig.HeaderName;
-
-        var headerValue = headerName.Equals("Authorization", StringComparison.OrdinalIgnoreCase)
-            ? $"Bearer {authConfig.Token}"
-            : authConfig.Token;
-
-        _logger.LogDebug(
-            "Applied Bearer token authentication to header {HeaderName} for service {ServiceName}",
-            headerName,
-            config.Name);
-
-        return new Dictionary<string, string>
-        {
-            [headerName] = headerValue
-        };
-    }
-
-    /// <summary>
-    /// Build Basic authentication headers
-    /// </summary>
-    private Dictionary<string, string> BuildBasicAuthHeaders(McpServiceConfig config)
-    {
-        var authConfig = JsonSerializer.Deserialize<BasicAuthConfig>(
-            config.AuthenticationConfig!,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        if (authConfig == null ||
-            string.IsNullOrEmpty(authConfig.Username) ||
-            string.IsNullOrEmpty(authConfig.Password))
-        {
-            throw new InvalidOperationException("Username and password are required for Basic authentication");
-        }
-
-        var credentials = Convert.ToBase64String(
-            Encoding.UTF8.GetBytes($"{authConfig.Username}:{authConfig.Password}"));
-
-        _logger.LogDebug(
-            "Applied Basic authentication for user {Username} to service {ServiceName}",
-            authConfig.Username,
-            config.Name);
-
-        return new Dictionary<string, string>
-        {
-            ["Authorization"] = $"Basic {credentials}"
-        };
-    }
-
-    /// <summary>
-    /// Build API Key authentication headers
-    /// </summary>
-    private Dictionary<string, string> BuildApiKeyHeaders(McpServiceConfig config)
-    {
-        var authConfig = JsonSerializer.Deserialize<ApiKeyAuthConfig>(
-            config.AuthenticationConfig!,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        if (authConfig == null ||
-            string.IsNullOrEmpty(authConfig.ApiKey) ||
-            string.IsNullOrEmpty(authConfig.HeaderName))
-        {
-            throw new InvalidOperationException("API key and header name are required for API Key authentication");
-        }
-
-        var headerValue = string.IsNullOrEmpty(authConfig.Prefix)
-            ? authConfig.ApiKey
-            : $"{authConfig.Prefix}{authConfig.ApiKey}";
-
-        _logger.LogDebug(
-            "Applied API Key authentication to header {HeaderName} for service {ServiceName}",
-            authConfig.HeaderName,
-            config.Name);
-
-        return new Dictionary<string, string>
-        {
-            [authConfig.HeaderName] = headerValue
-        };
-    }
-
-    /// <summary>
-    /// Build OAuth 2.0 options for SDK's built-in OAuth support
-    /// </summary>
-    private ClientOAuthOptions BuildOAuth2Options(McpServiceConfig config)
-    {
-        var authConfig = JsonSerializer.Deserialize<OAuth2AuthConfig>(
-            config.AuthenticationConfig!,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        if (authConfig == null)
-        {
-            throw new InvalidOperationException("OAuth 2.0 configuration is required");
-        }
-
-        // Validate required OAuth configuration
-        if (string.IsNullOrEmpty(authConfig.ClientId))
-        {
-            throw new InvalidOperationException(
-                $"OAuth 2.0 Client ID is required for service '{config.Name}'");
-        }
-
-        if (string.IsNullOrEmpty(authConfig.RedirectUri))
-        {
-            throw new InvalidOperationException(
-                $"OAuth 2.0 Redirect URI is required for service '{config.Name}'");
-        }
-
-        _logger.LogDebug(
-            "Configuring OAuth 2.0 for service {ServiceName} with Client ID: {ClientId}",
-            config.Name,
-            authConfig.ClientId);
-
-        var oauthOptions = new ClientOAuthOptions
-        {
-            RedirectUri = new Uri(authConfig.RedirectUri),
-            ClientId = authConfig.ClientId,
-            ClientSecret = authConfig.ClientSecret
-        };
-
-        // Add scopes if specified
-        if (!string.IsNullOrEmpty(authConfig.Scope))
-        {
-            oauthOptions.Scopes = authConfig.Scope.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        }
-
-        return oauthOptions;
     }
 }
