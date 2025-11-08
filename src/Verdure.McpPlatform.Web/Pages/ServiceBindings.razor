@@ -331,18 +331,13 @@
 
     private async Task DeleteBinding(McpServiceBindingDto binding)
     {
-        var parameters = new DialogParameters<DeleteConfirmationDialog>
-        {
-            { x => x.ContentText, string.Format(Loc["ConfirmDeleteService"], binding.ServiceName) },
-            { x => x.ButtonText, Loc["Delete"] },
-            { x => x.Color, Color.Error }
-        };
+        bool? confirm = await DialogService.ShowMessageBox(
+            Loc["ConfirmDelete"],
+            Loc["ConfirmDeleteService", binding.ServiceName],
+            yesText: Loc["Delete"],
+            cancelText: Loc["Cancel"]);
 
-        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
-        var dialog = await DialogService.ShowAsync<DeleteConfirmationDialog>(Loc["ConfirmDelete"], parameters, options);
-        var result = await dialog.Result;
-
-        if (result != null && !result.Canceled)
+        if (confirm == true)
         {
             try
             {
