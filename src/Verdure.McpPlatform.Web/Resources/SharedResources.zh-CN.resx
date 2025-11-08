@@ -151,6 +151,20 @@
     <value>格式无效</value>
   </data>
   
+  <!-- Common Status -->
+  <data name="Enabled" xml:space="preserve">
+    <value>已启用</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>已禁用</value>
+  </data>
+  <data name="LastConnected" xml:space="preserve">
+    <value>最后连接</value>
+  </data>
+  <data name="Bindings" xml:space="preserve">
+    <value>绑定</value>
+  </data>
+  
   <!-- Dashboard -->
   <data name="Dashboard" xml:space="preserve">
     <value>仪表板</value>

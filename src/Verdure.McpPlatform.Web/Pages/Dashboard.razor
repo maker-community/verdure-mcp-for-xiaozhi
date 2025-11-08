@@ -2,9 +2,11 @@
 @layout MainLayout
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
+@using Verdure.McpPlatform.Web.Services
 @inject IXiaozhiMcpEndpointClientService ServerService
 @inject IMcpServiceBindingClientService BindingService
 @inject IStringLocalizer<SharedResources> Loc
+@inject IDateTimeFormatter DateTimeFormatter
 @attribute [Authorize]
 
 <PageTitle>@Loc["Dashboard"] - @Loc["AppTitle"]</PageTitle>
@@ -157,7 +159,8 @@
                                         </div>
                                         @if (!string.IsNullOrWhiteSpace(server.Description))
                                         {
-                                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2" Style="line-height: 1.5;">
+                                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2" 
+                                                     Style="line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
                                                 @server.Description
                                             </MudText>
                                         }
@@ -165,7 +168,7 @@
                                             <div class="d-flex align-center" style="gap: 4px;">
                                                 <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Small" Color="Color.Info" />
                                                 <MudText Typo="Typo.caption" Color="Color.Info">
-                                                    @server.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                                    @DateTimeFormatter.FormatRelativeTime(server.CreatedAt)
                                                 </MudText>
                                             </div>
                                             @if (server.LastConnectedAt.HasValue)
@@ -173,7 +176,7 @@
                                                 <div class="d-flex align-center" style="gap: 4px;">
                                                     <MudIcon Icon="@Icons.Material.Filled.AccessTime" Size="Size.Small" Color="Color.Success" />
                                                     <MudText Typo="Typo.caption" Color="Color.Success">
-                                                        @Loc["LastConnected"]: @server.LastConnectedAt.Value.ToLocalTime().ToString("MM-dd HH:mm")
+                                                        @Loc["LastConnected"]: @DateTimeFormatter.FormatRelativeTime(server.LastConnectedAt)
                                                     </MudText>
                                                 </div>
                                             }
