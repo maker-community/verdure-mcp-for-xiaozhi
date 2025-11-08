@@ -22,4 +22,9 @@ public record McpServiceConfigDto
     public DateTime? UpdatedAt { get; init; }
     public DateTime? LastSyncedAt { get; init; }
     public List<McpToolDto> Tools { get; init; } = new();
+    
+    /// <summary>
+    /// 创建者信息（仅在公共服务列表中填充）
+    /// </summary>
+    public UserBasicInfo? Creator { get; init; }
 }

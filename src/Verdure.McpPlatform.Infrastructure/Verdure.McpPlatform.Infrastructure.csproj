@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Verdure.McpPlatform.Domain\Verdure.McpPlatform.Domain.csproj" />
+    <ProjectReference Include="..\Verdure.McpPlatform.Application\Verdure.McpPlatform.Application.csproj" />
+    <ProjectReference Include="..\Verdure.McpPlatform.Contracts\Verdure.McpPlatform.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

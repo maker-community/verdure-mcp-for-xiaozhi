@@ -13,15 +13,18 @@ public class McpServiceConfigService : IMcpServiceConfigService
 {
     private readonly IMcpServiceConfigRepository _repository;
     private readonly IMcpClientService _mcpClientService;
+    private readonly IUserInfoService _userInfoService;
     private readonly ILogger<McpServiceConfigService> _logger;
 
     public McpServiceConfigService(
         IMcpServiceConfigRepository repository,
         IMcpClientService mcpClientService,
+        IUserInfoService userInfoService,
         ILogger<McpServiceConfigService> logger)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _mcpClientService = mcpClientService ?? throw new ArgumentNullException(nameof(mcpClientService));
+        _userInfoService = userInfoService ?? throw new ArgumentNullException(nameof(userInfoService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -90,7 +93,12 @@ public class McpServiceConfigService : IMcpServiceConfigService
     public async Task<IEnumerable<McpServiceConfigDto>> GetPublicServicesAsync()
     {
         var configs = await _repository.GetPublicServicesAsync();
-        return configs.Select(MapToPublicDto);
+        
+        // 批量获取创建者信息
+        var userIds = configs.Select(c => c.UserId).Distinct().ToList();
+        var userInfoMap = await _userInfoService.GetUsersByIdsAsync(userIds);
+        
+        return configs.Select(config => MapToPublicDto(config, userInfoMap));
     }
 
     public async Task<PagedResult<McpServiceConfigDto>> GetPublicServicesPagedAsync(PagedRequest request)
@@ -102,7 +110,11 @@ public class McpServiceConfigService : IMcpServiceConfigService
             request.SortBy,
             request.SortOrder?.ToLower() == "desc");
 
-        var dtos = items.Select(MapToPublicDto);
+        // 批量获取创建者信息
+        var userIds = items.Select(c => c.UserId).Distinct().ToList();
+        var userInfoMap = await _userInfoService.GetUsersByIdsAsync(userIds);
+
+        var dtos = items.Select(config => MapToPublicDto(config, userInfoMap));
 
         return PagedResult<McpServiceConfigDto>.Create(
             dtos,
@@ -235,8 +247,13 @@ public class McpServiceConfigService : IMcpServiceConfigService
     /// <summary>
     /// Map to DTO for public services - excludes sensitive information
     /// </summary>
-    private static McpServiceConfigDto MapToPublicDto(McpServiceConfig config)
+    private static McpServiceConfigDto MapToPublicDto(
+        McpServiceConfig config,
+        Dictionary<string, UserBasicInfo> userInfoMap)
     {
+        // 尝试获取创建者信息
+        userInfoMap.TryGetValue(config.UserId, out var creator);
+
         return new McpServiceConfigDto
         {
             Id = config.Id,
@@ -251,7 +268,8 @@ public class McpServiceConfigService : IMcpServiceConfigService
             CreatedAt = config.CreatedAt,
             UpdatedAt = config.UpdatedAt,
             LastSyncedAt = null, // 隐藏最后同步时间
-            Tools = config.Tools.Select(MapToolToDto).ToList()
+            Tools = config.Tools.Select(MapToolToDto).ToList(),
+            Creator = creator // 注入创建者信息
         };
     }
 

@@ -156,9 +156,40 @@
                 }
             </MudText>
         }
+        else if (Service.Creator != null)
+        {
+            <!-- Creator Information for Public Services -->
+            <div class="d-flex align-center" style="gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0, 0, 0, 0.08);">
+                <!-- Creator Avatar -->
+                <MudAvatar Size="Size.Small" 
+                           Color="Color.Primary"
+                           Style="width: 24px; height: 24px; font-size: 11px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    @if (!string.IsNullOrEmpty(Service.Creator.AvatarUrl))
+                    {
+                        <MudImage Src="@Service.Creator.AvatarUrl" Alt="@GetCreatorName()" Style="width: 100%; height: 100%; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        @GetInitials(GetCreatorName())
+                    }
+                </MudAvatar>
+                
+                <!-- Creator Name and Date -->
+                <div style="flex: 1; min-width: 0;">
+                    <MudText Typo="Typo.caption" 
+                             Style="color: #424242; font-weight: 500; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        @GetCreatorName()
+                    </MudText>
+                    <MudText Typo="Typo.caption" 
+                             Style="color: #9E9E9E; font-size: 11px; line-height: 1.2;">
+                        @Service.CreatedAt.ToString("MMM dd, yyyy")
+                    </MudText>
+                </div>
+            </div>
+        }
         else
         {
-            <!-- Metadata Footer for Public Services -->
+            <!-- Metadata Footer for Public Services (without creator info) -->
             <div class="d-flex align-center" style="gap: 4px; margin-top: auto;">
                 <MudIcon Icon="@Icons.Material.Outlined.Schedule" 
                          Size="Size.Small" 
@@ -241,5 +272,45 @@
     
     [Parameter]
     public EventCallback OnUseService { get; set; }
+
+    /// <summary>
+    /// 获取创建者显示名称
+    /// </summary>
+    private string GetCreatorName()
+    {
+        if (Service.Creator == null)
+            return "Unknown";
+
+        return Service.Creator.DisplayName 
+            ?? Service.Creator.UserName 
+            ?? Service.Creator.Email 
+            ?? "Unknown";
+    }
+
+    /// <summary>
+    /// 获取用户名首字母缩写（用于头像）
+    /// </summary>
+    private string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return "?";
+
+        var parts = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        
+        if (parts.Length >= 2)
+        {
+            // 取前两个单词的首字母
+            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+        }
+        else if (parts.Length == 1 && parts[0].Length > 0)
+        {
+            // 只有一个单词，取前两个字符或首字母
+            return parts[0].Length > 1 
+                ? parts[0].Substring(0, 2).ToUpper() 
+                : parts[0][0].ToString().ToUpper();
+        }
+
+        return "?";
+    }
 }
 

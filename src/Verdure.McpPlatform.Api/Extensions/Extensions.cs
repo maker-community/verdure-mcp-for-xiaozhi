@@ -15,6 +15,7 @@ using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 using Verdure.McpPlatform.Infrastructure.Data;
 using Verdure.McpPlatform.Infrastructure.Identity;
 using Verdure.McpPlatform.Infrastructure.Repositories;
+using Verdure.McpPlatform.Infrastructure.Services;
 
 namespace Verdure.McpPlatform.Api.Extensions;
 
@@ -135,6 +136,9 @@ internal static class Extensions
 
         // Register identity service
         services.AddScoped<IIdentityService, IdentityService>();
+
+        // Register user info service (for displaying creator information)
+        services.AddScoped<IUserInfoService, UserInfoService>();
 
         // Register user sync service
         services.AddScoped<IUserSyncService, UserSyncService>();
