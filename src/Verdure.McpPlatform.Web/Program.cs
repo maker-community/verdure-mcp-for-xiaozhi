@@ -59,6 +59,9 @@ builder.Services.AddHttpClient("Verdure.McpPlatform.Api", client =>
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
     .CreateClient("Verdure.McpPlatform.Api"));
 
+// Register utility services
+builder.Services.AddScoped<IDateTimeFormatter, DateTimeFormatter>();
+
 // Register API client services
 builder.Services.AddScoped<IUserClientService, UserClientService>();
 builder.Services.AddScoped<IXiaozhiMcpEndpointClientService, XiaozhiMcpEndpointClientService>();

@@ -1,8 +1,10 @@
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Contracts.DTOs
 @using Verdure.McpPlatform.Web.Resources
+@using Verdure.McpPlatform.Web.Services
 @using MudBlazor
 @inject IStringLocalizer<SharedResources> Loc
+@inject IDateTimeFormatter DateTimeFormatter
 
 <MudDialog>
     <DialogContent>
@@ -109,7 +111,9 @@
             <div>
                 <MudText Typo="Typo.caption" Color="Color.Secondary">
                     <MudIcon Icon="@Icons.Material.Outlined.CalendarToday" Size="Size.Small" Style="vertical-align: middle; margin-right: 4px;" />
-                    @Loc["CreatedAt"]: @Service.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                    <span title="@DateTimeFormatter.FormatDateTime(Service.CreatedAt)">
+                        @Loc["CreatedAt"]: @DateTimeFormatter.FormatFriendlyDateTime(Service.CreatedAt)
+                    </span>
                 </MudText>
             </div>
         </MudStack>

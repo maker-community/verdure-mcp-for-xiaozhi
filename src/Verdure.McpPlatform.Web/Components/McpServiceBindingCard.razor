@@ -1,8 +1,10 @@
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Contracts.DTOs
 @using Verdure.McpPlatform.Web.Resources
+@using Verdure.McpPlatform.Web.Services
 @inject IStringLocalizer<SharedResources> Loc
 @inject IDialogService DialogService
+@inject IDateTimeFormatter DateTimeFormatter
 
 <MudCard Elevation="2" 
          Class="service-binding-card m3-card-elevated" 
@@ -139,8 +141,9 @@
                      Size="Size.Small" 
                      Style="color: #9E9E9E; font-size: 16px;" />
             <MudText Typo="Typo.caption" 
-                     Style="color: #757575; font-weight: 400;">
-                @Binding.CreatedAt.ToString("MMM dd, yyyy")
+                     Style="color: #757575; font-weight: 400;"
+                     title="@DateTimeFormatter.FormatDateTime(Binding.CreatedAt)">
+                @DateTimeFormatter.FormatFriendlyDate(Binding.CreatedAt)
             </MudText>
         </div>
     </MudCardContent>

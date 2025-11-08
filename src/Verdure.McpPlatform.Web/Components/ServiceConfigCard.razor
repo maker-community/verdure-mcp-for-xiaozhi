@@ -1,7 +1,9 @@
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Contracts.DTOs
 @using Verdure.McpPlatform.Web.Resources
+@using Verdure.McpPlatform.Web.Services
 @inject IStringLocalizer<SharedResources> Loc
+@inject IDateTimeFormatter DateTimeFormatter
 
 <MudCard Elevation="2" 
          Class="service-config-card m3-card-elevated" 
@@ -148,7 +150,9 @@
                 <MudIcon Icon="@Icons.Material.Outlined.Schedule" Size="Size.Small" Style="vertical-align: middle; margin-right: 4px;" />
                 @if (Service.LastSyncedAt.HasValue)
                 {
-                    @($"{Loc["LastSynced"]}: {Service.LastSyncedAt.Value:MMM dd, yyyy HH:mm}")
+                    <span title="@DateTimeFormatter.FormatDateTime(Service.LastSyncedAt)">
+                        @($"{Loc["LastSynced"]}: {DateTimeFormatter.FormatFriendlyDateTime(Service.LastSyncedAt)}")
+                    </span>
                 }
                 else
                 {
@@ -181,8 +185,9 @@
                         @GetCreatorName()
                     </MudText>
                     <MudText Typo="Typo.caption" 
-                             Style="color: #9E9E9E; font-size: 11px; line-height: 1.2;">
-                        @Service.CreatedAt.ToString("MMM dd, yyyy")
+                             Style="color: #9E9E9E; font-size: 11px; line-height: 1.2;"
+                             title="@DateTimeFormatter.FormatDateTime(Service.CreatedAt)">
+                        @DateTimeFormatter.FormatFriendlyDate(Service.CreatedAt)
                     </MudText>
                 </div>
             </div>
@@ -195,8 +200,9 @@
                          Size="Size.Small" 
                          Style="color: #9E9E9E; font-size: 16px;" />
                 <MudText Typo="Typo.caption" 
-                         Style="color: #757575; font-weight: 400;">
-                    @Service.CreatedAt.ToString("MMM dd, yyyy")
+                         Style="color: #757575; font-weight: 400;"
+                         title="@DateTimeFormatter.FormatDateTime(Service.CreatedAt)">
+                    @DateTimeFormatter.FormatFriendlyDate(Service.CreatedAt)
                 </MudText>
             </div>
         }

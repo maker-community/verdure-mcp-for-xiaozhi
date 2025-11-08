@@ -1,0 +1,89 @@
+@using Verdure.McpPlatform.Web.Services
+@inject IDateTimeFormatter DateTimeFormatter
+
+@if (UtcDateTime.HasValue)
+{
+    <span title="@GetFullDateTime()">@GetFormattedDateTime()</span>
+}
+else
+{
+    <span>@DefaultValue</span>
+}
+
+@code {
+    /// <summary>
+    /// UTC 时间（从 API 获取的时间）
+    /// </summary>
+    [Parameter]
+    public DateTime? UtcDateTime { get; set; }
+    
+    /// <summary>
+    /// 格式类型
+    /// </summary>
+    [Parameter]
+    public DateTimeFormat Format { get; set; } = DateTimeFormat.FriendlyDate;
+    
+    /// <summary>
+    /// 当时间为空时显示的默认值
+    /// </summary>
+    [Parameter]
+    public string DefaultValue { get; set; } = "-";
+    
+    /// <summary>
+    /// 是否显示相对时间（如：2 hours ago）
+    /// </summary>
+    [Parameter]
+    public bool ShowRelative { get; set; } = false;
+    
+    private string GetFormattedDateTime()
+    {
+        if (!UtcDateTime.HasValue)
+            return DefaultValue;
+            
+        if (ShowRelative)
+            return DateTimeFormatter.FormatRelativeTime(UtcDateTime.Value);
+            
+        return Format switch
+        {
+            DateTimeFormat.ShortDate => DateTimeFormatter.FormatShortDate(UtcDateTime.Value),
+            DateTimeFormat.DateTime => DateTimeFormatter.FormatDateTime(UtcDateTime.Value),
+            DateTimeFormat.FriendlyDate => DateTimeFormatter.FormatFriendlyDate(UtcDateTime.Value),
+            DateTimeFormat.FriendlyDateTime => DateTimeFormatter.FormatFriendlyDateTime(UtcDateTime.Value),
+            _ => DateTimeFormatter.FormatFriendlyDate(UtcDateTime.Value)
+        };
+    }
+    
+    private string GetFullDateTime()
+    {
+        if (!UtcDateTime.HasValue)
+            return DefaultValue;
+            
+        var localTime = DateTimeFormatter.ToLocalTime(UtcDateTime.Value);
+        return $"{localTime:yyyy-MM-dd HH:mm:ss} (UTC: {UtcDateTime.Value:yyyy-MM-dd HH:mm:ss})";
+    }
+}
+
+@code {
+    public enum DateTimeFormat
+    {
+        /// <summary>
+        /// 短日期格式：yyyy-MM-dd
+        /// </summary>
+        ShortDate,
+        
+        /// <summary>
+        /// 日期时间格式：yyyy-MM-dd HH:mm
+        /// </summary>
+        DateTime,
+        
+        /// <summary>
+        /// 友好的日期格式：MMM dd, yyyy
+        /// </summary>
+        FriendlyDate,
+        
+        /// <summary>
+        /// 友好的日期时间格式：MMM dd, yyyy HH:mm
+        /// </summary>
+        FriendlyDateTime
+    }
+}

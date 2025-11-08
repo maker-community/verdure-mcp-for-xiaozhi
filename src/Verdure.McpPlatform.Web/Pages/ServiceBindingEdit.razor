@@ -6,6 +6,7 @@
 @inject IMcpServiceConfigClientService McpServiceConfigService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
+@inject IDateTimeFormatter DateTimeFormatter
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
 @inject IStringLocalizer<SharedResources> Loc
@@ -169,13 +170,17 @@
                     </MudItem>
                     <MudItem xs="6">
                         <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Created"]</MudText>
-                        <MudText Typo="Typo.body1">@(_existingBinding?.CreatedAt.ToString("MMM dd, yyyy HH:mm") ?? "")</MudText>
+                        <MudText Typo="Typo.body1" title="@DateTimeFormatter.FormatDateTime(_existingBinding?.CreatedAt)">
+                            @DateTimeFormatter.FormatFriendlyDateTime(_existingBinding?.CreatedAt)
+                        </MudText>
                     </MudItem>
                     @if (_existingBinding?.UpdatedAt.HasValue == true)
                     {
                         <MudItem xs="6">
                             <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["LastUpdated"]</MudText>
-                            <MudText Typo="Typo.body1">@_existingBinding.UpdatedAt.Value.ToString("MMM dd, yyyy HH:mm")</MudText>
+                            <MudText Typo="Typo.body1" title="@DateTimeFormatter.FormatDateTime(_existingBinding.UpdatedAt)">
+                                @DateTimeFormatter.FormatFriendlyDateTime(_existingBinding.UpdatedAt)
+                            </MudText>
                         </MudItem>
                     }
                 </MudGrid>

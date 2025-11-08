@@ -7,6 +7,7 @@
 @inject IMcpServiceConfigClientService ServiceConfigService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
+@inject IDateTimeFormatter DateTimeFormatter
 @inject IStringLocalizer<SharedResources> Loc
 
 <PageTitle>@Loc["McpServiceDetails"] - @Loc["AppTitle"]</PageTitle>
@@ -104,13 +105,17 @@ else
                         }
                         <MudListItem T="string" Icon="@Icons.Material.Outlined.CalendarToday">
                             <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["CreatedAt"]</MudText>
-                            <MudText Typo="Typo.body1">@_service.CreatedAt.ToString("MMM dd, yyyy HH:mm")</MudText>
+                            <MudText Typo="Typo.body1" title="@DateTimeFormatter.FormatDateTime(_service.CreatedAt)">
+                                @DateTimeFormatter.FormatFriendlyDateTime(_service.CreatedAt)
+                            </MudText>
                         </MudListItem>
                         @if (_service.LastSyncedAt.HasValue)
                         {
                             <MudListItem T="string" Icon="@Icons.Material.Outlined.Sync">
                                 <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["LastSynced"]</MudText>
-                                <MudText Typo="Typo.body1">@_service.LastSyncedAt.Value.ToString("MMM dd, yyyy HH:mm")</MudText>
+                                <MudText Typo="Typo.body1" title="@DateTimeFormatter.FormatDateTime(_service.LastSyncedAt)">
+                                    @DateTimeFormatter.FormatFriendlyDateTime(_service.LastSyncedAt)
+                                </MudText>
                             </MudListItem>
                         }
                     </MudList>
