@@ -3,9 +3,13 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
+@using Verdure.McpPlatform.Web.Services
 @inject IStringLocalizer<SharedResources> Loc
+@inject IUserClientService UserClientService
+@inject NavigationManager NavigationManager
+@inject ILogger<Authentication> Logger
 
-<RemoteAuthenticatorView Action="@Action">
+<RemoteAuthenticatorView Action="@Action" OnLogInSucceeded="OnLoginSucceeded">
     <LoggingIn>
         <div class="d-flex flex-column align-center justify-center" style="min-height: 80vh;">
             <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
@@ -102,4 +106,42 @@
 @code {
     [Parameter]
     public string? Action { get; set; }
+
+    /// <summary>
+    /// 登录成功后的回调，同步用户信息到 API
+    /// </summary>
+    private async Task OnLoginSucceeded(RemoteAuthenticationState state)
+    {
+        try
+        {
+            Logger.LogInformation("Login succeeded, syncing user to Identity database");
+
+            // 调用 API 同步用户信息
+            var result = await UserClientService.SyncCurrentUserAsync();
+
+            if (result.Success)
+            {
+                Logger.LogInformation(
+                    "User sync successful: UserId={UserId}, IsNewUser={IsNewUser}",
+                    result.UserId, result.IsNewUser);
+
+                // 可以在这里添加欢迎提示
+                // if (result.IsNewUser)
+                // {
+                //     Snackbar.Add("Welcome! Your account has been created.", Severity.Success);
+                // }
+            }
+            else
+            {
+                Logger.LogWarning("User sync failed: {Message}", result.Message);
+                // 同步失败不阻止登录，用户仍然可以使用应用
+                // 可以在这里添加一个友好的提示
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error syncing user after login");
+            // 捕获异常但不影响登录流程
+        }
+    }
 }

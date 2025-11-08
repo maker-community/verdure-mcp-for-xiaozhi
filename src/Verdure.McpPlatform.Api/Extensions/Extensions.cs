@@ -136,6 +136,9 @@ internal static class Extensions
         // Register identity service
         services.AddScoped<IIdentityService, IdentityService>();
 
+        // Register user sync service
+        services.AddScoped<IUserSyncService, UserSyncService>();
+
         // Register Redis connection
         var redisConnectionString = builder.Configuration.GetConnectionString("Redis")
             ?? "localhost:6379";

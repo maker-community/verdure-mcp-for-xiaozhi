@@ -34,6 +34,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Map API endpoints
+app.MapUserApi();
 app.MapXiaozhiMcpEndpointApi();
 app.MapMcpServiceBindingApi();
 app.MapMcpServiceConfigApi();

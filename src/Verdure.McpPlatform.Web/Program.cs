@@ -60,6 +60,7 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
     .CreateClient("Verdure.McpPlatform.Api"));
 
 // Register API client services
+builder.Services.AddScoped<IUserClientService, UserClientService>();
 builder.Services.AddScoped<IXiaozhiMcpEndpointClientService, XiaozhiMcpEndpointClientService>();
 builder.Services.AddScoped<IMcpServiceBindingClientService, McpServiceBindingClientService>();
 builder.Services.AddScoped<IMcpServiceConfigClientService, McpServiceConfigClientService>();
