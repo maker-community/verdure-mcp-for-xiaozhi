@@ -35,7 +35,6 @@ public class McpServiceConfigService : IMcpServiceConfigService
             request.Endpoint,
             userId,
             request.Description,
-            request.IsPublic,
             request.AuthenticationType,
             request.AuthenticationConfig,
             request.Protocol ?? "stdio");
@@ -136,7 +135,6 @@ public class McpServiceConfigService : IMcpServiceConfigService
             request.Name,
             request.Endpoint,
             request.Description,
-            request.IsPublic,
             request.AuthenticationType,
             request.AuthenticationConfig,
             request.Protocol);
@@ -222,6 +220,44 @@ public class McpServiceConfigService : IMcpServiceConfigService
         }
 
         return config.Tools.Select(MapToolToDto);
+    }
+
+    public async Task SetPublicAsync(string id, string adminUserId)
+    {
+        var config = await _repository.GetByIdAsync(id);
+        
+        if (config == null)
+        {
+            throw new InvalidOperationException($"Service config {id} not found");
+        }
+
+        config.SetPublic();
+        _repository.Update(config);
+        await _repository.UnitOfWork.SaveEntitiesAsync();
+
+        _logger.LogInformation(
+            "Service config {ConfigId} set to public by admin {AdminUserId}",
+            config.Id,
+            adminUserId);
+    }
+
+    public async Task SetPrivateAsync(string id, string adminUserId)
+    {
+        var config = await _repository.GetByIdAsync(id);
+        
+        if (config == null)
+        {
+            throw new InvalidOperationException($"Service config {id} not found");
+        }
+
+        config.SetPrivate();
+        _repository.Update(config);
+        await _repository.UnitOfWork.SaveEntitiesAsync();
+
+        _logger.LogInformation(
+            "Service config {ConfigId} set to private by admin {AdminUserId}",
+            config.Id,
+            adminUserId);
     }
 
     private static McpServiceConfigDto MapToDto(McpServiceConfig config)

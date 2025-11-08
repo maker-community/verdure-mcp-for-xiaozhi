@@ -59,6 +59,29 @@
                         <MudMenuItem Icon="@Icons.Material.Outlined.Edit" OnClick="@OnEdit">
                             @Loc["Edit"]
                         </MudMenuItem>
+                        
+                        <!-- Admin Only: Public/Private Toggle -->
+                        @if (ShowAdminActions)
+                        {
+                            <MudDivider />
+                            @if (Service.IsPublic)
+                            {
+                                <MudMenuItem Icon="@Icons.Material.Outlined.Lock" 
+                                             IconColor="Color.Warning"
+                                             OnClick="@OnSetPrivate">
+                                    @Loc["SetPrivate"]
+                                </MudMenuItem>
+                            }
+                            else
+                            {
+                                <MudMenuItem Icon="@Icons.Material.Outlined.Public" 
+                                             IconColor="Color.Success"
+                                             OnClick="@OnSetPublic">
+                                    @Loc["SetPublic"]
+                                </MudMenuItem>
+                            }
+                        }
+                        
                         <MudDivider />
                         <MudMenuItem Icon="@Icons.Material.Outlined.Delete" 
                                      IconColor="Color.Error" 
@@ -265,6 +288,9 @@
     public bool IsSyncing { get; set; } = false;
     
     [Parameter]
+    public bool ShowAdminActions { get; set; } = false;
+    
+    [Parameter]
     public EventCallback OnViewDetails { get; set; }
     
     [Parameter]
@@ -275,6 +301,12 @@
     
     [Parameter]
     public EventCallback OnDelete { get; set; }
+    
+    [Parameter]
+    public EventCallback OnSetPublic { get; set; }
+    
+    [Parameter]
+    public EventCallback OnSetPrivate { get; set; }
     
     [Parameter]
     public EventCallback OnUseService { get; set; }

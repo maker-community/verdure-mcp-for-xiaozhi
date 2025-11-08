@@ -36,7 +36,6 @@ public class McpServiceConfig : Entity, IAggregateRoot
         string endpoint, 
         string userId, 
         string? description = null,
-        bool isPublic = false,
         string? authenticationType = null,
         string? authenticationConfig = null,
         string? protocol = null) : this()
@@ -46,7 +45,7 @@ public class McpServiceConfig : Entity, IAggregateRoot
         Endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
         UserId = userId ?? throw new ArgumentNullException(nameof(userId));
         Description = description;
-        IsPublic = isPublic;
+        IsPublic = false; // Default to private
         AuthenticationType = authenticationType;
         AuthenticationConfig = authenticationConfig;
         Protocol = protocol ?? "stdio"; // Default to stdio
@@ -57,7 +56,6 @@ public class McpServiceConfig : Entity, IAggregateRoot
         string name, 
         string endpoint, 
         string? description = null,
-        bool isPublic = false,
         string? authenticationType = null,
         string? authenticationConfig = null,
         string? protocol = null)
@@ -65,7 +63,7 @@ public class McpServiceConfig : Entity, IAggregateRoot
         Name = name ?? throw new ArgumentNullException(nameof(name));
         Endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
         Description = description;
-        IsPublic = isPublic;
+        // IsPublic is not updated here - use SetPublic/SetPrivate methods instead
         AuthenticationType = authenticationType;
         AuthenticationConfig = authenticationConfig;
         Protocol = protocol;

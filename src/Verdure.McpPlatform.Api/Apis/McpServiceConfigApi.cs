@@ -66,6 +66,18 @@ public static class McpServiceConfigApi
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
+        api.MapPut("/{id}/set-public", SetPublicAsync)
+            .WithName("SetMcpServicePublic")
+            .RequireAuthorization("AdminOnly")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound);
+
+        api.MapPut("/{id}/set-private", SetPrivateAsync)
+            .WithName("SetMcpServicePrivate")
+            .RequireAuthorization("AdminOnly")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound);
+
         return api;
     }
 
@@ -200,6 +212,40 @@ public static class McpServiceConfigApi
         catch (InvalidOperationException ex)
         {
             return TypedResults.Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<Results<NoContent, NotFound>> SetPublicAsync(
+        string id,
+        IMcpServiceConfigService mcpServiceConfigService,
+        IIdentityService identityService)
+    {
+        try
+        {
+            var userId = identityService.GetUserIdentity();
+            await mcpServiceConfigService.SetPublicAsync(id, userId);
+            return TypedResults.NoContent();
+        }
+        catch (InvalidOperationException)
+        {
+            return TypedResults.NotFound();
+        }
+    }
+
+    private static async Task<Results<NoContent, NotFound>> SetPrivateAsync(
+        string id,
+        IMcpServiceConfigService mcpServiceConfigService,
+        IIdentityService identityService)
+    {
+        try
+        {
+            var userId = identityService.GetUserIdentity();
+            await mcpServiceConfigService.SetPrivateAsync(id, userId);
+            return TypedResults.NoContent();
+        }
+        catch (InvalidOperationException)
+        {
+            return TypedResults.NotFound();
         }
     }
 }

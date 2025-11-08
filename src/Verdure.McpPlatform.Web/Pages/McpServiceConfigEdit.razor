@@ -97,16 +97,6 @@
                                              Lines="3"
                                              HelperText="@Loc["DescriptionHelp"]" />
                             </MudItem>
-
-                            <!-- Is Public -->
-                            <MudItem xs="12">
-                                <MudSwitch @bind-Value="_model.IsPublic" 
-                                          Color="Color.Success"
-                                          Label="@Loc["MakePublic"]" />
-                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="ml-12 mt-1">
-                                    @Loc["MakePublicHelp"]
-                                </MudText>
-                            </MudItem>
                         </MudGrid>
 
                         <!-- Authentication Section -->
@@ -214,7 +204,6 @@
                         Name = service.Name,
                         Endpoint = service.Endpoint,
                         Description = service.Description,
-                        IsPublic = service.IsPublic,
                         AuthenticationType = service.AuthenticationType,
                         Protocol = service.Protocol ?? "sse"
                     };
@@ -296,7 +285,6 @@
                     Name = _model.Name,
                     Endpoint = _model.Endpoint,
                     Description = _model.Description,
-                    IsPublic = _model.IsPublic,
                     AuthenticationType = _model.AuthenticationType,
                     AuthenticationConfig = authConfigJson,
                     Protocol = _model.Protocol
@@ -312,7 +300,6 @@
                     Name = _model.Name,
                     Endpoint = _model.Endpoint,
                     Description = _model.Description,
-                    IsPublic = _model.IsPublic,
                     AuthenticationType = _model.AuthenticationType,
                     AuthenticationConfig = authConfigJson,
                     Protocol = _model.Protocol
@@ -344,7 +331,6 @@
         public string Name { get; set; } = string.Empty;
         public string Endpoint { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public bool IsPublic { get; set; }
         public string? AuthenticationType { get; set; }
         public string Protocol { get; set; } = "sse";
         

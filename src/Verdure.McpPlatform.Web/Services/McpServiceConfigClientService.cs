@@ -187,4 +187,32 @@ public class McpServiceConfigClientService : IMcpServiceConfigClientService
             throw;
         }
     }
+
+    public async Task SetPublicAsync(string id)
+    {
+        try
+        {
+            var response = await _httpClient.PutAsync($"api/mcp-services/{id}/set-public", null);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to set MCP service {ServiceId} as public", id);
+            throw;
+        }
+    }
+
+    public async Task SetPrivateAsync(string id)
+    {
+        try
+        {
+            var response = await _httpClient.PutAsync($"api/mcp-services/{id}/set-private", null);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to set MCP service {ServiceId} as private", id);
+            throw;
+        }
+    }
 }

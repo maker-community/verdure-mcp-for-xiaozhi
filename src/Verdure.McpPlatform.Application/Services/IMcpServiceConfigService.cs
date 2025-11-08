@@ -19,4 +19,14 @@ public interface IMcpServiceConfigService
     Task DeleteAsync(string id, string userId);
     Task SyncToolsAsync(string id, string userId);
     Task<IEnumerable<McpToolDto>> GetToolsAsync(string serviceId, string userId);
+    
+    /// <summary>
+    /// Set a service as public - Admin only
+    /// </summary>
+    Task SetPublicAsync(string id, string adminUserId);
+    
+    /// <summary>
+    /// Set a service as private - Admin only
+    /// </summary>
+    Task SetPrivateAsync(string id, string adminUserId);
 }

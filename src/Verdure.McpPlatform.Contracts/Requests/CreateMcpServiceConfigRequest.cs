@@ -18,8 +18,6 @@ public class CreateMcpServiceConfigRequest
     [StringLength(1000)]
     public string? Description { get; set; }
 
-    public bool IsPublic { get; set; } = false;
-
     [StringLength(50)]
     public string? AuthenticationType { get; set; }
 

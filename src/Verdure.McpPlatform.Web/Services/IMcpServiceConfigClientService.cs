@@ -58,4 +58,14 @@ public interface IMcpServiceConfigClientService
     /// Sync tools from the MCP service endpoint
     /// </summary>
     Task SyncToolsAsync(string id);
+
+    /// <summary>
+    /// Set a service as public - Admin only
+    /// </summary>
+    Task SetPublicAsync(string id);
+
+    /// <summary>
+    /// Set a service as private - Admin only
+    /// </summary>
+    Task SetPrivateAsync(string id);
 }

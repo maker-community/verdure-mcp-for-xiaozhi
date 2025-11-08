@@ -122,7 +122,12 @@ internal static class Extensions
              };
          });
 
-        services.AddAuthorization();
+        services.AddAuthorization(options =>
+        {
+            // Add Admin policy
+            options.AddPolicy("AdminOnly", policy => 
+                policy.RequireRole("Admin"));
+        });
 
         // Register repositories
         services.AddScoped<IXiaozhiMcpEndpointRepository, XiaozhiMcpEndpointRepository>();

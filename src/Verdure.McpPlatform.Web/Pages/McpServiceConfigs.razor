@@ -6,11 +6,13 @@
 @using Verdure.McpPlatform.Contracts.DTOs
 @using Verdure.McpPlatform.Contracts.Models
 @using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IMcpServiceConfigClientService ServiceConfigService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
 @inject IStringLocalizer<SharedResources> Loc
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>@Loc["McpServices"] - @Loc["AppTitle"]</PageTitle>
 
@@ -111,10 +113,13 @@
                             <ServiceConfigCard Service="@service"
                                                IsPublicView="@IsPublicTab"
                                                IsSyncing="@IsSyncing(service.Id)"
+                                               ShowAdminActions="@_isAdmin"
                                                OnViewDetails="@(() => ViewDetails(service))"
                                                OnSyncTools="@(() => SyncTools(service))"
                                                OnEdit="@(() => EditService(service.Id))"
                                                OnDelete="@(() => DeleteService(service))"
+                                               OnSetPublic="@(() => SetPublic(service))"
+                                               OnSetPrivate="@(() => SetPrivate(service))"
                                                OnUseService="@(() => UsePublicService(service))" />
                         </MudItem>
                     </ChildContent>
@@ -183,6 +188,7 @@
     private string _sortBy = "CreatedAt";
     private string _sortOrder = "desc";
     private int _totalCount = 0;
+    private bool _isAdmin = false;
 
     // Virtualization
     private MudVirtualize<McpServiceConfigDto>? _virtualizeComponent;
@@ -193,9 +199,12 @@
 
     private bool IsPublicTab => _activeTabIndex == 1;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        // Subscribe to tab changes
+        // Check if user is admin
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _isAdmin = authState.User.IsInRole("Admin");
+        
         StateHasChanged();
     }
 
@@ -394,6 +403,52 @@
             catch (Exception ex)
             {
                 Snackbar.Add(string.Format(Loc["ErrorDeletingMcpService"], ex.Message), Severity.Error);
+            }
+        }
+    }
+
+    private async Task SetPublic(McpServiceConfigDto service)
+    {
+        bool? confirm = await DialogService.ShowMessageBox(
+            Loc["ConfirmSetPublic"],
+            Loc["ConfirmSetPublicMessage", service.Name],
+            yesText: Loc["Confirm"],
+            cancelText: Loc["Cancel"]);
+
+        if (confirm == true)
+        {
+            try
+            {
+                await ServiceConfigService.SetPublicAsync(service.Id);
+                Snackbar.Add(string.Format(Loc["McpServiceSetPublicSuccess"], service.Name), Severity.Success);
+                await RefreshData();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(string.Format(Loc["ErrorSettingPublic"], ex.Message), Severity.Error);
+            }
+        }
+    }
+
+    private async Task SetPrivate(McpServiceConfigDto service)
+    {
+        bool? confirm = await DialogService.ShowMessageBox(
+            Loc["ConfirmSetPrivate"],
+            Loc["ConfirmSetPrivateMessage", service.Name],
+            yesText: Loc["Confirm"],
+            cancelText: Loc["Cancel"]);
+
+        if (confirm == true)
+        {
+            try
+            {
+                await ServiceConfigService.SetPrivateAsync(service.Id);
+                Snackbar.Add(string.Format(Loc["McpServiceSetPrivateSuccess"], service.Name), Severity.Success);
+                await RefreshData();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(string.Format(Loc["ErrorSettingPrivate"], ex.Message), Severity.Error);
             }
         }
     }

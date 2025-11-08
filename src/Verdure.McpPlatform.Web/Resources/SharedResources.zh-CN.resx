@@ -1250,4 +1250,34 @@
   <data name="UseThisService" xml:space="preserve">
     <value>使用此服务</value>
   </data>
+  <data name="SetPublic" xml:space="preserve">
+    <value>设置为公开</value>
+  </data>
+  <data name="SetPrivate" xml:space="preserve">
+    <value>设置为私有</value>
+  </data>
+  <data name="ConfirmSetPublic" xml:space="preserve">
+    <value>确认设置为公开</value>
+  </data>
+  <data name="ConfirmSetPublicMessage" xml:space="preserve">
+    <value>确定要将服务"{0}"设置为公开吗？其他用户将能够发现并使用此服务。</value>
+  </data>
+  <data name="ConfirmSetPrivate" xml:space="preserve">
+    <value>确认设置为私有</value>
+  </data>
+  <data name="ConfirmSetPrivateMessage" xml:space="preserve">
+    <value>确定要将服务"{0}"设置为私有吗？其他用户将无法再使用此服务。</value>
+  </data>
+  <data name="McpServiceSetPublicSuccess" xml:space="preserve">
+    <value>服务"{0}"已成功设置为公开</value>
+  </data>
+  <data name="McpServiceSetPrivateSuccess" xml:space="preserve">
+    <value>服务"{0}"已成功设置为私有</value>
+  </data>
+  <data name="ErrorSettingPublic" xml:space="preserve">
+    <value>设置为公开时出错：{0}</value>
+  </data>
+  <data name="ErrorSettingPrivate" xml:space="preserve">
+    <value>设置为私有时出错：{0}</value>
+  </data>
 </root>
