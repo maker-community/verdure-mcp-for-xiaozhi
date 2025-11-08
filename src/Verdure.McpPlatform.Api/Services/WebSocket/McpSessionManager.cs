@@ -150,6 +150,15 @@ public class McpSessionManager : IAsyncDisposable
                 }
             }
 
+            // Check if there are any active service bindings
+            if (mcpServiceEndpoints.Count == 0)
+            {
+                _logger.LogWarning(
+                    "Server {ServerId} ({ServerName}) has no active service bindings. Cannot create session.",
+                    serverId, server.Name);
+                return false;
+            }
+
             var config = new McpSessionConfiguration
             {
                 ServerId = server.Id,

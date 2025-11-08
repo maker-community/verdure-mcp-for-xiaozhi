@@ -381,7 +381,7 @@ public class McpSessionService : IAsyncDisposable
     /// </summary>
     private async Task ProcessWebSocketMessageAsync(string message, CancellationToken cancellationToken)
     {
-        if (_webSocket == null || _mcpClients.Count == 0) return;
+        if (_webSocket == null) return;
 
         try
         {
@@ -464,7 +464,13 @@ public class McpSessionService : IAsyncDisposable
 
     private async Task HandleToolsListAsync(int? id, CancellationToken cancellationToken)
     {
-        if (_mcpClients.Count == 0) return;
+        if (_mcpClients.Count == 0)
+        {
+            _logger.LogWarning("Server {ServerId}: No MCP clients available for tools/list request", ServerId);
+            await SendErrorResponseAsync(id, -32603, "No MCP services available", 
+                "No active MCP service bindings configured for this endpoint", cancellationToken);
+            return;
+        }
 
         try
         {
@@ -547,7 +553,13 @@ public class McpSessionService : IAsyncDisposable
 
     private async Task HandleToolsCallAsync(int? id, JsonDocument request, CancellationToken cancellationToken)
     {
-        if (_mcpClients.Count == 0) return;
+        if (_mcpClients.Count == 0)
+        {
+            _logger.LogWarning("Server {ServerId}: No MCP clients available for tools/call request", ServerId);
+            await SendErrorResponseAsync(id, -32603, "No MCP services available", 
+                "No active MCP service bindings configured for this endpoint", cancellationToken);
+            return;
+        }
 
         try
         {
