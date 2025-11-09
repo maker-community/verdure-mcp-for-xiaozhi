@@ -14,11 +14,20 @@ public class CustomAuthorizationMessageHandler : AuthorizationMessageHandler
         IConfiguration configuration)
         : base(provider, navigation)
     {
-        var apiBaseAddress = configuration["ApiBaseAddress"] ?? navigation.BaseUri;
+        var configured = configuration["ApiBaseAddress"];
         
-        ConfigureHandler(
-            authorizedUrls: new[] { apiBaseAddress },
-            scopes: new[] { "openid", "profile", "email" }
-        );
+        // Treat empty or whitespace ApiBaseAddress as unset so we use the NavigationManager's BaseUri
+        var apiBaseAddress = string.IsNullOrWhiteSpace(configured) 
+            ? navigation.BaseUri.TrimEnd('/') 
+            : configured.TrimEnd('/');
+
+        // Only configure if we have a valid base address
+        if (!string.IsNullOrWhiteSpace(apiBaseAddress))
+        {
+            ConfigureHandler(
+                authorizedUrls: new[] { apiBaseAddress },
+                scopes: new[] { "openid", "profile", "email" }
+            );
+        }
     }
 }

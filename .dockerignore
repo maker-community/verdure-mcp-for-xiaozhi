@@ -1,0 +1,50 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Build outputs
+**/bin/
+**/obj/
+**/publish/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Docker
+**/.dockerignore
+**/Dockerfile*
+**/docker-compose*
+
+# Documentation (exclude from build context)
+docs/
+*.md
+!README.md
+
+# Scripts
+scripts/
+
+# Test
+**/TestResults/
+
+# Node modules (if any)
+**/node_modules/
+
+# Logs
+**/*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+**/tmp/
+**/temp/

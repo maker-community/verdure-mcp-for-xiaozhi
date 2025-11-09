@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Microsoft.AspNetCore.Components.Web;
+﻿using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
@@ -11,8 +10,11 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // Configure API base address
-var apiBaseAddress = builder.Configuration["ApiBaseAddress"]
-    ?? builder.HostEnvironment.BaseAddress;
+// If ApiBaseAddress is empty or whitespace, use the host environment's base address
+var configuredApiBase = builder.Configuration["ApiBaseAddress"];
+var apiBaseAddress = string.IsNullOrWhiteSpace(configuredApiBase)
+    ? builder.HostEnvironment.BaseAddress.TrimEnd('/')
+    : configuredApiBase.TrimEnd('/');
 
 // Add localization services
 // FIX ATTEMPT 1: Try simple AddLocalization() without ResourcesPath
@@ -38,6 +40,10 @@ builder.Services.AddOidcAuthentication(options =>
     // Load OIDC settings from configuration
     builder.Configuration.Bind("Oidc", options.ProviderOptions);
 
+    if (string.IsNullOrEmpty(options.ProviderOptions.PostLogoutRedirectUri))
+    {
+        options.ProviderOptions.PostLogoutRedirectUri = apiBaseAddress;
+    }
     // Configure for Keycloak
     options.ProviderOptions.ResponseType = "code";
     options.ProviderOptions.DefaultScopes.Add("openid");
