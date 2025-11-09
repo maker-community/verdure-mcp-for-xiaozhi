@@ -53,6 +53,10 @@ services:
         BUILD_CONFIGURATION: Release
     ports:
       - "8080:8080"
+    volumes:
+      # Mount custom Blazor WASM configuration (optional)
+      # Users can override this file without rebuilding the image
+      - ./config/appsettings.json:/app/wwwroot/appsettings.json:ro
     environment:
       # ASP.NET Core Configuration
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}

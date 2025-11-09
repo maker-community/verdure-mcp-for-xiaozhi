@@ -7,9 +7,12 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-# Install curl for health checks
+# Install required tools:
+# - curl: for health checks
+# - brotli: for Brotli compression (.br files)
+# - gzip: for Gzip compression (.gz files)
 RUN apt-get update && \
-    apt-get install -y curl && \
+    apt-get install -y curl brotli gzip && \
     rm -rf /var/lib/apt/lists/*
 
 # Stage 2: Build image
@@ -58,6 +61,10 @@ WORKDIR /app
 # Copy published files from publish stage
 COPY --from=publish /app/publish .
 
+# Copy entrypoint script
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
@@ -69,5 +76,6 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8080/api/health || exit 1
 
-# Entry point
-ENTRYPOINT ["dotnet", "Verdure.McpPlatform.Api.dll"]
+# Entry point - use custom script to handle mounted config files
+ENTRYPOINT ["/entrypoint.sh"]
+
