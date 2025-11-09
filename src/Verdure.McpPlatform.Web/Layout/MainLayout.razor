@@ -1,5 +1,6 @@
 ﻿@using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
+@using Verdure.McpPlatform.Web.Icons
 @inherits LayoutComponentBase
 @inject IStringLocalizer<SharedResources> Loc
 
@@ -29,13 +30,13 @@
                               Target="_blank" />
             </MudTooltip>
             <MudTooltip Text="@Loc["TooltipProjectSource"]">
-                <MudIconButton Icon="@Icons.Material.Filled.Code" 
+                <MudIconButton Icon="@Icons.Custom.Brands.GitHub" 
                               Color="Color.Inherit" 
                               Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" 
                               Target="_blank" />
             </MudTooltip>
             <MudTooltip Text="@Loc["TooltipBilibiliChannel"]">
-                <MudIconButton Icon="@Icons.Material.Filled.VideoLibrary" 
+                <MudIconButton Icon="@VerdureIcons.SocialMedia.Bilibili" 
                               Color="Color.Inherit" 
                               Href="https://space.bilibili.com/25228512" 
                               Target="_blank" />
