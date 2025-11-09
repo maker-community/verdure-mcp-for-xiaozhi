@@ -1,0 +1,157 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: verdure-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      # Note: You need to create multiple databases manually or use init script
+      # We'll use the default 'postgres' database and create schemas
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - verdure-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis Cache and Distributed State
+  redis:
+    image: redis:7-alpine
+    container_name: verdure-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - verdure-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Verdure MCP Platform (API + Web)
+  app:
+    image: verdure-mcp-platform:latest
+    container_name: verdure-mcp-app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.single-image
+      args:
+        BUILD_CONFIGURATION: Release
+    ports:
+      - "8080:8080"
+    environment:
+      # ASP.NET Core Configuration
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
+      - ASPNETCORE_URLS=http://+:8080
+      
+      # Database Connections
+      - ConnectionStrings__mcpdb=Host=postgres;Database=verdure_mcp;Username=postgres;Password=${POSTGRES_PASSWORD:-postgres};Include Error Detail=true
+      - ConnectionStrings__identitydb=Host=postgres;Database=verdure_identity;Username=postgres;Password=${POSTGRES_PASSWORD:-postgres};Include Error Detail=true
+      
+      # Redis Connection
+      - ConnectionStrings__redis=redis:6379
+      
+      # Identity Provider (Keycloak)
+      - Identity__Url=${IDENTITY_URL:-https://auth.verdure-hiro.cn/realms/maker-community}
+      - Identity__ClientId=${IDENTITY_CLIENT_ID:-verdure-mcp}
+      - Identity__ClientSecret=${IDENTITY_CLIENT_SECRET}
+      - Identity__Audience=${IDENTITY_AUDIENCE:-verdure-mcp-api}
+      
+      # CORS Configuration (if needed for external access)
+      - AllowedOrigins__0=${ALLOWED_ORIGIN:-http://localhost:8080}
+      
+      # Connection Monitor Settings
+      - ConnectionMonitor__CheckIntervalSeconds=${MONITOR_CHECK_INTERVAL:-30}
+      - ConnectionMonitor__HeartbeatTimeoutSeconds=${MONITOR_HEARTBEAT_TIMEOUT:-90}
+      - ConnectionMonitor__ReconnectCooldownSeconds=${MONITOR_RECONNECT_COOLDOWN:-60}
+      
+      # Logging
+      - Logging__LogLevel__Default=${LOG_LEVEL:-Information}
+      - Logging__LogLevel__Microsoft.AspNetCore=${LOG_LEVEL_ASPNET:-Warning}
+      - Logging__LogLevel__Verdure.McpPlatform=${LOG_LEVEL_VERDURE:-Information}
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - verdure-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Optional: pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: verdure-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@verdure.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - verdure-network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    profiles:
+      - tools
+
+  # Optional: Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: verdure-redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - verdure-network
+    depends_on:
+      - redis
+    restart: unless-stopped
+    profiles:
+      - tools
+
+networks:
+  verdure-network:
+    driver: bridge
+    name: verdure-network
+
+volumes:
+  postgres_data:
+    name: verdure-postgres-data
+  redis_data:
+    name: verdure-redis-data
+  pgadmin_data:
+    name: verdure-pgadmin-data

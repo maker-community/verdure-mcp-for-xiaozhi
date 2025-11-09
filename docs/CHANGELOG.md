@@ -2,7 +2,34 @@
 
 ## [未发布] - 2025-01-XX
 
-### 🐛 Bug 修复
+### � 新特性
+
+#### 单镜像部署架构
+- **功能**: 将 Blazor WebAssembly 前端和 ASP.NET Core API 合并到单个 Docker 镜像中
+- **优势**:
+  - 简化部署流程，只需管理一个 Docker 镜像
+  - 避免 CORS 问题，前后端同域
+  - 统一认证，Cookie 和 JWT token 共享更简单
+  - 降低运维成本，减少容器资源开销
+  - 生产级标准做法，业界推荐方案
+- **实现**:
+  - API 项目引用 Web 项目，构建时自动包含静态文件
+  - 配置 `UseBlazorFrameworkFiles()` 和 `UseStaticFiles()` 提供静态文件服务
+  - 所有 API 端点使用 `/api` 前缀，前端路由使用 `MapFallbackToFile("index.html")`
+  - 前端配置使用相对路径调用 API（`ApiBaseAddress: ""`）
+- **部署方式**:
+  - Docker: 使用 `docker/Dockerfile.single-image`
+  - Docker Compose: 使用 `docker-compose.single-image.yml`
+  - Kubernetes: 详见部署指南中的 K8s 配置
+- **文档**: 详见 `docs/guides/SINGLE_IMAGE_DEPLOYMENT.md`
+- **脚本**: 使用 `scripts/start-single-image.ps1` 快速启动
+- **影响文件**:
+  - `src/Verdure.McpPlatform.Api/Verdure.McpPlatform.Api.csproj` - 添加 Web 项目引用
+  - `src/Verdure.McpPlatform.Api/Program.cs` - 配置静态文件服务和回退路由
+  - `src/Verdure.McpPlatform.Web/wwwroot/appsettings.json` - API 基址改为相对路径
+  - `src/Verdure.McpPlatform.AppHost/AppHost.cs` - 移除独立 Web 项目配置
+
+### �🐛 Bug 修复
 
 #### Database-Redis 一致性恢复机制修复
 - **问题**: 数据库中启用的服务器（IsEnabled=true）在 Redis 中完全没有连接状态数据时，后台监控服务无法自动恢复连接

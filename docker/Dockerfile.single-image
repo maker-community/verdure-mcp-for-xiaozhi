@@ -1,0 +1,73 @@
+# Verdure MCP Platform - Single Image Dockerfile
+# This Dockerfile builds a single image containing both the API and Blazor WebAssembly frontend
+
+# Stage 1: Base runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
+
+# Install curl for health checks
+RUN apt-get update && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Stage 2: Build image
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+
+# Copy solution file
+COPY ["Verdure.McpPlatform.sln", "."]
+
+# Copy all project files for dependency restoration
+COPY ["src/Verdure.McpPlatform.Api/Verdure.McpPlatform.Api.csproj", "src/Verdure.McpPlatform.Api/"]
+COPY ["src/Verdure.McpPlatform.Web/Verdure.McpPlatform.Web.csproj", "src/Verdure.McpPlatform.Web/"]
+COPY ["src/Verdure.McpPlatform.Application/Verdure.McpPlatform.Application.csproj", "src/Verdure.McpPlatform.Application/"]
+COPY ["src/Verdure.McpPlatform.Domain/Verdure.McpPlatform.Domain.csproj", "src/Verdure.McpPlatform.Domain/"]
+COPY ["src/Verdure.McpPlatform.Infrastructure/Verdure.McpPlatform.Infrastructure.csproj", "src/Verdure.McpPlatform.Infrastructure/"]
+COPY ["src/Verdure.McpPlatform.Contracts/Verdure.McpPlatform.Contracts.csproj", "src/Verdure.McpPlatform.Contracts/"]
+COPY ["src/Verdure.McpPlatform.ServiceDefaults/Verdure.McpPlatform.ServiceDefaults.csproj", "src/Verdure.McpPlatform.ServiceDefaults/"]
+
+# Restore dependencies
+# Note: API project references Web project, so restoring API will restore Web as well
+RUN dotnet restore "src/Verdure.McpPlatform.Api/Verdure.McpPlatform.Api.csproj"
+
+# Copy all source code
+COPY . .
+
+# Build the solution
+# Building API project will automatically build Web project as well (due to project reference)
+WORKDIR "/src/src/Verdure.McpPlatform.Api"
+RUN dotnet build "Verdure.McpPlatform.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# Stage 3: Publish
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+
+# Publish API project (includes Web static files in wwwroot)
+RUN dotnet publish "Verdure.McpPlatform.Api.csproj" \
+    -c $BUILD_CONFIGURATION \
+    -o /app/publish \
+    /p:UseAppHost=false
+
+# Stage 4: Final runtime image
+FROM base AS final
+WORKDIR /app
+
+# Copy published files from publish stage
+COPY --from=publish /app/publish .
+
+# Set environment variables
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# Optional: Enable globalization support
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8080/api/health || exit 1
+
+# Entry point
+ENTRYPOINT ["dotnet", "Verdure.McpPlatform.Api.dll"]

@@ -12,17 +12,15 @@ var postgres = builder.AddPostgres("postgres")
 var mcpDb = postgres.AddDatabase("mcpdb");
 var identityDb = postgres.AddDatabase("identitydb");
 
-// Add API service
-var api = builder.AddProject<Projects.Verdure_McpPlatform_Api>("api")
+// Add API service (now includes Blazor WebAssembly static files)
+// The API project references the Web project, so Blazor WASM will be served from the API
+builder.AddProject<Projects.Verdure_McpPlatform_Api>("api")
     .WithReference(mcpDb)
     .WithReference(identityDb)
     .WaitFor(postgres)
     .WithExternalHttpEndpoints();
 
-// Add Blazor WebAssembly frontend
-builder.AddProject<Projects.Verdure_McpPlatform_Web>("web")
-    .WithReference(api)
-    .WaitFor(api)
-    .WithExternalHttpEndpoints();
+// Note: Web project is no longer needed as a separate service
+// It's now served as static files from the API project
 
 builder.Build().Run();

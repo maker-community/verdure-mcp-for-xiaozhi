@@ -1,4 +1,5 @@
-﻿using Scalar.AspNetCore;
+﻿using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Scalar.AspNetCore;
 using Verdure.McpPlatform.Api.Apis;
 using Verdure.McpPlatform.Api.Extensions;
 
@@ -20,6 +21,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+    // In development, enable detailed errors for Blazor
+    app.UseWebAssemblyDebugging();
 }
 
 // Apply database migrations
@@ -30,18 +33,26 @@ app.UseCors();
 
 app.UseHttpsRedirection();
 
+// Serve Blazor WebAssembly static files
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Map API endpoints
+// Map API endpoints with /api prefix
 app.MapUserApi();
 app.MapXiaozhiMcpEndpointApi();
 app.MapMcpServiceBindingApi();
 app.MapMcpServiceConfigApi();
 
 // Health check endpoint
-app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
+app.MapGet("/api/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
     .WithName("HealthCheck")
     .WithTags("Health");
+
+// Fallback to index.html for Blazor SPA routing
+// This must be the last mapping
+app.MapFallbackToFile("index.html");
 
 app.Run();
