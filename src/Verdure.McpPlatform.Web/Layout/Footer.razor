@@ -1,4 +1,5 @@
 ﻿@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Icons
 @using Verdure.McpPlatform.Web.Resources
 @inject IStringLocalizer<SharedResources> Loc
 
@@ -66,7 +67,7 @@ else
                     <MudStack Spacing="2">
                         <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary" Typo="Typo.body2">
                             <div class="d-flex align-center gap-2">
-                                <MudIcon Icon="@Icons.Custom.Brands.GitHub" Size="Size.Small" />
+                                <MudIcon Icon="@Icons.Material.Filled.Groups" Size="Size.Small" />
                                 <span>@Loc["GitHubCommunity"]</span>
                             </div>
                         </MudLink>
@@ -78,7 +79,7 @@ else
                         </MudLink>
                         <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Secondary" Typo="Typo.body2">
                             <div class="d-flex align-center gap-2">
-                                <MudIcon Icon="@Icons.Material.Filled.VideoLibrary" Size="Size.Small" />
+                                <MudIcon Icon="@VerdureIcons.SocialMedia.Bilibili" Size="Size.Small" />
                                 <span>@Loc["BilibiliChannel"]</span>
                             </div>
                         </MudLink>
