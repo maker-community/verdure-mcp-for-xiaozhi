@@ -16,7 +16,7 @@ public class OidcSettings
     public string Realm { get; set; } = string.Empty;
 
     /// <summary>
-    /// OIDC Client ID (例如: aiforge)
+    /// OIDC Client ID (例如: verdure-mcp)
     /// </summary>
     public string ClientId { get; set; } = string.Empty;
 

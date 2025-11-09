@@ -7,6 +7,7 @@
 @using Verdure.McpPlatform.Contracts.Models
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.AspNetCore.Components.Authorization
+@using Verdure.McpPlatform.Web.Extensions
 @inject IMcpServiceConfigClientService ServiceConfigService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
@@ -201,9 +202,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Check if user is admin
+        // Check if user is admin using extension method
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _isAdmin = authState.User.IsInRole("Admin");
+        _isAdmin = authState.User.IsAdmin(); // ✅ 使用扩展方法
         
         StateHasChanged();
     }

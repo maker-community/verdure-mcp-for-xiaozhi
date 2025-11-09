@@ -1,0 +1,173 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using Verdure.McpPlatform.Web.Extensions
+@using MudBlazor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IConfiguration Configuration
+
+<MudPaper Class="pa-4" Elevation="2">
+    <MudText Typo="Typo.h6" Class="mb-3">
+        <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Class="mr-2" />
+        用户角色信息 (调试)
+    </MudText>
+
+    @if (_authState != null && _authState.User.Identity?.IsAuthenticated == true)
+    {
+        <MudGrid>
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Info" Dense="true">
+                    <MudText Typo="Typo.body2"><strong>用户名:</strong> @_authState.User.GetUsername()</MudText>
+                    <MudText Typo="Typo.body2"><strong>邮箱:</strong> @_authState.User.GetEmail()</MudText>
+                    <MudText Typo="Typo.body2"><strong>用户ID:</strong> @_authState.User.GetUserId()</MudText>
+                </MudAlert>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudText Typo="Typo.subtitle1" Class="mb-2">
+                    <strong>角色列表:</strong>
+                </MudText>
+                @{
+                    var roles = _authState.User.GetRoles();
+                }
+                @if (roles.Any())
+                {
+                    <MudChipSet T="string">
+                        @foreach (var role in roles)
+                        {
+                            <MudChip T="string" Color="Color.Primary" Size="Size.Small">@role</MudChip>
+                        }
+                    </MudChipSet>
+                }
+                else
+                {
+                    <MudAlert Severity="Severity.Warning" Dense="true">
+                        ⚠️ 未找到角色信息
+                        <br/>
+                        <small>请检查浏览器控制台日志（F12 → Console）查看详细的角色映射过程</small>
+                    </MudAlert>
+                    
+                    @* 显示调试提示 *@
+                    <MudPaper Class="pa-3 mt-2" Style="background-color: #f5f5f5;">
+                        <MudText Typo="Typo.caption" Style="font-family: monospace;">
+                            <strong>调试步骤：</strong><br/>
+                            1. 打开浏览器开发者工具（F12）<br/>
+                            2. 切换到 Console 标签<br/>
+                            3. 搜索 "🔐 Mapping" 查看角色映射日志<br/>
+                            4. 查看是否有 "resource_access" claim<br/>
+                            5. 检查 ClientId 是否匹配<br/>
+                            6. 查看 "Available clients" 列表
+                        </MudText>
+                    </MudPaper>
+                }
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudText Typo="Typo.subtitle1" Class="mb-2">
+                    <strong>权限检查:</strong>
+                </MudText>
+                <MudList T="string" Dense="true">
+                    <MudListItem T="string" Icon="@(_authState.User.IsAdmin() ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
+                                 IconColor="@(_authState.User.IsAdmin() ? Color.Success : Color.Default)">
+                        IsAdmin(): @_authState.User.IsAdmin()
+                    </MudListItem>
+                    <MudListItem T="string" Icon="@(_authState.User.IsInRole("Admin") ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
+                                 IconColor="@(_authState.User.IsInRole("Admin") ? Color.Success : Color.Default)">
+                        IsInRole("Admin"): @_authState.User.IsInRole("Admin")
+                    </MudListItem>
+                    <MudListItem T="string" Icon="@(_authState.User.HasAnyRole("Admin", "User") ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
+                                 IconColor="@(_authState.User.HasAnyRole("Admin", "User") ? Color.Success : Color.Default)">
+                        HasAnyRole("Admin", "User"): @_authState.User.HasAnyRole("Admin", "User")
+                    </MudListItem>
+                </MudList>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudExpansionPanels>
+                    <MudExpansionPanel Text="所有 Claims (详细)" IsInitiallyExpanded="true">
+                        <MudSimpleTable Dense="true" Hover="true" Style="font-size: 0.8rem;">
+                            <thead>
+                                <tr>
+                                    <th>Claim Type</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var claim in _authState.User.Claims.OrderBy(c => c.Type))
+                                {
+                                    <tr style="@(claim.Type == "resource_access" || claim.Type == "realm_access" ? "background-color: #fff3cd;" : "")">
+                                        <td style="font-family: monospace; font-weight: @(claim.Type.Contains("role") || claim.Type == "resource_access" ? "bold" : "normal")">
+                                            @claim.Type
+                                            @if (claim.Type == "resource_access" || claim.Type == "realm_access")
+                                            {
+                                                <MudChip T="string" Size="Size.Small" Color="Color.Warning">重要</MudChip>
+                                            }
+                                        </td>
+                                        <td style="word-break: break-all; max-width: 600px;">
+                                            @if (claim.Value.Length > 300)
+                                            {
+                                                <details>
+                                                    <summary style="cursor: pointer;">@claim.Value.Substring(0, 100)... (点击展开)</summary>
+                                                    <pre style="white-space: pre-wrap; margin-top: 8px;">@claim.Value</pre>
+                                                </details>
+                                            }
+                                            else
+                                            {
+                                                @claim.Value
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudExpansionPanel>
+                    
+                    <MudExpansionPanel Text="配置信息">
+                        <MudSimpleTable Dense="true">
+                            <tbody>
+                                <tr>
+                                    <td><strong>当前 ClientId:</strong></td>
+                                    <td style="font-family: monospace;">@_clientId</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Role Claim Type:</strong></td>
+                                    <td style="font-family: monospace;">
+                                        @if (_authState.User.Identity is ClaimsIdentity identity)
+                                        {
+                                            @identity.RoleClaimType
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </MudSimpleTable>
+                        
+                        <MudAlert Severity="Severity.Info" Dense="true" Class="mt-2">
+                            <MudText Typo="Typo.caption">
+                                <strong>说明：</strong><br/>
+                                • 黄色高亮的 Claims 包含角色信息<br/>
+                                • resource_access 应该包含 "@_clientId" 属性<br/>
+                                • 如果 ClientId 不匹配，角色映射将失败
+                            </MudText>
+                        </MudAlert>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+            </MudItem>
+        </MudGrid>
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Warning">
+            用户未登录
+        </MudAlert>
+    }
+</MudPaper>
+
+@code {
+    private AuthenticationState? _authState;
+    private string _clientId = "未配置";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _clientId = Configuration["Oidc:ClientId"] ?? "verdure-mcp";
+    }
+}

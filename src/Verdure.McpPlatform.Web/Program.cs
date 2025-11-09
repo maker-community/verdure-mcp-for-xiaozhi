@@ -32,7 +32,7 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.ShowTransitionDuration = 500;
 });
 
-// Add OIDC Authentication
+// Add OIDC Authentication with custom role mapping
 builder.Services.AddOidcAuthentication(options =>
 {
     // Load OIDC settings from configuration
@@ -43,7 +43,8 @@ builder.Services.AddOidcAuthentication(options =>
     options.ProviderOptions.DefaultScopes.Add("openid");
     options.ProviderOptions.DefaultScopes.Add("profile");
     options.ProviderOptions.DefaultScopes.Add("email");
-});
+})
+.AddAccountClaimsPrincipalFactory<KeycloakRoleClaimsPrincipalFactory>();
 
 // Register custom authorization message handler
 builder.Services.AddScoped<CustomAuthorizationMessageHandler>();
