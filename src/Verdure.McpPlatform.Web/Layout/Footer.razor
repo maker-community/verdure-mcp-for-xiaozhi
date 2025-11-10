@@ -9,33 +9,38 @@
     <!-- 精简版 Footer：全宽、无边距、贴底部 -->
     <div style="background-color: #FAFAFA; border-top: 1px solid #E0E0E0; padding: 1.5rem 0; margin-top: 0;">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-            <MudGrid>
-                <MudItem xs="12" Class="text-center">
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">
-                        © @DateTime.Now.Year Verdure MCP Platform. 
-                        @Loc["MadeWithLoveBy"] <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Primary">绿荫阿广</MudLink>
-                    </MudText>
-                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
-                        @Loc["LicensedUnderMIT"] | @Loc["PoweredBy"] <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary">@Loc["MakerCommunity"]</MudLink>
-                    </MudText>
-                    @if (!string.IsNullOrEmpty(VersionHelpers.WebDisplayVersion))
+            <!-- 第一行：版权和许可信息（居中） -->
+            <div class="text-center mb-3">
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    © @DateTime.Now.Year Verdure MCP Platform · 
+                    @Loc["MadeWithLoveBy"] <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Primary">@Loc["AuthorName"]</MudLink>
+                </MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-1">
+                    @Loc["LicensedUnderMIT"] · @Loc["PoweredBy"] <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary">@Loc["MakerCommunity"]</MudLink>
+                </MudText>
+            </div>
+            
+            <!-- 第二行：版本信息（左对齐） -->
+            @if (!string.IsNullOrEmpty(VersionHelpers.WebDisplayVersion))
+            {
+                <div class="d-flex align-center gap-3" style="flex-wrap: wrap; justify-content: flex-start;">
+                    <span class="d-flex align-center" style="font-size: 0.75rem; color: var(--mud-palette-text-secondary);">
+                        <MudIcon Icon="@Icons.Material.Filled.Web" Size="Size.Small" Style="font-size: 1rem; margin-right: 6px;" />
+                        Web @($"v{VersionHelpers.WebDisplayVersion}")
+                    </span>
+                    @if (!string.IsNullOrEmpty(VersionHelpers.RuntimeVersion))
                     {
-                        <div class="d-flex justify-center align-center gap-2 mt-2" style="flex-wrap: wrap;">
-                            <span class="d-flex align-center" style="font-size: 0.7rem; color: var(--mud-palette-text-secondary); opacity: 0.8;">
-                                <MudIcon Icon="@Icons.Material.Filled.Web" Size="Size.Small" Style="font-size: 0.875rem; margin-right: 4px;" />
-                                Web @($"v{VersionHelpers.WebDisplayVersion}")
-                            </span>
-                            @if (!string.IsNullOrEmpty(VersionHelpers.RuntimeVersion))
-                            {
-                                <span class="d-flex align-center" style="font-size: 0.7rem; color: var(--mud-palette-text-secondary); opacity: 0.8;">
-                                    <MudIcon Icon="@Icons.Material.Filled.Code" Size="Size.Small" Style="font-size: 0.875rem; margin-right: 4px;" />
-                                    .NET @VersionHelpers.RuntimeVersion
-                                </span>
-                            }
-                        </div>
+                        <span class="d-flex align-center" style="font-size: 0.75rem; color: var(--mud-palette-text-secondary);">
+                            <MudIcon Icon="@Icons.Material.Filled.Code" Size="Size.Small" Style="font-size: 1rem; margin-right: 6px;" />
+                            .NET @VersionHelpers.RuntimeVersion
+                        </span>
                     }
-                </MudItem>
-            </MudGrid>
+                    <span class="d-flex align-center" style="font-size: 0.75rem; color: var(--mud-palette-text-secondary);">
+                        <MudIcon Icon="@Icons.Material.Filled.Bolt" Size="Size.Small" Style="font-size: 1rem; margin-right: 6px;" />
+                        Blazor WebAssembly
+                    </span>
+                </div>
+            }
         </MudContainer>
     </div>
 }
@@ -128,18 +133,23 @@ else
 
             <!-- 版权信息 - 完整版 -->
             <MudGrid>
-                <MudItem xs="12" Class="text-center">
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">
-                        © @DateTime.Now.Year Verdure MCP Platform. 
-                        @Loc["MadeWithLoveBy"] <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Primary">绿荫阿广</MudLink>
-                    </MudText>
-                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
-                        @Loc["LicensedUnderMIT"] | @Loc["PoweredBy"] <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary">@Loc["MakerCommunity"]</MudLink>
-                    </MudText>
+                <MudItem xs="12">
+                    <!-- 第一行：版权和许可信息（居中） -->
+                    <div class="text-center mb-3">
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            © @DateTime.Now.Year Verdure MCP Platform · 
+                            @Loc["MadeWithLoveBy"] <MudLink Href="https://space.bilibili.com/25228512" Target="_blank" Color="Color.Primary">@Loc["AuthorName"]</MudLink>
+                        </MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-1">
+                            @Loc["LicensedUnderMIT"] · @Loc["PoweredBy"] <MudLink Href="https://github.com/maker-community" Target="_blank" Color="Color.Secondary">@Loc["MakerCommunity"]</MudLink>
+                        </MudText>
+                    </div>
+                    
+                    <!-- 第二行：版本信息（左对齐） -->
                     @if (!string.IsNullOrEmpty(VersionHelpers.WebDisplayVersion))
                     {
-                        <div class="d-flex justify-center align-center gap-3 mt-3" style="flex-wrap: wrap;">
-                            <MudTooltip Text="@($"Web 客户端版本: {VersionHelpers.WebDisplayVersion}")">
+                        <div class="d-flex align-center gap-3" style="flex-wrap: wrap; justify-content: flex-start;">
+                            <MudTooltip Text="@Loc["WebVersionTooltip"]">
                                 <span class="d-flex align-center px-2 py-1" style="font-size: 0.75rem; color: var(--mud-palette-primary); border: 1px solid var(--mud-palette-primary); border-radius: 16px; background: rgba(var(--mud-palette-primary-rgb), 0.08);">
                                     <MudIcon Icon="@Icons.Material.Filled.Web" Size="Size.Small" Style="font-size: 1rem; margin-right: 6px;" />
                                     Web @($"v{VersionHelpers.WebDisplayVersion}")
@@ -147,17 +157,17 @@ else
                             </MudTooltip>
                             @if (!string.IsNullOrEmpty(VersionHelpers.RuntimeVersion))
                             {
-                                <MudTooltip Text="@($".NET 运行时版本: {VersionHelpers.RuntimeVersion}")">
+                                <MudTooltip Text="@Loc["RuntimeVersionTooltip"]">
                                     <span class="d-flex align-center px-2 py-1" style="font-size: 0.75rem; color: var(--mud-palette-secondary); border: 1px solid var(--mud-palette-secondary); border-radius: 16px; background: rgba(var(--mud-palette-secondary-rgb), 0.08);">
                                         <MudIcon Icon="@Icons.Material.Filled.Code" Size="Size.Small" Style="font-size: 1rem; margin-right: 6px;" />
                                         .NET @VersionHelpers.RuntimeVersion
                                     </span>
                                 </MudTooltip>
                             }
-                            <MudTooltip Text="在浏览器中运行的单页应用">
+                            <MudTooltip Text="@Loc["BlazorWasmTooltip"]">
                                 <span class="d-flex align-center px-2 py-1" style="font-size: 0.75rem; color: var(--mud-palette-info); border: 1px solid var(--mud-palette-info); border-radius: 16px; background: rgba(var(--mud-palette-info-rgb), 0.08);">
                                     <MudIcon Icon="@Icons.Material.Filled.Bolt" Size="Size.Small" Style="font-size: 1rem; margin-right: 6px;" />
-                                    Blazor WASM
+                                    Blazor WebAssembly
                                 </span>
                             </MudTooltip>
                         </div>

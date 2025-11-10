@@ -915,6 +915,9 @@
   <data name="MadeWithLoveBy" xml:space="preserve">
     <value>Made with ❤️ by</value>
   </data>
+  <data name="AuthorName" xml:space="preserve">
+    <value>LvYin AGang</value>
+  </data>
   <data name="LicensedUnderMIT" xml:space="preserve">
     <value>Licensed under MIT</value>
   </data>
@@ -923,6 +926,15 @@
   </data>
   <data name="MakerCommunity" xml:space="preserve">
     <value>Maker Community</value>
+  </data>
+  <data name="WebVersionTooltip" xml:space="preserve">
+    <value>Web client version</value>
+  </data>
+  <data name="RuntimeVersionTooltip" xml:space="preserve">
+    <value>.NET runtime version</value>
+  </data>
+  <data name="BlazorWasmTooltip" xml:space="preserve">
+    <value>Single-page application running in the browser</value>
   </data>
   
   <!-- Landing Page - Index -->

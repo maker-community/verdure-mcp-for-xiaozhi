@@ -932,6 +932,9 @@
   <data name="MadeWithLoveBy" xml:space="preserve">
     <value>用 ❤️ 制作，作者</value>
   </data>
+  <data name="AuthorName" xml:space="preserve">
+    <value>绿荫阿广</value>
+  </data>
   <data name="LicensedUnderMIT" xml:space="preserve">
     <value>MIT 许可证</value>
   </data>
@@ -940,6 +943,15 @@
   </data>
   <data name="MakerCommunity" xml:space="preserve">
     <value>创客社区提供支持</value>
+  </data>
+  <data name="WebVersionTooltip" xml:space="preserve">
+    <value>Web 客户端版本</value>
+  </data>
+  <data name="RuntimeVersionTooltip" xml:space="preserve">
+    <value>.NET 运行时版本</value>
+  </data>
+  <data name="BlazorWasmTooltip" xml:space="preserve">
+    <value>在浏览器中运行的单页应用</value>
   </data>
   
   <!-- 首页 - Index -->
