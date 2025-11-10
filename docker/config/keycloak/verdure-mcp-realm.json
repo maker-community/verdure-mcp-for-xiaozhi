@@ -1,8 +1,8 @@
 {
-  "id": "verdure-mcp",
-  "realm": "verdure-mcp",
-  "displayName": "Verdure MCP Platform",
-  "displayNameHtml": "<div class=\"kc-logo-text\"><span>Verdure MCP Platform</span></div>",
+  "id": "maker-community",
+  "realm": "maker-community",
+  "displayName": "Maker Community",
+  "displayNameHtml": "<div class=\"kc-logo-text\"><span>Maker Community</span></div>",
   "enabled": true,
   "sslRequired": "external",
   "registrationAllowed": true,
@@ -29,12 +29,12 @@
   "ssoSessionMaxLifespan": 36000,
   "clients": [
     {
-      "clientId": "verdure-mcp-api",
-      "name": "Verdure MCP Platform API",
+      "clientId": "verdure-mcp",
+      "name": "Verdure MCP Platform",
       "description": "API and Web Application",
       "enabled": true,
       "protocol": "openid-connect",
-      "publicClient": false,
+      "publicClient": true,
       "bearerOnly": false,
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,

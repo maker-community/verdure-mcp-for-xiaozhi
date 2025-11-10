@@ -10,7 +10,7 @@ services:
       # We'll use the default 'postgres' database and create schemas
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./docker/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
     ports:
       - "5432:5432"
     networks:
@@ -90,11 +90,6 @@ services:
   app:
     image: verdure-mcp-platform:latest
     container_name: verdure-mcp-app
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.single-image
-      args:
-        BUILD_CONFIGURATION: Release
     ports:
       - "8080:8080"
     volumes:
@@ -107,6 +102,7 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       
       # Database Connections
+      - Database__Provider=PostgreSQL
       - ConnectionStrings__mcpdb=Host=postgres;Database=verdure_mcp;Username=postgres;Password=${POSTGRES_PASSWORD:-postgres};Include Error Detail=true
       - ConnectionStrings__identitydb=Host=postgres;Database=verdure_identity;Username=postgres;Password=${POSTGRES_PASSWORD:-postgres};Include Error Detail=true
       
@@ -114,10 +110,10 @@ services:
       - ConnectionStrings__redis=redis:6379
       
       # Identity Provider (Keycloak)
-      - Identity__Url=${IDENTITY_URL:-http://localhost:8180/realms/verdure-mcp}
-      - Identity__ClientId=${IDENTITY_CLIENT_ID:-verdure-mcp-api}
-      - Identity__ClientSecret=${IDENTITY_CLIENT_SECRET:-}
-      - Identity__Audience=${IDENTITY_AUDIENCE:-verdure-mcp-api}
+      - Oidc__Authority=${Oidc_Authority:-http://localhost:8180}
+      - Oidc__Realm=${Oidc_Realm:-maker-community}
+      - Oidc__ClientId=${Oidc_ClientId:-verdure-mcp}
+
       
       # CORS Configuration (if needed for external access)
       - AllowedOrigins__0=${ALLOWED_ORIGIN:-http://localhost:8080}
