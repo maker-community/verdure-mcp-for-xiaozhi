@@ -32,6 +32,39 @@ internal static class AuthenticationExtensions
 
         var issuer = oidcSettings.GetIssuerUrl();
 
+        // Build list of valid issuers to support both internal (container) and external (localhost) access
+        var validIssuers = new List<string> { issuer };
+        
+        // Add localhost variant for browser-based tokens
+        // 容器内: http://keycloak:8080 -> 浏览器: http://localhost:8180
+        if (issuer.Contains("keycloak:8080"))
+        {
+            var localhostIssuer = issuer.Replace("keycloak:8080", "localhost:8180");
+            validIssuers.Add(localhostIssuer);
+        }
+        // Add keycloak variant for container-based tokens
+        // 浏览器: http://localhost:8180 -> 容器内: http://keycloak:8080
+        else if (issuer.Contains("localhost:8180"))
+        {
+            var keycloakIssuer = issuer.Replace("localhost:8180", "keycloak:8080");
+            validIssuers.Add(keycloakIssuer);
+        }
+
+        // Log authentication configuration for debugging
+        var logger = services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("=== Keycloak Authentication Configuration ===");
+        logger.LogInformation("Authority: {Authority}", issuer);
+        logger.LogInformation("Realm: {Realm}", oidcSettings.Realm);
+        logger.LogInformation("ClientId: {ClientId}", oidcSettings.ClientId);
+        logger.LogInformation("Audience: {Audience}", oidcSettings.Audience ?? "(not set)");
+        logger.LogInformation("RequireHttpsMetadata: {RequireHttps}", oidcSettings.RequireHttpsMetadata);
+        logger.LogInformation("Valid Issuers ({Count}):", validIssuers.Count);
+        for (int i = 0; i < validIssuers.Count; i++)
+        {
+            logger.LogInformation("  [{Index}] {Issuer}", i, validIssuers[i]);
+        }
+        logger.LogInformation("============================================");
+
         // Add JWT Bearer Authentication
         services.AddAuthentication(options =>
         {
@@ -44,14 +77,14 @@ internal static class AuthenticationExtensions
             options.Authority = issuer;
             options.Audience = oidcSettings.Audience;
             options.RequireHttpsMetadata = oidcSettings.RequireHttpsMetadata;
-
+         
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = !string.IsNullOrEmpty(oidcSettings.Audience),
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = issuer,
+                ValidIssuers = validIssuers, // 支持多个 Issuer
                 ValidAudience = oidcSettings.Audience,
                 ClockSkew = TimeSpan.FromMinutes(oidcSettings.ClockSkewMinutes),
                 // Map standard claims
@@ -70,9 +103,43 @@ internal static class AuthenticationExtensions
                 {
                     var logger = context.HttpContext.RequestServices
                         .GetRequiredService<ILogger<Program>>();
+                    
+                    // 尝试解析 token 中的 issuer
+                    var tokenIssuer = "Unknown";
+                    try
+                    {
+                        var token = context.Request.Headers.Authorization.ToString().Replace("Bearer ", "");
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            // 简单解析 JWT payload (不验证签名)
+                            var parts = token.Split('.');
+                            if (parts.Length >= 2)
+                            {
+                                var payload = System.Text.Encoding.UTF8.GetString(
+                                    Convert.FromBase64String(parts[1].PadRight(parts[1].Length + (4 - parts[1].Length % 4) % 4, '=')));
+                                var json = JsonDocument.Parse(payload);
+                                if (json.RootElement.TryGetProperty("iss", out var iss))
+                                {
+                                    tokenIssuer = iss.GetString() ?? "Unknown";
+                                }
+                            }
+                        }
+                    }
+                    catch { /* Ignore parsing errors */ }
+                    
                     logger.LogWarning(
-                        "JWT authentication failed: {Message}", 
-                        context.Exception.Message);
+                        "JWT authentication failed: {Message}\n" +
+                        "Authority: {Authority}\n" +
+                        "MetadataAddress: {MetadataAddress}\n" +
+                        "Token Issuer (iss): {TokenIssuer}\n" +
+                        "Valid Issuers: {ValidIssuers}\n" +
+                        "Exception: {Exception}", 
+                        context.Exception.Message,
+                        options.Authority,
+                        options.MetadataAddress,
+                        tokenIssuer,
+                        string.Join(", ", validIssuers),
+                        context.Exception);
                     return Task.CompletedTask;
                 },
                 OnChallenge = context =>

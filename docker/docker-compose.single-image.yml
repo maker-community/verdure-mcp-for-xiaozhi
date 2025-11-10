@@ -110,7 +110,8 @@ services:
       - ConnectionStrings__redis=redis:6379
       
       # Identity Provider (Keycloak)
-      - Oidc__Authority=${Oidc_Authority:-http://localhost:8180}
+      # 注意：容器内部使用 keycloak:8080，外部访问使用 localhost:8180
+      - Oidc__Authority=${Oidc_Authority:-http://keycloak:8080}
       - Oidc__Realm=${Oidc_Realm:-maker-community}
       - Oidc__ClientId=${Oidc_ClientId:-verdure-mcp}
       - Oidc__RequireHttpsMetadata=${Oidc_RequireHttpsMetadata:-false}
