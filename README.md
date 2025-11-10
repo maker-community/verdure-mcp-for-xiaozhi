@@ -65,13 +65,59 @@ verdure-mcp-for-xiaozhi/
 
 ## 🚀 快速开始
 
-### 前置要求
+### 方式一：本地 Docker 一键启动 (推荐⭐)
 
+**最简单的方式，包含完整环境：PostgreSQL + Redis + Keycloak + 应用**
+
+#### 前置要求
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) 或 Docker + Docker Compose (Linux)
+- PowerShell 5.1+ 或 PowerShell Core 7+
+
+#### 一键启动
+```powershell
+# 克隆仓库
+git clone https://github.com/maker-community/verdure-mcp-for-xiaozhi.git
+cd verdure-mcp-for-xiaozhi
+
+# 启动所有服务（首次启动约需 3-5 分钟）
+.\scripts\start-local.ps1
+```
+
+#### 访问应用
+- **应用**: http://localhost:8080
+- **Keycloak 管理**: http://localhost:8180 (admin / admin)
+
+#### 演示账号
+- **管理员**: admin / admin123
+- **普通用户**: demo / demo123
+
+#### 其他命令
+```powershell
+# 查看服务状态
+.\scripts\health-check.ps1
+
+# 查看日志
+.\scripts\view-logs.ps1
+
+# 停止服务
+.\scripts\stop-local.ps1
+```
+
+📖 **详细文档**: [Docker 本地部署指南](./docker/README.md)
+
+---
+
+### 方式二：.NET 开发环境
+
+**适合需要修改代码的开发者**
+
+#### 前置要求
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [PostgreSQL](https://www.postgresql.org/download/) 或 SQLite
-- [Keycloak](https://www.keycloak.org/) (可选，用于 OpenID Connect 认证)
+- [Redis](https://redis.io/download) (可选，用于分布式功能)
+- [Keycloak](https://www.keycloak.org/) (可选，用于认证)
 
-### 安装步骤
+#### 安装步骤
 
 1. **克隆仓库**
 ```bash
@@ -90,7 +136,12 @@ dotnet restore
 ```json
 {
   "ConnectionStrings": {
-    "mcpdb": "Host=localhost;Database=verdure_mcp;Username=postgres;Password=your_password"
+    "mcpdb": "Host=localhost;Database=verdure_mcp;Username=postgres;Password=your_password",
+    "redis": "localhost:6379"
+  },
+  "Identity": {
+    "Url": "http://localhost:8180/realms/verdure-mcp",
+    "ClientId": "verdure-mcp-api"
   }
 }
 ```

@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine3.22
     container_name: verdure-postgres
     environment:
       POSTGRES_USER: postgres
@@ -26,7 +24,7 @@ services:
 
   # Redis Cache and Distributed State
   redis:
-    image: redis:7-alpine
+    image: redis:7.4-alpine3.21
     container_name: verdure-redis
     command: redis-server --appendonly yes
     ports:
@@ -42,12 +40,58 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # Keycloak Identity Provider
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: verdure-keycloak
+    command: 
+      - start-dev
+      - --import-realm
+    environment:
+      # Admin credentials
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      
+      # Database configuration (PostgreSQL)
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/verdure_keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      
+      # HTTP settings
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_PORT: "8080"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      
+      # Performance settings
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      
+    ports:
+      - "8180:8080"
+    volumes:
+      - ./config/keycloak:/opt/keycloak/data/import:ro
+      - keycloak_data:/opt/keycloak/data
+    networks:
+      - verdure-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    restart: unless-stopped
+
   # Verdure MCP Platform (API + Web)
   app:
     image: verdure-mcp-platform:latest
     container_name: verdure-mcp-app
     build:
-      context: .
+      context: ..
       dockerfile: docker/Dockerfile.single-image
       args:
         BUILD_CONFIGURATION: Release
@@ -70,9 +114,9 @@ services:
       - ConnectionStrings__redis=redis:6379
       
       # Identity Provider (Keycloak)
-      - Identity__Url=${IDENTITY_URL:-https://auth.verdure-hiro.cn/realms/maker-community}
-      - Identity__ClientId=${IDENTITY_CLIENT_ID:-verdure-mcp}
-      - Identity__ClientSecret=${IDENTITY_CLIENT_SECRET}
+      - Identity__Url=${IDENTITY_URL:-http://localhost:8180/realms/verdure-mcp}
+      - Identity__ClientId=${IDENTITY_CLIENT_ID:-verdure-mcp-api}
+      - Identity__ClientSecret=${IDENTITY_CLIENT_SECRET:-}
       - Identity__Audience=${IDENTITY_AUDIENCE:-verdure-mcp-api}
       
       # CORS Configuration (if needed for external access)
@@ -92,6 +136,8 @@ services:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      keycloak:
         condition: service_healthy
     networks:
       - verdure-network
@@ -157,5 +203,7 @@ volumes:
     name: verdure-postgres-data
   redis_data:
     name: verdure-redis-data
+  keycloak_data:
+    name: verdure-keycloak-data
   pgadmin_data:
     name: verdure-pgadmin-data
