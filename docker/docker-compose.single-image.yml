@@ -113,6 +113,7 @@ services:
       - Oidc__Authority=${Oidc_Authority:-http://localhost:8180}
       - Oidc__Realm=${Oidc_Realm:-maker-community}
       - Oidc__ClientId=${Oidc_ClientId:-verdure-mcp}
+      - Oidc__RequireHttpsMetadata=${Oidc_RequireHttpsMetadata:-false}
 
       
       # CORS Configuration (if needed for external access)

@@ -43,9 +43,7 @@ internal static class AuthenticationExtensions
         {
             options.Authority = issuer;
             options.Audience = oidcSettings.Audience;
-            options.RequireHttpsMetadata = environment.IsDevelopment() 
-                ? oidcSettings.RequireHttpsMetadata 
-                : true;
+            options.RequireHttpsMetadata = oidcSettings.RequireHttpsMetadata;
 
             options.TokenValidationParameters = new TokenValidationParameters
             {
