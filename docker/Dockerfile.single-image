@@ -1,19 +1,20 @@
 # Verdure MCP Platform - Single Image Dockerfile
 # This Dockerfile builds a single image containing both the API and Blazor WebAssembly frontend
+# Optimized for minimal image size using Alpine Linux
 
-# Stage 1: Base runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+# Stage 1: Base runtime image (Alpine for minimal size)
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-# Install required tools:
+# Install required tools for Alpine Linux:
 # - curl: for health checks
 # - brotli: for Brotli compression (.br files)
 # - gzip: for Gzip compression (.gz files)
-RUN apt-get update && \
-    apt-get install -y curl brotli gzip && \
-    rm -rf /var/lib/apt/lists/*
+# - icu-libs: for globalization support (.NET requires ICU)
+# - tzdata: for timezone support
+RUN apk add --no-cache curl brotli gzip icu-libs tzdata
 
 # Stage 2: Build image
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
