@@ -6,6 +6,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <!-- Enable all globalization data for Blazor WebAssembly -->
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+    
+    <!-- Version Information -->
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0+$(SourceRevisionId)</InformationalVersion>
+    <Product>Verdure MCP Platform Web</Product>
+    <Company>Verdure / Maker Community</Company>
+    <Copyright>Copyright © 2025 Verdure. Licensed under the MIT License.</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

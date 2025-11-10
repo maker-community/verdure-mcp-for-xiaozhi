@@ -5,6 +5,15 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>d9d38c26-36e0-47d5-a33c-e1288beed7cb</UserSecretsId>
+    
+    <!-- Version Information -->
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0+$(SourceRevisionId)</InformationalVersion>
+    <Product>Verdure MCP Platform API</Product>
+    <Company>Verdure / Maker Community</Company>
+    <Copyright>Copyright © 2025 Verdure. Licensed under the MIT License.</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

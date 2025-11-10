@@ -2,6 +2,7 @@
 using Scalar.AspNetCore;
 using Verdure.McpPlatform.Api.Apis;
 using Verdure.McpPlatform.Api.Extensions;
+using Verdure.McpPlatform.Api.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Log version information at startup
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+if (VersionHelpers.ApiDisplayVersion is string version)
+{
+    logger.LogInformation("Verdure MCP Platform API version: {Version}", version);
+    if (VersionHelpers.RuntimeVersion is string runtimeVersion)
+    {
+        logger.LogInformation(".NET Runtime version: {RuntimeVersion}", runtimeVersion);
+    }
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
@@ -41,6 +53,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Map API endpoints with /api prefix
+app.MapVersionApi();
 app.MapUserApi();
 app.MapXiaozhiMcpEndpointApi();
 app.MapMcpServiceBindingApi();
