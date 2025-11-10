@@ -30,4 +30,11 @@
     <ProjectReference Include="..\Verdure.McpPlatform.Web\Verdure.McpPlatform.Web.csproj" />
   </ItemGroup>
 
+  <!-- Include Data directory with .gitkeep to ensure directory exists -->
+  <ItemGroup>
+    <Content Include="Data\.gitkeep" CopyToPublishDirectory="PreserveNewest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

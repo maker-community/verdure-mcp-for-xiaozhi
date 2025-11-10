@@ -48,3 +48,8 @@ Thumbs.db
 # Temporary files
 **/tmp/
 **/temp/
+
+# Exclude database files from Data directory (keep only .gitkeep)
+**/Data/*.db
+**/Data/*.db-shm
+**/Data/*.db-wal
