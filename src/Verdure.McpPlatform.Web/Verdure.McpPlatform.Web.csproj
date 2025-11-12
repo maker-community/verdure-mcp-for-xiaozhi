@@ -8,10 +8,10 @@
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
     
     <!-- Version Information -->
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <InformationalVersion>1.0.0+$(SourceRevisionId)</InformationalVersion>
+    <InformationalVersion>1.0.1+$(SourceRevisionId)</InformationalVersion>
     <Product>Verdure MCP Platform Web</Product>
     <Company>Verdure / Maker Community</Company>
     <Copyright>Copyright © 2025 Verdure. Licensed under the MIT License.</Copyright>
