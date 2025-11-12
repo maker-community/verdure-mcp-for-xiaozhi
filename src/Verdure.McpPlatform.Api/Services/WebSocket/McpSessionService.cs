@@ -505,24 +505,50 @@ public class McpSessionService : IAsyncDisposable
 
     private async Task HandlePingAsync(int? id, CancellationToken cancellationToken)
     {
+        var startTime = DateTime.UtcNow;
+        
+        _logger.LogDebug(
+            "Server {ServerId}: Received ping request (id: {RequestId}) from Xiaozhi, forwarding to {Count} MCP client(s)",
+            ServerId, id, _mcpClients.Count);
+
         // ✅ 向所有 MCP 客户端发送 ping 以保持连接活跃
-        var pingTasks = _mcpClients.Select(async mcpClient =>
+        var pingTasks = _mcpClients.Select(async (mcpClient, index) =>
         {
             try
             {
+                var clientStartTime = DateTime.UtcNow;
+                
                 // 使用 SDK 的 PingAsync 方法保持 HTTP 会话活跃
                 await mcpClient.PingAsync(cancellationToken);
-                return true;
+                
+                var duration = (DateTime.UtcNow - clientStartTime).TotalMilliseconds;
+                
+                _logger.LogTrace(
+                    "Server {ServerId}: Ping to MCP client {ClientIndex} succeeded in {Duration}ms",
+                    ServerId, index, duration);
+                
+                return (success: true, index, duration);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning("Ping to MCP client failed: {Error}", ex.Message);
-                return false;
+                _logger.LogWarning(
+                    "Server {ServerId}: Ping to MCP client {ClientIndex} failed: {Error}",
+                    ServerId, index, ex.Message);
+                return (success: false, index, duration: 0.0);
             }
         });
 
         // 等待所有 ping 完成
         var results = await Task.WhenAll(pingTasks);
+        
+        var successCount = results.Count(r => r.success);
+        var totalDuration = (DateTime.UtcNow - startTime).TotalMilliseconds;
+        var avgDuration = results.Where(r => r.success).Average(r => r.duration);
+        
+        _logger.LogInformation(
+            "Server {ServerId}: Ping completed - {Success}/{Total} clients responded successfully, " +
+            "total time: {TotalTime}ms, avg response: {AvgTime:F2}ms",
+            ServerId, successCount, _mcpClients.Count, totalDuration, avgDuration);
         
         // 响应给小智
         var response = new
@@ -532,12 +558,16 @@ public class McpSessionService : IAsyncDisposable
             result = new 
             { 
                 // 可选：返回健康状态
-                healthy = results.Any(r => r),
-                connectedClients = results.Count(r => r)
+                healthy = results.Any(r => r.success),
+                connectedClients = successCount
             }
         };
 
         await SendWebSocketResponseAsync(response, cancellationToken);
+        
+        _logger.LogDebug(
+            "Server {ServerId}: Ping response sent to Xiaozhi (id: {RequestId})",
+            ServerId, id);
     }
 
     private async Task HandleToolsListAsync(int? id, CancellationToken cancellationToken)
