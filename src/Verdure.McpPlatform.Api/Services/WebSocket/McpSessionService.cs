@@ -234,7 +234,20 @@ public class McpSessionService : IAsyncDisposable
                             ServerId, service.ServiceName);
                     }
 
-                    var transport = new HttpClientTransport(transportOptions);
+                    // 🔧 Create HttpClient with extended timeout to prevent premature disconnection
+                    // Default HttpClient.Timeout is 100 seconds, which causes 404 errors after ~2 minutes
+                    var httpClient = new HttpClient(new SocketsHttpHandler
+                    {
+                        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+                        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(3)
+                    })
+                    {
+                        // Set to 30 seconds for better user experience
+                        // Combined with Xiaozhi's periodic ping to maintain session
+                        Timeout = TimeSpan.FromSeconds(30)
+                    };
+
+                    var transport = new HttpClientTransport(transportOptions, httpClient, ownsHttpClient: true);
                     var mcpClient = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
                     _mcpClients.Add(mcpClient);
                     
@@ -288,13 +301,13 @@ public class McpSessionService : IAsyncDisposable
             }
 
             // Run bidirectional communication
-            var tasks = new[]
+            var communicationTasks = new List<Task>
             {
                 PipeWebSocketToMcpAsync(cancellationToken),
                 PipeMcpToWebSocketAsync(cancellationToken)
             };
 
-            var completedTask = await Task.WhenAny(tasks);
+            var completedTask = await Task.WhenAny(communicationTasks);
 
             LastDisconnectedTime = DateTime.UtcNow;
 
@@ -492,11 +505,36 @@ public class McpSessionService : IAsyncDisposable
 
     private async Task HandlePingAsync(int? id, CancellationToken cancellationToken)
     {
+        // ✅ 向所有 MCP 客户端发送 ping 以保持连接活跃
+        var pingTasks = _mcpClients.Select(async mcpClient =>
+        {
+            try
+            {
+                // 使用 SDK 的 PingAsync 方法保持 HTTP 会话活跃
+                await mcpClient.PingAsync(cancellationToken);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Ping to MCP client failed: {Error}", ex.Message);
+                return false;
+            }
+        });
+
+        // 等待所有 ping 完成
+        var results = await Task.WhenAll(pingTasks);
+        
+        // 响应给小智
         var response = new
         {
             jsonrpc = "2.0",
             id = id,
-            result = new { }
+            result = new 
+            { 
+                // 可选：返回健康状态
+                healthy = results.Any(r => r),
+                connectedClients = results.Count(r => r)
+            }
         };
 
         await SendWebSocketResponseAsync(response, cancellationToken);

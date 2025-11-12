@@ -114,8 +114,20 @@ public class McpClientService : IMcpClientService
                 }
             }
 
+            // Create HttpClient with extended timeout to prevent premature disconnection
+            // Default HttpClient.Timeout is 100 seconds, which causes failures for long-running operations
+            var httpClient = new HttpClient(new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(3)
+            })
+            {
+                // Set to 30 seconds for better user experience with tool listing
+                Timeout = TimeSpan.FromSeconds(30)
+            };
+
             // Create transport and client
-            var transport = new HttpClientTransport(transportOptions);
+            var transport = new HttpClientTransport(transportOptions, httpClient, ownsHttpClient: true);
             client = await McpClient.CreateAsync(transport);
 
             _logger.LogInformation(
