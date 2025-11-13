@@ -245,6 +245,43 @@ public class McpSessionManager : IAsyncDisposable
                 }
             };
 
+            session.OnDisconnected += async () =>
+            {
+                try
+                {
+                    _logger.LogWarning(
+                        "Session for server {ServerId} ({ServerName}) disconnected",
+                        serverId, server.Name);
+
+                    // Update server status to disconnected in database
+                    using var disconnectedScope = _serviceScopeFactory.CreateScope();
+                    var disconnectedRepository = disconnectedScope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
+                    
+                    var serverToUpdate = await disconnectedRepository.GetAsync(serverId);
+                    if (serverToUpdate != null)
+                    {
+                        serverToUpdate.SetDisconnected();
+                        await disconnectedRepository.UnitOfWork.SaveEntitiesAsync(CancellationToken.None);
+                        
+                        _logger.LogDebug("Updated database status to Disconnected for server {ServerId} after disconnect", serverId);
+                    }
+
+                    // Update connection state to Disconnected in Redis
+                    await _connectionStateService.UpdateConnectionStatusAsync(
+                        serverId,
+                        ConnectionStatus.Disconnected,
+                        CancellationToken.None);
+                    
+                    _logger.LogInformation(
+                        "Successfully updated disconnect status for server {ServerId} in database and Redis",
+                        serverId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error handling OnDisconnected for server {ServerId}", serverId);
+                }
+            };
+
             // Add to dictionary
             if (!_sessions.TryAdd(serverId, session))
             {
@@ -449,6 +486,8 @@ public class McpSessionManager : IAsyncDisposable
                 IsConnected = s.IsConnected,
                 LastConnectedTime = s.LastConnectedTime,
                 LastDisconnectedTime = s.LastDisconnectedTime,
+                LastPingReceivedTime = s.LastPingReceivedTime,  // ✅ 新增
+                IsPingTimeout = s.IsPingTimeout,  // ✅ 新增
                 ReconnectAttempts = s.ReconnectAttempts
             }).ToList()
         };
@@ -483,5 +522,7 @@ public class SessionInfo
     public bool IsConnected { get; set; }
     public DateTime? LastConnectedTime { get; set; }
     public DateTime? LastDisconnectedTime { get; set; }
+    public DateTime LastPingReceivedTime { get; set; }  // ✅ 新增
+    public bool IsPingTimeout { get; set; }  // ✅ 新增
     public int ReconnectAttempts { get; set; }
 }

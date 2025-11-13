@@ -30,18 +30,48 @@ public class McpSessionService : IAsyncDisposable
     private readonly List<McpClient> _mcpClients = new();
     private bool _isRunning = false;
     
+    // ✅ Ping timeout monitoring
+    private DateTime _lastPingReceivedTime = DateTime.UtcNow;
+    private readonly TimeSpan _pingTimeout = TimeSpan.FromSeconds(90); // 90秒未收到 ping 视为断开
+    private readonly object _pingLock = new();
+    
     // Connection status events
     public event Func<Task>? OnConnected;
     public event Func<string, Task>? OnConnectionFailed;
+    public event Func<Task>? OnDisconnected;
     
     public string ServerId => _config.ServerId;
     public string ServerName => _config.ServerName;
-    public bool IsConnected => _webSocket?.State == WebSocketState.Open && _mcpClients.Count > 0;
+    public bool IsConnected => _webSocket?.State == WebSocketState.Open && _mcpClients.Count > 0 && !IsPingTimeout;
     public int ConnectedClientsCount => _mcpClients.Count;
     public int TotalConfiguredClients => _config.McpServices.Count;
     public DateTime? LastConnectedTime { get; private set; }
     public DateTime? LastDisconnectedTime { get; private set; }
+    public DateTime LastPingReceivedTime 
+    { 
+        get 
+        {
+            lock (_pingLock)
+            {
+                return _lastPingReceivedTime;
+            }
+        }
+    }
     public int ReconnectAttempts => _reconnectAttempt;
+    
+    /// <summary>
+    /// Check if ping timeout has occurred
+    /// </summary>
+    public bool IsPingTimeout
+    {
+        get
+        {
+            lock (_pingLock)
+            {
+                return DateTime.UtcNow - _lastPingReceivedTime > _pingTimeout;
+            }
+        }
+    }
 
     public McpSessionService(
         McpSessionConfiguration config,
@@ -265,6 +295,15 @@ public class McpSessionService : IAsyncDisposable
             _reconnectAttempt = 0;
             _currentBackoffMs = _reconnectionSettings.InitialBackoffMs;
             LastConnectedTime = DateTime.UtcNow;
+            
+            // ✅ Initialize last ping time on connection
+            lock (_pingLock)
+            {
+                _lastPingReceivedTime = DateTime.UtcNow;
+            }
+            _logger.LogDebug(
+                "Server {ServerId}: Initialized ping timeout monitor, expecting ping within {Timeout}s",
+                ServerId, _pingTimeout.TotalSeconds);
 
             // Notify connection success if at least one MCP client connected
             if (_mcpClients.Count > 0)
@@ -300,16 +339,31 @@ public class McpSessionService : IAsyncDisposable
                 throw new InvalidOperationException(errorMsg);
             }
 
-            // Run bidirectional communication
+            // Run bidirectional communication + ping timeout monitor
             var communicationTasks = new List<Task>
             {
                 PipeWebSocketToMcpAsync(cancellationToken),
-                PipeMcpToWebSocketAsync(cancellationToken)
+                PipeMcpToWebSocketAsync(cancellationToken),
+                MonitorPingTimeoutAsync(cancellationToken)  // ✅ 新增 Ping 超时监控
             };
 
             var completedTask = await Task.WhenAny(communicationTasks);
 
             LastDisconnectedTime = DateTime.UtcNow;
+            
+            // ✅ Notify disconnection
+            _logger.LogWarning(
+                "Server {ServerId}: WebSocket connection ended, triggering disconnect notification",
+                ServerId);
+            
+            try
+            {
+                await (OnDisconnected?.Invoke() ?? Task.CompletedTask);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in OnDisconnected callback for server {ServerId}", ServerId);
+            }
 
             if (completedTask.IsFaulted)
             {
@@ -383,7 +437,11 @@ public class McpSessionService : IAsyncDisposable
 
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
-                    _logger.LogInformation("Server {ServerId}: WebSocket closed by server", ServerId);
+                    _logger.LogWarning(
+                        "Server {ServerId}: WebSocket closed by server with status {CloseStatus}, description: {CloseDescription}",
+                        ServerId, 
+                        result.CloseStatus,
+                        result.CloseStatusDescription ?? "none");
                     break;
                 }
 
@@ -399,7 +457,9 @@ public class McpSessionService : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError("Server {ServerId}: Error in WebSocket to MCP pipe: {Error}", ServerId, ex.Message);
+            _logger.LogError(
+                "Server {ServerId}: Error in WebSocket to MCP pipe: {Error}, WebSocket State: {State}",
+                ServerId, ex.Message, _webSocket?.State);
             throw;
         }
     }
@@ -425,6 +485,78 @@ public class McpSessionService : IAsyncDisposable
         catch (Exception ex)
         {
             _logger.LogError("Server {ServerId}: Error in MCP to WebSocket pipe: {Error}", ServerId, ex.Message);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Monitor ping timeout - if no ping received within timeout period, consider connection dead
+    /// </summary>
+    private async Task MonitorPingTimeoutAsync(CancellationToken cancellationToken)
+    {
+        if (_webSocket == null) return;
+
+        try
+        {
+            _logger.LogInformation(
+                "Server {ServerId}: Starting ping timeout monitor (timeout: {Timeout}s)",
+                ServerId, _pingTimeout.TotalSeconds);
+
+            // Check every 10 seconds
+            var checkInterval = TimeSpan.FromSeconds(10);
+
+            while (_webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(checkInterval, cancellationToken);
+
+                // Check if ping timeout occurred
+                TimeSpan timeSinceLastPing;
+                lock (_pingLock)
+                {
+                    timeSinceLastPing = DateTime.UtcNow - _lastPingReceivedTime;
+                }
+
+                if (timeSinceLastPing > _pingTimeout)
+                {
+                    _logger.LogError(
+                        "Server {ServerId}: Ping timeout detected! Last ping received {Seconds}s ago (timeout: {Timeout}s)",
+                        ServerId, 
+                        timeSinceLastPing.TotalSeconds,
+                        _pingTimeout.TotalSeconds);
+
+                    // Throw exception to trigger disconnection and reconnection
+                    throw new TimeoutException(
+                        $"No ping received from Xiaozhi for {timeSinceLastPing.TotalSeconds:F1} seconds, " +
+                        $"exceeding timeout of {_pingTimeout.TotalSeconds} seconds");
+                }
+
+                // Log trace message every minute
+                if (timeSinceLastPing.TotalSeconds > 60 && timeSinceLastPing.TotalSeconds % 60 < 10)
+                {
+                    _logger.LogTrace(
+                        "Server {ServerId}: Ping health check - last ping {Seconds}s ago",
+                        ServerId, timeSinceLastPing.TotalSeconds);
+                }
+            }
+
+            _logger.LogInformation("Server {ServerId}: Ping timeout monitor stopped", ServerId);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogInformation("Server {ServerId}: Ping timeout monitor cancelled", ServerId);
+        }
+        catch (TimeoutException tex)
+        {
+            _logger.LogError(
+                "Server {ServerId}: Ping timeout monitor detected dead connection: {Error}",
+                ServerId, tex.Message);
+            throw; // Re-throw to trigger reconnection
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                "Server {ServerId}: Error in ping timeout monitor: {Error}",
+                ServerId, ex.Message);
             throw;
         }
     }
@@ -505,6 +637,27 @@ public class McpSessionService : IAsyncDisposable
 
     private async Task HandlePingAsync(int? id, CancellationToken cancellationToken)
     {
+        // ✅ Update last ping received time
+        lock (_pingLock)
+        {
+            _lastPingReceivedTime = DateTime.UtcNow;
+        }
+        
+        _logger.LogTrace(
+            "Server {ServerId}: Ping received from Xiaozhi, updated last ping time",
+            ServerId);
+        
+        // ✅ First, check WebSocket state
+        if (_webSocket?.State != WebSocketState.Open)
+        {
+            _logger.LogError(
+                "Server {ServerId}: Received ping but WebSocket is not open (state: {State})",
+                ServerId, _webSocket?.State);
+            
+            // Throw exception to trigger reconnection
+            throw new InvalidOperationException($"WebSocket state is {_webSocket?.State}, not Open");
+        }
+        
         var startTime = DateTime.UtcNow;
         
         _logger.LogDebug(
@@ -741,13 +894,31 @@ public class McpSessionService : IAsyncDisposable
 
     private async Task SendWebSocketResponseAsync(object response, CancellationToken cancellationToken)
     {
-        if (_webSocket?.State != WebSocketState.Open) return;
+        if (_webSocket?.State != WebSocketState.Open)
+        {
+            _logger.LogError(
+                "Server {ServerId}: Cannot send WebSocket response, state is {State}",
+                ServerId, _webSocket?.State);
+            
+            // Throw exception to trigger reconnection
+            throw new InvalidOperationException($"Cannot send response, WebSocket state is {_webSocket?.State}");
+        }
 
-        var json = JsonSerializer.Serialize(response, _jsonOptions);
-        _logger.LogDebug("Server {ServerId} >> Sending: {Response}", ServerId, json);
+        try
+        {
+            var json = JsonSerializer.Serialize(response, _jsonOptions);
+            _logger.LogDebug("Server {ServerId} >> Sending: {Response}", ServerId, json);
 
-        var bytes = Encoding.UTF8.GetBytes(json);
-        await _webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancellationToken);
+            var bytes = Encoding.UTF8.GetBytes(json);
+            await _webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancellationToken);
+        }
+        catch (WebSocketException ex)
+        {
+            _logger.LogError(
+                "Server {ServerId}: WebSocket send failed: {Error}",
+                ServerId, ex.Message);
+            throw; // Re-throw to trigger reconnection
+        }
     }
 
     private async Task SendErrorResponseAsync(int? id, int code, string message, string? data, CancellationToken cancellationToken)

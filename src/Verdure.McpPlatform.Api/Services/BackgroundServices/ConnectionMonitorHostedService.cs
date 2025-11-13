@@ -378,17 +378,51 @@ public class ConnectionMonitorHostedService : BackgroundService
             {
                 if (session.Value.IsConnected)
                 {
+                    // ✅ Connection is healthy, update heartbeat
                     await connectionStateService.UpdateHeartbeatAsync(
                         session.Key,
                         cancellationToken);
+                }
+                else
+                {
+                    // ✅ Connection is not healthy, update status to Disconnected
+                    _logger.LogWarning(
+                        "Detected disconnected session for server {ServerId} in local heartbeat check",
+                        session.Key);
+                    
+                    await connectionStateService.UpdateConnectionStatusAsync(
+                        session.Key,
+                        ConnectionStatus.Disconnected,
+                        cancellationToken);
+                    
+                    // ✅ Remove from local session manager to allow reconnection
+                    _logger.LogInformation(
+                        "Removing disconnected session for server {ServerId} from local manager",
+                        session.Key);
+                    
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await sessionManager.StopSessionAsync(session.Key);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error stopping disconnected session {ServerId}", session.Key);
+                        }
+                    }, cancellationToken);
                 }
             }
 
             if (localSessions.Count > 0)
             {
+                var connectedCount = localSessions.Count(s => s.Value.IsConnected);
+                var disconnectedCount = localSessions.Count - connectedCount;
+                
                 _logger.LogTrace(
-                    "Updated heartbeats for {Count} local connections",
-                    localSessions.Count);
+                    "Updated heartbeats for {ConnectedCount} connected sessions, detected {DisconnectedCount} disconnected sessions",
+                    connectedCount,
+                    disconnectedCount);
             }
         }
         catch (Exception ex)
