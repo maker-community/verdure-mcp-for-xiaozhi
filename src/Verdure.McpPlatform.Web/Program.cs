@@ -55,6 +55,16 @@ builder.Services.AddOidcAuthentication(options =>
         options.ProviderOptions.DefaultScopes.Add("openid");
         options.ProviderOptions.DefaultScopes.Add("profile");
         options.ProviderOptions.DefaultScopes.Add("email");
+        // 🔑 添加 offline_access scope 以获取 refresh token
+        // 这允许应用在用户离线时刷新 access token
+        options.ProviderOptions.DefaultScopes.Add("offline_access");
+    }
+    else
+    {
+        options.ProviderOptions.DefaultScopes.Add("email");
+        // 🔑 添加 offline_access scope 以获取 refresh token
+        // 这允许应用在用户离线时刷新 access token
+        options.ProviderOptions.DefaultScopes.Add("offline_access");
     }
 })
 .AddAccountClaimsPrincipalFactory<KeycloakRoleClaimsPrincipalFactory>();

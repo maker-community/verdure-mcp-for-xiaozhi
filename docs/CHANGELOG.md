@@ -1,8 +1,17 @@
 # 更新日志 (Changelog)
 
+## [未发布] - 2025-11-19
+
+### 🔑 修复
+- **[认证]** 修复 Keycloak Refresh Token "Token is not active" 错误
+  - 添加 `offline_access` scope 以获取长期有效的 refresh token
+  - 更新认证配置文档和快速参考
+  - 添加详细的故障排查指南 `KEYCLOAK_REFRESH_TOKEN_FIX.md`
+  - 改善 Token 刷新机制，减少用户重新登录频率
+
 ## [未发布] - 2025-01-XX
 
-### � 新特性
+### 🎉 新特性
 
 #### 单镜像部署架构
 - **功能**: 将 Blazor WebAssembly 前端和 ASP.NET Core API 合并到单个 Docker 镜像中
