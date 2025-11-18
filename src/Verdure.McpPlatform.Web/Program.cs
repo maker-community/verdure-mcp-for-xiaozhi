@@ -44,11 +44,18 @@ builder.Services.AddOidcAuthentication(options =>
     {
         options.ProviderOptions.PostLogoutRedirectUri = apiBaseAddress;
     }
+    
     // Configure for Keycloak
     options.ProviderOptions.ResponseType = "code";
-    options.ProviderOptions.DefaultScopes.Add("openid");
-    options.ProviderOptions.DefaultScopes.Add("profile");
-    options.ProviderOptions.DefaultScopes.Add("email");
+    
+    // Only add scopes if not already configured
+    // This prevents duplicate scopes like "openid profile email openid profile email"
+    if (!options.ProviderOptions.DefaultScopes.Contains("openid"))
+    {
+        options.ProviderOptions.DefaultScopes.Add("openid");
+        options.ProviderOptions.DefaultScopes.Add("profile");
+        options.ProviderOptions.DefaultScopes.Add("email");
+    }
 })
 .AddAccountClaimsPrincipalFactory<KeycloakRoleClaimsPrincipalFactory>();
 

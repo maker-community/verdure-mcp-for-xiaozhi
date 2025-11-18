@@ -29,7 +29,26 @@
   - `src/Verdure.McpPlatform.Web/wwwroot/appsettings.json` - API 基址改为相对路径
   - `src/Verdure.McpPlatform.AppHost/AppHost.cs` - 移除独立 Web 项目配置
 
-### �🐛 Bug 修复
+### 🐛 Bug 修复
+
+#### 认证配置优化（2025-11-18）
+- **问题 1**: OpenID Connect Scope 重复配置
+  - 现象: 认证请求中出现 `"openid profile email openid profile email"` 重复的 scope
+  - 根因: 在 `appsettings.json` 和 `Program.cs` 中多次配置相同的 scope
+  - 修复位置:
+    - `src/Verdure.McpPlatform.Web/wwwroot/appsettings.json` - 移除 `Oidc.Scope` 和 `Oidc.DefaultScopes`
+    - `docker/config/appsettings.json` - 移除 `Oidc.Scope` 和 `Oidc.DefaultScopes`
+    - `src/Verdure.McpPlatform.Web/Program.cs` - 添加重复检查逻辑
+- **问题 2**: 认证过期后未重定向到登录页
+  - 现象: Token 过期后 API 请求返回 401 错误，应用直接报错而不是引导用户重新登录
+  - 修复: 在 `CustomAuthorizationMessageHandler` 中添加异常处理
+    - 拦截 401 Unauthorized 响应，自动重定向到登录页
+    - 捕获 `AccessTokenNotAvailableException` 异常并处理重定向
+  - 修复位置:
+    - `src/Verdure.McpPlatform.Web/Services/CustomAuthorizationMessageHandler.cs` - 重写 `SendAsync` 方法
+    - `src/Verdure.McpPlatform.Web/App.razor` - 添加 `<Authorizing>` 状态显示
+- **影响**: 提升用户体验，认证流程更加流畅和健壮
+- **文档**: 详见 `docs/AUTHENTICATION_FIX.md`
 
 #### Database-Redis 一致性恢复机制修复
 - **问题**: 数据库中启用的服务器（IsEnabled=true）在 Redis 中完全没有连接状态数据时，后台监控服务无法自动恢复连接
