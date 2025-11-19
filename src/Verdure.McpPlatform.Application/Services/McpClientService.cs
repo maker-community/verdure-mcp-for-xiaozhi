@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Client;
 using Verdure.McpPlatform.Contracts.Models;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
+using System.Net.Http.Headers;
 
 namespace Verdure.McpPlatform.Application.Services;
 
@@ -14,6 +15,10 @@ namespace Verdure.McpPlatform.Application.Services;
 /// - Basic Auth: Base64 encoded credentials
 /// - API Key: Custom header with optional prefix
 /// - OAuth 2.0: Uses pre-obtained access tokens (frontend must handle OAuth flow)
+/// 
+/// Compatibility Enhancements:
+/// - Removes charset parameter from Content-Type header for better compatibility
+///   (Some MCP servers like ModelScope reject 'application/json; charset=utf-8')
 /// </summary>
 public class McpClientService : IMcpClientService
 {
@@ -114,13 +119,21 @@ public class McpClientService : IMcpClientService
                 }
             }
 
-            // Create HttpClient with extended timeout to prevent premature disconnection
-            // Default HttpClient.Timeout is 100 seconds, which causes failures for long-running operations
-            var httpClient = new HttpClient(new SocketsHttpHandler
+            // Create HttpClient with RemoveCharsetHttpHandler for better MCP server compatibility
+            // Some servers (e.g., ModelScope) reject 'Content-Type: application/json; charset=utf-8'
+            // and require 'Content-Type: application/json' without charset parameter
+            var socketsHandler = new SocketsHttpHandler
             {
                 PooledConnectionLifetime = TimeSpan.FromMinutes(5),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(3)
-            })
+            };
+
+            var charsetRemoverHandler = new RemoveCharsetHttpHandler(_logger)
+            {
+                InnerHandler = socketsHandler
+            };
+
+            var httpClient = new HttpClient(charsetRemoverHandler)
             {
                 // Set to 30 seconds for better user experience with tool listing
                 Timeout = TimeSpan.FromSeconds(30)
@@ -191,5 +204,67 @@ public class McpClientService : IMcpClientService
             config.Name);
 
         return await GetToolsViaHttpAsync(config);
+    }
+
+    /// <summary>
+    /// Custom HttpMessageHandler that removes charset parameter from Content-Type header
+    /// to ensure compatibility with MCP servers that strictly parse Content-Type
+    /// 
+    /// Background:
+    /// - C# HttpClient's StringContent automatically adds 'charset=utf-8' to Content-Type
+    /// - Some MCP servers (e.g., ModelScope) reject requests with charset parameter
+    /// - Standard: 'application/json; charset=utf-8' is valid per HTTP spec
+    /// - Reality: Some servers only accept 'application/json' without charset
+    /// 
+    /// This handler ensures maximum compatibility across different MCP server implementations.
+    /// </summary>
+    private class RemoveCharsetHttpHandler : DelegatingHandler
+    {
+        private readonly ILogger _logger;
+
+        public RemoveCharsetHttpHandler(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            // If request has Content with Content-Type, remove charset parameter
+            if (request.Content?.Headers.ContentType != null)
+            {
+                var contentType = request.Content.Headers.ContentType;
+                var originalContentType = contentType.ToString();
+
+                // Check if charset parameter exists
+                var hasCharset = contentType.Parameters.Any(p =>
+                    p.Name.Equals("charset", StringComparison.OrdinalIgnoreCase));
+
+                if (hasCharset)
+                {
+                    // Create new MediaTypeHeaderValue without charset parameter
+                    var newContentType = new MediaTypeHeaderValue(contentType.MediaType!);
+
+                    // Copy all parameters except charset
+                    foreach (var param in contentType.Parameters)
+                    {
+                        if (!param.Name.Equals("charset", StringComparison.OrdinalIgnoreCase))
+                        {
+                            newContentType.Parameters.Add(param);
+                        }
+                    }
+
+                    request.Content.Headers.ContentType = newContentType;
+
+                    _logger.LogDebug(
+                        "Removed charset parameter from Content-Type for better MCP server compatibility: {Original} -> {Modified}",
+                        originalContentType,
+                        newContentType);
+                }
+            }
+
+            return await base.SendAsync(request, cancellationToken);
+        }
     }
 }
