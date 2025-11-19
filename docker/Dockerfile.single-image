@@ -23,6 +23,8 @@ WORKDIR /src
 
 # Copy solution file
 COPY ["Verdure.McpPlatform.sln", "."]
+COPY ["Directory.Build.props", "."]
+COPY ["Directory.Packages.props", "."]
 
 # Copy all project files for dependency restoration
 COPY ["src/Verdure.McpPlatform.Api/Verdure.McpPlatform.Api.csproj", "src/Verdure.McpPlatform.Api/"]
