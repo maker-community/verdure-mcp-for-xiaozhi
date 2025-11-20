@@ -172,7 +172,7 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["user", "admin"],
+      "realmRoles": ["user", "admin", "offline_access", "uma_authorization", "default-roles-maker-community"],
       "attributes": {
         "locale": ["zh-CN"]
       }
@@ -191,7 +191,7 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["user"],
+      "realmRoles": ["user", "offline_access", "uma_authorization", "default-roles-maker-community"],
       "attributes": {
         "locale": ["zh-CN"]
       }
@@ -210,10 +210,31 @@
         "description": "Administrator role",
         "composite": false,
         "clientRole": false
+      },
+      {
+        "name": "offline_access",
+        "description": "Offline access role",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "uma_authorization",
+        "description": "UMA authorization role",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "default-roles-maker-community",
+        "description": "Default roles for maker-community realm",
+        "composite": true,
+        "composites": {
+          "realm": ["offline_access", "uma_authorization"]
+        },
+        "clientRole": false
       }
     ]
   },
-  "defaultRoles": ["user"],
+  "defaultRoles": ["user", "offline_access", "uma_authorization", "default-roles-maker-community"],
   "internationalizationEnabled": true,
   "supportedLocales": ["zh-CN", "en"],
   "defaultLocale": "zh-CN",
@@ -599,6 +620,12 @@
     "address",
     "phone",
     "microprofile-jwt"
+  ],
+  "scopeMappings": [
+    {
+      "clientScope": "offline_access",
+      "roles": ["offline_access"]
+    }
   ],
   "loginTheme": "keycloak",
   "accountTheme": "keycloak",
