@@ -26,6 +26,10 @@ COPY ["Verdure.McpPlatform.sln", "."]
 COPY ["Directory.Build.props", "."]
 COPY ["Directory.Packages.props", "."]
 
+# Copy NuGet configuration and local packages
+COPY ["nuget.config", "."]
+COPY ["local-packages/", "local-packages/"]
+
 # Copy all project files for dependency restoration
 COPY ["src/Verdure.McpPlatform.Api/Verdure.McpPlatform.Api.csproj", "src/Verdure.McpPlatform.Api/"]
 COPY ["src/Verdure.McpPlatform.Web/Verdure.McpPlatform.Web.csproj", "src/Verdure.McpPlatform.Web/"]
