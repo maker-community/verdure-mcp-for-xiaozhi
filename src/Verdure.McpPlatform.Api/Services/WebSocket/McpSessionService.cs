@@ -215,6 +215,7 @@ public class McpSessionService : IAsyncDisposable
                     {
                         Endpoint = new Uri(service.NodeAddress),
                         Name = $"McpService_{service.ServiceName}",
+                        OmitContentTypeCharset = true
                     };
 
                     if (service.Protocol == "sse")

@@ -171,6 +171,7 @@ dotnet run --project src/Verdure.McpPlatform.Web
 - [部署指南](./DEPLOYMENT.md) - 生产环境部署说明
 - [API 文档](./API_EXAMPLES.md) - API 使用示例
 - [前端改进](./FRONTEND_IMPROVEMENTS.md) - 最新的前端更新说明
+- [本地 NuGet 包使用](./local-packages/README.md) - 使用本地编译的 NuGet 包
 
 ## 🎯 使用流程
 

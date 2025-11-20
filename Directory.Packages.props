@@ -32,8 +32,8 @@
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.2" />
     
     <!-- Model Context Protocol packages -->
-    <PackageVersion Include="ModelContextProtocol" Version="0.4.0-preview.3" />
-    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="0.4.0-preview.3" />
+    <PackageVersion Include="ModelContextProtocol" Version="0.4.0-verdure.4" />
+    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="0.4.0-verdure.4" />
     
     <!-- MudBlazor -->
     <PackageVersion Include="MudBlazor" Version="8.0.0" />
