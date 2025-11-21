@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Client;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
@@ -114,16 +114,15 @@ public class McpClientService : IMcpClientService
                 }
             }
 
-            // Create HttpClient with extended timeout to prevent premature disconnection
-            // Default HttpClient.Timeout is 100 seconds, which causes failures for long-running operations
-            var httpClient = new HttpClient(new SocketsHttpHandler
+            // 🔧 Create HttpClient with minimal configuration
+            // SDK manages SSE connection lifetime via stream, not connection pooling
+            // We only set request timeout for fast failure on unresponsive tools
+            var httpClient = new HttpClient()
             {
-                PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(3)
-            })
-            {
-                // Set to 30 seconds for better user experience with tool listing
-                Timeout = TimeSpan.FromSeconds(30)
+                // Individual request timeout (not connection lifetime)
+                // Set to 10 seconds for fast failure on unavailable tools
+                // This applies to tool calls, not the SSE stream itself
+                Timeout = TimeSpan.FromSeconds(10)
             };
 
             // Create transport and client
