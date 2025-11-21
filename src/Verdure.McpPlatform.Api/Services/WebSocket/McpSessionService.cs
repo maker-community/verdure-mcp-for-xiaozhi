@@ -1,8 +1,8 @@
+using ModelContextProtocol.Client;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using ModelContextProtocol.Client;
 using Verdure.McpPlatform.Application.Services;
 
 namespace Verdure.McpPlatform.Api.Services.WebSocket;
@@ -15,33 +15,34 @@ public class McpSessionService : IAsyncDisposable
 {
     private readonly ILogger<McpSessionService> _logger;
     private readonly ILoggerFactory _loggerFactory;
+    private readonly IMcpClientService _mcpClientService;
     private readonly McpSessionConfiguration _config;
     private readonly ReconnectionSettings _reconnectionSettings;
-    
+
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly CancellationTokenSource _cancellationTokenSource = new();
-    
+
     // Reconnection state
     private int _reconnectAttempt = 0;
     private int _currentBackoffMs;
-    
+
     // Session state
     private ClientWebSocket? _webSocket;
     private readonly List<McpClient> _mcpClients = new();
     // 🔧 Track service config for each client to enable session recovery
     private readonly Dictionary<int, McpServiceEndpoint> _clientIndexToServiceConfig = new();
     private bool _isRunning = false;
-    
+
     // ✅ Ping timeout monitoring
     private DateTime _lastPingReceivedTime = DateTime.UtcNow;
     private readonly TimeSpan _pingTimeout = TimeSpan.FromSeconds(120); // 120秒未收到 ping 视为断开（小智每60秒发一次）
     private readonly object _pingLock = new();
-    
+
     // Connection status events
     public event Func<Task>? OnConnected;
     public event Func<string, Task>? OnConnectionFailed;
     public event Func<Task>? OnDisconnected;
-    
+
     public string ServerId => _config.ServerId;
     public string ServerName => _config.ServerName;
     public bool IsConnected => _webSocket?.State == WebSocketState.Open && _mcpClients.Count > 0 && !IsPingTimeout;
@@ -49,9 +50,9 @@ public class McpSessionService : IAsyncDisposable
     public int TotalConfiguredClients => _config.McpServices.Count;
     public DateTime? LastConnectedTime { get; private set; }
     public DateTime? LastDisconnectedTime { get; private set; }
-    public DateTime LastPingReceivedTime 
-    { 
-        get 
+    public DateTime LastPingReceivedTime
+    {
+        get
         {
             lock (_pingLock)
             {
@@ -60,7 +61,7 @@ public class McpSessionService : IAsyncDisposable
         }
     }
     public int ReconnectAttempts => _reconnectAttempt;
-    
+
     /// <summary>
     /// Check if ping timeout has occurred
     /// </summary>
@@ -78,15 +79,17 @@ public class McpSessionService : IAsyncDisposable
     public McpSessionService(
         McpSessionConfiguration config,
         ReconnectionSettings reconnectionSettings,
+        IMcpClientService mcpClientService,
         ILoggerFactory loggerFactory)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _reconnectionSettings = reconnectionSettings ?? throw new ArgumentNullException(nameof(reconnectionSettings));
+        _mcpClientService = mcpClientService ?? throw new ArgumentNullException(nameof(mcpClientService));
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
-        
+
         _logger = loggerFactory.CreateLogger<McpSessionService>();
         _currentBackoffMs = reconnectionSettings.InitialBackoffMs;
-        
+
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
@@ -111,7 +114,7 @@ public class McpSessionService : IAsyncDisposable
         _logger.LogInformation("Starting session for server {ServerId} ({ServerName})", ServerId, ServerName);
 
         var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
-        
+
         try
         {
             await ConnectWithRetryAsync(linkedCts.Token);
@@ -131,7 +134,7 @@ public class McpSessionService : IAsyncDisposable
         _logger.LogInformation("Stopping session for server {ServerId}", ServerId);
         _isRunning = false;
         _cancellationTokenSource.Cancel();
-        
+
         await CleanupConnectionAsync();
     }
 
@@ -150,7 +153,7 @@ public class McpSessionService : IAsyncDisposable
                     // Check if we've exceeded max attempts
                     if (_reconnectionSettings.MaxAttempts > 0 && _reconnectAttempt >= _reconnectionSettings.MaxAttempts)
                     {
-                        _logger.LogWarning("Session for server {ServerId} reached max reconnection attempts ({MaxAttempts})", 
+                        _logger.LogWarning("Session for server {ServerId} reached max reconnection attempts ({MaxAttempts})",
                             ServerId, _reconnectionSettings.MaxAttempts);
                         break;
                     }
@@ -204,7 +207,7 @@ public class McpSessionService : IAsyncDisposable
             // Create WebSocket
             _webSocket = new ClientWebSocket();
             _logger.LogInformation("Server {ServerId}: Connecting to {Endpoint}", ServerId, _config.WebSocketEndpoint);
-            
+
             await _webSocket.ConnectAsync(new Uri(_config.WebSocketEndpoint), cancellationToken);
             _logger.LogInformation("Server {ServerId}: WebSocket connected", ServerId);
 
@@ -213,91 +216,32 @@ public class McpSessionService : IAsyncDisposable
             {
                 try
                 {
-                    var transportOptions = new HttpClientTransportOptions
-                    {
-                        Endpoint = new Uri(service.NodeAddress),
-                        Name = $"McpService_{service.ServiceName}",
-                        OmitContentTypeCharset = true
-                    };
+                    // 🔧 Use unified CreateMcpClientAsync method from IMcpClientService
+                    var mcpClient = await _mcpClientService.CreateMcpClientAsync(
+                        $"McpService_{service.ServiceName}",
+                        service.NodeAddress,
+                        service.Protocol,
+                        service.AuthenticationType,
+                        service.AuthenticationConfig,
+                        cancellationToken);
 
-                    if (service.Protocol == "sse")
-                    {
-                        transportOptions.TransportMode = HttpTransportMode.Sse;
-                    }
-                    else if (service.Protocol == "streamable-http" || service.Protocol == "http")
-                    {
-                        transportOptions.TransportMode = HttpTransportMode.StreamableHttp;
-                    }
-
-                    // ✅ Apply authentication configuration if present
-                    if (McpAuthenticationHelper.IsAuthenticationConfigured(
-                        service.AuthenticationType, 
-                        service.AuthenticationConfig))
-                    {
-                        var authType = service.AuthenticationType!.ToLowerInvariant();
-
-                        if (authType == "oauth2")
-                        {
-                            // Use SDK's OAuth support
-                            transportOptions.OAuth = McpAuthenticationHelper.BuildOAuth2Options(
-                                service.AuthenticationConfig!,
-                                _logger);
-                            
-                            _logger.LogInformation(
-                                "Server {ServerId}: Applied OAuth 2.0 authentication for service {ServiceName}",
-                                ServerId, service.ServiceName);
-                        }
-                        else
-                        {
-                            // Use AdditionalHeaders for Bearer, Basic, and API Key
-                            transportOptions.AdditionalHeaders = McpAuthenticationHelper.BuildAuthenticationHeaders(
-                                service.AuthenticationType!,
-                                service.AuthenticationConfig!,
-                                _logger);
-                            
-                            _logger.LogInformation(
-                                "Server {ServerId}: Applied {AuthType} authentication for service {ServiceName}",
-                                ServerId, authType, service.ServiceName);
-                        }
-                    }
-                    else
-                    {
-                        _logger.LogDebug(
-                            "Server {ServerId}: No authentication configured for service {ServiceName}",
-                            ServerId, service.ServiceName);
-                    }
-
-                    // 🔧 Create HttpClient with minimal configuration
-                    // SDK manages SSE connection lifetime via stream, not connection pooling
-                    // We only set request timeout for fast failure on unresponsive tools
-                    var httpClient = new HttpClient()
-                    {
-                        // Individual request timeout (not connection lifetime)
-                        // Set to 10 seconds for fast failure on unavailable tools
-                        // This applies to tool calls, not the SSE stream itself
-                        Timeout = TimeSpan.FromSeconds(10)
-                    };
-
-                    var transport = new HttpClientTransport(transportOptions, httpClient, ownsHttpClient: true);
-                    var mcpClient = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
-                    
                     var clientIndex = _mcpClients.Count;
                     _mcpClients.Add(mcpClient);
                     _clientIndexToServiceConfig[clientIndex] = service; // 🔧 Track for session recovery
-                    
-                    _logger.LogInformation("Server {ServerId}: MCP client connected to service {ServiceName} at {NodeAddress}", 
+
+                    _logger.LogInformation("Server {ServerId}: MCP client connected to service {ServiceName} at {NodeAddress}",
                         ServerId, service.ServiceName, service.NodeAddress);
                 }
                 catch (HttpRequestException ex)
                 {
-                    _logger.LogError(ex, 
+                    _logger.LogError(ex,
                         "HTTP request failed to MCP service {ServiceName} at {NodeAddress}: StatusCode={StatusCode}, Protocol={Protocol}",
                         service.ServiceName, service.NodeAddress, ex.StatusCode, service.Protocol);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, 
-                        "Failed to connect to MCP service {ServiceName} at {NodeAddress}, Protocol={Protocol}", 
+                    _logger.LogError(ex,
+                        "Failed to connect to MCP service {ServiceName} at {NodeAddress}, Protocol={Protocol}",
                         service.ServiceName, service.NodeAddress, service.Protocol);
                 }
             }
@@ -306,7 +250,7 @@ public class McpSessionService : IAsyncDisposable
             _reconnectAttempt = 0;
             _currentBackoffMs = _reconnectionSettings.InitialBackoffMs;
             LastConnectedTime = DateTime.UtcNow;
-            
+
             // ✅ Initialize last ping time on connection
             lock (_pingLock)
             {
@@ -322,7 +266,7 @@ public class McpSessionService : IAsyncDisposable
                 _logger.LogInformation(
                     "Server {ServerId}: Connection established with {ConnectedCount}/{TotalCount} MCP services",
                     ServerId, _mcpClients.Count, _config.McpServices.Count);
-                
+
                 try
                 {
                     await (OnConnected?.Invoke() ?? Task.CompletedTask);
@@ -336,7 +280,7 @@ public class McpSessionService : IAsyncDisposable
             {
                 var errorMsg = $"No MCP clients connected (0/{_config.McpServices.Count})";
                 _logger.LogWarning("Server {ServerId}: {Message}", ServerId, errorMsg);
-                
+
                 try
                 {
                     await (OnConnectionFailed?.Invoke(errorMsg) ?? Task.CompletedTask);
@@ -345,7 +289,7 @@ public class McpSessionService : IAsyncDisposable
                 {
                     _logger.LogError(ex, "Error in OnConnectionFailed callback for server {ServerId}", ServerId);
                 }
-                
+
                 // Still throw to trigger retry mechanism
                 throw new InvalidOperationException(errorMsg);
             }
@@ -361,12 +305,12 @@ public class McpSessionService : IAsyncDisposable
             var completedTask = await Task.WhenAny(communicationTasks);
 
             LastDisconnectedTime = DateTime.UtcNow;
-            
+
             // ✅ Notify disconnection
             _logger.LogWarning(
                 "Server {ServerId}: WebSocket connection ended, triggering disconnect notification",
                 ServerId);
-            
+
             try
             {
                 await (OnDisconnected?.Invoke() ?? Task.CompletedTask);
@@ -378,7 +322,7 @@ public class McpSessionService : IAsyncDisposable
 
             if (completedTask.IsFaulted)
             {
-                _logger.LogWarning("Server {ServerId} task faulted: {Error}", 
+                _logger.LogWarning("Server {ServerId} task faulted: {Error}",
                     ServerId, completedTask.Exception?.GetBaseException().Message);
                 throw completedTask.Exception?.GetBaseException() ?? new Exception("Task faulted");
             }
@@ -418,7 +362,7 @@ public class McpSessionService : IAsyncDisposable
             {
                 if (_webSocket.State == WebSocketState.Open)
                 {
-                    await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, 
+                    await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
                         "Session cleanup", CancellationToken.None);
                 }
                 _webSocket.Dispose();
@@ -450,7 +394,7 @@ public class McpSessionService : IAsyncDisposable
                 {
                     _logger.LogWarning(
                         "Server {ServerId}: WebSocket closed by server with status {CloseStatus}, description: {CloseDescription}",
-                        ServerId, 
+                        ServerId,
                         result.CloseStatus,
                         result.CloseStatusDescription ?? "none");
                     break;
@@ -531,7 +475,7 @@ public class McpSessionService : IAsyncDisposable
                 {
                     _logger.LogError(
                         "Server {ServerId}: Ping timeout detected! Last ping received {Seconds}s ago (timeout: {Timeout}s)",
-                        ServerId, 
+                        ServerId,
                         timeSinceLastPing.TotalSeconds,
                         _pingTimeout.TotalSeconds);
 
@@ -653,24 +597,24 @@ public class McpSessionService : IAsyncDisposable
         {
             _lastPingReceivedTime = DateTime.UtcNow;
         }
-        
+
         _logger.LogTrace(
             "Server {ServerId}: Ping received from Xiaozhi, updated last ping time",
             ServerId);
-        
+
         // ✅ First, check WebSocket state
         if (_webSocket?.State != WebSocketState.Open)
         {
             _logger.LogError(
                 "Server {ServerId}: Received ping but WebSocket is not open (state: {State})",
                 ServerId, _webSocket?.State);
-            
+
             // Throw exception to trigger reconnection
             throw new InvalidOperationException($"WebSocket state is {_webSocket?.State}, not Open");
         }
-        
+
         var startTime = DateTime.UtcNow;
-        
+
         _logger.LogDebug(
             "Server {ServerId}: Received ping request (id: {RequestId}) from Xiaozhi, forwarding to {Count} MCP client(s)",
             ServerId, id, _mcpClients.Count);
@@ -686,17 +630,17 @@ public class McpSessionService : IAsyncDisposable
             try
             {
                 var clientStartTime = DateTime.UtcNow;
-                
+
                 // 使用 SDK 的 PingAsync 方法保持 HTTP 会话活跃
                 // 使用带总体超时限制的 CancellationToken
                 await mcpClient.PingAsync(pingCancellationToken);
-                
+
                 var duration = (DateTime.UtcNow - clientStartTime).TotalMilliseconds;
-                
+
                 _logger.LogTrace(
                     "Server {ServerId}: Ping to MCP client {ClientIndex} succeeded in {Duration}ms",
                     ServerId, index, duration);
-                
+
                 return (success: true, index, duration, needsRecovery: false, error: (Exception?)null);
             }
             catch (OperationCanceledException) when (pingTimeoutCts.Token.IsCancellationRequested)
@@ -725,24 +669,24 @@ public class McpSessionService : IAsyncDisposable
 
         // 等待所有 ping 完成
         var results = await Task.WhenAll(pingTasks);
-        
+
         var successCount = results.Count(r => r.success);
         var totalDuration = (DateTime.UtcNow - startTime).TotalMilliseconds;
         var successResults = results.Where(r => r.success).ToList();
-        var avgDuration = successResults.Any() ? successResults.Average(r => r.duration) : 0.0;
-        
+        var avgDuration = successResults.Count != 0 ? successResults.Average(r => r.duration) : 0.0;
+
         // 🔧 Check for clients that need session recovery (404 errors)
         var clientsNeedingRecovery = results
             .Where(r => r.needsRecovery)
             .Select(r => r.index)
             .ToList();
-        
-        if (clientsNeedingRecovery.Any())
+
+        if (clientsNeedingRecovery.Count != 0)
         {
             _logger.LogWarning(
                 "Server {ServerId}: {Count} client(s) need session recovery, attempting to reconnect...",
                 ServerId, clientsNeedingRecovery.Count);
-            
+
             // 🔧 Trigger session recovery in background (don't block ping response)
             _ = Task.Run(async () =>
             {
@@ -761,21 +705,21 @@ public class McpSessionService : IAsyncDisposable
                 }
             }, cancellationToken);
         }
-        
+
         var logLevel = successCount > 0 ? LogLevel.Information : LogLevel.Warning;
         _logger.Log(
             logLevel,
             "Server {ServerId}: Ping completed - {Success}/{Total} clients responded successfully, " +
             "total time: {TotalTime}ms, avg response: {AvgTime:F2}ms (HttpClient timeout: 10s, total limit: 15s)",
             ServerId, successCount, _mcpClients.Count, totalDuration, avgDuration);
-        
+
         // 响应给小智
         var response = new
         {
             jsonrpc = "2.0",
             id = id,
-            result = new 
-            { 
+            result = new
+            {
                 // 可选：返回健康状态
                 healthy = results.Any(r => r.success),
                 connectedClients = successCount
@@ -783,7 +727,7 @@ public class McpSessionService : IAsyncDisposable
         };
 
         await SendWebSocketResponseAsync(response, cancellationToken);
-        
+
         _logger.LogDebug(
             "Server {ServerId}: Ping response sent to Xiaozhi (id: {RequestId})",
             ServerId, id);
@@ -794,7 +738,7 @@ public class McpSessionService : IAsyncDisposable
         if (_mcpClients.Count == 0)
         {
             _logger.LogWarning("Server {ServerId}: No MCP clients available for tools/list request", ServerId);
-            await SendErrorResponseAsync(id, -32603, "No MCP services available", 
+            await SendErrorResponseAsync(id, -32603, "No MCP services available",
                 "No active MCP service bindings configured for this endpoint", cancellationToken);
             return;
         }
@@ -803,12 +747,12 @@ public class McpSessionService : IAsyncDisposable
         {
             // Collect tools from all MCP clients
             var allTools = new List<object>();
-            
+
             for (int i = 0; i < _mcpClients.Count; i++)
             {
                 var mcpClient = _mcpClients[i];
                 var serviceConfig = i < _config.McpServices.Count ? _config.McpServices[i] : null;
-                
+
                 try
                 {
                     var toolsResponse = await mcpClient.ListToolsAsync(null, cancellationToken);
@@ -823,7 +767,7 @@ public class McpSessionService : IAsyncDisposable
                                 continue; // Skip tools not in the selected list
                             }
                         }
-                        
+
                         var properties = new Dictionary<string, object>();
                         var required = Array.Empty<string>();
 
@@ -883,7 +827,7 @@ public class McpSessionService : IAsyncDisposable
         if (_mcpClients.Count == 0)
         {
             _logger.LogWarning("Server {ServerId}: No MCP clients available for tools/call request", ServerId);
-            await SendErrorResponseAsync(id, -32603, "No MCP services available", 
+            await SendErrorResponseAsync(id, -32603, "No MCP services available",
                 "No active MCP service bindings configured for this endpoint", cancellationToken);
             return;
         }
@@ -902,18 +846,18 @@ public class McpSessionService : IAsyncDisposable
                 }
             }
 
-            _logger.LogInformation("Server {ServerId}: Calling tool {ToolName} with arguments: {Arguments}", 
+            _logger.LogInformation("Server {ServerId}: Calling tool {ToolName} with arguments: {Arguments}",
                 ServerId, toolName, JsonSerializer.Serialize(arguments));
 
             // Try to call the tool on each MCP client until one succeeds
             object? result = null;
             Exception? lastException = null;
-            
+
             for (int i = 0; i < _mcpClients.Count; i++)
             {
                 var mcpClient = _mcpClients[i];
                 var serviceConfig = i < _config.McpServices.Count ? _config.McpServices[i] : null;
-                
+
                 // Check if tool is allowed for this service
                 if (serviceConfig != null && serviceConfig.SelectedToolNames.Count > 0)
                 {
@@ -922,7 +866,7 @@ public class McpSessionService : IAsyncDisposable
                         continue; // Skip this client if tool is not in selected list
                     }
                 }
-                
+
                 try
                 {
                     result = await mcpClient.CallToolAsync(toolName, arguments, cancellationToken: cancellationToken);
@@ -965,7 +909,7 @@ public class McpSessionService : IAsyncDisposable
             _logger.LogError(
                 "Server {ServerId}: Cannot send WebSocket response, state is {State}",
                 ServerId, _webSocket?.State);
-            
+
             // Throw exception to trigger reconnection
             throw new InvalidOperationException($"Cannot send response, WebSocket state is {_webSocket?.State}");
         }
@@ -1045,58 +989,15 @@ public class McpSessionService : IAsyncDisposable
         {
             // ⚠️ CRITICAL: Create new client FIRST, before disposing old one
             // This ensures we always have a valid client reference
-            var transportOptions = new HttpClientTransportOptions
-            {
-                Endpoint = new Uri(service.NodeAddress),
-                Name = $"McpService_{service.ServiceName}",
-                OmitContentTypeCharset = true
-            };
 
-            if (service.Protocol == "sse")
-            {
-                transportOptions.TransportMode = HttpTransportMode.Sse;
-            }
-            else if (service.Protocol == "streamable-http" || service.Protocol == "http")
-            {
-                transportOptions.TransportMode = HttpTransportMode.StreamableHttp;
-            }
-
-            // Apply authentication if configured
-             if (McpAuthenticationHelper.IsAuthenticationConfigured(
+            // 🔧 Use unified CreateMcpClientAsync method from IMcpClientService
+            newClient = await _mcpClientService.CreateMcpClientAsync(
+                $"McpService_{service.ServiceName}",
+                service.NodeAddress,
+                service.Protocol,
                 service.AuthenticationType,
-                service.AuthenticationConfig))
-            {
-                var authType = service.AuthenticationType!.ToLowerInvariant();
-
-                if (authType == "oauth2")
-                {
-                    transportOptions.OAuth = McpAuthenticationHelper.BuildOAuth2Options(
-                        service.AuthenticationConfig!,
-                        _logger);
-                }
-                else
-                {
-                    // Other auth types (Bearer/Basic/ApiKey) use custom headers
-                    var authHeaders = McpAuthenticationHelper.BuildAuthenticationHeaders(
-                        service.AuthenticationType!,
-                        service.AuthenticationConfig!,
-                        _logger);
-
-                    transportOptions.AdditionalHeaders = McpAuthenticationHelper.BuildAuthenticationHeaders(
-                      service.AuthenticationType!,
-                      service.AuthenticationConfig!,
-                      _logger);
-                }
-            }
-
-            // Create HttpClient
-            var httpClient = new HttpClient()
-            {
-                Timeout = TimeSpan.FromSeconds(10)
-            };
-
-            var transport = new HttpClientTransport(transportOptions, httpClient, ownsHttpClient: true);
-            newClient = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
+                service.AuthenticationConfig,
+                cancellationToken);
 
             // ✅ New client created successfully, now replace the old one
             _mcpClients[clientIndex] = newClient;
@@ -1138,7 +1039,7 @@ public class McpSessionService : IAsyncDisposable
             _logger.LogError(ex,
                 "Server {ServerId}: Failed to recover MCP client {ClientIndex} for service {ServiceName} - old client remains",
                 ServerId, clientIndex, service.ServiceName);
-            
+
             // ⚠️ Do NOT throw - let the system continue with other clients
             // The old client will be retried on next ping failure
         }

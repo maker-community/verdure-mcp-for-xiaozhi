@@ -53,86 +53,137 @@ public class McpClientService : IMcpClientService
             $"Please use 'streamable-http' protocol instead for service '{config.Name}'.");
     }
 
+    public async Task<McpClient> CreateMcpClientAsync(
+        string name,
+        string endpoint,
+        string? protocol = null,
+        string? authenticationType = null,
+        string? authenticationConfig = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(endpoint))
+        {
+            throw new InvalidOperationException("Endpoint cannot be empty");
+        }
+
+        if (!Uri.TryCreate(endpoint, UriKind.Absolute, out var endpointUri))
+        {
+            throw new InvalidOperationException($"Invalid endpoint URL: {endpoint}");
+        }
+
+        _logger.LogDebug(
+            "Creating MCP client for service {ServiceName} at {Endpoint} with authentication: {AuthType}",
+            name,
+            endpoint,
+            authenticationType ?? "none");
+
+        // Build transport options with authentication
+        var transportOptions = new HttpClientTransportOptions
+        {
+            Endpoint = endpointUri,
+            Name = name,
+            OmitContentTypeCharset = true, // Remove charset to avoid issues with some servers
+        };
+
+        // Determine transport mode based on protocol
+        if (protocol == "sse")
+        {
+            transportOptions.TransportMode = HttpTransportMode.Sse;
+        }
+        else if (protocol == "streamable-http" || protocol == "http")
+        {
+            transportOptions.TransportMode = HttpTransportMode.StreamableHttp;
+        }
+
+        // Configure authentication based on type
+        if (!string.IsNullOrEmpty(authenticationType) &&
+            !string.IsNullOrEmpty(authenticationConfig))
+        {
+            var authType = authenticationType.ToLowerInvariant();
+
+            if (authType == "oauth2")
+            {
+                // Use SDK's OAuth support
+                transportOptions.OAuth = McpAuthenticationHelper.BuildOAuth2Options(
+                    authenticationConfig,
+                    _logger);
+                
+                _logger.LogInformation(
+                    "Applied OAuth 2.0 authentication for service {ServiceName}",
+                    name);
+            }
+            else
+            {
+                // Use AdditionalHeaders for Bearer, Basic, and API Key
+                transportOptions.AdditionalHeaders = McpAuthenticationHelper.BuildAuthenticationHeaders(
+                    authenticationType,
+                    authenticationConfig,
+                    _logger);
+                
+                _logger.LogInformation(
+                    "Applied {AuthType} authentication for service {ServiceName}",
+                    authType, name);
+            }
+        }
+        else
+        {
+            _logger.LogDebug(
+                "No authentication configured for service {ServiceName}",
+                name);
+        }
+
+        // 🔧 Create HttpClient with minimal configuration
+        // SDK manages SSE connection lifetime via stream, not connection pooling
+        // We only set request timeout for fast failure on unresponsive tools
+        var httpClient = new HttpClient()
+        {
+            // Individual request timeout (not connection lifetime)
+            // Set to 10 seconds for fast failure on unavailable tools
+            // This applies to tool calls, not the SSE stream itself
+            Timeout = TimeSpan.FromSeconds(10)
+        };
+
+        // Create transport and client
+        var transport = new HttpClientTransport(transportOptions, httpClient, ownsHttpClient: true);
+        var client = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
+
+        _logger.LogInformation(
+            "Successfully created MCP client for service {ServiceName} with {AuthType} authentication",
+            name,
+            authenticationType ?? "none");
+
+        return client;
+    }
+
+    public async Task<McpClient> CreateMcpClientAsync(
+        McpServiceConfig config,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        if (string.IsNullOrEmpty(config.Endpoint))
+        {
+            throw new InvalidOperationException("Endpoint cannot be empty");
+        }
+
+        // Delegate to parameter-based overload
+        return await CreateMcpClientAsync(
+            config.Name,
+            config.Endpoint,
+            config.Protocol,
+            config.AuthenticationType,
+            config.AuthenticationConfig,
+            cancellationToken);
+    }
+
     private async Task<IEnumerable<McpToolInfo>> GetToolsViaHttpAsync(McpServiceConfig config)
     {
         McpClient? client = null;
 
         try
         {
-            if (string.IsNullOrEmpty(config.Endpoint))
-            {
-                throw new InvalidOperationException("Endpoint cannot be empty for HTTP protocol");
-            }
-
-            if (!Uri.TryCreate(config.Endpoint, UriKind.Absolute, out var endpointUri))
-            {
-                throw new InvalidOperationException($"Invalid endpoint URL: {config.Endpoint}");
-            }
-
-            _logger.LogDebug(
-                "Creating HTTP transport for endpoint: {Endpoint} with authentication: {AuthType}",
-                config.Endpoint,
-                config.AuthenticationType ?? "none");
-
-            // Build transport options with authentication
-            var transportOptions = new HttpClientTransportOptions
-            {
-                Endpoint = endpointUri,
-                Name = config.Name,
-                OmitContentTypeCharset = true,//remove charset to avoid issues with some servers
-            };
-
-            if (config.Protocol == "sse")
-            {
-                transportOptions.TransportMode = HttpTransportMode.Sse;
-            }
-            else if (config.Protocol == "streamable-http" || config.Protocol == "http")
-            {
-                transportOptions.TransportMode = HttpTransportMode.StreamableHttp;
-            }
-
-            // Configure authentication based on type
-            if (!string.IsNullOrEmpty(config.AuthenticationType) &&
-                !string.IsNullOrEmpty(config.AuthenticationConfig))
-            {
-                var authType = config.AuthenticationType.ToLowerInvariant();
-
-                if (authType == "oauth2")
-                {
-                    // Use SDK's OAuth support
-                    transportOptions.OAuth = McpAuthenticationHelper.BuildOAuth2Options(
-                        config.AuthenticationConfig,
-                        _logger);
-                }
-                else
-                {
-                    // Use AdditionalHeaders for Bearer, Basic, and API Key
-                    transportOptions.AdditionalHeaders = McpAuthenticationHelper.BuildAuthenticationHeaders(
-                        config.AuthenticationType,
-                        config.AuthenticationConfig,
-                        _logger);
-                }
-            }
-
-            // 🔧 Create HttpClient with minimal configuration
-            // SDK manages SSE connection lifetime via stream, not connection pooling
-            // We only set request timeout for fast failure on unresponsive tools
-            var httpClient = new HttpClient()
-            {
-                // Individual request timeout (not connection lifetime)
-                // Set to 10 seconds for fast failure on unavailable tools
-                // This applies to tool calls, not the SSE stream itself
-                Timeout = TimeSpan.FromSeconds(10)
-            };
-
-            // Create transport and client
-            var transport = new HttpClientTransport(transportOptions, httpClient, ownsHttpClient: true);
-            client = await McpClient.CreateAsync(transport);
-
-            _logger.LogInformation(
-                "Successfully connected to MCP service {ServiceName} via HTTP with {AuthType} authentication",
-                config.Name,
-                config.AuthenticationType ?? "none");
+            // Use the unified CreateMcpClientAsync method
+            client = await CreateMcpClientAsync(config);
 
             // List available tools
             var toolsResult = await client.ListToolsAsync();

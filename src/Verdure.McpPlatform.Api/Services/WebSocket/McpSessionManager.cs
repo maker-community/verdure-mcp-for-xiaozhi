@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using Verdure.McpPlatform.Api.Services.ConnectionState;
 using Verdure.McpPlatform.Api.Services.DistributedLock;
+using Verdure.McpPlatform.Application.Services;
 using Verdure.McpPlatform.Domain.AggregatesModel.XiaozhiMcpEndpointAggregate;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
@@ -105,6 +106,7 @@ public class McpSessionManager : IAsyncDisposable
             using var scope = _serviceScopeFactory.CreateScope();
             var serverRepository = scope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
             var configRepository = scope.ServiceProvider.GetRequiredService<IMcpServiceConfigRepository>();
+            var mcpClientService = scope.ServiceProvider.GetRequiredService<IMcpClientService>();
             
             var server = await serverRepository.GetAsync(serverId);
             if (server == null)
@@ -167,10 +169,11 @@ public class McpSessionManager : IAsyncDisposable
                 McpServices = mcpServiceEndpoints
             };
 
-            // Create new session
+            // Create new session (McpSessionService will use IServiceScopeFactory to get IMcpClientService)
             var session = new McpSessionService(
                 config,
                 _reconnectionSettings,
+                mcpClientService,
                 _loggerFactory);
 
             // Subscribe to connection events
