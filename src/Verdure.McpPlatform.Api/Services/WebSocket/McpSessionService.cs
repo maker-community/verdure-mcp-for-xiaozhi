@@ -204,14 +204,15 @@ public class McpSessionService : IAsyncDisposable
     {
         try
         {
-            // Create WebSocket
-            _webSocket = new ClientWebSocket();
-            _logger.LogInformation("Server {ServerId}: Connecting to {Endpoint}", ServerId, _config.WebSocketEndpoint);
-
-            await _webSocket.ConnectAsync(new Uri(_config.WebSocketEndpoint), cancellationToken);
-            _logger.LogInformation("Server {ServerId}: WebSocket connected", ServerId);
+            // ⚠️ CRITICAL: Connect to MCP services FIRST, before WebSocket
+            // This ensures all backend services are ready before we tell Xiaozhi we're online
+            
+            _logger.LogInformation("Server {ServerId}: Connecting to {Count} MCP service(s)...", 
+                ServerId, _config.McpServices.Count);
 
             // Create MCP clients for each service
+            var failedServiceNames = new List<string>(); // Track failed services for summary log
+            
             foreach (var service in _config.McpServices)
             {
                 try
@@ -234,17 +235,67 @@ public class McpSessionService : IAsyncDisposable
                 }
                 catch (HttpRequestException ex)
                 {
-                    _logger.LogError(ex,
-                        "HTTP request failed to MCP service {ServiceName} at {NodeAddress}: StatusCode={StatusCode}, Protocol={Protocol}",
-                        service.ServiceName, service.NodeAddress, ex.StatusCode, service.Protocol);
+                    failedServiceNames.Add(service.ServiceName);
+                    _logger.LogWarning(
+                        "Server {ServerId}: Skipping MCP service {ServiceName} - HTTP request failed: StatusCode={StatusCode}, Protocol={Protocol}",
+                        ServerId, service.ServiceName, ex.StatusCode, service.Protocol);
+                }
+                catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+                {
+                    failedServiceNames.Add(service.ServiceName);
+                    _logger.LogWarning(
+                        "Server {ServerId}: Skipping MCP service {ServiceName} - connection timeout at {NodeAddress}, Protocol={Protocol}",
+                        ServerId, service.ServiceName, service.NodeAddress, service.Protocol);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex,
-                        "Failed to connect to MCP service {ServiceName} at {NodeAddress}, Protocol={Protocol}",
-                        service.ServiceName, service.NodeAddress, service.Protocol);
+                    failedServiceNames.Add(service.ServiceName);
+                    _logger.LogWarning(
+                        "Server {ServerId}: Skipping MCP service {ServiceName} - connection failed: {Error}, Protocol={Protocol}",
+                        ServerId, service.ServiceName, ex.Message, service.Protocol);
                 }
             }
+            
+            // ✅ Log summary of connection results (useful for quick diagnostics)
+            if (failedServiceNames.Count > 0)
+            {
+                _logger.LogWarning(
+                    "Server {ServerId}: MCP services connection summary - {SuccessCount}/{TotalCount} succeeded, failed: [{FailedServices}]",
+                    ServerId,
+                    _mcpClients.Count,
+                    _config.McpServices.Count,
+                    string.Join(", ", failedServiceNames));
+            }
+
+            // ✅ Check if at least one MCP client connected successfully
+            if (_mcpClients.Count == 0)
+            {
+                var errorMsg = $"No MCP clients connected (0/{_config.McpServices.Count})";
+                _logger.LogWarning("Server {ServerId}: {Message}", ServerId, errorMsg);
+
+                try
+                {
+                    await (OnConnectionFailed?.Invoke(errorMsg) ?? Task.CompletedTask);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in OnConnectionFailed callback for server {ServerId}", ServerId);
+                }
+
+                // Throw to trigger retry mechanism
+                throw new InvalidOperationException(errorMsg);
+            }
+
+            _logger.LogInformation(
+                "Server {ServerId}: All MCP services ready ({ConnectedCount}/{TotalCount}), now connecting to Xiaozhi WebSocket...",
+                ServerId, _mcpClients.Count, _config.McpServices.Count);
+
+            // ✅ NOW connect to WebSocket - all backend services are ready
+            _webSocket = new ClientWebSocket();
+            _logger.LogInformation("Server {ServerId}: Connecting to {Endpoint}", ServerId, _config.WebSocketEndpoint);
+
+            await _webSocket.ConnectAsync(new Uri(_config.WebSocketEndpoint), cancellationToken);
+            _logger.LogInformation("Server {ServerId}: WebSocket connected", ServerId);
 
             // Reset reconnection state on successful connection
             _reconnectAttempt = 0;
@@ -260,38 +311,18 @@ public class McpSessionService : IAsyncDisposable
                 "Server {ServerId}: Initialized ping timeout monitor, expecting ping within {Timeout}s",
                 ServerId, _pingTimeout.TotalSeconds);
 
-            // Notify connection success if at least one MCP client connected
-            if (_mcpClients.Count > 0)
-            {
-                _logger.LogInformation(
-                    "Server {ServerId}: Connection established with {ConnectedCount}/{TotalCount} MCP services",
-                    ServerId, _mcpClients.Count, _config.McpServices.Count);
+            // ✅ Notify connection success (we already checked MCP client count above)
+            _logger.LogInformation(
+                "Server {ServerId}: Connection established with {ConnectedCount}/{TotalCount} MCP services",
+                ServerId, _mcpClients.Count, _config.McpServices.Count);
 
-                try
-                {
-                    await (OnConnected?.Invoke() ?? Task.CompletedTask);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error in OnConnected callback for server {ServerId}", ServerId);
-                }
+            try
+            {
+                await (OnConnected?.Invoke() ?? Task.CompletedTask);
             }
-            else
+            catch (Exception ex)
             {
-                var errorMsg = $"No MCP clients connected (0/{_config.McpServices.Count})";
-                _logger.LogWarning("Server {ServerId}: {Message}", ServerId, errorMsg);
-
-                try
-                {
-                    await (OnConnectionFailed?.Invoke(errorMsg) ?? Task.CompletedTask);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error in OnConnectionFailed callback for server {ServerId}", ServerId);
-                }
-
-                // Still throw to trigger retry mechanism
-                throw new InvalidOperationException(errorMsg);
+                _logger.LogError(ex, "Error in OnConnected callback for server {ServerId}", ServerId);
             }
 
             // Run bidirectional communication + ping timeout monitor
@@ -355,6 +386,7 @@ public class McpSessionService : IAsyncDisposable
             }
         }
         _mcpClients.Clear();
+        _clientIndexToServiceConfig.Clear(); // ✅ Also clear the index mapping
 
         if (_webSocket != null)
         {
@@ -751,7 +783,8 @@ public class McpSessionService : IAsyncDisposable
             for (int i = 0; i < _mcpClients.Count; i++)
             {
                 var mcpClient = _mcpClients[i];
-                var serviceConfig = i < _config.McpServices.Count ? _config.McpServices[i] : null;
+                // ✅ Use the tracked service config for this client (correct index mapping)
+                var serviceConfig = _clientIndexToServiceConfig.TryGetValue(i, out var config) ? config : null;
 
                 try
                 {
@@ -856,7 +889,8 @@ public class McpSessionService : IAsyncDisposable
             for (int i = 0; i < _mcpClients.Count; i++)
             {
                 var mcpClient = _mcpClients[i];
-                var serviceConfig = i < _config.McpServices.Count ? _config.McpServices[i] : null;
+                // ✅ Use the tracked service config for this client (correct index mapping)
+                var serviceConfig = _clientIndexToServiceConfig.TryGetValue(i, out var config) ? config : null;
 
                 // Check if tool is allowed for this service
                 if (serviceConfig != null && serviceConfig.SelectedToolNames.Count > 0)
