@@ -28,11 +28,13 @@ public class McpSessionService : IAsyncDisposable
     // Session state
     private ClientWebSocket? _webSocket;
     private readonly List<McpClient> _mcpClients = new();
+    // 🔧 Track service config for each client to enable session recovery
+    private readonly Dictionary<int, McpServiceEndpoint> _clientIndexToServiceConfig = new();
     private bool _isRunning = false;
     
     // ✅ Ping timeout monitoring
     private DateTime _lastPingReceivedTime = DateTime.UtcNow;
-    private readonly TimeSpan _pingTimeout = TimeSpan.FromSeconds(90); // 90秒未收到 ping 视为断开
+    private readonly TimeSpan _pingTimeout = TimeSpan.FromSeconds(120); // 120秒未收到 ping 视为断开（小智每60秒发一次）
     private readonly object _pingLock = new();
     
     // Connection status events
@@ -265,30 +267,38 @@ public class McpSessionService : IAsyncDisposable
                             ServerId, service.ServiceName);
                     }
 
-                    // 🔧 Create HttpClient with extended timeout to prevent premature disconnection
-                    // Default HttpClient.Timeout is 100 seconds, which causes 404 errors after ~2 minutes
-                    var httpClient = new HttpClient(new SocketsHttpHandler
+                    // 🔧 Create HttpClient with minimal configuration
+                    // SDK manages SSE connection lifetime via stream, not connection pooling
+                    // We only set request timeout for fast failure on unresponsive tools
+                    var httpClient = new HttpClient()
                     {
-                        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-                        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(3)
-                    })
-                    {
-                        // Set to 30 seconds for better user experience
-                        // Combined with Xiaozhi's periodic ping to maintain session
-                        Timeout = TimeSpan.FromSeconds(30)
+                        // Individual request timeout (not connection lifetime)
+                        // Set to 10 seconds for fast failure on unavailable tools
+                        // This applies to tool calls, not the SSE stream itself
+                        Timeout = TimeSpan.FromSeconds(10)
                     };
 
                     var transport = new HttpClientTransport(transportOptions, httpClient, ownsHttpClient: true);
                     var mcpClient = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
+                    
+                    var clientIndex = _mcpClients.Count;
                     _mcpClients.Add(mcpClient);
+                    _clientIndexToServiceConfig[clientIndex] = service; // 🔧 Track for session recovery
                     
                     _logger.LogInformation("Server {ServerId}: MCP client connected to service {ServiceName} at {NodeAddress}", 
                         ServerId, service.ServiceName, service.NodeAddress);
                 }
+                catch (HttpRequestException ex)
+                {
+                    _logger.LogError(ex, 
+                        "HTTP request failed to MCP service {ServiceName} at {NodeAddress}: StatusCode={StatusCode}, Protocol={Protocol}",
+                        service.ServiceName, service.NodeAddress, ex.StatusCode, service.Protocol);
+                }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to connect to MCP service {ServiceName} at {NodeAddress}", 
-                        service.ServiceName, service.NodeAddress);
+                    _logger.LogError(ex, 
+                        "Failed to connect to MCP service {ServiceName} at {NodeAddress}, Protocol={Protocol}", 
+                        service.ServiceName, service.NodeAddress, service.Protocol);
                 }
             }
 
@@ -665,6 +675,11 @@ public class McpSessionService : IAsyncDisposable
             "Server {ServerId}: Received ping request (id: {RequestId}) from Xiaozhi, forwarding to {Count} MCP client(s)",
             ServerId, id, _mcpClients.Count);
 
+        // ✅ 创建一个 15秒总体超时的 CancellationToken，防止 ping 处理阻塞太久
+        using var pingTimeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, pingTimeoutCts.Token);
+        var pingCancellationToken = linkedCts.Token;
+
         // ✅ 向所有 MCP 客户端发送 ping 以保持连接活跃
         var pingTasks = _mcpClients.Select(async (mcpClient, index) =>
         {
@@ -673,7 +688,8 @@ public class McpSessionService : IAsyncDisposable
                 var clientStartTime = DateTime.UtcNow;
                 
                 // 使用 SDK 的 PingAsync 方法保持 HTTP 会话活跃
-                await mcpClient.PingAsync(cancellationToken);
+                // 使用带总体超时限制的 CancellationToken
+                await mcpClient.PingAsync(pingCancellationToken);
                 
                 var duration = (DateTime.UtcNow - clientStartTime).TotalMilliseconds;
                 
@@ -681,14 +697,29 @@ public class McpSessionService : IAsyncDisposable
                     "Server {ServerId}: Ping to MCP client {ClientIndex} succeeded in {Duration}ms",
                     ServerId, index, duration);
                 
-                return (success: true, index, duration);
+                return (success: true, index, duration, needsRecovery: false, error: (Exception?)null);
+            }
+            catch (OperationCanceledException) when (pingTimeoutCts.Token.IsCancellationRequested)
+            {
+                _logger.LogWarning(
+                    "Server {ServerId}: Ping to MCP client {ClientIndex} timed out (exceeded 15s total limit)",
+                    ServerId, index);
+                return (success: false, index, duration: 0.0, needsRecovery: false, error: (Exception?)null);
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                // 🔧 404 indicates session expired - needs recovery
+                _logger.LogWarning(
+                    "Server {ServerId}: MCP client {ClientIndex} session expired (404), will attempt recovery",
+                    ServerId, index);
+                return (success: false, index, duration: 0.0, needsRecovery: true, error: (Exception?)ex);
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(
                     "Server {ServerId}: Ping to MCP client {ClientIndex} failed: {Error}",
                     ServerId, index, ex.Message);
-                return (success: false, index, duration: 0.0);
+                return (success: false, index, duration: 0.0, needsRecovery: false, error: (Exception?)ex);
             }
         });
 
@@ -697,11 +728,45 @@ public class McpSessionService : IAsyncDisposable
         
         var successCount = results.Count(r => r.success);
         var totalDuration = (DateTime.UtcNow - startTime).TotalMilliseconds;
-        var avgDuration = results.Where(r => r.success).Average(r => r.duration);
+        var successResults = results.Where(r => r.success).ToList();
+        var avgDuration = successResults.Any() ? successResults.Average(r => r.duration) : 0.0;
         
-        _logger.LogInformation(
+        // 🔧 Check for clients that need session recovery (404 errors)
+        var clientsNeedingRecovery = results
+            .Where(r => r.needsRecovery)
+            .Select(r => r.index)
+            .ToList();
+        
+        if (clientsNeedingRecovery.Any())
+        {
+            _logger.LogWarning(
+                "Server {ServerId}: {Count} client(s) need session recovery, attempting to reconnect...",
+                ServerId, clientsNeedingRecovery.Count);
+            
+            // 🔧 Trigger session recovery in background (don't block ping response)
+            _ = Task.Run(async () =>
+            {
+                foreach (var clientIndex in clientsNeedingRecovery)
+                {
+                    try
+                    {
+                        await RecoverMcpClientAsync(clientIndex, cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex,
+                            "Server {ServerId}: Failed to recover MCP client {ClientIndex}",
+                            ServerId, clientIndex);
+                    }
+                }
+            }, cancellationToken);
+        }
+        
+        var logLevel = successCount > 0 ? LogLevel.Information : LogLevel.Warning;
+        _logger.Log(
+            logLevel,
             "Server {ServerId}: Ping completed - {Success}/{Total} clients responded successfully, " +
-            "total time: {TotalTime}ms, avg response: {AvgTime:F2}ms",
+            "total time: {TotalTime}ms, avg response: {AvgTime:F2}ms (HttpClient timeout: 10s, total limit: 15s)",
             ServerId, successCount, _mcpClients.Count, totalDuration, avgDuration);
         
         // 响应给小智
@@ -952,6 +1017,131 @@ public class McpSessionService : IAsyncDisposable
             JsonValueKind.Object => element.EnumerateObject().ToDictionary(p => p.Name, p => JsonElementToObject(p.Value)),
             _ => element.ToString()
         };
+    }
+
+    /// <summary>
+    /// Recover a failed MCP client by recreating the connection
+    /// </summary>
+    /// <param name="clientIndex">Index of the client to recover</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    private async Task RecoverMcpClientAsync(int clientIndex, CancellationToken cancellationToken)
+    {
+        if (!_clientIndexToServiceConfig.TryGetValue(clientIndex, out var service))
+        {
+            _logger.LogWarning(
+                "Server {ServerId}: Cannot recover client {ClientIndex} - service config not found",
+                ServerId, clientIndex);
+            return;
+        }
+
+        _logger.LogInformation(
+            "Server {ServerId}: Recovering MCP client {ClientIndex} for service {ServiceName}",
+            ServerId, clientIndex, service.ServiceName);
+
+        McpClient? newClient = null;
+        var oldClient = _mcpClients[clientIndex];
+
+        try
+        {
+            // ⚠️ CRITICAL: Create new client FIRST, before disposing old one
+            // This ensures we always have a valid client reference
+            var transportOptions = new HttpClientTransportOptions
+            {
+                Endpoint = new Uri(service.NodeAddress),
+                Name = $"McpService_{service.ServiceName}",
+                OmitContentTypeCharset = true
+            };
+
+            if (service.Protocol == "sse")
+            {
+                transportOptions.TransportMode = HttpTransportMode.Sse;
+            }
+            else if (service.Protocol == "streamable-http" || service.Protocol == "http")
+            {
+                transportOptions.TransportMode = HttpTransportMode.StreamableHttp;
+            }
+
+            // Apply authentication if configured
+             if (McpAuthenticationHelper.IsAuthenticationConfigured(
+                service.AuthenticationType,
+                service.AuthenticationConfig))
+            {
+                var authType = service.AuthenticationType!.ToLowerInvariant();
+
+                if (authType == "oauth2")
+                {
+                    transportOptions.OAuth = McpAuthenticationHelper.BuildOAuth2Options(
+                        service.AuthenticationConfig!,
+                        _logger);
+                }
+                else
+                {
+                    // Other auth types (Bearer/Basic/ApiKey) use custom headers
+                    var authHeaders = McpAuthenticationHelper.BuildAuthenticationHeaders(
+                        service.AuthenticationType!,
+                        service.AuthenticationConfig!,
+                        _logger);
+
+                    transportOptions.AdditionalHeaders = McpAuthenticationHelper.BuildAuthenticationHeaders(
+                      service.AuthenticationType!,
+                      service.AuthenticationConfig!,
+                      _logger);
+                }
+            }
+
+            // Create HttpClient
+            var httpClient = new HttpClient()
+            {
+                Timeout = TimeSpan.FromSeconds(10)
+            };
+
+            var transport = new HttpClientTransport(transportOptions, httpClient, ownsHttpClient: true);
+            newClient = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
+
+            // ✅ New client created successfully, now replace the old one
+            _mcpClients[clientIndex] = newClient;
+
+            // ✅ Only dispose old client AFTER successful replacement
+            try
+            {
+                await oldClient.DisposeAsync();
+            }
+            catch (Exception disposeEx)
+            {
+                _logger.LogWarning(disposeEx,
+                    "Server {ServerId}: Error disposing old client {ClientIndex} (new client already active)",
+                    ServerId, clientIndex);
+            }
+
+            _logger.LogInformation(
+                "Server {ServerId}: Successfully recovered MCP client {ClientIndex} for service {ServiceName}",
+                ServerId, clientIndex, service.ServiceName);
+        }
+        catch (Exception ex)
+        {
+            // ⚠️ Recovery failed - old client remains in place (even if disposed)
+            // Clean up new client if it was created
+            if (newClient != null)
+            {
+                try
+                {
+                    await newClient.DisposeAsync();
+                }
+                catch (Exception cleanupEx)
+                {
+                    _logger.LogWarning(cleanupEx,
+                        "Server {ServerId}: Error cleaning up failed new client {ClientIndex}",
+                        ServerId, clientIndex);
+                }
+            }
+
+            _logger.LogError(ex,
+                "Server {ServerId}: Failed to recover MCP client {ClientIndex} for service {ServiceName} - old client remains",
+                ServerId, clientIndex, service.ServiceName);
+            
+            // ⚠️ Do NOT throw - let the system continue with other clients
+            // The old client will be retried on next ping failure
+        }
     }
 
     public async ValueTask DisposeAsync()
