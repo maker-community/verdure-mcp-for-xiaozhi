@@ -68,9 +68,10 @@ WORKDIR /app
 # Copy published files from publish stage
 COPY --from=publish /app/publish .
 
-# Copy entrypoint script
+# Copy entrypoint script and fix line endings
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Convert CRLF to LF (Windows to Unix line endings) and make executable
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:8080
