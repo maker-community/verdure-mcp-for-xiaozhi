@@ -140,7 +140,7 @@ public class McpClientService : IMcpClientService
             // Individual request timeout (not connection lifetime)
             // Set to 10 seconds for fast failure on unavailable tools
             // This applies to tool calls, not the SSE stream itself
-            Timeout = TimeSpan.FromSeconds(10)
+            Timeout = TimeSpan.FromSeconds(5)
         };
 
         // Create transport and client

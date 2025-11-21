@@ -31,6 +31,9 @@ public class McpSessionService : IAsyncDisposable
     private readonly List<McpClient> _mcpClients = new();
     // 🔧 Track service config for each client to enable session recovery
     private readonly Dictionary<int, McpServiceEndpoint> _clientIndexToServiceConfig = new();
+    // 🔧 Track failed services for periodic retry
+    private readonly Dictionary<string, (McpServiceEndpoint Config, DateTime LastAttempt)> _failedServices = new();
+    private readonly TimeSpan _failedServiceRetryInterval = TimeSpan.FromMinutes(5); // Retry failed services every 5 minutes
     private bool _isRunning = false;
 
     // ✅ Ping timeout monitoring
@@ -236,6 +239,9 @@ public class McpSessionService : IAsyncDisposable
                 catch (HttpRequestException ex)
                 {
                     failedServiceNames.Add(service.ServiceName);
+                    // 🔧 Track failed service for periodic retry
+                    _failedServices[service.ServiceName] = (service, DateTime.UtcNow);
+                    
                     _logger.LogWarning(
                         "Server {ServerId}: Skipping MCP service {ServiceName} - HTTP request failed: StatusCode={StatusCode}, Protocol={Protocol}",
                         ServerId, service.ServiceName, ex.StatusCode, service.Protocol);
@@ -243,6 +249,9 @@ public class McpSessionService : IAsyncDisposable
                 catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
                 {
                     failedServiceNames.Add(service.ServiceName);
+                    // 🔧 Track failed service for periodic retry
+                    _failedServices[service.ServiceName] = (service, DateTime.UtcNow);
+                    
                     _logger.LogWarning(
                         "Server {ServerId}: Skipping MCP service {ServiceName} - connection timeout at {NodeAddress}, Protocol={Protocol}",
                         ServerId, service.ServiceName, service.NodeAddress, service.Protocol);
@@ -250,6 +259,9 @@ public class McpSessionService : IAsyncDisposable
                 catch (Exception ex)
                 {
                     failedServiceNames.Add(service.ServiceName);
+                    // 🔧 Track failed service for periodic retry
+                    _failedServices[service.ServiceName] = (service, DateTime.UtcNow);
+                    
                     _logger.LogWarning(
                         "Server {ServerId}: Skipping MCP service {ServiceName} - connection failed: {Error}, Protocol={Protocol}",
                         ServerId, service.ServiceName, ex.Message, service.Protocol);
@@ -387,6 +399,7 @@ public class McpSessionService : IAsyncDisposable
         }
         _mcpClients.Clear();
         _clientIndexToServiceConfig.Clear(); // ✅ Also clear the index mapping
+        _failedServices.Clear(); // ✅ Clear failed services on cleanup (for reconnection)
 
         if (_webSocket != null)
         {
@@ -707,6 +720,21 @@ public class McpSessionService : IAsyncDisposable
         var successResults = results.Where(r => r.success).ToList();
         var avgDuration = successResults.Count != 0 ? successResults.Average(r => r.duration) : 0.0;
 
+        // 响应给小智
+        var response = new
+        {
+            jsonrpc = "2.0",
+            id = id,
+            result = new
+            {
+                // 可选：返回健康状态
+                healthy = results.Any(r => r.success),
+                connectedClients = successCount
+            }
+        };
+
+        await SendWebSocketResponseAsync(response, cancellationToken);
+
         // 🔧 Check for clients that need session recovery (404 errors)
         var clientsNeedingRecovery = results
             .Where(r => r.needsRecovery)
@@ -745,24 +773,75 @@ public class McpSessionService : IAsyncDisposable
             "total time: {TotalTime}ms, avg response: {AvgTime:F2}ms (HttpClient timeout: 10s, total limit: 15s)",
             ServerId, successCount, _mcpClients.Count, totalDuration, avgDuration);
 
-        // 响应给小智
-        var response = new
-        {
-            jsonrpc = "2.0",
-            id = id,
-            result = new
-            {
-                // 可选：返回健康状态
-                healthy = results.Any(r => r.success),
-                connectedClients = successCount
-            }
-        };
-
-        await SendWebSocketResponseAsync(response, cancellationToken);
+        // 🔧 Periodic retry of failed services
+        await TryRecoverFailedServicesAsync(cancellationToken);
 
         _logger.LogDebug(
             "Server {ServerId}: Ping response sent to Xiaozhi (id: {RequestId})",
             ServerId, id);
+    }
+
+    /// <summary>
+    /// Try to recover failed services periodically
+    /// </summary>
+    private async Task TryRecoverFailedServicesAsync(CancellationToken cancellationToken)
+    {
+        if (_failedServices.Count == 0)
+        {
+            return; // No failed services to retry
+        }
+
+        var now = DateTime.UtcNow;
+        var servicesToRetry = _failedServices
+            .Where(kvp => now - kvp.Value.LastAttempt >= _failedServiceRetryInterval)
+            .ToList();
+
+        if (servicesToRetry.Count == 0)
+        {
+            return; // Not time to retry yet
+        }
+
+        _logger.LogInformation(
+            "Server {ServerId}: Attempting to recover {Count} failed service(s): [{Services}]",
+            ServerId,
+            servicesToRetry.Count,
+            string.Join(", ", servicesToRetry.Select(s => s.Key)));
+
+        foreach (var (serviceName, (config, _)) in servicesToRetry)
+        {
+            try
+            {
+                // Try to create MCP client
+                var mcpClient = await _mcpClientService.CreateMcpClientAsync(
+                    $"McpService_{config.ServiceName}",
+                    config.NodeAddress,
+                    config.Protocol,
+                    config.AuthenticationType,
+                    config.AuthenticationConfig,
+                    cancellationToken);
+
+                // Success! Add to active clients
+                var clientIndex = _mcpClients.Count;
+                _mcpClients.Add(mcpClient);
+                _clientIndexToServiceConfig[clientIndex] = config;
+
+                // Remove from failed services
+                _failedServices.Remove(serviceName);
+
+                _logger.LogInformation(
+                    "Server {ServerId}: Successfully recovered MCP service {ServiceName}, now {Connected}/{Total} services active",
+                    ServerId, config.ServiceName, _mcpClients.Count, _config.McpServices.Count);
+            }
+            catch (Exception ex)
+            {
+                // Still failing, update last attempt time
+                _failedServices[serviceName] = (config, now);
+
+                _logger.LogDebug(
+                    "Server {ServerId}: Failed to recover MCP service {ServiceName}: {Error}",
+                    ServerId, config.ServiceName, ex.Message);
+            }
+        }
     }
 
     private async Task HandleToolsListAsync(int? id, CancellationToken cancellationToken)
