@@ -148,17 +148,7 @@ public class McpSessionManager : IAsyncDisposable
                             }
                         }
                     }
-                    else
-                    {
-                        // No filter - include all tools
-                        selectedTools = serviceConfig.Tools.Select(t => new SelectedToolInfo
-                        {
-                            Name = t.Name,
-                            Description = t.Description,
-                            InputSchema = t.InputSchema
-                        }).ToList();
-                    }
-                    
+
                     mcpServiceEndpoints.Add(new McpServiceEndpoint
                     {
                         BindingId = binding.Id,
