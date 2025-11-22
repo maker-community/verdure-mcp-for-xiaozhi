@@ -209,13 +209,13 @@ public class McpSessionService : IAsyncDisposable
         {
             // ⚠️ CRITICAL: Connect to MCP services FIRST, before WebSocket
             // This ensures all backend services are ready before we tell Xiaozhi we're online
-            
-            _logger.LogInformation("Server {ServerId}: Connecting to {Count} MCP service(s)...", 
+
+            _logger.LogInformation("Server {ServerId}: Connecting to {Count} MCP service(s)...",
                 ServerId, _config.McpServices.Count);
 
             // Create MCP clients for each service
             var failedServiceNames = new List<string>(); // Track failed services for summary log
-            
+
             foreach (var service in _config.McpServices)
             {
                 try
@@ -241,7 +241,7 @@ public class McpSessionService : IAsyncDisposable
                     failedServiceNames.Add(service.ServiceName);
                     // 🔧 Track failed service for periodic retry
                     _failedServices[service.ServiceName] = (service, DateTime.UtcNow);
-                    
+
                     _logger.LogWarning(
                         "Server {ServerId}: Skipping MCP service {ServiceName} - HTTP request failed: StatusCode={StatusCode}, Protocol={Protocol}",
                         ServerId, service.ServiceName, ex.StatusCode, service.Protocol);
@@ -251,7 +251,7 @@ public class McpSessionService : IAsyncDisposable
                     failedServiceNames.Add(service.ServiceName);
                     // 🔧 Track failed service for periodic retry
                     _failedServices[service.ServiceName] = (service, DateTime.UtcNow);
-                    
+
                     _logger.LogWarning(
                         "Server {ServerId}: Skipping MCP service {ServiceName} - connection timeout at {NodeAddress}, Protocol={Protocol}",
                         ServerId, service.ServiceName, service.NodeAddress, service.Protocol);
@@ -261,13 +261,13 @@ public class McpSessionService : IAsyncDisposable
                     failedServiceNames.Add(service.ServiceName);
                     // 🔧 Track failed service for periodic retry
                     _failedServices[service.ServiceName] = (service, DateTime.UtcNow);
-                    
+
                     _logger.LogWarning(
                         "Server {ServerId}: Skipping MCP service {ServiceName} - connection failed: {Error}, Protocol={Protocol}",
                         ServerId, service.ServiceName, ex.Message, service.Protocol);
                 }
             }
-            
+
             // ✅ Log summary of connection results (useful for quick diagnostics)
             if (failedServiceNames.Count > 0)
             {
@@ -846,29 +846,23 @@ public class McpSessionService : IAsyncDisposable
 
     private async Task HandleToolsListAsync(int? id, CancellationToken cancellationToken)
     {
-        if (_mcpClients.Count == 0)
+        // ✅ 直接检查配置，不依赖 MCP 客户端状态
+        if (_config.McpServices.Count == 0)
         {
-            _logger.LogWarning("Server {ServerId}: No MCP clients available for tools/list request", ServerId);
-            await SendErrorResponseAsync(id, -32603, "No MCP services available",
-                "No active MCP service bindings configured for this endpoint", cancellationToken);
+            _logger.LogWarning("Server {ServerId}: No MCP services configured for tools/list request", ServerId);
+            await SendErrorResponseAsync(id, -32603, "No MCP services configured",
+                "No MCP service bindings configured for this endpoint", cancellationToken);
             return;
         }
 
         try
         {
-            // 🚀 优化：直接从绑定的工具数据获取，无需查询数据库或调用 MCP 服务！
+            // 🚀 优化：直接从配置的工具数据获取，不依赖 MCP 客户端连接状态！
             var allTools = new List<object>();
 
-            for (int i = 0; i < _mcpClients.Count; i++)
+            // ✅ 直接遍历配置中的所有服务
+            foreach (var serviceConfig in _config.McpServices)
             {
-                // ✅ Use the tracked service config for this client (correct index mapping)
-                var serviceConfig = _clientIndexToServiceConfig.TryGetValue(i, out var config) ? config : null;
-                if (serviceConfig == null)
-                {
-                    _logger.LogWarning("Server {ServerId}: No service config found for client index {Index}", ServerId, i);
-                    continue;
-                }
-
                 try
                 {
                     // 直接从 SelectedTools 获取完整的工具信息
@@ -966,7 +960,7 @@ public class McpSessionService : IAsyncDisposable
             }
 
             _logger.LogInformation("Server {ServerId}: Calling tool {ToolName} with arguments: {Arguments}",
-                ServerId, toolName, JsonSerializer.Serialize(arguments));
+                ServerId, toolName, JsonSerializer.Serialize(arguments, _jsonOptions));
 
             // Try to call the tool on each MCP client until one succeeds
             object? result = null;
