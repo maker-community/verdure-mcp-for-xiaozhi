@@ -88,7 +88,7 @@ services:
 
   # Verdure MCP Platform (API + Web)
   app:
-    image: gilzhang/verdure-mcp-platform:alpine-v1.0.6
+    image: gilzhang/verdure-mcp-platform:alpine-v1.0.7
     container_name: verdure-mcp-app
     ports:
       - "8080:8080"
