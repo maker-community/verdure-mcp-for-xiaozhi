@@ -78,6 +78,12 @@ public static class McpServiceConfigApi
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
+        api.MapPost("/sync-all-tools", SyncAllToolsAsync)
+            .WithName("SyncAllMcpServiceTools")
+            .RequireAuthorization("AdminOnly")
+            .Produces<SyncAllToolsResultDto>()
+            .Produces(StatusCodes.Status403Forbidden);
+
         return api;
     }
 
@@ -247,5 +253,12 @@ public static class McpServiceConfigApi
         {
             return TypedResults.NotFound();
         }
+    }
+
+    private static async Task<Ok<SyncAllToolsResultDto>> SyncAllToolsAsync(
+        IMcpServiceConfigService mcpServiceConfigService)
+    {
+        var result = await mcpServiceConfigService.SyncAllToolsAsync();
+        return TypedResults.Ok(result);
     }
 }

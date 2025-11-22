@@ -181,6 +181,15 @@ public class McpServiceConfigRepository : IMcpServiceConfigRepository
         return (items, totalCount);
     }
 
+    public async Task<IEnumerable<McpServiceConfig>> GetAllAsync()
+    {
+        return await _context.McpServiceConfigs
+            .AsNoTracking()
+            .Include(s => s.Tools)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
+    }
+
     public async Task<bool> DeleteAsync(string id)
     {
         var config = await _context.McpServiceConfigs.FindAsync(id);

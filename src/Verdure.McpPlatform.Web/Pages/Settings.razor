@@ -3,7 +3,13 @@
 @attribute [Authorize]
 @using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
+@using Microsoft.AspNetCore.Components.Authorization
+@using Verdure.McpPlatform.Web.Extensions
+@using Verdure.McpPlatform.Contracts.DTOs
 @inject IStringLocalizer<SharedResources> Loc
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IMcpServiceConfigClientService ServiceConfigService
+@inject ISnackbar Snackbar
 
 <PageTitle>@Loc["Settings"] - @Loc["AppTitle"]</PageTitle>
 
@@ -88,4 +94,131 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
+
+    @* Admin Actions - Only visible for Admin users *@
+    @if (_isAdmin)
+    {
+        <MudItem xs="12" md="8">
+            <MudCard Elevation="2">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <div class="d-flex align-center">
+                            <MudIcon Icon="@Icons.Material.Filled.AdminPanelSettings" Class="mr-2" Color="Color.Warning" />
+                            <MudText Typo="Typo.h6">@Loc["AdminActions"]</MudText>
+                        </div>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                        @Loc["AdminActionsDescription"]
+                    </MudText>
+                    
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Primary"
+                              StartIcon="@Icons.Material.Filled.Sync"
+                              OnClick="SyncAllToolsAsync"
+                              Disabled="_isSyncing"
+                              Size="Size.Large">
+                        @if (_isSyncing)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                            <span>@Loc["SyncingAllTools"]</span>
+                        }
+                        else
+                        {
+                            <span>@Loc["SyncAllMcpTools"]</span>
+                        }
+                    </MudButton>
+                    
+                    @if (_syncResult != null)
+                    {
+                        <MudAlert Severity="@GetSyncResultSeverity()" Class="mt-4" Variant="Variant.Filled">
+                            <MudText Typo="Typo.body1" Class="mb-2">
+                                <strong>@Loc["SyncCompleted"]:</strong>
+                            </MudText>
+                            <MudText Typo="Typo.body2">
+                                • @Loc["TotalProcessed"]: @_syncResult.TotalProcessed
+                            </MudText>
+                            <MudText Typo="Typo.body2">
+                                • @Loc["SuccessCount"]: @_syncResult.SuccessCount
+                            </MudText>
+                            <MudText Typo="Typo.body2">
+                                • @Loc["FailedCount"]: @_syncResult.FailedCount
+                            </MudText>
+                            
+                            @if (_syncResult.FailedServices.Any())
+                            {
+                                <MudText Typo="Typo.body2" Class="mt-3 mb-1">
+                                    <strong>@Loc["FailedServices"]:</strong>
+                                </MudText>
+                                <ul style="margin-top: 4px; padding-left: 20px;">
+                                    @foreach (var failed in _syncResult.FailedServices)
+                                    {
+                                        <li>
+                                            <strong>@failed.ServiceName</strong>: @failed.ErrorMessage
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </MudAlert>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    }
 </MudGrid>
+
+@code {
+    private bool _isAdmin = false;
+    private bool _isSyncing = false;
+    private SyncAllToolsResultDto? _syncResult = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check if user is admin
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _isAdmin = authState.User.IsAdmin();
+    }
+
+    private async Task SyncAllToolsAsync()
+    {
+        if (_isSyncing) return;
+
+        try
+        {
+            _isSyncing = true;
+            _syncResult = null;
+            StateHasChanged();
+
+            Snackbar.Add(Loc["StartingSyncAllTools"], Severity.Info);
+
+            _syncResult = await ServiceConfigService.SyncAllToolsAsync();
+
+            if (_syncResult.FailedCount == 0)
+            {
+                Snackbar.Add(Loc["SyncAllToolsSuccess", _syncResult.SuccessCount], Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add(Loc["SyncAllToolsPartialSuccess", _syncResult.SuccessCount, _syncResult.FailedCount], Severity.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(Loc["SyncAllToolsError", ex.Message], Severity.Error);
+        }
+        finally
+        {
+            _isSyncing = false;
+            StateHasChanged();
+        }
+    }
+
+    private Severity GetSyncResultSeverity()
+    {
+        if (_syncResult == null) return Severity.Info;
+        if (_syncResult.FailedCount == 0) return Severity.Success;
+        if (_syncResult.SuccessCount > 0) return Severity.Warning;
+        return Severity.Error;
+    }
+}

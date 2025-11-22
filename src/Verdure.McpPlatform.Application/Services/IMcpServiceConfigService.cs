@@ -21,6 +21,12 @@ public interface IMcpServiceConfigService
     Task<IEnumerable<McpToolDto>> GetToolsAsync(string serviceId, string userId);
     
     /// <summary>
+    /// Sync tools for all MCP services - Admin only
+    /// Returns list of failed service names
+    /// </summary>
+    Task<SyncAllToolsResultDto> SyncAllToolsAsync();
+    
+    /// <summary>
     /// Set a service as public - Admin only
     /// </summary>
     Task SetPublicAsync(string id, string adminUserId);

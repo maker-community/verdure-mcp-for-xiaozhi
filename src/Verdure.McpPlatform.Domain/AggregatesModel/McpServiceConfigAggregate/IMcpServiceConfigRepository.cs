@@ -26,6 +26,7 @@ public interface IMcpServiceConfigRepository : IRepository<McpServiceConfig>
         string? searchTerm = null,
         string? sortBy = null,
         bool sortDescending = true);
+    Task<IEnumerable<McpServiceConfig>> GetAllAsync();
     Task<bool> DeleteAsync(string id);
     Task<IEnumerable<McpTool>> GetToolsByUserIdAsync(string userId);
     Task<IEnumerable<McpTool>> GetToolsByServiceConfigIdAsync(string serviceConfigId);

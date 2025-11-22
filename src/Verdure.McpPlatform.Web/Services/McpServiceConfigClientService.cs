@@ -215,4 +215,21 @@ public class McpServiceConfigClientService : IMcpServiceConfigClientService
             throw;
         }
     }
+
+    public async Task<SyncAllToolsResultDto> SyncAllToolsAsync()
+    {
+        try
+        {
+            var response = await _httpClient.PostAsync("api/mcp-services/sync-all-tools", null);
+            response.EnsureSuccessStatusCode();
+            
+            var result = await response.Content.ReadFromJsonAsync<SyncAllToolsResultDto>();
+            return result ?? new SyncAllToolsResultDto { TotalProcessed = 0, SuccessCount = 0, FailedCount = 0 };
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to sync all MCP service tools");
+            throw;
+        }
+    }
 }

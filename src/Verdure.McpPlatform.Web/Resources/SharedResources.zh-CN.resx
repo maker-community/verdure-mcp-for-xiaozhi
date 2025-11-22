@@ -1292,4 +1292,45 @@
   <data name="ErrorSettingPrivate" xml:space="preserve">
     <value>设置为私有时出错：{0}</value>
   </data>
+  
+  <!-- Admin Actions -->
+  <data name="AdminActions" xml:space="preserve">
+    <value>管理员操作</value>
+  </data>
+  <data name="AdminActionsDescription" xml:space="preserve">
+    <value>以下操作仅对管理员可用。请谨慎使用这些功能。</value>
+  </data>
+  <data name="SyncAllMcpTools" xml:space="preserve">
+    <value>同步所有 MCP 工具</value>
+  </data>
+  <data name="SyncingAllTools" xml:space="preserve">
+    <value>正在同步工具...</value>
+  </data>
+  <data name="StartingSyncAllTools" xml:space="preserve">
+    <value>开始同步所有 MCP 服务工具...</value>
+  </data>
+  <data name="SyncCompleted" xml:space="preserve">
+    <value>同步完成</value>
+  </data>
+  <data name="TotalProcessed" xml:space="preserve">
+    <value>处理总数</value>
+  </data>
+  <data name="SuccessCount" xml:space="preserve">
+    <value>成功数量</value>
+  </data>
+  <data name="FailedCount" xml:space="preserve">
+    <value>失败数量</value>
+  </data>
+  <data name="FailedServices" xml:space="preserve">
+    <value>失败的服务</value>
+  </data>
+  <data name="SyncAllToolsSuccess" xml:space="preserve">
+    <value>成功同步 {0} 个服务的工具！</value>
+  </data>
+  <data name="SyncAllToolsPartialSuccess" xml:space="preserve">
+    <value>已成功同步 {0} 个服务，{1} 个服务失败</value>
+  </data>
+  <data name="SyncAllToolsError" xml:space="preserve">
+    <value>同步工具时出错：{0}</value>
+  </data>
 </root>

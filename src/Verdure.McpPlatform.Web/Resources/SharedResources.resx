@@ -1218,4 +1218,45 @@
   <data name="UseThisService" xml:space="preserve">
     <value>Use This Service</value>
   </data>
+  
+  <!-- Admin Actions -->
+  <data name="AdminActions" xml:space="preserve">
+    <value>Admin Actions</value>
+  </data>
+  <data name="AdminActionsDescription" xml:space="preserve">
+    <value>The following operations are only available to administrators. Please use these features with caution.</value>
+  </data>
+  <data name="SyncAllMcpTools" xml:space="preserve">
+    <value>Sync All MCP Tools</value>
+  </data>
+  <data name="SyncingAllTools" xml:space="preserve">
+    <value>Syncing tools...</value>
+  </data>
+  <data name="StartingSyncAllTools" xml:space="preserve">
+    <value>Starting to sync all MCP service tools...</value>
+  </data>
+  <data name="SyncCompleted" xml:space="preserve">
+    <value>Sync Completed</value>
+  </data>
+  <data name="TotalProcessed" xml:space="preserve">
+    <value>Total Processed</value>
+  </data>
+  <data name="SuccessCount" xml:space="preserve">
+    <value>Success Count</value>
+  </data>
+  <data name="FailedCount" xml:space="preserve">
+    <value>Failed Count</value>
+  </data>
+  <data name="FailedServices" xml:space="preserve">
+    <value>Failed Services</value>
+  </data>
+  <data name="SyncAllToolsSuccess" xml:space="preserve">
+    <value>Successfully synced tools for {0} services!</value>
+  </data>
+  <data name="SyncAllToolsPartialSuccess" xml:space="preserve">
+    <value>Successfully synced {0} services, {1} services failed</value>
+  </data>
+  <data name="SyncAllToolsError" xml:space="preserve">
+    <value>Error syncing tools: {0}</value>
+  </data>
 </root>

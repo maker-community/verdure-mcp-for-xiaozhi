@@ -260,6 +260,81 @@ public class McpServiceConfigService : IMcpServiceConfigService
             adminUserId);
     }
 
+    public async Task<SyncAllToolsResultDto> SyncAllToolsAsync()
+    {
+        _logger.LogInformation("Starting sync all tools operation");
+
+        var allConfigs = await _repository.GetAllAsync();
+        var allConfigsList = allConfigs.ToList();
+        
+        var totalProcessed = allConfigsList.Count;
+        var successCount = 0;
+        var failedServices = new List<FailedServiceSync>();
+
+        foreach (var config in allConfigsList)
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "Syncing tools for service {ServiceId} ({ServiceName})",
+                    config.Id,
+                    config.Name);
+
+                // Connect to the MCP service and retrieve tools
+                var toolInfos = await _mcpClientService.GetToolsAsync(config);
+                
+                // Convert tool infos to domain entities
+                var tools = toolInfos.Select(info => 
+                    new McpTool(info.Name, config.Id, config.UserId, info.Description, info.InputSchema)).ToList();
+                
+                // Update the service config with the new tools
+                config.UpdateTools(tools);
+                
+                _repository.Update(config);
+                await _repository.UnitOfWork.SaveEntitiesAsync();
+
+                successCount++;
+                
+                _logger.LogInformation(
+                    "Successfully synced {ToolCount} tools for service {ServiceId} ({ServiceName})",
+                    tools.Count,
+                    config.Id,
+                    config.Name);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to sync tools for service {ServiceId} ({ServiceName})",
+                    config.Id,
+                    config.Name);
+                
+                failedServices.Add(new FailedServiceSync
+                {
+                    ServiceId = config.Id,
+                    ServiceName = config.Name,
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
+
+        var result = new SyncAllToolsResultDto
+        {
+            TotalProcessed = totalProcessed,
+            SuccessCount = successCount,
+            FailedCount = failedServices.Count,
+            FailedServices = failedServices
+        };
+
+        _logger.LogInformation(
+            "Sync all tools completed: {TotalProcessed} total, {SuccessCount} success, {FailedCount} failed",
+            totalProcessed,
+            successCount,
+            failedServices.Count);
+
+        return result;
+    }
+
     private static McpServiceConfigDto MapToDto(McpServiceConfig config)
     {
         return new McpServiceConfigDto

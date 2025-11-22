@@ -68,4 +68,9 @@ public interface IMcpServiceConfigClientService
     /// Set a service as private - Admin only
     /// </summary>
     Task SetPrivateAsync(string id);
+
+    /// <summary>
+    /// Sync tools for all MCP services - Admin only
+    /// </summary>
+    Task<SyncAllToolsResultDto> SyncAllToolsAsync();
 }
