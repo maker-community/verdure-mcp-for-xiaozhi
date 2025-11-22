@@ -856,43 +856,46 @@ public class McpSessionService : IAsyncDisposable
 
         try
         {
-            // Collect tools from all MCP clients
+            // 🚀 优化：直接从绑定的工具数据获取，无需查询数据库或调用 MCP 服务！
             var allTools = new List<object>();
 
             for (int i = 0; i < _mcpClients.Count; i++)
             {
-                var mcpClient = _mcpClients[i];
                 // ✅ Use the tracked service config for this client (correct index mapping)
                 var serviceConfig = _clientIndexToServiceConfig.TryGetValue(i, out var config) ? config : null;
+                if (serviceConfig == null)
+                {
+                    _logger.LogWarning("Server {ServerId}: No service config found for client index {Index}", ServerId, i);
+                    continue;
+                }
 
                 try
                 {
-                    var toolsResponse = await mcpClient.ListToolsAsync(null, cancellationToken);
-
-                    foreach (var tool in toolsResponse)
+                    // 直接从 SelectedTools 获取完整的工具信息
+                    foreach (var tool in serviceConfig.SelectedTools)
                     {
-                        // If service has selected tools, only include those
-                        if (serviceConfig != null && serviceConfig.SelectedToolNames.Count > 0)
-                        {
-                            if (!serviceConfig.SelectedToolNames.Contains(tool.Name))
-                            {
-                                continue; // Skip tools not in the selected list
-                            }
-                        }
-
+                        // 解析存储的 InputSchema JSON
                         var properties = new Dictionary<string, object>();
                         var required = Array.Empty<string>();
 
-                        if (tool.JsonSchema.ValueKind != JsonValueKind.Undefined)
+                        if (!string.IsNullOrEmpty(tool.InputSchema))
                         {
-                            if (tool.JsonSchema.TryGetProperty("properties", out var propsElement))
+                            try
                             {
-                                properties = JsonElementToObject(propsElement) as Dictionary<string, object> ?? new Dictionary<string, object>();
-                            }
+                                var schemaDoc = JsonDocument.Parse(tool.InputSchema);
+                                if (schemaDoc.RootElement.TryGetProperty("properties", out var propsElement))
+                                {
+                                    properties = JsonElementToObject(propsElement) as Dictionary<string, object> ?? new Dictionary<string, object>();
+                                }
 
-                            if (tool.JsonSchema.TryGetProperty("required", out var reqElement))
+                                if (schemaDoc.RootElement.TryGetProperty("required", out var reqElement))
+                                {
+                                    required = reqElement.EnumerateArray().Select(x => x.GetString() ?? "").ToArray();
+                                }
+                            }
+                            catch (Exception ex)
                             {
-                                required = reqElement.EnumerateArray().Select(x => x.GetString() ?? "").ToArray();
+                                _logger.LogWarning(ex, "Failed to parse InputSchema for tool {ToolName}", tool.Name);
                             }
                         }
 
@@ -909,10 +912,14 @@ public class McpSessionService : IAsyncDisposable
                             }
                         });
                     }
+
+                    _logger.LogDebug(
+                        "Server {ServerId}: Loaded {Count} tools from binding for service {ServiceName}",
+                        ServerId, serviceConfig.SelectedTools.Count, serviceConfig.ServiceName);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error fetching tools from MCP client");
+                    _logger.LogError(ex, "Error processing tools for service {ServiceName}", serviceConfig.ServiceName);
                 }
             }
 
@@ -971,10 +978,10 @@ public class McpSessionService : IAsyncDisposable
                 // ✅ Use the tracked service config for this client (correct index mapping)
                 var serviceConfig = _clientIndexToServiceConfig.TryGetValue(i, out var config) ? config : null;
 
-                // Check if tool is allowed for this service
-                if (serviceConfig != null && serviceConfig.SelectedToolNames.Count > 0)
+                // Check if tool is allowed for this service (using SelectedTools instead of SelectedToolNames)
+                if (serviceConfig != null && serviceConfig.SelectedTools.Count > 0)
                 {
-                    if (!serviceConfig.SelectedToolNames.Contains(toolName))
+                    if (!serviceConfig.SelectedTools.Any(t => t.Name == toolName))
                     {
                         continue; // Skip this client if tool is not in selected list
                     }

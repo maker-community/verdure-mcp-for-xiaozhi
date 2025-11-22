@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Client;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
 namespace Verdure.McpPlatform.Application.Services;
@@ -17,6 +20,13 @@ namespace Verdure.McpPlatform.Application.Services;
 public class McpClientService : IMcpClientService
 {
     private readonly ILogger<McpClientService> _logger;
+
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = false,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping // 支持中文等字符正常显示
+    };
 
     public McpClientService(ILogger<McpClientService> logger)
     {
@@ -198,8 +208,10 @@ public class McpClientService : IMcpClientService
             {
                 Name = tool.Name ?? "Unknown",
                 Description = tool.Description,
-                // Note: Schema information will be available in future SDK versions
-                InputSchema = null
+                // Serialize the JsonSchema to string for storage
+                InputSchema = tool.JsonSchema.ValueKind != System.Text.Json.JsonValueKind.Undefined 
+                    ? JsonSerializer.Serialize(tool.JsonSchema, _jsonSerializerOptions)
+                    : null
             }).ToList();
 
             _logger.LogInformation(

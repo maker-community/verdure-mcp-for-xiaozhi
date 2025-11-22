@@ -107,7 +107,7 @@ public class McpSessionManager : IAsyncDisposable
             var serverRepository = scope.ServiceProvider.GetRequiredService<IXiaozhiMcpEndpointRepository>();
             var configRepository = scope.ServiceProvider.GetRequiredService<IMcpServiceConfigRepository>();
             var mcpClientService = scope.ServiceProvider.GetRequiredService<IMcpClientService>();
-            
+
             var server = await serverRepository.GetAsync(serverId);
             if (server == null)
             {
@@ -128,12 +128,43 @@ public class McpSessionManager : IAsyncDisposable
                 var serviceConfig = await configRepository.GetByIdAsync(binding.McpServiceConfigId);
                 if (serviceConfig != null)
                 {
+                    // 🚀 Build selected tools with complete information (name, description, InputSchema)
+                    var selectedTools = new List<SelectedToolInfo>();
+                    
+                    if (binding.SelectedToolNames.Count > 0)
+                    {
+                        // Filter tools by selected names
+                        foreach (var toolName in binding.SelectedToolNames)
+                        {
+                            var tool = serviceConfig.Tools.FirstOrDefault(t => t.Name == toolName);
+                            if (tool != null)
+                            {
+                                selectedTools.Add(new SelectedToolInfo
+                                {
+                                    Name = tool.Name,
+                                    Description = tool.Description,
+                                    InputSchema = tool.InputSchema
+                                });
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // No filter - include all tools
+                        selectedTools = serviceConfig.Tools.Select(t => new SelectedToolInfo
+                        {
+                            Name = t.Name,
+                            Description = t.Description,
+                            InputSchema = t.InputSchema
+                        }).ToList();
+                    }
+                    
                     mcpServiceEndpoints.Add(new McpServiceEndpoint
                     {
                         BindingId = binding.Id,
                         ServiceName = serviceConfig.Name,
                         NodeAddress = serviceConfig.Endpoint,
-                        SelectedToolNames = binding.SelectedToolNames.ToList(),
+                        SelectedTools = selectedTools, // 🚀 Direct tool data binding!
                         // ✅ Pass authentication configuration from McpServiceConfig
                         AuthenticationType = serviceConfig.AuthenticationType,
                         AuthenticationConfig = serviceConfig.AuthenticationConfig,
@@ -141,8 +172,9 @@ public class McpSessionManager : IAsyncDisposable
                     });
                     
                     _logger.LogDebug(
-                        "Added service endpoint {ServiceName} with authentication: {AuthType}",
+                        "Added service endpoint {ServiceName} with {ToolCount} tools and authentication: {AuthType}",
                         serviceConfig.Name,
+                        selectedTools.Count,
                         serviceConfig.AuthenticationType ?? "none");
                 }
                 else

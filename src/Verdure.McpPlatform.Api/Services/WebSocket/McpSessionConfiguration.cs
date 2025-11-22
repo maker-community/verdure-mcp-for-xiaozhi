@@ -20,7 +20,12 @@ public class McpServiceEndpoint
     public string BindingId { get; set; } = string.Empty;
     public string ServiceName { get; set; } = string.Empty;
     public string NodeAddress { get; set; } = string.Empty;
-    public List<string> SelectedToolNames { get; set; } = new();
+    
+    /// <summary>
+    /// Selected tools with complete information (name, description, InputSchema)
+    /// 🚀 Optimized: Directly contains tool data, no need to query database when listing tools
+    /// </summary>
+    public List<SelectedToolInfo> SelectedTools { get; set; } = new();
     
     /// <summary>
     /// Authentication type (bearer, basic, apikey, oauth2)
@@ -36,6 +41,16 @@ public class McpServiceEndpoint
     /// Protocol type (stdio, streamable-http, http, sse)
     /// </summary>
     public string? Protocol { get; set; }
+}
+
+/// <summary>
+/// Complete tool information for selected tools
+/// </summary>
+public class SelectedToolInfo
+{
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string? InputSchema { get; set; }
 }
 
 /// <summary>
