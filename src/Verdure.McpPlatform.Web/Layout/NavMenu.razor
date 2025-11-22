@@ -1,6 +1,9 @@
 ﻿@using Microsoft.Extensions.Localization
 @using Verdure.McpPlatform.Web.Resources
+@using Microsoft.AspNetCore.Components.Authorization
+@using Verdure.McpPlatform.Web.Extensions
 @inject IStringLocalizer<SharedResources> Loc
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <MudNavMenu Class="pa-2">
     <!-- Logo 品牌区域 -->
@@ -63,6 +66,22 @@
                 @Loc["ServiceBindings"]
             </MudNavLink>
             
+            @if (_isAdmin)
+            {
+                <!-- M3 分组标题 - Admin -->
+                <div class="m3-nav-section-title" style="margin-top: var(--m3-spacing-lg);">
+                    @Loc["Administration"]
+                </div>
+                
+                <!-- M3 导航链接 - Admin MCP Services -->
+                <MudNavLink Href="/admin/mcp-services" 
+                            Icon="@Icons.Material.Filled.AdminPanelSettings"
+                            IconColor="Color.Warning"
+                            Class="m3-nav-item">
+                    @Loc["AdminMcpServices"]
+                </MudNavLink>
+            }
+            
             <!-- M3 分隔线 -->
             <MudDivider Class="my-4" Style="opacity: 0.12;" />
             
@@ -92,3 +111,13 @@
         </NotAuthorized>
     </AuthorizeView>
 </MudNavMenu>
+
+@code {
+    private bool _isAdmin = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _isAdmin = authState.User.IsAdmin();
+    }
+}

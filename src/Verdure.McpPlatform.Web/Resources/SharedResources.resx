@@ -1259,4 +1259,48 @@
   <data name="SyncAllToolsError" xml:space="preserve">
     <value>Error syncing tools: {0}</value>
   </data>
+  
+  <!-- Admin MCP Services Page -->
+  <data name="Administration" xml:space="preserve">
+    <value>Administration</value>
+  </data>
+  <data name="AdminMcpServices" xml:space="preserve">
+    <value>Admin MCP Services</value>
+  </data>
+  <data name="ManageAllMcpServices" xml:space="preserve">
+    <value>View and manage all users' MCP services</value>
+  </data>
+  <data name="NoServicesFound" xml:space="preserve">
+    <value>No services found</value>
+  </data>
+  <data name="Creator" xml:space="preserve">
+    <value>Creator</value>
+  </data>
+  <data name="Protocol" xml:space="preserve">
+    <value>Protocol</value>
+  </data>
+  <data name="Syncing" xml:space="preserve">
+    <value>Syncing...</value>
+  </data>
+  <data name="SyncTools" xml:space="preserve">
+    <value>Sync Tools</value>
+  </data>
+  <data name="SyncToolsSuccess" xml:space="preserve">
+    <value>Successfully synced tools for service "{0}"</value>
+  </data>
+  <data name="SyncToolsError" xml:space="preserve">
+    <value>Error syncing tools for service "{0}": {1}</value>
+  </data>
+  <data name="ErrorLoadingServices" xml:space="preserve">
+    <value>Error loading services</value>
+  </data>
+  <data name="NoServicesYet" xml:space="preserve">
+    <value>No services yet</value>
+  </data>
+  <data name="NoMatchingServices" xml:space="preserve">
+    <value>No services found matching "{0}"</value>
+  </data>
+  <data name="ClearSearch" xml:space="preserve">
+    <value>Clear Search</value>
+  </data>
 </root>

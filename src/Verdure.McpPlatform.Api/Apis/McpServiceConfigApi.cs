@@ -84,6 +84,17 @@ public static class McpServiceConfigApi
             .Produces<SyncAllToolsResultDto>()
             .Produces(StatusCodes.Status403Forbidden);
 
+        api.MapGet("/admin/all/paged", GetAllServicesForAdminAsync)
+            .WithName("GetAllMcpServicesForAdmin")
+            .RequireAuthorization("AdminOnly")
+            .Produces<PagedResult<McpServiceConfigDto>>();
+
+        api.MapPost("/{id}/admin-sync-tools", AdminSyncToolsAsync)
+            .WithName("AdminSyncMcpServiceTools")
+            .RequireAuthorization("AdminOnly")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound);
+
         return api;
     }
 
@@ -260,5 +271,36 @@ public static class McpServiceConfigApi
     {
         var result = await mcpServiceConfigService.SyncAllToolsAsync();
         return TypedResults.Ok(result);
+    }
+
+    private static async Task<Ok<PagedResult<McpServiceConfigDto>>> GetAllServicesForAdminAsync(
+        [AsParameters] PagedRequest request,
+        IMcpServiceConfigService mcpServiceConfigService)
+    {
+        var result = await mcpServiceConfigService.GetAllServicesForAdminAsync(request);
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<Results<NoContent, NotFound, ProblemHttpResult>> AdminSyncToolsAsync(
+        string id,
+        IMcpServiceConfigService mcpServiceConfigService)
+    {
+        try
+        {
+            await mcpServiceConfigService.AdminSyncToolsAsync(id);
+            return TypedResults.NoContent();
+        }
+        catch (InvalidOperationException)
+        {
+            return TypedResults.NotFound();
+        }
+        catch (NotImplementedException ex)
+        {
+            return TypedResults.Problem(ex.Message, statusCode: StatusCodes.Status501NotImplemented);
+        }
+        catch (Exception ex)
+        {
+            return TypedResults.Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+        }
     }
 }

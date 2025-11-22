@@ -1333,4 +1333,48 @@
   <data name="SyncAllToolsError" xml:space="preserve">
     <value>同步工具时出错：{0}</value>
   </data>
+  
+  <!-- Admin MCP Services Page -->
+  <data name="Administration" xml:space="preserve">
+    <value>管理</value>
+  </data>
+  <data name="AdminMcpServices" xml:space="preserve">
+    <value>管理 MCP 服务</value>
+  </data>
+  <data name="ManageAllMcpServices" xml:space="preserve">
+    <value>查看和管理所有用户的 MCP 服务</value>
+  </data>
+  <data name="NoServicesFound" xml:space="preserve">
+    <value>未找到服务</value>
+  </data>
+  <data name="Creator" xml:space="preserve">
+    <value>创建者</value>
+  </data>
+  <data name="Protocol" xml:space="preserve">
+    <value>协议</value>
+  </data>
+  <data name="Syncing" xml:space="preserve">
+    <value>同步中...</value>
+  </data>
+  <data name="SyncTools" xml:space="preserve">
+    <value>同步工具</value>
+  </data>
+  <data name="SyncToolsSuccess" xml:space="preserve">
+    <value>成功同步服务"{0}"的工具</value>
+  </data>
+  <data name="SyncToolsError" xml:space="preserve">
+    <value>同步服务"{0}"的工具时出错：{1}</value>
+  </data>
+  <data name="ErrorLoadingServices" xml:space="preserve">
+    <value>加载服务时出错</value>
+  </data>
+  <data name="NoServicesYet" xml:space="preserve">
+    <value>还没有服务</value>
+  </data>
+  <data name="NoMatchingServices" xml:space="preserve">
+    <value>未找到与“{0}”匹配的服务</value>
+  </data>
+  <data name="ClearSearch" xml:space="preserve">
+    <value>清除搜索</value>
+  </data>
 </root>

@@ -335,6 +335,75 @@ public class McpServiceConfigService : IMcpServiceConfigService
         return result;
     }
 
+    public async Task<PagedResult<McpServiceConfigDto>> GetAllServicesForAdminAsync(PagedRequest request)
+    {
+        var (items, totalCount) = await _repository.GetAllPagedAsync(
+            request.GetSkip(),
+            request.GetSafePageSize(),
+            request.SearchTerm,
+            request.SortBy,
+            request.SortOrder?.ToLower() == "desc");
+
+        // 批量获取创建者信息
+        var userIds = items.Select(c => c.UserId).Distinct().ToList();
+        var userInfoMap = await _userInfoService.GetUsersByIdsAsync(userIds);
+
+        // 使用 MapToPublicDto 隐藏敏感信息
+        var dtos = items.Select(config => MapToPublicDto(config, userInfoMap));
+
+        return PagedResult<McpServiceConfigDto>.Create(
+            dtos,
+            totalCount,
+            request.GetSafePage(),
+            request.GetSafePageSize());
+    }
+
+    public async Task AdminSyncToolsAsync(string id)
+    {
+        var config = await _repository.GetByIdAsync(id);
+        
+        if (config == null)
+        {
+            throw new InvalidOperationException($"Service config {id} not found");
+        }
+
+        _logger.LogInformation(
+            "Admin starting tool sync for MCP service config {ConfigId} ({ServiceName})",
+            config.Id,
+            config.Name);
+
+        try
+        {
+            // Connect to the MCP service and retrieve tools
+            var toolInfos = await _mcpClientService.GetToolsAsync(config);
+            
+            // Convert tool infos to domain entities
+            var tools = toolInfos.Select(info => 
+                new McpTool(info.Name, config.Id, config.UserId, info.Description, info.InputSchema)).ToList();
+            
+            // Update the service config with the new tools
+            config.UpdateTools(tools);
+            
+            _repository.Update(config);
+            await _repository.UnitOfWork.SaveEntitiesAsync();
+
+            _logger.LogInformation(
+                "Admin successfully synced {Count} tools for MCP service config {ConfigId} ({ServiceName})",
+                tools.Count,
+                config.Id,
+                config.Name);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Admin failed to sync tools for MCP service config {ConfigId} ({ServiceName})",
+                config.Id,
+                config.Name);
+            throw;
+        }
+    }
+
     private static McpServiceConfigDto MapToDto(McpServiceConfig config)
     {
         return new McpServiceConfigDto

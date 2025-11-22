@@ -73,4 +73,14 @@ public interface IMcpServiceConfigClientService
     /// Sync tools for all MCP services - Admin only
     /// </summary>
     Task<SyncAllToolsResultDto> SyncAllToolsAsync();
+
+    /// <summary>
+    /// Get all MCP services for admin - Paged with public DTO (no sensitive data)
+    /// </summary>
+    Task<PagedResult<McpServiceConfigDto>> GetAllServicesForAdminAsync(PagedRequest request);
+
+    /// <summary>
+    /// Admin sync tools for a specific service - Admin only
+    /// </summary>
+    Task AdminSyncToolsAsync(string id);
 }

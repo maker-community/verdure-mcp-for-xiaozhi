@@ -27,6 +27,16 @@ public interface IMcpServiceConfigService
     Task<SyncAllToolsResultDto> SyncAllToolsAsync();
     
     /// <summary>
+    /// Get all MCP services (for admin) - Returns public DTO without sensitive data
+    /// </summary>
+    Task<PagedResult<McpServiceConfigDto>> GetAllServicesForAdminAsync(PagedRequest request);
+    
+    /// <summary>
+    /// Admin sync tools for any service by ID
+    /// </summary>
+    Task AdminSyncToolsAsync(string id);
+    
+    /// <summary>
     /// Set a service as public - Admin only
     /// </summary>
     Task SetPublicAsync(string id, string adminUserId);

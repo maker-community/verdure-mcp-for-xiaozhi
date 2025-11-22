@@ -232,4 +232,43 @@ public class McpServiceConfigClientService : IMcpServiceConfigClientService
             throw;
         }
     }
+
+    public async Task<PagedResult<McpServiceConfigDto>> GetAllServicesForAdminAsync(PagedRequest request)
+    {
+        try
+        {
+            var queryString = $"?Page={request.Page}&PageSize={request.PageSize}";
+            if (!string.IsNullOrEmpty(request.SearchTerm))
+            {
+                queryString += $"&SearchTerm={Uri.EscapeDataString(request.SearchTerm)}";
+            }
+            if (!string.IsNullOrEmpty(request.SortBy))
+            {
+                queryString += $"&SortBy={request.SortBy}&SortOrder={request.SortOrder}";
+            }
+
+            var response = await _httpClient.GetFromJsonAsync<PagedResult<McpServiceConfigDto>>(
+                $"api/mcp-services/admin/all/paged{queryString}");
+            return response ?? PagedResult<McpServiceConfigDto>.Empty(request.Page, request.PageSize);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to get all MCP services for admin");
+            throw;
+        }
+    }
+
+    public async Task AdminSyncToolsAsync(string id)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsync($"api/mcp-services/{id}/admin-sync-tools", null);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to admin sync tools for MCP service {ServiceId}", id);
+            throw;
+        }
+    }
 }
