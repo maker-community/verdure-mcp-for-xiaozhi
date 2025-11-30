@@ -16,6 +16,7 @@ public class McpSessionService : IAsyncDisposable
     private readonly ILogger<McpSessionService> _logger;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IMcpClientService _mcpClientService;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly McpSessionConfiguration _config;
     private readonly ReconnectionSettings _reconnectionSettings;
 
@@ -83,11 +84,13 @@ public class McpSessionService : IAsyncDisposable
         McpSessionConfiguration config,
         ReconnectionSettings reconnectionSettings,
         IMcpClientService mcpClientService,
+        IServiceScopeFactory serviceScopeFactory,
         ILoggerFactory loggerFactory)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _reconnectionSettings = reconnectionSettings ?? throw new ArgumentNullException(nameof(reconnectionSettings));
         _mcpClientService = mcpClientService ?? throw new ArgumentNullException(nameof(mcpClientService));
+        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
 
         _logger = loggerFactory.CreateLogger<McpSessionService>();
@@ -213,6 +216,9 @@ public class McpSessionService : IAsyncDisposable
             _logger.LogInformation("Server {ServerId}: Connecting to {Count} MCP service(s)...",
                 ServerId, _config.McpServices.Count);
 
+            // Get user context headers once for all services
+            var userContextHeaders = await GetUserContextHeadersAsync();
+
             // Create MCP clients for each service
             var failedServiceNames = new List<string>(); // Track failed services for summary log
 
@@ -227,7 +233,8 @@ public class McpSessionService : IAsyncDisposable
                         service.Protocol,
                         service.AuthenticationType,
                         service.AuthenticationConfig,
-                        cancellationToken);
+                        additionalHeaders: userContextHeaders,
+                        cancellationToken: cancellationToken);
 
                     var clientIndex = _mcpClients.Count;
                     _mcpClients.Add(mcpClient);
@@ -807,6 +814,9 @@ public class McpSessionService : IAsyncDisposable
             servicesToRetry.Count,
             string.Join(", ", servicesToRetry.Select(s => s.Key)));
 
+        // Get user context headers
+        var userContextHeaders = await GetUserContextHeadersAsync();
+
         foreach (var (serviceName, (config, _)) in servicesToRetry)
         {
             try
@@ -818,7 +828,8 @@ public class McpSessionService : IAsyncDisposable
                     config.Protocol,
                     config.AuthenticationType,
                     config.AuthenticationConfig,
-                    cancellationToken);
+                    additionalHeaders: userContextHeaders,
+                    cancellationToken: cancellationToken);
 
                 // Success! Add to active clients
                 var clientIndex = _mcpClients.Count;
@@ -1104,6 +1115,9 @@ public class McpSessionService : IAsyncDisposable
             // ⚠️ CRITICAL: Create new client FIRST, before disposing old one
             // This ensures we always have a valid client reference
 
+            // Get user context headers
+            var userContextHeaders = await GetUserContextHeadersAsync();
+
             // 🔧 Use unified CreateMcpClientAsync method from IMcpClientService
             newClient = await _mcpClientService.CreateMcpClientAsync(
                 $"McpService_{service.ServiceName}",
@@ -1111,7 +1125,8 @@ public class McpSessionService : IAsyncDisposable
                 service.Protocol,
                 service.AuthenticationType,
                 service.AuthenticationConfig,
-                cancellationToken);
+                additionalHeaders: userContextHeaders,
+                cancellationToken: cancellationToken);
 
             // ✅ New client created successfully, now replace the old one
             _mcpClients[clientIndex] = newClient;
@@ -1156,6 +1171,58 @@ public class McpSessionService : IAsyncDisposable
 
             // ⚠️ Do NOT throw - let the system continue with other clients
             // The old client will be retried on next ping failure
+        }
+    }
+
+    /// <summary>
+    /// Get user context headers for MCP client requests
+    /// Creates a new service scope to avoid DbContext disposal issues
+    /// </summary>
+    private async Task<Dictionary<string, string>?> GetUserContextHeadersAsync()
+    {
+        try
+        {
+            // Create a new scope to get a fresh IUserInfoService instance
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userInfoService = scope.ServiceProvider.GetRequiredService<IUserInfoService>();
+            
+            var userInfoMap = await userInfoService.GetUsersByIdsAsync(new[] { _config.UserId });
+            if (userInfoMap.TryGetValue(_config.UserId, out var userInfo))
+            {
+                var headers = new Dictionary<string, string>
+                {
+                    ["X-User-Id"] = userInfo.UserId
+                };
+
+                if (!string.IsNullOrEmpty(userInfo.Email))
+                {
+                    headers["X-User-Email"] = userInfo.Email;
+                }
+
+                _logger.LogDebug(
+                    "Server {ServerId}: Adding user context headers: UserId={UserId}, Email={Email}",
+                    ServerId,
+                    userInfo.UserId,
+                    userInfo.Email ?? "(not set)");
+
+                return headers;
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Server {ServerId}: User {UserId} not found, user context headers will not be added",
+                    ServerId,
+                    _config.UserId);
+                return null;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Server {ServerId}: Error fetching user information, user context headers will not be added",
+                ServerId);
+            return null;
         }
     }
 

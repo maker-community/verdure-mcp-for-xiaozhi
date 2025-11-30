@@ -16,10 +16,14 @@ namespace Verdure.McpPlatform.Application.Services;
 /// - Basic Auth: Base64 encoded credentials
 /// - API Key: Custom header with optional prefix
 /// - OAuth 2.0: Uses pre-obtained access tokens (frontend must handle OAuth flow)
+/// 
+/// User Context Propagation:
+/// - Automatically adds X-User-Id and X-User-Email headers for user identification
 /// </summary>
 public class McpClientService : IMcpClientService
 {
     private readonly ILogger<McpClientService> _logger;
+    private readonly IUserInfoService _userInfoService;
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -28,9 +32,12 @@ public class McpClientService : IMcpClientService
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping // 支持中文等字符正常显示
     };
 
-    public McpClientService(ILogger<McpClientService> logger)
+    public McpClientService(
+        ILogger<McpClientService> logger,
+        IUserInfoService userInfoService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _userInfoService = userInfoService ?? throw new ArgumentNullException(nameof(userInfoService));
     }
 
     public async Task<IEnumerable<McpToolInfo>> GetToolsAsync(McpServiceConfig config)
@@ -69,6 +76,7 @@ public class McpClientService : IMcpClientService
         string? protocol = null,
         string? authenticationType = null,
         string? authenticationConfig = null,
+        Dictionary<string, string>? additionalHeaders = null,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(endpoint))
@@ -106,6 +114,8 @@ public class McpClientService : IMcpClientService
         }
 
         // Configure authentication based on type
+        Dictionary<string, string>? headers = null;
+        
         if (!string.IsNullOrEmpty(authenticationType) &&
             !string.IsNullOrEmpty(authenticationConfig))
         {
@@ -125,7 +135,7 @@ public class McpClientService : IMcpClientService
             else
             {
                 // Use AdditionalHeaders for Bearer, Basic, and API Key
-                transportOptions.AdditionalHeaders = McpAuthenticationHelper.BuildAuthenticationHeaders(
+                headers = McpAuthenticationHelper.BuildAuthenticationHeaders(
                     authenticationType,
                     authenticationConfig,
                     _logger);
@@ -140,6 +150,27 @@ public class McpClientService : IMcpClientService
             _logger.LogDebug(
                 "No authentication configured for service {ServiceName}",
                 name);
+        }
+        
+        // Merge additional headers (user context) with authentication headers
+        if (additionalHeaders != null && additionalHeaders.Count > 0)
+        {
+            headers ??= new Dictionary<string, string>();
+            foreach (var kvp in additionalHeaders)
+            {
+                headers[kvp.Key] = kvp.Value;
+            }
+            
+            _logger.LogDebug(
+                "Added {Count} additional headers for service {ServiceName}",
+                additionalHeaders.Count,
+                name);
+        }
+        
+        // Apply merged headers to transport options
+        if (headers != null && headers.Count > 0)
+        {
+            transportOptions.AdditionalHeaders = headers;
         }
 
         // 🔧 Create HttpClient with minimal configuration
@@ -176,13 +207,54 @@ public class McpClientService : IMcpClientService
             throw new InvalidOperationException("Endpoint cannot be empty");
         }
 
-        // Delegate to parameter-based overload
+        // Query user information for context propagation
+        Dictionary<string, string>? userContextHeaders = null;
+        try
+        {
+            var userInfoMap = await _userInfoService.GetUsersByIdsAsync(new[] { config.UserId });
+            if (userInfoMap.TryGetValue(config.UserId, out var userInfo))
+            {
+                userContextHeaders = new Dictionary<string, string>();
+                
+                // Add user ID header
+                userContextHeaders["X-User-Id"] = userInfo.UserId;
+                
+                // Add user email header if available
+                if (!string.IsNullOrEmpty(userInfo.Email))
+                {
+                    userContextHeaders["X-User-Email"] = userInfo.Email;
+                }
+                
+                _logger.LogDebug(
+                    "Adding user context headers for service {ServiceName}: UserId={UserId}, Email={Email}",
+                    config.Name,
+                    userInfo.UserId,
+                    userInfo.Email ?? "(not set)");
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "User {UserId} not found for service {ServiceName}, user context headers will not be added",
+                    config.UserId,
+                    config.Name);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Error fetching user information for service {ServiceName}, user context headers will not be added",
+                config.Name);
+        }
+
+        // Delegate to parameter-based overload with user context
         return await CreateMcpClientAsync(
             config.Name,
             config.Endpoint,
             config.Protocol,
             config.AuthenticationType,
             config.AuthenticationConfig,
+            userContextHeaders,
             cancellationToken);
     }
 

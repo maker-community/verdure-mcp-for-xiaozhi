@@ -188,14 +188,16 @@ public class McpSessionManager : IAsyncDisposable
                 ServerId = server.Id,
                 ServerName = server.Name,
                 WebSocketEndpoint = server.Address,
+                UserId = server.UserId,
                 McpServices = mcpServiceEndpoints
             };
 
-            // Create new session (McpSessionService will use IServiceScopeFactory to get IMcpClientService)
+            // Create new session (McpSessionService will use IServiceScopeFactory to get IUserInfoService)
             var session = new McpSessionService(
                 config,
                 _reconnectionSettings,
                 mcpClientService,
+                _serviceScopeFactory,
                 _loggerFactory);
 
             // Subscribe to connection events

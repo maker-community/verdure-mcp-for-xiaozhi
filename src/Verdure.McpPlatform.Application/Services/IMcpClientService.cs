@@ -29,12 +29,14 @@ public interface IMcpClientService
     /// <summary>
     /// Creates an MCP client from parameters (for WebSocket scenarios with McpServiceEndpoint)
     /// </summary>
+    /// <param name="additionalHeaders">Optional additional headers (e.g., user context headers like X-User-Id, X-User-Email)</param>
     Task<McpClient> CreateMcpClientAsync(
         string name,
         string endpoint,
         string? protocol = null,
         string? authenticationType = null,
         string? authenticationConfig = null,
+        Dictionary<string, string>? additionalHeaders = null,
         CancellationToken cancellationToken = default);
 }
 

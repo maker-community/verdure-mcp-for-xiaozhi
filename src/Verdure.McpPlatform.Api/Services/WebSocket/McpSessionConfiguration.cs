@@ -8,6 +8,7 @@ public class McpSessionConfiguration
     public string ServerId { get; set; } = string.Empty;
     public string ServerName { get; set; } = string.Empty;
     public string WebSocketEndpoint { get; set; } = string.Empty;
+    public string UserId { get; set; } = string.Empty;
     public List<McpServiceEndpoint> McpServices { get; set; } = new();
 }
 
