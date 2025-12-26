@@ -63,7 +63,7 @@ RUN apk add --no-cache curl brotli gzip icu-libs tzdata
 1. **构建过程**：构建阶段仍使用完整的 SDK 镜像，确保构建稳定性
 2. **Shell 脚本**：`entrypoint.sh` 使用标准 POSIX shell (`#!/bin/sh`)，与 Alpine 的 ash 完全兼容
 3. **运行时依赖**：
-   - .NET 9.0 运行时：Alpine 镜像已包含
+   - .NET 10.0 运行时：Alpine 镜像已包含
    - ICU 全球化库：通过 `icu-libs` 提供
    - 时区支持：通过 `tzdata` 提供
    - 压缩工具：`brotli` 和 `gzip` 已安装
@@ -73,7 +73,7 @@ RUN apk add --no-cache curl brotli gzip icu-libs tzdata
 1. **C 库差异**：
    - Debian 使用 glibc
    - Alpine 使用 musl libc
-   - .NET 9.0 Alpine 镜像已处理此差异，应用层无需关心
+   - .NET 10.0 Alpine 镜像已处理此差异，应用层无需关心
 
 2. **工具命令**：
    - 所有使用的命令 (`curl`, `brotli`, `gzip`, `md5sum`) 在 Alpine 中都可用

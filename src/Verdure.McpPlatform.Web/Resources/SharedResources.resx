@@ -942,7 +942,7 @@
     <value>Open-source Multi-tenant MCP Service Management Platform</value>
   </data>
   <data name="LandingPageSubtitle" xml:space="preserve">
-    <value>Built with .NET 9 and Blazor WebAssembly, providing flexible Model Context Protocol service configuration and management capabilities for Xiaozhi AI Assistant</value>
+    <value>Built with .NET 10 and Blazor WebAssembly, providing flexible Model Context Protocol service configuration and management capabilities for Xiaozhi AI Assistant</value>
   </data>
   <data name="EnterDashboard" xml:space="preserve">
     <value>Enter Console</value>
@@ -972,7 +972,7 @@
     <value>Modern Tech Stack</value>
   </data>
   <data name="ModernTechStackDescription" xml:space="preserve">
-    <value>Using .NET 9, Blazor WebAssembly, MudBlazor UI, and .NET Aspire cloud-native orchestration</value>
+    <value>Using .NET 10, Blazor WebAssembly, MudBlazor UI, and .NET Aspire cloud-native orchestration</value>
   </data>
   <data name="ArchitectureDesign" xml:space="preserve">
     <value>Architecture Design</value>

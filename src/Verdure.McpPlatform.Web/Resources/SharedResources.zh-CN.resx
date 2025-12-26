@@ -959,7 +959,7 @@
     <value>开源的多租户 MCP 服务管理平台</value>
   </data>
   <data name="LandingPageSubtitle" xml:space="preserve">
-    <value>基于 .NET 9 和 Blazor WebAssembly 构建，为小智 AI 助手提供灵活的 Model Context Protocol 服务配置和管理能力</value>
+    <value>基于 .NET 10 和 Blazor WebAssembly 构建，为小智 AI 助手提供灵活的 Model Context Protocol 服务配置和管理能力</value>
   </data>
   <data name="EnterDashboard" xml:space="preserve">
     <value>进入控制台</value>
@@ -989,7 +989,7 @@
     <value>现代化技术栈</value>
   </data>
   <data name="ModernTechStackDescription" xml:space="preserve">
-    <value>使用 .NET 9、Blazor WebAssembly、MudBlazor UI 和 .NET Aspire 云原生编排</value>
+    <value>使用 .NET 10、Blazor WebAssembly、MudBlazor UI 和 .NET Aspire 云原生编排</value>
   </data>
   <data name="ArchitectureDesign" xml:space="preserve">
     <value>架构设计</value>

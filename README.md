@@ -5,7 +5,7 @@
   
   > 开源的多租户 MCP 服务管理平台，为小智 AI 助手提供灵活的 Model Context Protocol 服务配置和管理能力
   
-  [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+  [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
   [![Blazor](https://img.shields.io/badge/Blazor-WebAssembly-512BD4?logo=blazor)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
   [![MudBlazor](https://img.shields.io/badge/MudBlazor-Latest-594AE2)](https://mudblazor.com/)
   [![License](https://img.shields.io/github/license/maker-community/verdure-mcp-for-xiaozhi)](./LICENSE)
@@ -69,7 +69,7 @@
 
 ## 📖 项目介绍
 
-Verdure MCP Platform 是一个基于 .NET 9 和 Blazor WebAssembly 构建的企业级多租户 SaaS 平台，专为小智 AI 助手设计，提供完整的 Model Context Protocol (MCP) 服务管理解决方案。
+Verdure MCP Platform 是一个基于 .NET 10 和 Blazor WebAssembly 构建的企业级多租户 SaaS 平台，专为小智 AI 助手设计，提供完整的 Model Context Protocol (MCP) 服务管理解决方案。
 
 **核心功能**：
 - 🔐 多租户身份认证系统（基于 Keycloak OpenID Connect）
@@ -101,7 +101,7 @@ Verdure MCP Platform 是一个基于 .NET 9 和 Blazor WebAssembly 构建的企�
 <td width="50%">
 
 ### 🚀 现代化技术栈
-- .NET 9 后端 API + Blazor WebAssembly 前端
+- .NET 10 后端 API + Blazor WebAssembly 前端
 - MudBlazor UI 组件库（Material Design 3）
 - .NET Aspire 云原生应用编排
 - Entity Framework Core 9.0 数据访问
@@ -176,7 +176,7 @@ verdure-mcp-for-xiaozhi/
 
 **适合二次开发**
 
-.NET 9 开发环境
+.NET 10 开发环境
 
 ✅ 完整源码<br>
 ✅ 灵活定制<br>
@@ -237,7 +237,7 @@ cd verdure-mcp-for-xiaozhi
 **适合需要修改代码的开发者**
 
 #### 前置要求
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [PostgreSQL](https://www.postgresql.org/download/) 或 SQLite
 - [Redis](https://redis.io/download) (可选，用于分布式功能)
 - [Keycloak](https://www.keycloak.org/) (可选，用于认证)

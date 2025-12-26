@@ -46,7 +46,7 @@
 - ✅ 支持全球化配置
 
 **特性**:
-- 基于 .NET 9.0 runtime
+- 基于 .NET 10.0 runtime
 - 暴露端口 8080
 - 包含 curl 用于健康检查
 - 自动编译和打包 Blazor WASM

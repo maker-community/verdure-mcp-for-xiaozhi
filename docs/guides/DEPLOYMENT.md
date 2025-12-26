@@ -12,7 +12,7 @@ cd verdure-mcp-for-xiaozhi
 ### 2. 安装依赖
 
 确保已安装:
-- .NET 9 SDK
+- .NET 10 SDK
 - Docker Desktop (用于 PostgreSQL)
 
 ### 3. 配置数据库
