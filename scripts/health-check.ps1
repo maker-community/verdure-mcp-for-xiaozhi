@@ -4,12 +4,12 @@
 $ErrorActionPreference = "Stop"
 
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===============================================================" -ForegroundColor Cyan
 Write-Host "  Verdure MCP Platform - Health Check" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===============================================================" -ForegroundColor Cyan
 Write-Host ""
 
-$dockerDir = Join-Path $PSScriptRoot ".." "docker"
+$dockerDir = Join-Path (Join-Path $PSScriptRoot "..") "docker"
 Set-Location $dockerDir
 
 # Service definitions
@@ -33,22 +33,22 @@ $services = @(
             $status = docker inspect --format='{{.State.Health.Status}}' verdure-keycloak 2>$null
             if ($status -eq "healthy") { "healthy" } else { $null }
         }
-        Port = "8180"
-        Url = "http://localhost:8180"
+        Port = "8080"
+        Url = "http://localhost:8080"
     },
     @{
         Name = "Application"
         Container = "verdure-mcp-app"
         HealthCheck = { 
             try {
-                $response = Invoke-WebRequest -Uri "http://localhost:8080/api/health" -TimeoutSec 5 -UseBasicParsing
+                $response = Invoke-WebRequest -Uri "http://localhost:5241/api/health" -TimeoutSec 5 -UseBasicParsing
                 if ($response.StatusCode -eq 200) { "healthy" }
             } catch {
                 $null
             }
         }
-        Port = "8080"
-        Url = "http://localhost:8080"
+        Port = "5241"
+        Url = "http://localhost:5241"
     }
 )
 
@@ -61,7 +61,7 @@ foreach ($service in $services) {
     $running = docker inspect --format='{{.State.Running}}' $service.Container 2>$null
     
     if ($running -ne "true") {
-        Write-Host " ✗ Not Running" -ForegroundColor Red
+        Write-Host " [ERROR] Not Running" -ForegroundColor Red
         $allHealthy = $false
         continue
     }
@@ -70,12 +70,12 @@ foreach ($service in $services) {
     $health = & $service.HealthCheck
     
     if ($health) {
-        Write-Host " ✓ Healthy" -ForegroundColor Green
+        Write-Host " [OK] Healthy" -ForegroundColor Green
         if ($service.Url) {
-            Write-Host "  → $($service.Url)" -ForegroundColor Gray
+            Write-Host "  -> $($service.Url)" -ForegroundColor Gray
         }
     } else {
-        Write-Host " ⚠ Unhealthy" -ForegroundColor Yellow
+        Write-Host " [WARN] Unhealthy" -ForegroundColor Yellow
         $allHealthy = $false
     }
 }
@@ -83,17 +83,17 @@ foreach ($service in $services) {
 Write-Host ""
 
 if ($allHealthy) {
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
-    Write-Host "  ✓ All services are healthy!" -ForegroundColor Green
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
+    Write-Host "===============================================================" -ForegroundColor Green
+    Write-Host "  [OK] All services are healthy!" -ForegroundColor Green
+    Write-Host "===============================================================" -ForegroundColor Green
     Write-Host ""
-    Write-Host "  Application:  http://localhost:8080" -ForegroundColor White
-    Write-Host "  Keycloak:     http://localhost:8180" -ForegroundColor White
+    Write-Host "  Application:  http://localhost:5241" -ForegroundColor White
+    Write-Host "  Keycloak:     http://localhost:8080" -ForegroundColor White
     Write-Host ""
 } else {
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Yellow
-    Write-Host "  ⚠ Some services are not healthy" -ForegroundColor Yellow
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Yellow
+    Write-Host "===============================================================" -ForegroundColor Yellow
+    Write-Host "  [WARN] Some services are not healthy" -ForegroundColor Yellow
+    Write-Host "===============================================================" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  Check logs with: .\scripts\view-logs.ps1" -ForegroundColor Gray
     Write-Host ""

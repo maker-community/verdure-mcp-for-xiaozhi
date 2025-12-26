@@ -125,7 +125,7 @@ function Wait-ForServices {
     $services = @(
         @{Name="PostgreSQL"; Container="verdure-postgres"; MaxWait=30},
         @{Name="Redis"; Container="verdure-redis"; MaxWait=20},
-        @{Name="Keycloak"; Container="verdure-keycloak"; MaxWait=90},
+        @{Name="Keycloak"; Container="verdure-keycloak"; MaxWait=120},
         @{Name="Application"; Container="verdure-mcp-app"; MaxWait=60}
     )
     

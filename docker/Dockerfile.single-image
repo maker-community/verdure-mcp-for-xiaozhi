@@ -21,7 +21,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copy solution file
-COPY ["Verdure.McpPlatform.sln", "."]
+COPY ["Verdure.McpPlatform.slnx", "."]
 COPY ["Directory.Build.props", "."]
 COPY ["Directory.Packages.props", "."]
 

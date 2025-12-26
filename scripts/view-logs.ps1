@@ -13,13 +13,13 @@ param(
     [int]$Tail = 100
 )
 
-$dockerDir = Join-Path $PSScriptRoot ".." "docker"
+$dockerDir = Join-Path (Join-Path $PSScriptRoot "..") "docker"
 Set-Location $dockerDir
 
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===============================================================" -ForegroundColor Cyan
 Write-Host "  Viewing Logs: $Service" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===============================================================" -ForegroundColor Cyan
 Write-Host ""
 
 $cmd = "docker-compose -f docker-compose.single-image.yml logs --tail=$Tail"

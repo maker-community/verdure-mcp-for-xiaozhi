@@ -44,6 +44,52 @@ cd c:\github-verdure\verdure-mcp-for-xiaozhi
 | **admin** | admin123 | 管理员 + 普通用户 |
 | **demo** | demo123 | 普通用户 |
 
+## 🏗️ 构建 Docker 镜像
+
+如需本地构建 Docker 镜像，请在项目根目录执行以下命令：
+
+### 构建命令
+
+```powershell
+# 进入项目根目录
+cd c:\github-verdure\verdure-mcp-for-xiaozhi
+
+# 构建镜像（使用 docker-compose.single-image.yml 中定义的镜像名称）
+docker build -t gilzhang/verdure-mcp-platform:alpine-v1.0.9 -f docker/Dockerfile.single-image .
+```
+
+### 构建说明
+
+| 项目 | 说明 |
+|------|------|
+| **基础镜像** | `mcr.microsoft.com/dotnet/aspnet:10.0-alpine` (Alpine Linux，镜像更小) |
+| **构建镜像** | `mcr.microsoft.com/dotnet/sdk:10.0` |
+| **最终镜像大小** | ~250MB |
+| **构建时间** | 首次约 3-5 分钟，后续使用缓存更快 |
+
+### 自定义构建
+
+```powershell
+# 使用自定义标签
+docker build -t my-registry/verdure-mcp:latest -f docker/Dockerfile.single-image .
+
+# 使用 Debug 配置构建
+docker build --build-arg BUILD_CONFIGURATION=Debug -t gilzhang/verdure-mcp-platform:debug -f docker/Dockerfile.single-image .
+
+# 不使用缓存（完全重新构建）
+docker build --no-cache -t gilzhang/verdure-mcp-platform:alpine-v1.0.9 -f docker/Dockerfile.single-image .
+```
+
+### 推送到 Docker Hub
+
+```powershell
+# 登录 Docker Hub
+docker login
+
+# 推送镜像
+docker push gilzhang/verdure-mcp-platform:alpine-v1.0.9
+```
+
 ## 🛠️ 常用命令
 
 ### 停止所有服务
