@@ -130,9 +130,17 @@ services:
       - Logging__LogLevel__Default=${LOG_LEVEL:-Information}
       - Logging__LogLevel__Microsoft.AspNetCore=${LOG_LEVEL_ASPNET:-Warning}
       - Logging__LogLevel__Verdure.McpPlatform=${LOG_LEVEL_VERDURE:-Information}
+      # Authentication debugging - 认证调试日志
+      - Logging__LogLevel__Microsoft.AspNetCore.Authentication=${LOG_LEVEL_AUTH:-Information}
+      - Logging__LogLevel__Microsoft.AspNetCore.Authentication.JwtBearer=${LOG_LEVEL_AUTH:-Information}
+      - Logging__LogLevel__Microsoft.IdentityModel=${LOG_LEVEL_AUTH:-Information}
       
     depends_on:
       postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - verdure-network
