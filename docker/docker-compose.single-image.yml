@@ -10,7 +10,8 @@ services:
       # We'll use the default 'postgres' database and create schemas
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+      # 使用 .sql 文件代替 .sh 文件，避免 Windows 挂载时的执行权限问题
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     ports:
       - "5432:5432"
     networks:
