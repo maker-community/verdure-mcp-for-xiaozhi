@@ -31,9 +31,9 @@ cd c:\github-verdure\verdure-mcp-for-xiaozhi
 
 | 服务 | URL | 凭据 |
 |------|-----|------|
-| **应用主页** | http://localhost:8080 | 使用下面的演示用户 |
-| **Keycloak 管理** | http://localhost:8180 | admin / admin |
-| **健康检查** | http://localhost:8080/api/health | - |
+| **应用主页** | http://localhost:5241 | 使用下面的演示用户 |
+| **Keycloak 管理** | http://localhost:8080 | admin / admin |
+| **健康检查** | http://localhost:5241/api/health | - |
 
 ### 3️⃣ 演示用户账号
 
@@ -124,8 +124,8 @@ ASPNETCORE_ENVIRONMENT=Production
 
 | 服务 | 端口 | 说明 |
 |------|------|------|
-| 应用 | 8080 | Web UI + API |
-| Keycloak | 8180 | 身份认证服务 |
+| 应用 | 5241 | Web UI + API |
+| Keycloak | 8080 | 身份认证服务 |
 | PostgreSQL | 5432 | 数据库 |
 | Redis | 6379 | 缓存 |
 

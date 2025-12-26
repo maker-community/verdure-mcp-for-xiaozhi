@@ -104,7 +104,7 @@ Verdure MCP Platform 是一个基于 .NET 10 和 Blazor WebAssembly 构建的企
 - .NET 10 后端 API + Blazor WebAssembly 前端
 - MudBlazor UI 组件库（Material Design 3）
 - .NET Aspire 云原生应用编排
-- Entity Framework Core 9.0 数据访问
+- Entity Framework Core 10.0 数据访问
 
 ### 🏛️ 优秀的架构设计
 - 领域驱动设计 (DDD)
@@ -209,8 +209,8 @@ cd verdure-mcp-for-xiaozhi
 ```
 
 #### 访问应用
-- **应用**: http://localhost:8080
-- **Keycloak 管理**: http://localhost:8180 (admin / admin)
+- **应用**: http://localhost:5241
+- **Keycloak 管理**: http://localhost:8080 (admin / admin)
 
 #### 演示账号
 - **管理员**: admin / admin123
