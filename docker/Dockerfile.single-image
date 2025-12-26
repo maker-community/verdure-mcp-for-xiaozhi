@@ -3,10 +3,9 @@
 # Optimized for minimal image size using Alpine Linux
 
 # Stage 1: Base runtime image (Alpine for minimal size)
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 5241
 
 # Install required tools for Alpine Linux:
 # - curl: for health checks
@@ -17,12 +16,12 @@ EXPOSE 8081
 RUN apk add --no-cache curl brotli gzip icu-libs tzdata
 
 # Stage 2: Build image
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copy solution file
-COPY ["Verdure.McpPlatform.sln", "."]
+COPY ["Verdure.McpPlatform.slnx", "."]
 COPY ["Directory.Build.props", "."]
 COPY ["Directory.Packages.props", "."]
 
@@ -74,7 +73,7 @@ COPY docker/entrypoint.sh /entrypoint.sh
 RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 # Set environment variables
-ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_URLS=http://+:5241
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Optional: Enable globalization support
@@ -82,7 +81,7 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8080/api/health || exit 1
+    CMD curl -f http://localhost:5241/api/health || exit 1
 
 # Entry point - use custom script to handle mounted config files
 ENTRYPOINT ["/entrypoint.sh"]

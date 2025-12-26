@@ -31,9 +31,9 @@ cd c:\github-verdure\verdure-mcp-for-xiaozhi
 
 | 服务 | URL | 凭据 |
 |------|-----|------|
-| **应用主页** | http://localhost:8080 | 使用下面的演示用户 |
-| **Keycloak 管理** | http://localhost:8180 | admin / admin |
-| **健康检查** | http://localhost:8080/api/health | - |
+| **应用主页** | http://localhost:5241 | 使用下面的演示用户 |
+| **Keycloak 管理** | http://localhost:8080 | admin / admin |
+| **健康检查** | http://localhost:5241/api/health | - |
 
 ### 3️⃣ 演示用户账号
 
@@ -43,6 +43,52 @@ cd c:\github-verdure\verdure-mcp-for-xiaozhi
 |--------|------|------|
 | **admin** | admin123 | 管理员 + 普通用户 |
 | **demo** | demo123 | 普通用户 |
+
+## 🏗️ 构建 Docker 镜像
+
+如需本地构建 Docker 镜像，请在项目根目录执行以下命令：
+
+### 构建命令
+
+```powershell
+# 进入项目根目录
+cd c:\github-verdure\verdure-mcp-for-xiaozhi
+
+# 构建镜像（使用 docker-compose.single-image.yml 中定义的镜像名称）
+docker build -t gilzhang/verdure-mcp-platform:alpine-v1.0.9 -f docker/Dockerfile.single-image .
+```
+
+### 构建说明
+
+| 项目 | 说明 |
+|------|------|
+| **基础镜像** | `mcr.microsoft.com/dotnet/aspnet:10.0-alpine` (Alpine Linux，镜像更小) |
+| **构建镜像** | `mcr.microsoft.com/dotnet/sdk:10.0` |
+| **最终镜像大小** | ~250MB |
+| **构建时间** | 首次约 3-5 分钟，后续使用缓存更快 |
+
+### 自定义构建
+
+```powershell
+# 使用自定义标签
+docker build -t my-registry/verdure-mcp:latest -f docker/Dockerfile.single-image .
+
+# 使用 Debug 配置构建
+docker build --build-arg BUILD_CONFIGURATION=Debug -t gilzhang/verdure-mcp-platform:debug -f docker/Dockerfile.single-image .
+
+# 不使用缓存（完全重新构建）
+docker build --no-cache -t gilzhang/verdure-mcp-platform:alpine-v1.0.9 -f docker/Dockerfile.single-image .
+```
+
+### 推送到 Docker Hub
+
+```powershell
+# 登录 Docker Hub
+docker login
+
+# 推送镜像
+docker push gilzhang/verdure-mcp-platform:alpine-v1.0.9
+```
 
 ## 🛠️ 常用命令
 
@@ -120,12 +166,128 @@ KEYCLOAK_ADMIN_PASSWORD=admin
 ASPNETCORE_ENVIRONMENT=Production
 ```
 
+## 🌐 使用 IP 地址访问（非 localhost）
+
+> ⚠️ **重要提示**：如果你需要从其他设备（如手机、其他电脑）访问服务，或者在服务器上部署，则**不能**使用 `localhost`，必须使用服务器/电脑的实际 IP 地址。
+
+### 📝 配置步骤
+
+假设你的服务器/电脑 IP 地址是 `192.168.1.100`（请替换为你的实际 IP）：
+
+#### 步骤 1：准备 .env 文件
+
+首先确保 `.env` 文件存在。如果不存在，从模板复制：
+
+```powershell
+# 在项目根目录执行
+Copy-Item docker\.env.example docker\.env
+```
+
+#### 步骤 2：修改 .env 文件
+
+编辑 `docker/.env` 文件，找到 `Oidc_Authority` 配置项：
+
+```bash
+# ❌ 原配置（仅限 localhost 访问）
+Oidc_Authority=http://keycloak:8080
+
+# ✅ 修改为你的 IP 地址
+Oidc_Authority=http://192.168.1.100:8080
+```
+
+> 💡 **说明**：`keycloak` 是 Docker 内部网络的服务名，只有在容器内部才能解析。浏览器无法识别这个地址，所以需要改成实际 IP。
+
+#### 步骤 3：修改 appsettings.json
+
+编辑 `docker/config/appsettings.json` 文件，将 `localhost` 改为你的 IP：
+
+```jsonc
+{
+  "ApiBaseAddress": "",
+  "Oidc": {
+    // ❌ 原配置
+    // "Authority": "http://localhost:8080/realms/maker-community",
+    
+    // ✅ 修改为你的 IP 地址
+    "Authority": "http://192.168.1.100:8080/realms/maker-community",
+    "ClientId": "verdure-mcp",
+    "ResponseType": "code",
+    "PostLogoutRedirectUri": ""
+  }
+}
+```
+
+#### 步骤 4：启动服务
+
+```powershell
+.\scripts\start-local.ps1
+```
+
+#### 步骤 5：访问应用
+
+现在可以从任何设备通过 IP 访问：
+
+| 服务 | URL |
+|------|-----|
+| **应用主页** | http://192.168.1.100:5241 |
+| **Keycloak 管理** | http://192.168.1.100:8080 |
+
+### ⚠️ 常见错误
+
+| 错误现象 | 原因 | 解决方法 |
+|----------|------|----------|
+| 登录后一直转圈/无法跳转 | `.env` 中的 IP 与 `appsettings.json` 中的 IP 不一致 | 确保两个文件使用相同的 IP |
+| 页面显示 "无法连接到 keycloak" | `.env` 仍使用 `keycloak` 而非 IP | 修改 `.env` 中的 `Oidc_Authority` |
+| 401 未授权错误 | Token 签发地址与验证地址不匹配 | 重启所有服务，确保配置一致 |
+
+### 🔄 切换回 localhost 模式
+
+如果要切换回 localhost 模式，需要同时还原两个配置文件：
+
+#### 步骤 1：停止服务
+
+```powershell
+.\scripts\stop-local.ps1
+```
+
+#### 步骤 2：删除 .env 文件
+
+```powershell
+# 删除 .env 文件，脚本会自动重新生成默认配置
+Remove-Item docker\.env
+```
+
+#### 步骤 3：还原 appsettings.json
+
+编辑 `docker/config/appsettings.json`，将 IP 地址改回 `localhost`：
+
+```jsonc
+{
+  "ApiBaseAddress": "",
+  "Oidc": {
+    // ✅ 改回 localhost
+    "Authority": "http://localhost:8080/realms/maker-community",
+    "ClientId": "verdure-mcp",
+    "ResponseType": "code",
+    "PostLogoutRedirectUri": ""
+  }
+}
+```
+
+#### 步骤 4：重新启动
+
+```powershell
+.\scripts\start-local.ps1
+```
+
+> ⚠️ **注意**：如果只删除 `.env` 而不修改 `appsettings.json`，会导致认证失败（`.env` 使用 `keycloak` 服务名，而 `appsettings.json` 仍使用 IP 地址，两者不匹配）。
+
 ## 📊 服务端口
 
 | 服务 | 端口 | 说明 |
 |------|------|------|
-| 应用 | 8080 | Web UI + API |
-| Keycloak | 8180 | 身份认证服务 |
+| 应用 | 5241 | Web UI + API |
+| Keycloak | 8080 | 身份认证服务 |
 | PostgreSQL | 5432 | 数据库 |
 | Redis | 6379 | 缓存 |
 

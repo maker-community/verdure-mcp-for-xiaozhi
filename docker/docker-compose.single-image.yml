@@ -10,7 +10,8 @@ services:
       # We'll use the default 'postgres' database and create schemas
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+      # 使用 .sql 文件代替 .sh 文件，避免 Windows 挂载时的执行权限问题
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     ports:
       - "5432:5432"
     networks:
@@ -69,7 +70,7 @@ services:
       KC_METRICS_ENABLED: "true"
       
     ports:
-      - "8180:8080"
+      - "8080:8080"
     volumes:
       - ./config/keycloak:/opt/keycloak/data/import:ro
       - keycloak_data:/opt/keycloak/data
@@ -79,19 +80,19 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/8080'"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 12
       start_period: 60s
     restart: unless-stopped
 
   # Verdure MCP Platform (API + Web)
   app:
-    image: gilzhang/verdure-mcp-platform:alpine-v1.0.8
+    image: gilzhang/verdure-mcp-platform:alpine-v1.0.9
     container_name: verdure-mcp-app
     ports:
-      - "8080:8080"
+      - "5241:5241"
     volumes:
       # Mount custom Blazor WASM configuration (optional)
       # Users can override this file without rebuilding the image
@@ -99,7 +100,7 @@ services:
     environment:
       # ASP.NET Core Configuration
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
-      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_URLS=http://+:5241
       
       # Database Connections
       - Database__Provider=PostgreSQL
@@ -118,7 +119,7 @@ services:
 
       
       # CORS Configuration (if needed for external access)
-      - AllowedOrigins__0=${ALLOWED_ORIGIN:-http://localhost:8080}
+      - AllowedOrigins__0=${ALLOWED_ORIGIN:-http://localhost:5241}
       
       # Connection Monitor Settings
       - ConnectionMonitor__CheckIntervalSeconds=${MONITOR_CHECK_INTERVAL:-30}
@@ -129,15 +130,23 @@ services:
       - Logging__LogLevel__Default=${LOG_LEVEL:-Information}
       - Logging__LogLevel__Microsoft.AspNetCore=${LOG_LEVEL_ASPNET:-Warning}
       - Logging__LogLevel__Verdure.McpPlatform=${LOG_LEVEL_VERDURE:-Information}
+      # Authentication debugging - 认证调试日志
+      - Logging__LogLevel__Microsoft.AspNetCore.Authentication=${LOG_LEVEL_AUTH:-Information}
+      - Logging__LogLevel__Microsoft.AspNetCore.Authentication.JwtBearer=${LOG_LEVEL_AUTH:-Information}
+      - Logging__LogLevel__Microsoft.IdentityModel=${LOG_LEVEL_AUTH:-Information}
       
     depends_on:
       postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - verdure-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5241/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3

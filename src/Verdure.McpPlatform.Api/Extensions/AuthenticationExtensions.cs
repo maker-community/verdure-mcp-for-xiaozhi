@@ -34,19 +34,25 @@ internal static class AuthenticationExtensions
 
         // Build list of valid issuers to support both internal (container) and external (localhost) access
         var validIssuers = new List<string> { issuer };
+        var issuerLower = issuer.ToLowerInvariant();
         
         // Add localhost variant for browser-based tokens
-        // 容器内: http://keycloak:8080 -> 浏览器: http://localhost:8180
-        if (issuer.Contains("keycloak:8080"))
+        // 容器内: http://keycloak:8080 -> 浏览器: http://localhost:8080
+        if (issuerLower.Contains("keycloak:8080"))
         {
-            var localhostIssuer = issuer.Replace("keycloak:8080", "localhost:8180");
+            // 使用正则替换以保持大小写无关
+            var localhostIssuer = System.Text.RegularExpressions.Regex.Replace(
+                issuer, "keycloak:8080", "localhost:8080", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             validIssuers.Add(localhostIssuer);
         }
         // Add keycloak variant for container-based tokens
-        // 浏览器: http://localhost:8180 -> 容器内: http://keycloak:8080
-        else if (issuer.Contains("localhost:8180"))
+        // 浏览器: http://localhost:8080 -> 容器内: http://keycloak:8080
+        else if (issuerLower.Contains("localhost:8080"))
         {
-            var keycloakIssuer = issuer.Replace("localhost:8180", "keycloak:8080");
+            var keycloakIssuer = System.Text.RegularExpressions.Regex.Replace(
+                issuer, "localhost:8080", "keycloak:8080",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             validIssuers.Add(keycloakIssuer);
         }
 
@@ -99,7 +105,7 @@ internal static class AuthenticationExtensions
                 {
                     return MapKeycloakRolesToStandardRoles(context, oidcSettings.ClientId);
                 },
-                OnAuthenticationFailed = context =>
+                OnAuthenticationFailed = async context =>
                 {
                     var logger = context.HttpContext.RequestServices
                         .GetRequiredService<ILogger<Program>>();
@@ -126,21 +132,6 @@ internal static class AuthenticationExtensions
                         }
                     }
                     catch { /* Ignore parsing errors */ }
-                    
-                    logger.LogWarning(
-                        "JWT authentication failed: {Message}\n" +
-                        "Authority: {Authority}\n" +
-                        "MetadataAddress: {MetadataAddress}\n" +
-                        "Token Issuer (iss): {TokenIssuer}\n" +
-                        "Valid Issuers: {ValidIssuers}\n" +
-                        "Exception: {Exception}", 
-                        context.Exception.Message,
-                        options.Authority,
-                        options.MetadataAddress,
-                        tokenIssuer,
-                        string.Join(", ", validIssuers),
-                        context.Exception);
-                    return Task.CompletedTask;
                 },
                 OnChallenge = context =>
                 {

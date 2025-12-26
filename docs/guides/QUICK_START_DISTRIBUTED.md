@@ -6,7 +6,7 @@
 
 ## 前置条件
 
-1. **.NET 9 SDK** 已安装
+1. **.NET 10 SDK** 已安装
 2. **Docker Desktop** 已安装并运行
 3. **Redis** 服务器（通过 Docker 启动）
 

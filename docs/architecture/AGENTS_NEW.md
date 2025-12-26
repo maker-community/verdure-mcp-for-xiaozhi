@@ -6,7 +6,7 @@ A dedicated guide for AI coding agents working on the Verdure MCP Platform proje
 
 ## 项目概述 (Project Overview)
 
-这是一个基于 .NET 9 的多租户 SaaS 平台，用于管理和提供 MCP (Model Context Protocol) 服务。
+这是一个基于 .NET 10 的多租户 SaaS 平台，用于管理和提供 MCP (Model Context Protocol) 服务。
 
 **核心功能**：
 - 多用户身份认证系统（支持 ASP.NET Core Identity 和 Keycloak OpenID Connect）
@@ -27,7 +27,7 @@ A dedicated guide for AI coding agents working on the Verdure MCP Platform proje
 ## 技术栈 (Tech Stack)
 
 ### 后端
-- **.NET 9**
+- **.NET 10**
 - **ASP.NET Core Web API** - RESTful API
 - **ASP.NET Core Identity** - 用户认证和授权
 - **OpenID Connect** - 与 Keycloak 集成
@@ -49,12 +49,12 @@ A dedicated guide for AI coding agents working on the Verdure MCP Platform proje
 <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.3" />
 
 <!-- Identity & Authentication -->
-<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.*" />
-<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.*" />
+<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.*" />
+<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.*" />
 
 <!-- Database -->
-<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.*" />
-<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.*" />
+<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.*" />
+<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.*" />
 
 <!-- Blazor & UI -->
 <PackageReference Include="MudBlazor" Version="8.*" />

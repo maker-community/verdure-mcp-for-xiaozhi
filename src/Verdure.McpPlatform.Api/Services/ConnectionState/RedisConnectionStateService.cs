@@ -165,7 +165,7 @@ public class RedisConnectionStateService : IConnectionStateService
                 return null;
             }
 
-            return JsonSerializer.Deserialize<ConnectionStateInfo>(json!);
+            return JsonSerializer.Deserialize<ConnectionStateInfo>(json.ToString());
         }
         catch (Exception ex)
         {

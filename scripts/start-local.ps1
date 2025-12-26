@@ -125,7 +125,7 @@ function Wait-ForServices {
     $services = @(
         @{Name="PostgreSQL"; Container="verdure-postgres"; MaxWait=30},
         @{Name="Redis"; Container="verdure-redis"; MaxWait=20},
-        @{Name="Keycloak"; Container="verdure-keycloak"; MaxWait=90},
+        @{Name="Keycloak"; Container="verdure-keycloak"; MaxWait=120},
         @{Name="Application"; Container="verdure-mcp-app"; MaxWait=60}
     )
     
@@ -174,11 +174,11 @@ function Show-ConnectionInfo {
     Write-Host "===============================================================" -ForegroundColor Green
     Write-Host ""
     Write-Host "  Application" -ForegroundColor Cyan
-    Write-Host "     URL:        http://localhost:8080" -ForegroundColor White
-    Write-Host "     Health:     http://localhost:8080/api/health" -ForegroundColor Gray
+    Write-Host "     URL:        http://localhost:5241" -ForegroundColor White
+    Write-Host "     Health:     http://localhost:5241/api/health" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  Keycloak" -ForegroundColor Cyan
-    Write-Host "     Admin UI:   http://localhost:8180" -ForegroundColor White
+    Write-Host "     Admin UI:   http://localhost:8080" -ForegroundColor White
     Write-Host "     Username:   admin" -ForegroundColor Gray
     Write-Host "     Password:   admin" -ForegroundColor Gray
     Write-Host ""

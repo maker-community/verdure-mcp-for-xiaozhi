@@ -61,7 +61,7 @@ dotnet watch test --project tests/Verdure.McpPlatform.UnitTests
 
 ## 📖 项目概述 (Project Overview)
 
-**Verdure MCP Platform** 是一个基于 .NET 9 的企业级多租户 SaaS 平台，为小智 AI 助手提供完整的 Model Context Protocol (MCP) 服务管理解决方案。
+**Verdure MCP Platform** 是一个基于 .NET 10 的企业级多租户 SaaS 平台，为小智 AI 助手提供完整的 Model Context Protocol (MCP) 服务管理解决方案。
 
 ### 核心功能 (Core Features)
 
@@ -85,7 +85,7 @@ dotnet watch test --project tests/Verdure.McpPlatform.UnitTests
 ## 🛠️ 技术栈 (Tech Stack)
 
 ### 后端 (Backend)
-- **.NET 9** - 最新的 .NET 平台
+- **.NET 10** - 最新的 .NET 平台
 - **ASP.NET Core Web API** - RESTful API with Minimal APIs pattern
 - **ASP.NET Core Identity** - 用户认证和授权
 - **OpenID Connect** - Keycloak 集成
@@ -114,12 +114,12 @@ dotnet watch test --project tests/Verdure.McpPlatform.UnitTests
 <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.3" />
 
 <!-- Identity & Authentication -->
-<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.*" />
-<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.*" />
+<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.*" />
+<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.*" />
 
 <!-- Database -->
-<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.*" />
-<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.*" />
+<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.*" />
+<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.*" />
 
 <!-- Redis & Distributed Coordination -->
 <PackageReference Include="StackExchange.Redis" Version="2.9.32" />
@@ -2298,7 +2298,7 @@ redis-cli
 ## 📚 资源链接 (Resources)
 
 ### 官方文档
-- [.NET 9 文档](https://learn.microsoft.com/dotnet/core/whats-new/dotnet-9)
+- [.NET 10 文档](https://learn.microsoft.com/dotnet/core/whats-new/dotnet-10)
 - [MudBlazor 文档](https://mudblazor.com/)
 - [.NET Aspire 文档](https://learn.microsoft.com/dotnet/aspire/)
 - [EF Core 文档](https://learn.microsoft.com/ef/core/)

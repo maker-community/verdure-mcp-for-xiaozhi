@@ -431,7 +431,7 @@ spec:
 ```powershell
 # 检查构建输出
 dotnet build src/Verdure.McpPlatform.Api -c Release
-# 检查 bin/Release/net9.0/wwwroot 目录是否包含 _framework 文件夹
+# 检查 bin/Release/net10.0/wwwroot 目录是否包含 _framework 文件夹
 ```
 
 ### 问题 2: API 调用 404

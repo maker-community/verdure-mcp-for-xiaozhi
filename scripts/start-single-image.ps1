@@ -17,10 +17,10 @@ try {
 }
 
 # Check if .env file exists
-$envFile = Join-Path $PSScriptRoot ".." "docker" ".env"
+$envFile = Join-Path (Join-Path (Join-Path $PSScriptRoot "..") "docker") ".env"
 if (-not (Test-Path $envFile)) {
     Write-Host "⚠ .env file not found. Creating from .env.example..." -ForegroundColor Yellow
-    $envExample = Join-Path $PSScriptRoot ".." "docker" ".env.example"
+    $envExample = Join-Path (Join-Path (Join-Path $PSScriptRoot "..") "docker") ".env.example"
     Copy-Item $envExample $envFile
     Write-Host "✓ Created .env file. Please edit it with your configuration." -ForegroundColor Green
     Write-Host ""
@@ -37,7 +37,7 @@ if (-not (Test-Path $envFile)) {
 }
 
 # Navigate to docker directory
-Set-Location (Join-Path $PSScriptRoot ".." "docker")
+Set-Location (Join-Path (Join-Path $PSScriptRoot "..") "docker")
 
 Write-Host ""
 Write-Host "Step 1: Building Docker image..." -ForegroundColor Yellow
