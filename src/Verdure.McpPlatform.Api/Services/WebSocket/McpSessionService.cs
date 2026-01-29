@@ -229,8 +229,8 @@ public class McpSessionService : IAsyncDisposable
                 _lastPingReceivedTime = DateTime.UtcNow;
             }
             _logger.LogDebug(
-                "Server {ServerId}: Initialized ping timeout monitor, expecting ping within {Timeout}s",
-                ServerId, _pingTimeout.TotalSeconds);
+                "Server {ServerId}: Initialized last ping time (expecting periodic pings)",
+                ServerId);
 
             // ✅ Notify connection success (we already checked MCP client count above)
             _logger.LogInformation(
@@ -250,8 +250,7 @@ public class McpSessionService : IAsyncDisposable
             var communicationTasks = new List<Task>
             {
                 PipeWebSocketToMcpAsync(cancellationToken),
-                PipeMcpToWebSocketAsync(cancellationToken),
-                MonitorPingTimeoutAsync(cancellationToken)  // ✅ 新增 Ping 超时监控
+                PipeMcpToWebSocketAsync(cancellationToken)
             };
 
             var completedTask = await Task.WhenAny(communicationTasks);
@@ -388,74 +387,7 @@ public class McpSessionService : IAsyncDisposable
     /// <summary>
     /// Monitor ping timeout - if no ping received within timeout period, consider connection dead
     /// </summary>
-    private async Task MonitorPingTimeoutAsync(CancellationToken cancellationToken)
-    {
-        if (_webSocket == null) return;
-
-        try
-        {
-            _logger.LogInformation(
-                "Server {ServerId}: Starting ping timeout monitor (timeout: {Timeout}s)",
-                ServerId, _pingTimeout.TotalSeconds);
-
-            // Check every 10 seconds
-            var checkInterval = TimeSpan.FromSeconds(10);
-
-            while (_webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
-            {
-                await Task.Delay(checkInterval, cancellationToken);
-
-                // Check if ping timeout occurred
-                TimeSpan timeSinceLastPing;
-                lock (_pingLock)
-                {
-                    timeSinceLastPing = DateTime.UtcNow - _lastPingReceivedTime;
-                }
-
-                if (timeSinceLastPing > _pingTimeout)
-                {
-                    _logger.LogError(
-                        "Server {ServerId}: Ping timeout detected! Last ping received {Seconds}s ago (timeout: {Timeout}s)",
-                        ServerId,
-                        timeSinceLastPing.TotalSeconds,
-                        _pingTimeout.TotalSeconds);
-
-                    // Throw exception to trigger disconnection and reconnection
-                    throw new TimeoutException(
-                        $"No ping received from Xiaozhi for {timeSinceLastPing.TotalSeconds:F1} seconds, " +
-                        $"exceeding timeout of {_pingTimeout.TotalSeconds} seconds");
-                }
-
-                // Log trace message every minute
-                if (timeSinceLastPing.TotalSeconds > 60 && timeSinceLastPing.TotalSeconds % 60 < 10)
-                {
-                    _logger.LogTrace(
-                        "Server {ServerId}: Ping health check - last ping {Seconds}s ago",
-                        ServerId, timeSinceLastPing.TotalSeconds);
-                }
-            }
-
-            _logger.LogInformation("Server {ServerId}: Ping timeout monitor stopped", ServerId);
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogInformation("Server {ServerId}: Ping timeout monitor cancelled", ServerId);
-        }
-        catch (TimeoutException tex)
-        {
-            _logger.LogError(
-                "Server {ServerId}: Ping timeout monitor detected dead connection: {Error}",
-                ServerId, tex.Message);
-            throw; // Re-throw to trigger reconnection
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                "Server {ServerId}: Error in ping timeout monitor: {Error}",
-                ServerId, ex.Message);
-            throw;
-        }
-    }
+    // Ping timeout monitor removed: pings are acknowledged but the session does not continuously poll.
 
     /// <summary>
     /// Process incoming WebSocket message
