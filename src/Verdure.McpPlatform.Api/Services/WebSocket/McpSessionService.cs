@@ -29,12 +29,6 @@ public class McpSessionService : IAsyncDisposable
 
     // Session state
     private ClientWebSocket? _webSocket;
-    private readonly List<McpClient> _mcpClients = new();
-    // 🔧 Track service config for each client to enable session recovery
-    private readonly Dictionary<int, McpServiceEndpoint> _clientIndexToServiceConfig = new();
-    // 🔧 Track failed services for periodic retry
-    private readonly Dictionary<string, (McpServiceEndpoint Config, DateTime LastAttempt)> _failedServices = new();
-    private readonly TimeSpan _failedServiceRetryInterval = TimeSpan.FromMinutes(5); // Retry failed services every 5 minutes
     private bool _isRunning = false;
 
     // ✅ Ping timeout monitoring
@@ -49,8 +43,8 @@ public class McpSessionService : IAsyncDisposable
 
     public string ServerId => _config.ServerId;
     public string ServerName => _config.ServerName;
-    public bool IsConnected => _webSocket?.State == WebSocketState.Open && _mcpClients.Count > 0 && !IsPingTimeout;
-    public int ConnectedClientsCount => _mcpClients.Count;
+    public bool IsConnected => _webSocket?.State == WebSocketState.Open && !IsPingTimeout;
+    public int ConnectedClientsCount => 0; // transient clients are created per-call, not kept here
     public int TotalConfiguredClients => _config.McpServices.Count;
     public DateTime? LastConnectedTime { get; private set; }
     public DateTime? LastDisconnectedTime { get; private set; }
@@ -213,101 +207,9 @@ public class McpSessionService : IAsyncDisposable
             // ⚠️ CRITICAL: Connect to MCP services FIRST, before WebSocket
             // This ensures all backend services are ready before we tell Xiaozhi we're online
 
-            _logger.LogInformation("Server {ServerId}: Connecting to {Count} MCP service(s)...",
-                ServerId, _config.McpServices.Count);
-
-            // Get user context headers once for all services
-            var userContextHeaders = await GetUserContextHeadersAsync();
-
-            // Create MCP clients for each service
-            var failedServiceNames = new List<string>(); // Track failed services for summary log
-
-            foreach (var service in _config.McpServices)
-            {
-                try
-                {
-                    // 🔧 Use unified CreateMcpClientAsync method from IMcpClientService
-                    var mcpClient = await _mcpClientService.CreateMcpClientAsync(
-                        $"McpService_{service.ServiceName}",
-                        service.NodeAddress,
-                        service.Protocol,
-                        service.AuthenticationType,
-                        service.AuthenticationConfig,
-                        additionalHeaders: userContextHeaders,
-                        cancellationToken: cancellationToken);
-
-                    var clientIndex = _mcpClients.Count;
-                    _mcpClients.Add(mcpClient);
-                    _clientIndexToServiceConfig[clientIndex] = service; // 🔧 Track for session recovery
-
-                    _logger.LogInformation("Server {ServerId}: MCP client connected to service {ServiceName} at {NodeAddress}",
-                        ServerId, service.ServiceName, service.NodeAddress);
-                }
-                catch (HttpRequestException ex)
-                {
-                    failedServiceNames.Add(service.ServiceName);
-                    // 🔧 Track failed service for periodic retry
-                    _failedServices[service.ServiceName] = (service, DateTime.UtcNow);
-
-                    _logger.LogWarning(
-                        "Server {ServerId}: Skipping MCP service {ServiceName} - HTTP request failed: StatusCode={StatusCode}, Protocol={Protocol}",
-                        ServerId, service.ServiceName, ex.StatusCode, service.Protocol);
-                }
-                catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
-                {
-                    failedServiceNames.Add(service.ServiceName);
-                    // 🔧 Track failed service for periodic retry
-                    _failedServices[service.ServiceName] = (service, DateTime.UtcNow);
-
-                    _logger.LogWarning(
-                        "Server {ServerId}: Skipping MCP service {ServiceName} - connection timeout at {NodeAddress}, Protocol={Protocol}",
-                        ServerId, service.ServiceName, service.NodeAddress, service.Protocol);
-                }
-                catch (Exception ex)
-                {
-                    failedServiceNames.Add(service.ServiceName);
-                    // 🔧 Track failed service for periodic retry
-                    _failedServices[service.ServiceName] = (service, DateTime.UtcNow);
-
-                    _logger.LogWarning(
-                        "Server {ServerId}: Skipping MCP service {ServiceName} - connection failed: {Error}, Protocol={Protocol}",
-                        ServerId, service.ServiceName, ex.Message, service.Protocol);
-                }
-            }
-
-            // ✅ Log summary of connection results (useful for quick diagnostics)
-            if (failedServiceNames.Count > 0)
-            {
-                _logger.LogWarning(
-                    "Server {ServerId}: MCP services connection summary - {SuccessCount}/{TotalCount} succeeded, failed: [{FailedServices}]",
-                    ServerId,
-                    _mcpClients.Count,
-                    _config.McpServices.Count,
-                    string.Join(", ", failedServiceNames));
-            }
-
-            // ✅ Check if at least one MCP client connected successfully
-            if (_mcpClients.Count == 0)
-            {
-                var errorMsg = $"No MCP clients connected (0/{_config.McpServices.Count})";
-                _logger.LogWarning("Server {ServerId}: {Message}", ServerId, errorMsg);
-
-                try
-                {
-                    await (OnConnectionFailed?.Invoke(errorMsg) ?? Task.CompletedTask);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error in OnConnectionFailed callback for server {ServerId}", ServerId);
-                }
-
-                // Throw to trigger retry mechanism
-                throw new InvalidOperationException(errorMsg);
-            }
-
-            _logger.LogInformation(
-                "Server {ServerId}: All MCP services ready ({ConnectedCount}/{TotalCount}), now connecting to Xiaozhi WebSocket...",
-                ServerId, _mcpClients.Count, _config.McpServices.Count);
+            // Note: Do NOT pre-create persistent MCP clients here.
+            // Keep the WebSocket connection lightweight and create transient MCP clients only when needed (e.g. tools/call).
+            _logger.LogInformation("Server {ServerId}: Skipping eager MCP client creation ({Count} configured), will create transient clients on demand", ServerId, _config.McpServices.Count);
 
             // ✅ NOW connect to WebSocket - all backend services are ready
             _webSocket = new ClientWebSocket();
@@ -332,8 +234,8 @@ public class McpSessionService : IAsyncDisposable
 
             // ✅ Notify connection success (we already checked MCP client count above)
             _logger.LogInformation(
-                "Server {ServerId}: Connection established with {ConnectedCount}/{TotalCount} MCP services",
-                ServerId, _mcpClients.Count, _config.McpServices.Count);
+                "Server {ServerId}: Connection established (configured services: {TotalCount})",
+                ServerId, _config.McpServices.Count);
 
             try
             {
@@ -393,20 +295,7 @@ public class McpSessionService : IAsyncDisposable
     /// </summary>
     private async Task CleanupConnectionAsync()
     {
-        foreach (var mcpClient in _mcpClients)
-        {
-            try
-            {
-                await mcpClient.DisposeAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Error disposing MCP client: {Error}", ex.Message);
-            }
-        }
-        _mcpClients.Clear();
-        _clientIndexToServiceConfig.Clear(); // ✅ Also clear the index mapping
-        _failedServices.Clear(); // ✅ Clear failed services on cleanup (for reconnection)
+        // No persistent MCP clients are kept in this session anymore.
 
         if (_webSocket != null)
         {
@@ -432,7 +321,7 @@ public class McpSessionService : IAsyncDisposable
     /// </summary>
     private async Task PipeWebSocketToMcpAsync(CancellationToken cancellationToken)
     {
-        if (_webSocket == null || _mcpClients.Count == 0) return;
+        if (_webSocket == null) return;
 
         var buffer = new byte[4096];
 
@@ -665,194 +554,23 @@ public class McpSessionService : IAsyncDisposable
             throw new InvalidOperationException($"WebSocket state is {_webSocket?.State}, not Open");
         }
 
-        var startTime = DateTime.UtcNow;
+        // For performance and scale: do NOT iterate and ping all MCP clients on every ping.
+        // WebSocket itself proves connectivity; respond healthy by default.
 
-        _logger.LogDebug(
-            "Server {ServerId}: Received ping request (id: {RequestId}) from Xiaozhi, forwarding to {Count} MCP client(s)",
-            ServerId, id, _mcpClients.Count);
-
-        // ✅ 创建一个 15秒总体超时的 CancellationToken，防止 ping 处理阻塞太久
-        using var pingTimeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, pingTimeoutCts.Token);
-        var pingCancellationToken = linkedCts.Token;
-
-        // ✅ 向所有 MCP 客户端发送 ping 以保持连接活跃
-        var pingTasks = _mcpClients.Select(async (mcpClient, index) =>
-        {
-            try
-            {
-                var clientStartTime = DateTime.UtcNow;
-
-                // 使用 SDK 的 PingAsync 方法保持 HTTP 会话活跃
-                // 使用带总体超时限制的 CancellationToken
-                await mcpClient.PingAsync(pingCancellationToken);
-
-                var duration = (DateTime.UtcNow - clientStartTime).TotalMilliseconds;
-
-                _logger.LogTrace(
-                    "Server {ServerId}: Ping to MCP client {ClientIndex} succeeded in {Duration}ms",
-                    ServerId, index, duration);
-
-                return (success: true, index, duration, needsRecovery: false, error: (Exception?)null);
-            }
-            catch (OperationCanceledException) when (pingTimeoutCts.Token.IsCancellationRequested)
-            {
-                _logger.LogWarning(
-                    "Server {ServerId}: Ping to MCP client {ClientIndex} timed out (exceeded 15s total limit)",
-                    ServerId, index);
-                return (success: false, index, duration: 0.0, needsRecovery: false, error: (Exception?)null);
-            }
-            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                // 🔧 404 indicates session expired - needs recovery
-                _logger.LogWarning(
-                    "Server {ServerId}: MCP client {ClientIndex} session expired (404), will attempt recovery",
-                    ServerId, index);
-                return (success: false, index, duration: 0.0, needsRecovery: true, error: (Exception?)ex);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(
-                    "Server {ServerId}: Ping to MCP client {ClientIndex} failed: {Error}",
-                    ServerId, index, ex.Message);
-                return (success: false, index, duration: 0.0, needsRecovery: false, error: (Exception?)ex);
-            }
-        });
-
-        // 等待所有 ping 完成
-        var results = await Task.WhenAll(pingTasks);
-
-        var successCount = results.Count(r => r.success);
-        var totalDuration = (DateTime.UtcNow - startTime).TotalMilliseconds;
-        var successResults = results.Where(r => r.success).ToList();
-        var avgDuration = successResults.Count != 0 ? successResults.Average(r => r.duration) : 0.0;
-
-        // 响应给小智
         var response = new
         {
             jsonrpc = "2.0",
             id = id,
             result = new
             {
-                // 可选：返回健康状态
-                healthy = results.Any(r => r.success),
-                connectedClients = successCount
+                healthy = true,
+                connectedClients = 0 // transient clients are created on demand
             }
         };
 
         await SendWebSocketResponseAsync(response, cancellationToken);
 
-        // 🔧 Check for clients that need session recovery (404 errors)
-        var clientsNeedingRecovery = results
-            .Where(r => r.needsRecovery)
-            .Select(r => r.index)
-            .ToList();
-
-        if (clientsNeedingRecovery.Count != 0)
-        {
-            _logger.LogWarning(
-                "Server {ServerId}: {Count} client(s) need session recovery, attempting to reconnect...",
-                ServerId, clientsNeedingRecovery.Count);
-
-            // 🔧 Trigger session recovery in background (don't block ping response)
-            _ = Task.Run(async () =>
-            {
-                foreach (var clientIndex in clientsNeedingRecovery)
-                {
-                    try
-                    {
-                        await RecoverMcpClientAsync(clientIndex, cancellationToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex,
-                            "Server {ServerId}: Failed to recover MCP client {ClientIndex}",
-                            ServerId, clientIndex);
-                    }
-                }
-            }, cancellationToken);
-        }
-
-        var logLevel = successCount > 0 ? LogLevel.Information : LogLevel.Warning;
-        _logger.Log(
-            logLevel,
-            "Server {ServerId}: Ping completed - {Success}/{Total} clients responded successfully, " +
-            "total time: {TotalTime}ms, avg response: {AvgTime:F2}ms (HttpClient timeout: 10s, total limit: 15s)",
-            ServerId, successCount, _mcpClients.Count, totalDuration, avgDuration);
-
-        // 🔧 Periodic retry of failed services
-        await TryRecoverFailedServicesAsync(cancellationToken);
-
-        _logger.LogDebug(
-            "Server {ServerId}: Ping response sent to Xiaozhi (id: {RequestId})",
-            ServerId, id);
-    }
-
-    /// <summary>
-    /// Try to recover failed services periodically
-    /// </summary>
-    private async Task TryRecoverFailedServicesAsync(CancellationToken cancellationToken)
-    {
-        if (_failedServices.Count == 0)
-        {
-            return; // No failed services to retry
-        }
-
-        var now = DateTime.UtcNow;
-        var servicesToRetry = _failedServices
-            .Where(kvp => now - kvp.Value.LastAttempt >= _failedServiceRetryInterval)
-            .ToList();
-
-        if (servicesToRetry.Count == 0)
-        {
-            return; // Not time to retry yet
-        }
-
-        _logger.LogInformation(
-            "Server {ServerId}: Attempting to recover {Count} failed service(s): [{Services}]",
-            ServerId,
-            servicesToRetry.Count,
-            string.Join(", ", servicesToRetry.Select(s => s.Key)));
-
-        // Get user context headers
-        var userContextHeaders = await GetUserContextHeadersAsync();
-
-        foreach (var (serviceName, (config, _)) in servicesToRetry)
-        {
-            try
-            {
-                // Try to create MCP client
-                var mcpClient = await _mcpClientService.CreateMcpClientAsync(
-                    $"McpService_{config.ServiceName}",
-                    config.NodeAddress,
-                    config.Protocol,
-                    config.AuthenticationType,
-                    config.AuthenticationConfig,
-                    additionalHeaders: userContextHeaders,
-                    cancellationToken: cancellationToken);
-
-                // Success! Add to active clients
-                var clientIndex = _mcpClients.Count;
-                _mcpClients.Add(mcpClient);
-                _clientIndexToServiceConfig[clientIndex] = config;
-
-                // Remove from failed services
-                _failedServices.Remove(serviceName);
-
-                _logger.LogInformation(
-                    "Server {ServerId}: Successfully recovered MCP service {ServiceName}, now {Connected}/{Total} services active",
-                    ServerId, config.ServiceName, _mcpClients.Count, _config.McpServices.Count);
-            }
-            catch (Exception ex)
-            {
-                // Still failing, update last attempt time
-                _failedServices[serviceName] = (config, now);
-
-                _logger.LogDebug(
-                    "Server {ServerId}: Failed to recover MCP service {ServiceName}: {Error}",
-                    ServerId, config.ServiceName, ex.Message);
-            }
-        }
+        _logger.LogDebug("Server {ServerId}: Ping handled quickly; reported healthy", ServerId);
     }
 
     private async Task HandleToolsListAsync(int? id, CancellationToken cancellationToken)
@@ -948,14 +666,6 @@ public class McpSessionService : IAsyncDisposable
 
     private async Task HandleToolsCallAsync(int? id, JsonDocument request, CancellationToken cancellationToken)
     {
-        if (_mcpClients.Count == 0)
-        {
-            _logger.LogWarning("Server {ServerId}: No MCP clients available for tools/call request", ServerId);
-            await SendErrorResponseAsync(id, -32603, "No MCP services available",
-                "No active MCP service bindings configured for this endpoint", cancellationToken);
-            return;
-        }
-
         try
         {
             var paramsElement = request.RootElement.GetProperty("params");
@@ -973,56 +683,77 @@ public class McpSessionService : IAsyncDisposable
             _logger.LogInformation("Server {ServerId}: Calling tool {ToolName} with arguments: {Arguments}",
                 ServerId, toolName, JsonSerializer.Serialize(arguments, _jsonOptions));
 
-            // Try to call the tool on each MCP client until one succeeds
-            object? result = null;
-            Exception? lastException = null;
+            // Find services that have this tool configured
+            var candidateServices = _config.McpServices
+                .Where(s => s.SelectedTools != null && s.SelectedTools.Any(t => t.Name == toolName))
+                .ToList();
 
-            for (int i = 0; i < _mcpClients.Count; i++)
+            if (candidateServices.Count == 0)
             {
-                var mcpClient = _mcpClients[i];
-                // ✅ Use the tracked service config for this client (correct index mapping)
-                var serviceConfig = _clientIndexToServiceConfig.TryGetValue(i, out var config) ? config : null;
+                _logger.LogWarning("Server {ServerId}: Tool {ToolName} not found in any configured service", ServerId, toolName);
+                await SendErrorResponseAsync(id, -32601, "Method not found", $"Tool {toolName} not configured", cancellationToken);
+                return;
+            }
 
-                // Check if tool is allowed for this service (using SelectedTools instead of SelectedToolNames)
-                if (serviceConfig != null && serviceConfig.SelectedTools.Count > 0)
-                {
-                    if (!serviceConfig.SelectedTools.Any(t => t.Name == toolName))
-                    {
-                        continue; // Skip this client if tool is not in selected list
-                    }
-                }
+            Exception? lastException = null;
+            object? finalResult = null;
 
+            var userContextHeaders = await GetUserContextHeadersAsync();
+
+            // Try candidate services one by one, creating a transient McpClient per attempt
+            foreach (var service in candidateServices)
+            {
+                McpClient? transientClient = null;
                 try
                 {
-                    result = await mcpClient.CallToolAsync(toolName, arguments, cancellationToken: cancellationToken);
-                    break; // Success
+                    transientClient = await _mcpClientService.CreateMcpClientAsync(
+                        $"McpService_{service.ServiceName}",
+                        service.NodeAddress,
+                        service.Protocol,
+                        service.AuthenticationType,
+                        service.AuthenticationConfig,
+                        additionalHeaders: userContextHeaders,
+                        cancellationToken: cancellationToken);
+
+                    finalResult = await transientClient.CallToolAsync(toolName, arguments, cancellationToken: cancellationToken);
+
+                    // Success - dispose client and break
+                    await transientClient.DisposeAsync();
+                    transientClient = null;
+                    break;
                 }
                 catch (Exception ex)
                 {
                     lastException = ex;
-                    _logger.LogDebug("Tool {ToolName} not found in client, trying next", toolName);
+                    _logger.LogWarning(ex, "Server {ServerId}: Tool {ToolName} call failed on service {ServiceName}, trying next", ServerId, toolName, service.ServiceName);
+                }
+                finally
+                {
+                    if (transientClient != null)
+                    {
+                        try { await transientClient.DisposeAsync(); } catch { }
+                    }
                 }
             }
 
-            if (result != null)
+            if (finalResult != null)
             {
                 var response = new
                 {
                     jsonrpc = "2.0",
                     id = id,
-                    result = result
+                    result = finalResult
                 };
 
                 await SendWebSocketResponseAsync(response, cancellationToken);
+                return;
             }
-            else
-            {
-                throw lastException ?? new Exception($"Tool {toolName} not found in any MCP service");
-            }
+
+            throw lastException ?? new Exception($"Tool {toolName} call failed on all candidate services");
         }
         catch (Exception ex)
         {
-            _logger.LogError("Server {ServerId}: Error calling tool: {Error}", ServerId, ex.Message);
+            _logger.LogError(ex, "Server {ServerId}: Error calling tool: {Error}", ServerId, ex.Message);
             await SendErrorResponseAsync(id, -32603, "Internal error", ex.Message, cancellationToken);
         }
     }
@@ -1088,91 +819,7 @@ public class McpSessionService : IAsyncDisposable
         };
     }
 
-    /// <summary>
-    /// Recover a failed MCP client by recreating the connection
-    /// </summary>
-    /// <param name="clientIndex">Index of the client to recover</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    private async Task RecoverMcpClientAsync(int clientIndex, CancellationToken cancellationToken)
-    {
-        if (!_clientIndexToServiceConfig.TryGetValue(clientIndex, out var service))
-        {
-            _logger.LogWarning(
-                "Server {ServerId}: Cannot recover client {ClientIndex} - service config not found",
-                ServerId, clientIndex);
-            return;
-        }
-
-        _logger.LogInformation(
-            "Server {ServerId}: Recovering MCP client {ClientIndex} for service {ServiceName}",
-            ServerId, clientIndex, service.ServiceName);
-
-        McpClient? newClient = null;
-        var oldClient = _mcpClients[clientIndex];
-
-        try
-        {
-            // ⚠️ CRITICAL: Create new client FIRST, before disposing old one
-            // This ensures we always have a valid client reference
-
-            // Get user context headers
-            var userContextHeaders = await GetUserContextHeadersAsync();
-
-            // 🔧 Use unified CreateMcpClientAsync method from IMcpClientService
-            newClient = await _mcpClientService.CreateMcpClientAsync(
-                $"McpService_{service.ServiceName}",
-                service.NodeAddress,
-                service.Protocol,
-                service.AuthenticationType,
-                service.AuthenticationConfig,
-                additionalHeaders: userContextHeaders,
-                cancellationToken: cancellationToken);
-
-            // ✅ New client created successfully, now replace the old one
-            _mcpClients[clientIndex] = newClient;
-
-            // ✅ Only dispose old client AFTER successful replacement
-            try
-            {
-                await oldClient.DisposeAsync();
-            }
-            catch (Exception disposeEx)
-            {
-                _logger.LogWarning(disposeEx,
-                    "Server {ServerId}: Error disposing old client {ClientIndex} (new client already active)",
-                    ServerId, clientIndex);
-            }
-
-            _logger.LogInformation(
-                "Server {ServerId}: Successfully recovered MCP client {ClientIndex} for service {ServiceName}",
-                ServerId, clientIndex, service.ServiceName);
-        }
-        catch (Exception ex)
-        {
-            // ⚠️ Recovery failed - old client remains in place (even if disposed)
-            // Clean up new client if it was created
-            if (newClient != null)
-            {
-                try
-                {
-                    await newClient.DisposeAsync();
-                }
-                catch (Exception cleanupEx)
-                {
-                    _logger.LogWarning(cleanupEx,
-                        "Server {ServerId}: Error cleaning up failed new client {ClientIndex}",
-                        ServerId, clientIndex);
-                }
-            }
-
-            _logger.LogError(ex,
-                "Server {ServerId}: Failed to recover MCP client {ClientIndex} for service {ServiceName} - old client remains",
-                ServerId, clientIndex, service.ServiceName);
-
-            // ⚠️ Do NOT throw - let the system continue with other clients
-            // The old client will be retried on next ping failure
-        }
-    }
+    // Recovery methods removed: clients are created on demand per tools/call and disposed immediately.
 
     /// <summary>
     /// Get user context headers for MCP client requests
