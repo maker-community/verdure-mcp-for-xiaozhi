@@ -3,6 +3,7 @@ using ModelContextProtocol.Client;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Configuration;
 using Verdure.McpPlatform.Domain.AggregatesModel.McpServiceConfigAggregate;
 
 namespace Verdure.McpPlatform.Application.Services;
@@ -24,6 +25,7 @@ public class McpClientService : IMcpClientService
 {
     private readonly ILogger<McpClientService> _logger;
     private readonly IUserInfoService _userInfoService;
+    private readonly TimeSpan _toolRequestTimeout;
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -34,10 +36,26 @@ public class McpClientService : IMcpClientService
 
     public McpClientService(
         ILogger<McpClientService> logger,
-        IUserInfoService userInfoService)
+        IUserInfoService userInfoService,
+        IConfiguration configuration)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _userInfoService = userInfoService ?? throw new ArgumentNullException(nameof(userInfoService));
+
+        if (configuration == null)
+        {
+            throw new ArgumentNullException(nameof(configuration));
+        }
+
+        var raw = configuration["McpClient:ToolRequestTimeoutSeconds"];
+        int seconds;
+        if (string.IsNullOrWhiteSpace(raw) || !int.TryParse(raw, out seconds) || seconds <= 0)
+        {
+            seconds = 5;
+        }
+
+        _toolRequestTimeout = TimeSpan.FromSeconds(seconds);
+        _logger.LogDebug("MCP client tool request timeout set to {TimeoutSeconds}s", seconds);
     }
 
     public async Task<IEnumerable<McpToolInfo>> GetToolsAsync(McpServiceConfig config)
@@ -175,13 +193,13 @@ public class McpClientService : IMcpClientService
 
         // 🔧 Create HttpClient with minimal configuration
         // SDK manages SSE connection lifetime via stream, not connection pooling
-        // We only set request timeout for fast failure on unresponsive tools
+        // We set request timeout for fast failure on unresponsive tools.
+        // Timeout value is read from configuration key 'McpClient:ToolRequestTimeoutSeconds'
+        // and defaults to 5 seconds when not configured.
         var httpClient = new HttpClient()
         {
             // Individual request timeout (not connection lifetime)
-            // Set to 10 seconds for fast failure on unavailable tools
-            // This applies to tool calls, not the SSE stream itself
-            Timeout = TimeSpan.FromSeconds(5)
+            Timeout = _toolRequestTimeout
         };
 
         // Create transport and client
