@@ -58,7 +58,8 @@
                 <!-- Tabs -->
                 <MudItem xs="12" md="6">
                     <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" 
-                             @bind-ActivePanelIndex="_activeTabIndex"
+                             ActivePanelIndex="@_activeTabIndex"
+                             ActivePanelIndexChanged="OnTabChanged"
                              PanelClass="pa-0">
                         <MudTabPanel Text="@Loc["MyServices"]" Icon="@Icons.Material.Filled.Person" />
                         <MudTabPanel Text="@Loc["PublicServices"]" Icon="@Icons.Material.Filled.Public" />
@@ -99,17 +100,30 @@
         </MudPaper>
     </MudItem>
 
-    <!-- Cards Container with Virtualization -->
+    <!-- Cards Container with Load More -->
     <MudItem xs="12">
         <div style="height: calc(100vh - 400px); overflow-y: auto; overflow-x: hidden;">
-            <!-- Virtualized Cards Grid -->
             <MudGrid Spacing="3" Class="px-4 py-2">
-                <MudVirtualize @ref="_virtualizeComponent"
-                              Enabled="true"
-                              ItemsProvider="@LoadServicesVirtualized"
-                              OverscanCount="4"
-                              Context="service">
-                    <ChildContent>
+                @if (_initialLoading)
+                {
+                    for (var i = 0; i < PageSize; i++)
+                    {
+                        <MudItem xs="12" sm="6" md="4" lg="3">
+                            <MudCard Style="height: 280px;" Elevation="2">
+                                <MudCardContent>
+                                    <MudSkeleton SkeletonType="SkeletonType.Circle" Width="40px" Height="40px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="30px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" Width="60%" />
+                                </MudCardContent>
+                            </MudCard>
+                        </MudItem>
+                    }
+                }
+                else if (_services.Any())
+                {
+                    @foreach (var service in _services)
+                    {
                         <MudItem xs="12" sm="6" md="4" lg="3">
                             <ServiceConfigCard Service="@service"
                                                IsPublicView="@IsPublicTab"
@@ -123,9 +137,54 @@
                                                OnSetPrivate="@(() => SetPrivate(service))"
                                                OnUseService="@(() => UsePublicService(service))" />
                         </MudItem>
-                    </ChildContent>
-                    <Placeholder>
-                        <!-- Loading Skeleton -->
+                    }
+                }
+                else
+                {
+                    <MudItem xs="12">
+                        <MudPaper Class="pa-8 d-flex flex-column align-center justify-center" Style="min-height: 400px;" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
+                                     Style="font-size: 120px;" 
+                                     Color="Color.Default" 
+                                     Class="mb-4" />
+                            <MudText Typo="Typo.h5" Class="mb-2">
+                                @(string.IsNullOrWhiteSpace(_searchTerm) 
+                                    ? (IsPublicTab ? Loc["NoPublicServicesYet"] : Loc["NoServicesYet"])
+                                    : Loc["NoServicesFound"])
+                            </MudText>
+                            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+                                @(string.IsNullOrWhiteSpace(_searchTerm) 
+                                    ? (IsPublicTab ? Loc["NoPublicServicesAvailable"] : Loc["CreateFirstService"])
+                                    : Loc["NoMatchingServices", _searchTerm])
+                            </MudText>
+                            @if (string.IsNullOrWhiteSpace(_searchTerm) && !IsPublicTab)
+                            {
+                                <MudButton Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Add"
+                                           Href="/mcp-services/create">
+                                    @Loc["CreateFirstService"]
+                                </MudButton>
+                            }
+                            else if (!string.IsNullOrWhiteSpace(_searchTerm))
+                            {
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Clear"
+                                           OnClick="ClearSearch">
+                                    @Loc["ClearSearch"]
+                                </MudButton>
+                            }
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudGrid>
+
+            @if (_loadingMore)
+            {
+                <MudGrid Spacing="3" Class="px-4 py-2">
+                    @for (var i = 0; i < 3; i++)
+                    {
                         <MudItem xs="12" sm="6" md="4" lg="3">
                             <MudCard Style="height: 280px;" Elevation="2">
                                 <MudCardContent>
@@ -136,48 +195,20 @@
                                 </MudCardContent>
                             </MudCard>
                         </MudItem>
-                    </Placeholder>
-                    <NoRecordsContent>
-                        <!-- No Data State -->
-                        <MudItem xs="12">
-                            <MudPaper Class="pa-8 d-flex flex-column align-center justify-center" Style="min-height: 400px;" Elevation="0">
-                                <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
-                                         Style="font-size: 120px;" 
-                                         Color="Color.Default" 
-                                         Class="mb-4" />
-                                <MudText Typo="Typo.h5" Class="mb-2">
-                                    @(string.IsNullOrWhiteSpace(_searchTerm) 
-                                        ? (IsPublicTab ? Loc["NoPublicServicesYet"] : Loc["NoServicesYet"])
-                                        : Loc["NoServicesFound"])
-                                </MudText>
-                                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
-                                    @(string.IsNullOrWhiteSpace(_searchTerm) 
-                                        ? (IsPublicTab ? Loc["NoPublicServicesAvailable"] : Loc["CreateFirstService"])
-                                        : Loc["NoMatchingServices", _searchTerm])
-                                </MudText>
-                                @if (string.IsNullOrWhiteSpace(_searchTerm) && !IsPublicTab)
-                                {
-                                    <MudButton Variant="Variant.Filled"
-                                               Color="Color.Primary"
-                                               StartIcon="@Icons.Material.Filled.Add"
-                                               Href="/mcp-services/create">
-                                        @Loc["CreateFirstService"]
-                                    </MudButton>
-                                }
-                                else if (!string.IsNullOrWhiteSpace(_searchTerm))
-                                {
-                                    <MudButton Variant="Variant.Outlined"
-                                               Color="Color.Primary"
-                                               StartIcon="@Icons.Material.Filled.Clear"
-                                               OnClick="ClearSearch">
-                                        @Loc["ClearSearch"]
-                                    </MudButton>
-                                }
-                            </MudPaper>
-                        </MudItem>
-                    </NoRecordsContent>
-                </MudVirtualize>
-            </MudGrid>
+                    }
+                </MudGrid>
+            }
+
+            @if (_hasMoreData && !_loadingMore && !_initialLoading)
+            {
+                <div class="d-flex justify-center py-4">
+                    <MudButton Variant="Variant.Text" Color="Color.Primary"
+                               OnClick="LoadMoreAsync"
+                               Style="text-transform: none;">
+                        @Loc["LoadMore"]
+                    </MudButton>
+                </div>
+            }
         </div>
     </MudItem>
 </MudGrid>
@@ -191,9 +222,13 @@
     private int _totalCount = 0;
     private bool _isAdmin = false;
 
-    // Virtualization
-    private MudVirtualize<McpServiceConfigDto>? _virtualizeComponent;
+    // Load more paging
     private const int PageSize = 12;
+    private bool _initialLoading = true;
+    private bool _loadingMore = false;
+    private int _currentPage = 1;
+    private bool _hasMoreData = true;
+    private List<McpServiceConfigDto> _services = new();
 
     // Sync tools state - prevent concurrent clicks
     private readonly HashSet<string> _syncingServices = new();
@@ -205,106 +240,139 @@
         // Check if user is admin using extension method
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         _isAdmin = authState.User.IsAdmin(); // ✅ 使用扩展方法
-        
-        StateHasChanged();
-    }
 
-    /// <summary>
-    /// MudVirtualize 的数据提供函数
-    /// 根据请求的起始索引和数量加载数据
-    /// </summary>
-    private async ValueTask<ItemsProviderResult<McpServiceConfigDto>> LoadServicesVirtualized(
-        ItemsProviderRequest request)
-    {
         try
         {
-            // 每页固定 12 个项
-            // 计算起始页和结束页
-            var startPage = (request.StartIndex / PageSize) + 1;
-            var endIndex = request.StartIndex + request.Count - 1;
-            var endPage = (endIndex / PageSize) + 1;
-            
-            Console.WriteLine($"🔄 LoadServicesVirtualized: Tab={_activeTabIndex}, StartIndex={request.StartIndex}, Count={request.Count}, Pages={startPage}-{endPage}");
+            await LoadServicesAsync(resetList: true);
+        }
+        finally
+        {
+            _initialLoading = false;
+            StateHasChanged();
+        }
+    }
 
-            // 收集所有需要的数据
-            var allItems = new List<McpServiceConfigDto>();
-            int totalCount = 0;
+    private async Task LoadServicesAsync(bool resetList)
+    {
+        if (resetList)
+        {
+            _currentPage = 1;
+            _services.Clear();
+            _hasMoreData = true;
+        }
 
-            // 加载所有需要的页
-            for (var page = startPage; page <= endPage; page++)
+        try
+        {
+            var request = new PagedRequest
             {
-                var pagedRequest = new PagedRequest
-                {
-                    Page = page,
-                    PageSize = PageSize,
-                    SearchTerm = _searchTerm,
-                    SortBy = _sortBy,
-                    SortOrder = _sortOrder
-                };
+                Page = _currentPage,
+                PageSize = PageSize,
+                SearchTerm = _searchTerm,
+                SortBy = _sortBy,
+                SortOrder = _sortOrder
+            };
 
-                PagedResult<McpServiceConfigDto> result;
-                
-                if (IsPublicTab)
-                {
-                    result = await ServiceConfigService.GetPublicServicesPagedAsync(pagedRequest);
-                }
-                else
-                {
-                    result = await ServiceConfigService.GetServicesPagedAsync(pagedRequest);
-                }
+            var result = IsPublicTab
+                ? await ServiceConfigService.GetPublicServicesPagedAsync(request)
+                : await ServiceConfigService.GetServicesPagedAsync(request);
 
-                if (page == startPage)
-                {
-                    totalCount = result.TotalCount;
-                    _totalCount = totalCount;
-                }
-
-                allItems.AddRange(result.Items);
+            if (resetList)
+            {
+                _services = result.Items.ToList();
+            }
+            else
+            {
+                _services.AddRange(result.Items);
             }
 
-            // 计算需要跳过的数量（当 startPage > 1 时）
-            var skipCount = request.StartIndex % PageSize;
-            var items = allItems.Skip(skipCount).Take(request.Count).ToList();
-
-            Console.WriteLine($"✅ Loaded {items.Count} items, TotalCount={totalCount}");
-
-            return new ItemsProviderResult<McpServiceConfigDto>(items, totalCount);
+            _totalCount = result.TotalCount;
+            _hasMoreData = _currentPage < result.TotalPages;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"❌ Error loading services: {ex.Message}");
             Snackbar.Add(string.Format(Loc["ErrorLoadingMcpServices"], ex.Message), Severity.Error);
-            return new ItemsProviderResult<McpServiceConfigDto>(new List<McpServiceConfigDto>(), 0);
+        }
+    }
+
+    private async Task LoadMoreAsync()
+    {
+        if (_loadingMore || !_hasMoreData)
+        {
+            return;
+        }
+
+        _loadingMore = true;
+        StateHasChanged();
+
+        try
+        {
+            _currentPage++;
+            await LoadServicesAsync(resetList: false);
+        }
+        finally
+        {
+            _loadingMore = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnTabChanged(int index)
+    {
+        _activeTabIndex = index;
+        _initialLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            await LoadServicesAsync(resetList: true);
+        }
+        finally
+        {
+            _initialLoading = false;
+            StateHasChanged();
         }
     }
 
     private async Task OnSearchChanged()
     {
         Console.WriteLine($"🔍 Search changed: '{_searchTerm}'");
-        await RefreshData();
+        _initialLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            await LoadServicesAsync(resetList: true);
+        }
+        finally
+        {
+            _initialLoading = false;
+            StateHasChanged();
+        }
     }
 
     private async Task OnSortChanged(string newSortBy)
     {
         Console.WriteLine($"🔄 Sort changed: {newSortBy}");
         _sortBy = newSortBy;
-        await RefreshData();
-    }
-
-    private async Task RefreshData()
-    {
-        if (_virtualizeComponent != null)
-        {
-            Console.WriteLine("♻️ Refreshing virtualize component...");
-            await _virtualizeComponent.RefreshDataAsync();
-        }
+        _initialLoading = true;
         StateHasChanged();
+
+        try
+        {
+            await LoadServicesAsync(resetList: true);
+        }
+        finally
+        {
+            _initialLoading = false;
+            StateHasChanged();
+        }
     }
 
     private void ClearSearch()
     {
         _searchTerm = "";
-        _ = RefreshData();
+        _ = OnSearchChanged();
     }
 
     private async Task ViewDetails(McpServiceConfigDto service)
@@ -371,7 +439,11 @@
             Snackbar.Add(string.Format(Loc["ToolsSyncedSuccess"], service.Name), Severity.Success);
             
             // Reload to get updated tool list
-            await RefreshData();
+            _initialLoading = true;
+            StateHasChanged();
+            await LoadServicesAsync(resetList: true);
+            _initialLoading = false;
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -399,7 +471,11 @@
             {
                 await ServiceConfigService.DeleteServiceAsync(service.Id);
                 Snackbar.Add(string.Format(Loc["McpServiceDeletedSuccess"], service.Name), Severity.Success);
-                await RefreshData();
+                _initialLoading = true;
+                StateHasChanged();
+                await LoadServicesAsync(resetList: true);
+                _initialLoading = false;
+                StateHasChanged();
             }
             catch (Exception ex)
             {
@@ -422,7 +498,11 @@
             {
                 await ServiceConfigService.SetPublicAsync(service.Id);
                 Snackbar.Add(string.Format(Loc["McpServiceSetPublicSuccess"], service.Name), Severity.Success);
-                await RefreshData();
+                _initialLoading = true;
+                StateHasChanged();
+                await LoadServicesAsync(resetList: true);
+                _initialLoading = false;
+                StateHasChanged();
             }
             catch (Exception ex)
             {
@@ -445,31 +525,16 @@
             {
                 await ServiceConfigService.SetPrivateAsync(service.Id);
                 Snackbar.Add(string.Format(Loc["McpServiceSetPrivateSuccess"], service.Name), Severity.Success);
-                await RefreshData();
+                _initialLoading = true;
+                StateHasChanged();
+                await LoadServicesAsync(resetList: true);
+                _initialLoading = false;
+                StateHasChanged();
             }
             catch (Exception ex)
             {
                 Snackbar.Add(string.Format(Loc["ErrorSettingPrivate"], ex.Message), Severity.Error);
             }
-        }
-    }
-
-    // Watch for tab changes
-    protected override async Task OnParametersSetAsync()
-    {
-        await base.OnParametersSetAsync();
-    }
-
-    private int _previousTabIndex = 0;
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-        
-        if (_previousTabIndex != _activeTabIndex)
-        {
-            Console.WriteLine($"📑 Tab changed from {_previousTabIndex} to {_activeTabIndex}");
-            _previousTabIndex = _activeTabIndex;
-            await RefreshData();
         }
     }
 }

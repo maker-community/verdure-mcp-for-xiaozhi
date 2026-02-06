@@ -73,17 +73,30 @@
         </MudPaper>
     </MudItem>
 
-    <!-- Services Grid with Virtualization -->
+    <!-- Services Grid with Load More -->
     <MudItem xs="12">
         <div style="height: calc(100vh - 400px); overflow-y: auto; overflow-x: hidden;">
-            <!-- Virtualized Cards Grid -->
             <MudGrid Spacing="3" Class="px-4 py-2">
-                <MudVirtualize @ref="_virtualize"
-                              Enabled="true"
-                              ItemsProvider="@LoadServicesVirtualized"
-                              OverscanCount="4"
-                              Context="service">
-                    <ChildContent>
+                @if (_initialLoading)
+                {
+                    for (var i = 0; i < PageSize; i++)
+                    {
+                        <MudItem xs="12" sm="6" md="4">
+                            <MudCard Style="height: 350px;" Elevation="2">
+                                <MudCardContent>
+                                    <MudSkeleton SkeletonType="SkeletonType.Circle" Width="40px" Height="40px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="30px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" Class="mb-2" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" Width="60%" />
+                                </MudCardContent>
+                            </MudCard>
+                        </MudItem>
+                    }
+                }
+                else if (_services.Any())
+                {
+                    @foreach (var service in _services)
+                    {
                         <MudItem xs="12" sm="6" md="4">
                             <MudCard Elevation="2" Class="m3-card" Style="height: 100%; display: flex; flex-direction: column;">
                                 <MudCardHeader Class="pb-2">
@@ -166,9 +179,41 @@
                                 </MudCardActions>
                             </MudCard>
                         </MudItem>
-                    </ChildContent>
-                    <Placeholder>
-                        <!-- Loading Skeleton -->
+                    }
+                }
+                else
+                {
+                    <MudItem xs="12">
+                        <MudPaper Class="pa-8 d-flex flex-column align-center justify-center" Style="min-height: 400px;" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
+                                     Style="font-size: 120px;" 
+                                     Color="Color.Default" 
+                                     Class="mb-4" />
+                            <MudText Typo="Typo.h5" Class="mb-2">
+                                @(string.IsNullOrWhiteSpace(_searchTerm) ? Loc["NoServicesYet"] : Loc["NoServicesFound"])
+                            </MudText>
+                            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+                                @(string.IsNullOrWhiteSpace(_searchTerm) ? Loc["ManageAllMcpServices"] : Loc["NoMatchingServices", _searchTerm])
+                            </MudText>
+                            @if (!string.IsNullOrWhiteSpace(_searchTerm))
+                            {
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Clear"
+                                           OnClick="ClearSearch">
+                                    @Loc["ClearSearch"]
+                                </MudButton>
+                            }
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudGrid>
+
+            @if (_loadingMore)
+            {
+                <MudGrid Spacing="3" Class="px-4 py-2">
+                    @for (var i = 0; i < 3; i++)
+                    {
                         <MudItem xs="12" sm="6" md="4">
                             <MudCard Style="height: 350px;" Elevation="2">
                                 <MudCardContent>
@@ -179,62 +224,64 @@
                                 </MudCardContent>
                             </MudCard>
                         </MudItem>
-                    </Placeholder>
-                    <NoRecordsContent>
-                        <!-- No Data State -->
-                        <MudItem xs="12">
-                            <MudPaper Class="pa-8 d-flex flex-column align-center justify-center" Style="min-height: 400px;" Elevation="0">
-                                <MudIcon Icon="@Icons.Material.Outlined.CloudOff" 
-                                         Style="font-size: 120px;" 
-                                         Color="Color.Default" 
-                                         Class="mb-4" />
-                                <MudText Typo="Typo.h5" Class="mb-2">
-                                    @(string.IsNullOrWhiteSpace(_searchTerm) ? Loc["NoServicesYet"] : Loc["NoServicesFound"])
-                                </MudText>
-                                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
-                                    @(string.IsNullOrWhiteSpace(_searchTerm) ? Loc["ManageAllMcpServices"] : Loc["NoMatchingServices", _searchTerm])
-                                </MudText>
-                                @if (!string.IsNullOrWhiteSpace(_searchTerm))
-                                {
-                                    <MudButton Variant="Variant.Outlined"
-                                               Color="Color.Primary"
-                                               StartIcon="@Icons.Material.Filled.Clear"
-                                               OnClick="ClearSearch">
-                                        @Loc["ClearSearch"]
-                                    </MudButton>
-                                }
-                            </MudPaper>
-                        </MudItem>
-                    </NoRecordsContent>
-                </MudVirtualize>
-            </MudGrid>
+                    }
+                </MudGrid>
+            }
+
+            @if (_hasMoreData && !_loadingMore && !_initialLoading)
+            {
+                <div class="d-flex justify-center py-4">
+                    <MudButton Variant="Variant.Text" Color="Color.Primary"
+                               OnClick="LoadMoreAsync"
+                               Style="text-transform: none;">
+                        @Loc["LoadMore"]
+                    </MudButton>
+                </div>
+            }
         </div>
     </MudItem>
 </MudGrid>
 
 @code {
-    private MudVirtualize<McpServiceConfigDto>? _virtualize;
     private List<McpServiceConfigDto> _services = new();
+    private bool _initialLoading = true;
+    private bool _loadingMore = false;
+    private int _currentPage = 1;
+    private bool _hasMoreData = true;
     private int _totalCount = 0;
     private string _searchTerm = string.Empty;
     private string _sortBy = "CreatedAt";
-    
+
     private readonly HashSet<string> _syncingServices = new();
 
     private const int PageSize = 12;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadInitialData();
+        try
+        {
+            await LoadServicesAsync(resetList: true);
+        }
+        finally
+        {
+            _initialLoading = false;
+            StateHasChanged();
+        }
     }
-
-    private async Task LoadInitialData()
+    private async Task LoadServicesAsync(bool resetList)
     {
+        if (resetList)
+        {
+            _currentPage = 1;
+            _services.Clear();
+            _hasMoreData = true;
+        }
+
         try
         {
             var request = new PagedRequest
             {
-                Page = 1,
+                Page = _currentPage,
                 PageSize = PageSize,
                 SearchTerm = _searchTerm,
                 SortBy = _sortBy,
@@ -242,7 +289,17 @@
             };
 
             var result = await ServiceConfigService.GetAllServicesForAdminAsync(request);
+            if (resetList)
+            {
+                _services = result.Items.ToList();
+            }
+            else
+            {
+                _services.AddRange(result.Items);
+            }
+
             _totalCount = result.TotalCount;
+            _hasMoreData = _currentPage < result.TotalPages;
         }
         catch (Exception ex)
         {
@@ -250,94 +307,65 @@
         }
     }
 
-    private async ValueTask<ItemsProviderResult<McpServiceConfigDto>> LoadServicesVirtualized(
-        ItemsProviderRequest request)
+    private async Task LoadMoreAsync()
     {
+        if (_loadingMore || !_hasMoreData)
+        {
+            return;
+        }
+
+        _loadingMore = true;
+        StateHasChanged();
+
         try
         {
-            var startPage = (request.StartIndex / PageSize) + 1;
-            var endPage = ((request.StartIndex + request.Count - 1) / PageSize) + 1;
-
-            var servicesToLoad = new List<McpServiceConfigDto>();
-
-            for (int page = startPage; page <= endPage; page++)
-            {
-                var pageRequest = new PagedRequest
-                {
-                    Page = page,
-                    PageSize = PageSize,
-                    SearchTerm = _searchTerm,
-                    SortBy = _sortBy,
-                    SortOrder = "desc"
-                };
-
-                var result = await ServiceConfigService.GetAllServicesForAdminAsync(pageRequest);
-                
-                if (page == startPage && result.TotalCount != _totalCount)
-                {
-                    _totalCount = result.TotalCount;
-                    StateHasChanged();
-                }
-
-                servicesToLoad.AddRange(result.Items);
-            }
-
-            var startOffset = request.StartIndex % PageSize;
-            var itemsToReturn = servicesToLoad.Skip(startOffset).Take(request.Count).ToList();
-
-            foreach (var service in itemsToReturn.Where(s => !_services.Any(existing => existing.Id == s.Id)))
-            {
-                _services.Add(service);
-            }
-
-            return new ItemsProviderResult<McpServiceConfigDto>(itemsToReturn, _totalCount);
+            _currentPage++;
+            await LoadServicesAsync(resetList: false);
         }
-        catch (Exception ex)
+        finally
         {
-            Snackbar.Add($"{Loc["ErrorLoadingServices"]}: {ex.Message}", Severity.Error);
-            return new ItemsProviderResult<McpServiceConfigDto>(new List<McpServiceConfigDto>(), 0);
+            _loadingMore = false;
+            StateHasChanged();
         }
     }
 
     private async Task OnSearchChanged()
     {
-        _services.Clear();
-        _totalCount = 0;
-        
-        if (_virtualize != null)
-        {
-            await _virtualize.RefreshDataAsync();
-        }
-        
+        _initialLoading = true;
         StateHasChanged();
+
+        try
+        {
+            await LoadServicesAsync(resetList: true);
+        }
+        finally
+        {
+            _initialLoading = false;
+            StateHasChanged();
+        }
     }
 
     private async Task OnSortChanged(string newSortBy)
     {
         _sortBy = newSortBy;
-        _services.Clear();
-        _totalCount = 0;
-        
-        if (_virtualize != null)
-        {
-            await _virtualize.RefreshDataAsync();
-        }
-        
+        _initialLoading = true;
         StateHasChanged();
+
+        try
+        {
+            await LoadServicesAsync(resetList: true);
+        }
+        finally
+        {
+            _initialLoading = false;
+            StateHasChanged();
+        }
     }
 
     private async Task ClearSearch()
     {
         _searchTerm = string.Empty;
-        _services.Clear();
-        _totalCount = 0;
-        
-        if (_virtualize != null)
-        {
-            await _virtualize.RefreshDataAsync();
-        }
-        
-        StateHasChanged();
+        _ = OnSearchChanged();
     }
 
     private bool IsSyncing(string serviceId)
@@ -360,11 +388,11 @@
             Snackbar.Add(Loc["SyncToolsSuccess", service.Name], Severity.Success);
 
             // Refresh the service data
-            _services.Clear();
-            if (_virtualize != null)
-            {
-                await _virtualize.RefreshDataAsync();
-            }
+            _initialLoading = true;
+            StateHasChanged();
+            await LoadServicesAsync(resetList: true);
+            _initialLoading = false;
+            StateHasChanged();
         }
         catch (Exception ex)
         {
