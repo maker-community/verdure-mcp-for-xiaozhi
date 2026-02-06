@@ -1056,6 +1056,18 @@
   <data name="McpServiceConfigurations" xml:space="preserve">
     <value>MCP Service Configurations</value>
   </data>
+  <data name="ExternalLinks" xml:space="preserve">
+    <value>External Links</value>
+  </data>
+  <data name="VerdureMcpServicePlatform" xml:space="preserve">
+    <value>Verdure MCP Service Platform</value>
+  </data>
+  <data name="VerdureMcpServicePlatformDesc" xml:space="preserve">
+    <value>Open-source MCP service platform with rich tool extensions for AI assistants, including image generation and email delivery. Built on the MCP protocol for easy integration with Claude, ChatGPT, and more.</value>
+  </data>
+  <data name="GoToVerdureMcpServicePlatform" xml:space="preserve">
+    <value>Open Verdure MCP Platform</value>
+  </data>
   
   <!-- Tooltips -->
   <data name="TooltipGitHubCommunity" xml:space="preserve">

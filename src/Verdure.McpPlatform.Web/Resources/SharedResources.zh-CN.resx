@@ -1073,6 +1073,18 @@
   <data name="McpServiceConfigurations" xml:space="preserve">
     <value>MCP 服务配置</value>
   </data>
+  <data name="ExternalLinks" xml:space="preserve">
+    <value>外部链接</value>
+  </data>
+  <data name="VerdureMcpServicePlatform" xml:space="preserve">
+    <value>Verdure MCP 服务平台</value>
+  </data>
+  <data name="VerdureMcpServicePlatformDesc" xml:space="preserve">
+    <value>开源的 MCP 服务提供平台，为 AI 助手提供丰富的工具能力扩展，支持图片生成、邮件发送等多种功能。基于 MCP 协议，可轻松集成到 Claude、ChatGPT 等主流 AI 平台。</value>
+  </data>
+  <data name="GoToVerdureMcpServicePlatform" xml:space="preserve">
+    <value>打开 Verdure MCP 平台</value>
+  </data>
   
   <!-- 提示文本 -->
   <data name="TooltipGitHubCommunity" xml:space="preserve">
