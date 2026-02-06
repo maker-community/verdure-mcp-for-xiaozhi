@@ -49,7 +49,7 @@
 
 @code {
     [CascadingParameter]
-    private MudBlazor.IDialogReference? MudDialog { get; set; }
+    private IMudDialogInstance? MudDialog { get; set; }
 
     private void Close() => MudDialog?.Close(DialogResult.Cancel());
 }
