@@ -6,7 +6,6 @@
 @using Verdure.McpPlatform.Contracts.DTOs
 @using Verdure.McpPlatform.Contracts.Models
 @using Verdure.McpPlatform.Contracts.Requests
-@using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Verdure.McpPlatform.Web.Services
 @inject IMcpServiceBindingClientService BindingService
 @inject IXiaozhiMcpEndpointClientService ServerService
@@ -20,7 +19,7 @@
 <MudGrid>
     <!-- M3 Hero Banner - 统一蓝色渐变 -->
     <MudItem xs="12">
-        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
+        <MudCard Elevation="2" Class="m3-mb-xl m3-hero-card">
             <MudCardContent Class="pa-6">
                 <div class="d-flex align-center" Style="gap: 1rem;">
                     <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" 
@@ -28,10 +27,10 @@
                                   OnClick="Cancel" 
                                   Size="Size.Large" />
                     <div>
-                        <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
+                        <MudText Typo="Typo.h4" Class="m3-hero-title" Style="font-weight: 600; margin: 0;">
                             @Loc["CreateServiceBinding"]
                         </MudText>
-                        <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85);">
+                        <MudText Typo="Typo.body1" Class="m3-hero-subtitle">
                             @Loc["ConfigureNewServiceBinding"]
                         </MudText>
                     </div>
@@ -72,7 +71,7 @@
     <!-- Wizard Progress -->
     <MudItem xs="12">
         <MudCard Elevation="2">
-            <MudCardHeader Style="background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%);">
+            <MudCardHeader Style="background: linear-gradient(135deg, rgba(var(--m3-primary-rgb), 0.08) 0%, rgba(var(--m3-primary-rgb), 0.03) 100%);">
                 <CardHeaderContent>
                     <div class="d-flex align-center justify-space-between" style="gap: 16px;">
                         @if (!IsFromPublicService)
@@ -220,22 +219,13 @@
                             </MudItem>
                         </MudGrid>
 
-                        <!-- Virtualized Connection Cards -->
-                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid #e0e0e0; border-radius: 8px;">
+                        <!-- Connection Cards with Load More -->
+                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--m3-outline); border-radius: 8px;">
                             <MudGrid Spacing="3" Class="pa-3">
-                                <MudVirtualize @ref="_connectionVirtualize"
-                                              Enabled="true"
-                                              ItemsProvider="@LoadConnectionsVirtualized"
-                                              OverscanCount="4"
-                                              Context="connection">
-                                    <ChildContent>
-                                        <MudItem xs="12" sm="6" md="4">
-                                            <ConnectionSelectorCard Connection="@connection"
-                                                                   IsSelected="@(_selectedConnectionId == connection.Id)"
-                                                                   OnSelect="@(() => SelectConnection(connection.Id, connection.Name))" />
-                                        </MudItem>
-                                    </ChildContent>
-                                    <Placeholder>
+                                @if (_connectionInitialLoading)
+                                {
+                                    for (var i = 0; i < ConnectionPageSize; i++)
+                                    {
                                         <MudItem xs="12" sm="6" md="4">
                                             <MudCard Style="height: 200px;">
                                                 <MudCardContent>
@@ -244,9 +234,56 @@
                                                 </MudCardContent>
                                             </MudCard>
                                         </MudItem>
-                                    </Placeholder>
-                                </MudVirtualize>
+                                    }
+                                }
+                                else if (_connections.Any())
+                                {
+                                    @foreach (var connection in _connections)
+                                    {
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <ConnectionSelectorCard Connection="@connection"
+                                                                   IsSelected="@(_selectedConnectionId == connection.Id)"
+                                                                   OnSelect="@(() => SelectConnection(connection.Id, connection.Name))" />
+                                        </MudItem>
+                                    }
+                                }
+                                else
+                                {
+                                    <MudItem xs="12">
+                                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="pa-4">
+                                            @Loc["NoConnectionsFound"]
+                                        </MudText>
+                                    </MudItem>
+                                }
                             </MudGrid>
+
+                            @if (_connectionLoadingMore)
+                            {
+                                <MudGrid Spacing="3" Class="pa-3">
+                                    @for (var i = 0; i < 3; i++)
+                                    {
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <MudCard Style="height: 200px;">
+                                                <MudCardContent>
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="30px" Class="mb-2" />
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" />
+                                                </MudCardContent>
+                                            </MudCard>
+                                        </MudItem>
+                                    }
+                                </MudGrid>
+                            }
+
+                            @if (_connectionHasMoreData && !_connectionLoadingMore && !_connectionInitialLoading)
+                            {
+                                <div class="load-more-container d-flex justify-center">
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                               Class="m3-button load-more-button"
+                                               OnClick="LoadMoreConnectionsAsync">
+                                        @Loc["LoadMore"]
+                                    </MudButton>
+                                </div>
+                            }
                         </div>
                     </div>
                 }
@@ -287,22 +324,13 @@
                             </MudItem>
                         </MudGrid>
 
-                        <!-- Virtualized Connection Cards -->
-                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid #e0e0e0; border-radius: 8px;">
+                        <!-- Connection Cards with Load More -->
+                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--m3-outline); border-radius: 8px;">
                             <MudGrid Spacing="3" Class="pa-3">
-                                <MudVirtualize @ref="_connectionVirtualize"
-                                              Enabled="true"
-                                              ItemsProvider="@LoadConnectionsVirtualized"
-                                              OverscanCount="4"
-                                              Context="connection">
-                                    <ChildContent>
-                                        <MudItem xs="12" sm="6" md="4">
-                                            <ConnectionSelectorCard Connection="@connection"
-                                                                   IsSelected="@(_selectedConnectionId == connection.Id)"
-                                                                   OnSelect="@(() => SelectConnection(connection.Id, connection.Name))" />
-                                        </MudItem>
-                                    </ChildContent>
-                                    <Placeholder>
+                                @if (_connectionInitialLoading)
+                                {
+                                    for (var i = 0; i < ConnectionPageSize; i++)
+                                    {
                                         <MudItem xs="12" sm="6" md="4">
                                             <MudCard Style="height: 200px;">
                                                 <MudCardContent>
@@ -311,9 +339,56 @@
                                                 </MudCardContent>
                                             </MudCard>
                                         </MudItem>
-                                    </Placeholder>
-                                </MudVirtualize>
+                                    }
+                                }
+                                else if (_connections.Any())
+                                {
+                                    @foreach (var connection in _connections)
+                                    {
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <ConnectionSelectorCard Connection="@connection"
+                                                                   IsSelected="@(_selectedConnectionId == connection.Id)"
+                                                                   OnSelect="@(() => SelectConnection(connection.Id, connection.Name))" />
+                                        </MudItem>
+                                    }
+                                }
+                                else
+                                {
+                                    <MudItem xs="12">
+                                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="pa-4">
+                                            @Loc["NoConnectionsFound"]
+                                        </MudText>
+                                    </MudItem>
+                                }
                             </MudGrid>
+
+                            @if (_connectionLoadingMore)
+                            {
+                                <MudGrid Spacing="3" Class="pa-3">
+                                    @for (var i = 0; i < 3; i++)
+                                    {
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <MudCard Style="height: 200px;">
+                                                <MudCardContent>
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="30px" Class="mb-2" />
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" />
+                                                </MudCardContent>
+                                            </MudCard>
+                                        </MudItem>
+                                    }
+                                </MudGrid>
+                            }
+
+                            @if (_connectionHasMoreData && !_connectionLoadingMore && !_connectionInitialLoading)
+                            {
+                                <div class="load-more-container d-flex justify-center">
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                               Class="m3-button load-more-button"
+                                               OnClick="LoadMoreConnectionsAsync">
+                                        @Loc["LoadMore"]
+                                    </MudButton>
+                                </div>
+                            }
                         </div>
                     </div>
                 }
@@ -329,7 +404,8 @@
 
                         <!-- Tabs for My/Public Services -->
                         <MudTabs Elevation="0" Rounded="true" 
-                                 @bind-ActivePanelIndex="_serviceTabIndex"
+                                 ActivePanelIndex="@_serviceTabIndex"
+                                 ActivePanelIndexChanged="OnServiceTabChanged"
                                  PanelClass="pa-0" Class="mb-4">
                             <MudTabPanel Text="@Loc["MyServices"]" Icon="@Icons.Material.Filled.Person" />
                             <MudTabPanel Text="@Loc["PublicServices"]" Icon="@Icons.Material.Filled.Public" />
@@ -361,22 +437,13 @@
                             </MudItem>
                         </MudGrid>
 
-                        <!-- Virtualized Service Cards -->
-                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid #e0e0e0; border-radius: 8px;">
+                        <!-- Service Cards with Load More -->
+                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--m3-outline); border-radius: 8px;">
                             <MudGrid Spacing="3" Class="pa-3">
-                                <MudVirtualize @ref="_serviceVirtualize"
-                                              Enabled="true"
-                                              ItemsProvider="@LoadServicesVirtualized"
-                                              OverscanCount="4"
-                                              Context="service">
-                                    <ChildContent>
-                                        <MudItem xs="12" sm="6" md="4">
-                                            <McpServiceSelectorCard Service="@service"
-                                                                   IsSelected="@(_selectedServiceId == service.Id)"
-                                                                   OnSelect="@(() => SelectService(service.Id, service.Name))" />
-                                        </MudItem>
-                                    </ChildContent>
-                                    <Placeholder>
+                                @if (_serviceInitialLoading)
+                                {
+                                    for (var i = 0; i < ServicePageSize; i++)
+                                    {
                                         <MudItem xs="12" sm="6" md="4">
                                             <MudCard Style="height: 200px;">
                                                 <MudCardContent>
@@ -386,9 +453,57 @@
                                                 </MudCardContent>
                                             </MudCard>
                                         </MudItem>
-                                    </Placeholder>
-                                </MudVirtualize>
+                                    }
+                                }
+                                else if (_services.Any())
+                                {
+                                    @foreach (var service in _services)
+                                    {
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <McpServiceSelectorCard Service="@service"
+                                                                   IsSelected="@(_selectedServiceId == service.Id)"
+                                                                   OnSelect="@(() => SelectService(service.Id, service.Name))" />
+                                        </MudItem>
+                                    }
+                                }
+                                else
+                                {
+                                    <MudItem xs="12">
+                                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="pa-4">
+                                            @Loc["NoServicesFound"]
+                                        </MudText>
+                                    </MudItem>
+                                }
                             </MudGrid>
+
+                            @if (_serviceLoadingMore)
+                            {
+                                <MudGrid Spacing="3" Class="pa-3">
+                                    @for (var i = 0; i < 3; i++)
+                                    {
+                                        <MudItem xs="12" sm="6" md="4">
+                                            <MudCard Style="height: 200px;">
+                                                <MudCardContent>
+                                                    <MudSkeleton SkeletonType="SkeletonType.Circle" Width="40px" Height="40px" Class="mb-2" />
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="30px" Class="mb-2" />
+                                                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="20px" />
+                                                </MudCardContent>
+                                            </MudCard>
+                                        </MudItem>
+                                    }
+                                </MudGrid>
+                            }
+
+                            @if (_serviceHasMoreData && !_serviceLoadingMore && !_serviceInitialLoading)
+                            {
+                                <div class="load-more-container d-flex justify-center">
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                               Class="m3-button load-more-button"
+                                               OnClick="LoadMoreServicesAsync">
+                                        @Loc["LoadMore"]
+                                    </MudButton>
+                                </div>
+                            }
                         </div>
                     </div>
                 }
@@ -422,7 +537,7 @@
                                           Variant="Variant.Outlined"
                                           Class="mb-4" />
 
-                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px;">
+                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--m3-outline); border-radius: 8px; padding: 16px;">
                                 @foreach (var tool in GetFilteredTools())
                                 {
                                     var toolName = tool.Name;
@@ -553,21 +668,29 @@
     private bool _saving;
 
     // Step 1: Connection Selection
-    private MudVirtualize<XiaozhiMcpEndpointDto>? _connectionVirtualize;
     private string _connectionSearchTerm = "";
     private string _connectionSortBy = "Name";
     private string? _selectedConnectionId;
     private string _selectedConnectionName = "";
     private const int ConnectionPageSize = 12;
+    private bool _connectionInitialLoading = true;
+    private bool _connectionLoadingMore = false;
+    private int _connectionCurrentPage = 1;
+    private bool _connectionHasMoreData = true;
+    private List<XiaozhiMcpEndpointDto> _connections = new();
 
     // Step 2: Service Selection
-    private MudVirtualize<McpServiceConfigDto>? _serviceVirtualize;
     private int _serviceTabIndex = 0;
     private string _serviceSearchTerm = "";
     private string _serviceSortBy = "Name";
     private string? _selectedServiceId;
     private string _selectedServiceName = "";
     private const int ServicePageSize = 12;
+    private bool _serviceInitialLoading = true;
+    private bool _serviceLoadingMore = false;
+    private int _serviceCurrentPage = 1;
+    private bool _serviceHasMoreData = true;
+    private List<McpServiceConfigDto> _services = new();
 
     // Step 3: Tool Configuration
     private List<McpToolDto> _availableTools = new();
@@ -595,64 +718,125 @@
             // Normal flow starts from step 0
             _currentStep = 0;
         }
+
+        try
+        {
+            await LoadConnectionsAsync(resetList: true);
+        }
+        finally
+        {
+            _connectionInitialLoading = false;
+            StateHasChanged();
+        }
+
+        if (!IsFromPublicService)
+        {
+            try
+            {
+                await LoadServicesAsync(resetList: true);
+            }
+            finally
+            {
+                _serviceInitialLoading = false;
+                StateHasChanged();
+            }
+        }
     }
 
     #region Step 1: Connection Selection
 
-    private async ValueTask<ItemsProviderResult<XiaozhiMcpEndpointDto>> LoadConnectionsVirtualized(
-        ItemsProviderRequest request)
+    private async Task LoadConnectionsAsync(bool resetList)
     {
         try
         {
-            var startPage = (request.StartIndex / ConnectionPageSize) + 1;
-            var endIndex = request.StartIndex + request.Count - 1;
-            var endPage = (endIndex / ConnectionPageSize) + 1;
-
-            var allItems = new List<XiaozhiMcpEndpointDto>();
-            int totalCount = 0;
-
-            for (var page = startPage; page <= endPage; page++)
+            if (resetList)
             {
-                var pagedRequest = new PagedRequest
-                {
-                    Page = page,
-                    PageSize = ConnectionPageSize,
-                    SearchTerm = _connectionSearchTerm,
-                    SortBy = _connectionSortBy,
-                    SortOrder = "asc"
-                };
-
-                var result = await ServerService.GetServersPagedAsync(pagedRequest);
-                allItems.AddRange(result.Items);
-                totalCount = result.TotalCount;
+                _connectionCurrentPage = 1;
+                _connections.Clear();
+                _connectionHasMoreData = true;
             }
 
-            var skip = request.StartIndex % ConnectionPageSize;
-            var items = allItems.Skip(skip).Take(request.Count).ToList();
+            var pagedRequest = new PagedRequest
+            {
+                Page = _connectionCurrentPage,
+                PageSize = ConnectionPageSize,
+                SearchTerm = _connectionSearchTerm,
+                SortBy = _connectionSortBy,
+                SortOrder = "asc"
+            };
 
-            return new ItemsProviderResult<XiaozhiMcpEndpointDto>(items, totalCount);
+            var result = await ServerService.GetServersPagedAsync(pagedRequest);
+            if (resetList)
+            {
+                _connections = result.Items.ToList();
+            }
+            else
+            {
+                _connections.AddRange(result.Items);
+            }
+
+            _connectionHasMoreData = _connectionCurrentPage < result.TotalPages;
         }
         catch (Exception ex)
         {
             Snackbar.Add($"{Loc["Error"]}: {ex.Message}", Severity.Error);
-            return new ItemsProviderResult<XiaozhiMcpEndpointDto>([], 0);
+            _connections = new List<XiaozhiMcpEndpointDto>();
+            _connectionHasMoreData = false;
         }
     }
 
     private async Task OnConnectionSearchChanged()
     {
-        if (_connectionVirtualize != null)
+        _connectionInitialLoading = true;
+        StateHasChanged();
+
+        try
         {
-            await _connectionVirtualize.RefreshDataAsync();
+            await LoadConnectionsAsync(resetList: true);
+        }
+        finally
+        {
+            _connectionInitialLoading = false;
+            StateHasChanged();
         }
     }
 
     private async Task OnConnectionSortChanged(string newSort)
     {
         _connectionSortBy = newSort;
-        if (_connectionVirtualize != null)
+        _connectionInitialLoading = true;
+        StateHasChanged();
+
+        try
         {
-            await _connectionVirtualize.RefreshDataAsync();
+            await LoadConnectionsAsync(resetList: true);
+        }
+        finally
+        {
+            _connectionInitialLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadMoreConnectionsAsync()
+    {
+        if (_connectionLoadingMore || !_connectionHasMoreData)
+        {
+            return;
+        }
+
+        _connectionLoadingMore = true;
+        StateHasChanged();
+
+        try
+        {
+            _connectionCurrentPage++;
+            await LoadConnectionsAsync(resetList: false);
+        }
+        finally
+        {
+            _connectionLoadingMore = false;
+            StateHasChanged();
         }
     }
 
@@ -686,69 +870,118 @@
 
     #region Step 2: Service Selection
 
-    private async ValueTask<ItemsProviderResult<McpServiceConfigDto>> LoadServicesVirtualized(
-        ItemsProviderRequest request)
+    private async Task LoadServicesAsync(bool resetList)
     {
         try
         {
-            var startPage = (request.StartIndex / ServicePageSize) + 1;
-            var endIndex = request.StartIndex + request.Count - 1;
-            var endPage = (endIndex / ServicePageSize) + 1;
-
-            var allItems = new List<McpServiceConfigDto>();
-            int totalCount = 0;
-
-            for (var page = startPage; page <= endPage; page++)
+            if (resetList)
             {
-                var pagedRequest = new PagedRequest
-                {
-                    Page = page,
-                    PageSize = ServicePageSize,
-                    SearchTerm = _serviceSearchTerm,
-                    SortBy = _serviceSortBy,
-                    SortOrder = "asc"
-                };
-
-                PagedResult<McpServiceConfigDto> result;
-                if (_serviceTabIndex == 0)
-                {
-                    result = await McpServiceConfigService.GetServicesPagedAsync(pagedRequest);
-                }
-                else
-                {
-                    result = await McpServiceConfigService.GetPublicServicesPagedAsync(pagedRequest);
-                }
-
-                allItems.AddRange(result.Items);
-                totalCount = result.TotalCount;
+                _serviceCurrentPage = 1;
+                _services.Clear();
+                _serviceHasMoreData = true;
             }
 
-            var skip = request.StartIndex % ServicePageSize;
-            var items = allItems.Skip(skip).Take(request.Count).ToList();
+            var pagedRequest = new PagedRequest
+            {
+                Page = _serviceCurrentPage,
+                PageSize = ServicePageSize,
+                SearchTerm = _serviceSearchTerm,
+                SortBy = _serviceSortBy,
+                SortOrder = "asc"
+            };
 
-            return new ItemsProviderResult<McpServiceConfigDto>(items, totalCount);
+            var result = _serviceTabIndex == 0
+                ? await McpServiceConfigService.GetServicesPagedAsync(pagedRequest)
+                : await McpServiceConfigService.GetPublicServicesPagedAsync(pagedRequest);
+
+            if (resetList)
+            {
+                _services = result.Items.ToList();
+            }
+            else
+            {
+                _services.AddRange(result.Items);
+            }
+
+            _serviceHasMoreData = _serviceCurrentPage < result.TotalPages;
         }
         catch (Exception ex)
         {
             Snackbar.Add($"{Loc["Error"]}: {ex.Message}", Severity.Error);
-            return new ItemsProviderResult<McpServiceConfigDto>([], 0);
+            _services = new List<McpServiceConfigDto>();
+            _serviceHasMoreData = false;
         }
     }
 
     private async Task OnServiceSearchChanged()
     {
-        if (_serviceVirtualize != null)
+        _serviceInitialLoading = true;
+        StateHasChanged();
+
+        try
         {
-            await _serviceVirtualize.RefreshDataAsync();
+            await LoadServicesAsync(resetList: true);
+        }
+        finally
+        {
+            _serviceInitialLoading = false;
+            StateHasChanged();
         }
     }
 
     private async Task OnServiceSortChanged(string newSort)
     {
         _serviceSortBy = newSort;
-        if (_serviceVirtualize != null)
+        _serviceInitialLoading = true;
+        StateHasChanged();
+
+        try
         {
-            await _serviceVirtualize.RefreshDataAsync();
+            await LoadServicesAsync(resetList: true);
+        }
+        finally
+        {
+            _serviceInitialLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnServiceTabChanged(int index)
+    {
+        _serviceTabIndex = index;
+        _serviceInitialLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            await LoadServicesAsync(resetList: true);
+        }
+        finally
+        {
+            _serviceInitialLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadMoreServicesAsync()
+    {
+        if (_serviceLoadingMore || !_serviceHasMoreData)
+        {
+            return;
+        }
+
+        _serviceLoadingMore = true;
+        StateHasChanged();
+
+        try
+        {
+            _serviceCurrentPage++;
+            await LoadServicesAsync(resetList: false);
+        }
+        finally
+        {
+            _serviceLoadingMore = false;
+            StateHasChanged();
         }
     }
 
@@ -939,19 +1172,5 @@
 
     #endregion
 
-    // Watch for tab changes in step 2
-    private int _previousServiceTabIndex = 0;
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-        
-        if (_previousServiceTabIndex != _serviceTabIndex)
-        {
-            _previousServiceTabIndex = _serviceTabIndex;
-            if (_serviceVirtualize != null)
-            {
-                await _serviceVirtualize.RefreshDataAsync();
-            }
-        }
-    }
+    
 }

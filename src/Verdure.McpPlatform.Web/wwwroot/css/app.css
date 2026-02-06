@@ -7,8 +7,8 @@ html, body {
     font-family: 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #FAFAFA;
-    color: #212121;
+    background-color: var(--m3-background);
+    color: var(--m3-on-surface);
     font-size: 16px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
@@ -21,7 +21,7 @@ h1:focus {
 
 /* Blazor Error UI */
 #blazor-error-ui {
-    background: #ef476f;
+    background: var(--m3-error);
     bottom: 0;
     box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
     display: none;
@@ -41,7 +41,7 @@ h1:focus {
 }
 
 .blazor-error-boundary {
-    background: #ef476f;
+    background: var(--m3-error);
     padding: 1rem 1rem 1rem 3.7rem;
     color: white;
 }
@@ -62,18 +62,18 @@ h1:focus {
 }
 
 ::-webkit-scrollbar-track {
-    background: #F5F5F5;
+    background: var(--m3-surface-variant);
     border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #BDBDBD;
+    background: var(--m3-outline);
     border-radius: 6px;
-    border: 2px solid #F5F5F5;
+    border: 2px solid var(--m3-surface-variant);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #9E9E9E;
+    background: var(--m3-on-surface-variant);
 }
 
 /* Smooth transitions for all elements */
@@ -83,6 +83,6 @@ h1:focus {
 
 /* Better focus styles */
 *:focus-visible {
-    outline: 2px solid #1976D2;
+    outline: 2px solid var(--m3-primary);
     outline-offset: 2px;
 }

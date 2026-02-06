@@ -4,7 +4,7 @@
 @inject IStringLocalizer<SharedResources> Loc
 
 <MudCard Elevation="2" 
-         Class="@($"service-selector-card m3-card-elevated {(IsSelected ? "selected" : "")}")" 
+         Class="@($"service-selector-card m3-card-content {(IsSelected ? "selected" : "")}")" 
          Style="@GetCardStyle()"
          @onclick="@(() => OnSelect.InvokeAsync())">
     
@@ -29,14 +29,14 @@
                         </MudAvatar>
                         @if (Service.IsPublic)
                         {
-                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #4CAF50; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);"></div>
+                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: var(--m3-success); border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(var(--m3-success-rgb), 0.2);"></div>
                         }
                     </div>
                     
                     <!-- Service Name -->
                     <div style="flex: 1; min-width: 0;">
                         <MudText Typo="Typo.subtitle1" 
-                                 Style="font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1a1a1a;">
+                                 Style="font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--m3-on-surface);">
                             @Service.Name
                         </MudText>
                         @if (Service.IsPublic)
@@ -93,7 +93,7 @@
             <MudChip T="string" 
                      Size="Size.Small" 
                      Variant="Variant.Text"
-                     Style="background: rgba(25, 118, 210, 0.08); color: #1976D2; font-size: 11px; height: 24px; border-radius: 12px;"
+                     Style="background: rgba(var(--m3-primary-rgb), 0.08); color: var(--m3-primary); font-size: 11px; height: 24px; border-radius: 12px;"
                      Icon="@Icons.Material.Filled.Code">
                 @(Service.Protocol ?? "stdio")
             </MudChip>
@@ -102,7 +102,7 @@
             <MudChip T="string" 
                      Size="Size.Small" 
                      Variant="Variant.Text"
-                     Style="background: rgba(25, 118, 210, 0.08); color: #1976D2; font-size: 11px; height: 24px; border-radius: 12px;"
+                     Style="background: rgba(var(--m3-primary-rgb), 0.08); color: var(--m3-primary); font-size: 11px; height: 24px; border-radius: 12px;"
                      Icon="@Icons.Material.Filled.Build">
                 @string.Format(Loc["ToolsCount"], Service.Tools?.Count ?? 0)
             </MudChip>
@@ -119,7 +119,7 @@
         border-radius: 12px;
         overflow: hidden;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 2px solid transparent;
+        border: 1px solid var(--m3-outline);
     }
     
     .service-selector-card:hover {
@@ -128,8 +128,8 @@
     }
     
     .service-selector-card.selected {
-        border-color: #1976D2;
-        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3) !important;
+        border-color: var(--m3-primary);
+        box-shadow: 0 4px 12px rgba(var(--m3-primary-rgb), 0.3) !important;
     }
 </style>
 
@@ -153,14 +153,14 @@
     private string GetHeaderStyle()
     {
         return IsSelected
-            ? "background: linear-gradient(135deg, rgba(25, 118, 210, 0.15) 0%, rgba(25, 118, 210, 0.08) 100%); padding: 16px;"
-            : "background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%); padding: 16px;";
+            ? "background: linear-gradient(135deg, rgba(var(--m3-primary-rgb), 0.15) 0%, rgba(var(--m3-primary-rgb), 0.08) 100%); padding: 16px;"
+            : "background: linear-gradient(135deg, rgba(var(--m3-primary-rgb), 0.08) 0%, rgba(var(--m3-primary-rgb), 0.03) 100%); padding: 16px;";
     }
     
     private string GetAvatarStyle()
     {
         return IsSelected
-            ? "background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); color: white;"
-            : "background: #E3F2FD; color: #1976D2;";
+            ? "background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%); color: white;"
+            : "background: var(--m3-primary-container); color: var(--m3-primary);";
     }
 }

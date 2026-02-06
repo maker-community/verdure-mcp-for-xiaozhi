@@ -4,20 +4,19 @@
 @inject IStringLocalizer<SharedResources> Loc
 
 <MudCard Elevation="2" 
-         Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" 
-         Class="m3-mb-xl">
+         Class="m3-mb-xl m3-hero-card">
     <MudCardContent Class="pa-3 pa-sm-4 pa-md-6">
         <div class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center" Style="gap: 0.75rem;">
             <!-- Title Section -->
             <div class="flex-grow-1" style="min-width: 0;">
-                <MudText Typo="@(IsSmallScreen ? Typo.h5 : Typo.h4)" 
-                         Class="m3-mb-xs m3-mb-sm-sm" 
-                         Style="font-weight: 600; color: #FFFFFF; word-break: break-word;">
-                    <MudIcon Icon="@Icon" Class="mr-2" Style="color: #FFFFFF; vertical-align: middle;" /> 
+                 <MudText Typo="@(IsSmallScreen ? Typo.h5 : Typo.h4)" 
+                        Class="m3-mb-xs m3-mb-sm-sm m3-hero-title" 
+                        Style="font-weight: 600; word-break: break-word;">
+                    <MudIcon Icon="@Icon" Class="mr-2 m3-hero-icon" Style="vertical-align: middle;" /> 
                     <span style="vertical-align: middle;">@Title</span>
                 </MudText>
                 <MudText Typo="@(IsSmallScreen ? Typo.body2 : Typo.body1)" 
-                         Style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">
+                        Class="m3-hero-subtitle" Style="font-weight: 400;">
                     @if (TotalCount > 0)
                     {
                         <span>@CountMessage</span>
@@ -34,10 +33,9 @@
             {
                 <MudButton Href="@ActionHref" 
                           Variant="Variant.Filled" 
-                          Style="background: #FFFFFF; color: #1976D2; flex-shrink: 0;"
+                          Class="@(IsSmallScreen ? "m3-hero-action m3-button" : "m3-hero-action m3-button-lg")"
                           StartIcon="@Icons.Material.Filled.Add"
                           Size="@(IsSmallScreen ? Size.Medium : Size.Large)"
-                          Class="@(IsSmallScreen ? "m3-button" : "m3-button-lg")"
                           FullWidth="@IsSmallScreen">
                     @ActionText
                 </MudButton>

@@ -7,11 +7,11 @@
 @inject IDateTimeFormatter DateTimeFormatter
 
 <MudCard Elevation="2" 
-         Class="service-binding-card m3-card-elevated" 
+         Class="service-binding-card m3-card-content" 
          Style="height: 100%; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
     
     <!-- Header with Service Info -->
-    <MudCardHeader Style="background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%); padding: 16px;">
+    <MudCardHeader Class="m3-card-header-tonal" Style="padding: 16px;">
         <CardHeaderContent>
             <div class="d-flex align-center justify-space-between" style="width: 100%;">
                 <div class="d-flex align-center" style="gap: 12px; flex: 1; min-width: 0;">
@@ -22,7 +22,7 @@
                                  Color="Color.Primary" />
                         @if (Binding.IsActive)
                         {
-                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #4CAF50; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);"></div>
+                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: var(--m3-success); border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(var(--m3-success-rgb), 0.2);"></div>
                         }
                     </div>
                     
@@ -30,17 +30,17 @@
                         <!-- Connection Name → Service Name -->
                         <div class="d-flex align-center" style="gap: 8px; margin-bottom: 4px;">
                             <MudText Typo="Typo.body2" 
-                                     Style="color: #757575; font-weight: 500; white-space: nowrap;">
+                                     Style="color: var(--m3-on-surface-variant); font-weight: 500; white-space: nowrap;">
                                 @Binding.ConnectionName
                             </MudText>
                             <MudIcon Icon="@Icons.Material.Filled.ArrowForward" 
                                      Size="Size.Small" 
-                                     Style="color: #BDBDBD; font-size: 16px;" />
+                                     Style="color: var(--m3-outline-variant); font-size: 16px;" />
                         </div>
                         
                         <!-- Service Name -->
                         <MudText Typo="Typo.h6" 
-                                 Style="font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1a1a1a;">
+                                 Style="font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--m3-on-surface);">
                             @Binding.ServiceName
                         </MudText>
                     </div>
@@ -107,7 +107,7 @@
                 <MudChip T="string" 
                          Size="Size.Small" 
                          Variant="Variant.Filled"
-                         Style="background: #E8F5E9; color: #2E7D32; font-weight: 500; border-radius: 16px;"
+                         Style="background: var(--m3-success-container); color: var(--m3-success); font-weight: 500; border-radius: 16px;"
                          Icon="@Icons.Material.Filled.CheckCircle">
                     @Loc["Active"]
                 </MudChip>
@@ -117,7 +117,7 @@
                 <MudChip T="string" 
                          Size="Size.Small" 
                          Variant="Variant.Outlined"
-                         Style="border-color: #BDBDBD; color: #757575; font-weight: 500; border-radius: 16px;"
+                         Style="border-color: var(--m3-outline); color: var(--m3-on-surface-variant); font-weight: 500; border-radius: 16px;"
                          Icon="@Icons.Material.Filled.PauseCircle">
                     @Loc["Inactive"]
                 </MudChip>
@@ -127,7 +127,7 @@
             <MudChip T="string" 
                      Size="Size.Small" 
                      Variant="Variant.Outlined"
-                     Style="border-color: #1976D2; color: #1976D2; font-weight: 500; border-radius: 16px; cursor: pointer; transition: all 0.2s ease;"
+                     Style="border-color: var(--m3-primary); color: var(--m3-primary); font-weight: 500; border-radius: 16px; cursor: pointer; transition: all 0.2s ease;"
                      Class="tools-chip"
                      Icon="@Icons.Material.Filled.Build"
                      OnClick="@ShowToolsDialog">
@@ -139,9 +139,9 @@
         <div class="d-flex align-center" style="gap: 4px; margin-top: auto;">
             <MudIcon Icon="@Icons.Material.Outlined.Schedule" 
                      Size="Size.Small" 
-                     Style="color: #9E9E9E; font-size: 16px;" />
+                     Style="color: var(--m3-on-surface-variant); font-size: 16px;" />
             <MudText Typo="Typo.caption" 
-                     Style="color: #757575; font-weight: 400;"
+                     Style="color: var(--m3-on-surface-variant); font-weight: 400;"
                      title="@DateTimeFormatter.FormatDateTime(Binding.CreatedAt)">
                 @DateTimeFormatter.FormatFriendlyDate(Binding.CreatedAt)
             </MudText>

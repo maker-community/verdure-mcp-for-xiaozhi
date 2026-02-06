@@ -100,6 +100,9 @@
   <data name="Create" xml:space="preserve">
     <value>创建</value>
   </data>
+  <data name="LoadMore" xml:space="preserve">
+    <value>加载更多</value>
+  </data>
   <data name="Close" xml:space="preserve">
     <value>关闭</value>
   </data>
@@ -1070,6 +1073,18 @@
   <data name="McpServiceConfigurations" xml:space="preserve">
     <value>MCP 服务配置</value>
   </data>
+  <data name="ExternalLinks" xml:space="preserve">
+    <value>外部链接</value>
+  </data>
+  <data name="VerdureMcpServicePlatform" xml:space="preserve">
+    <value>Verdure MCP 服务平台</value>
+  </data>
+  <data name="VerdureMcpServicePlatformDesc" xml:space="preserve">
+    <value>开源的 MCP 服务提供平台，为 AI 助手提供丰富的工具能力扩展，支持图片生成、邮件发送等多种功能。基于 MCP 协议，可轻松集成到 Claude、ChatGPT 等主流 AI 平台。</value>
+  </data>
+  <data name="GoToVerdureMcpServicePlatform" xml:space="preserve">
+    <value>打开 Verdure MCP 平台</value>
+  </data>
   
   <!-- 提示文本 -->
   <data name="TooltipGitHubCommunity" xml:space="preserve">
@@ -1376,5 +1391,123 @@
   </data>
   <data name="ClearSearch" xml:space="preserve">
     <value>清除搜索</value>
+  </data>
+
+  <!-- Support -->
+  <data name="Support_PageTitle" xml:space="preserve">
+    <value>支持我 - Verdure MCP 平台</value>
+  </data>
+  <data name="Support_Title" xml:space="preserve">
+    <value>支持我</value>
+  </data>
+  <data name="Support_Subtitle" xml:space="preserve">
+    <value>感谢您使用 Verdure MCP 平台！如果您觉得这个项目对您有帮助，不妨通过以下方式支持一下我的开发工作。</value>
+  </data>
+  <data name="Support_FollowBilibili" xml:space="preserve">
+    <value>关注 B站</value>
+  </data>
+  <data name="Support_SubscribeVideos" xml:space="preserve">
+    <value>订阅我的视频</value>
+  </data>
+  <data name="Support_BilibiliDesc" xml:space="preserve">
+    <value>在 Bilibili 关注我，获取最新的技术分享、教程和项目更新。一键三连是对我最大的支持！</value>
+  </data>
+  <data name="Support_GoToBilibili" xml:space="preserve">
+    <value>前往 B站</value>
+  </data>
+  <data name="Support_BilibiliCharge" xml:space="preserve">
+    <value>B站充电</value>
+  </data>
+  <data name="Support_SupportCreation" xml:space="preserve">
+    <value>支持创作</value>
+  </data>
+  <data name="Support_ChargeDesc" xml:space="preserve">
+    <value>如果您觉得我的内容对您有帮助，可以通过 B站充电功能支持我的创作，让我有更多动力输出优质内容。</value>
+  </data>
+  <data name="Support_GoCharge" xml:space="preserve">
+    <value>去充电</value>
+  </data>
+  <data name="Support_ScanDonate" xml:space="preserve">
+    <value>请我喝杯咖啡</value>
+  </data>
+  <data name="Support_DirectSupport" xml:space="preserve">
+    <value>直接支持</value>
+  </data>
+  <data name="Support_DonateDesc" xml:space="preserve">
+    <value>如果这个项目帮到了您，可以扫描下方二维码请我喝杯咖啡或饮料，您的支持是我继续开发的动力！</value>
+  </data>
+  <data name="Support_ShowQrCode" xml:space="preserve">
+    <value>显示二维码</value>
+  </data>
+  <data name="Support_OtherWays" xml:space="preserve">
+    <value>其他支持方式</value>
+  </data>
+  <data name="Support_StarProject" xml:space="preserve">
+    <value>Star 项目</value>
+  </data>
+  <data name="Support_StarDesc" xml:space="preserve">
+    <value>在 GitHub 上给这个项目点个 Star，让更多人发现它</value>
+  </data>
+  <data name="Support_Share" xml:space="preserve">
+    <value>分享推荐</value>
+  </data>
+  <data name="Support_ShareDesc" xml:space="preserve">
+    <value>把这个服务分享给您的朋友，让更多人受益</value>
+  </data>
+  <data name="Support_ReportBug" xml:space="preserve">
+    <value>反馈问题</value>
+  </data>
+  <data name="Support_BugDesc" xml:space="preserve">
+    <value>发现 Bug 或有改进建议？欢迎提交 Issue</value>
+  </data>
+  <data name="Support_ContributeCode" xml:space="preserve">
+    <value>贡献代码</value>
+  </data>
+  <data name="Support_ContributeDesc" xml:space="preserve">
+    <value>欢迎提交 PR，一起让项目变得更好</value>
+  </data>
+  <data name="Support_ThanksTitle" xml:space="preserve">
+    <value>感谢您的支持！</value>
+  </data>
+  <data name="Support_ThanksDesc" xml:space="preserve">
+    <value>每一份支持都是我继续前进的动力，让我们一起打造更好的 MCP 服务生态！</value>
+  </data>
+  <data name="Support_CtaTitle" xml:space="preserve">
+    <value>支持这个平台</value>
+  </data>
+  <data name="Support_CtaDesc" xml:space="preserve">
+    <value>如果平台对您有帮助，欢迎关注、Star 或赞助，让它继续成长。</value>
+  </data>
+  <data name="Support_CtaButton" xml:space="preserve">
+    <value>去支持</value>
+  </data>
+
+  <!-- QR Code Dialog -->
+  <data name="QrCode_DialogTitle" xml:space="preserve">
+    <value>请我喝杯咖啡</value>
+  </data>
+  <data name="QrCode_ScanHint" xml:space="preserve">
+    <value>使用微信或支付宝扫描下方二维码请我喝杯咖啡或饮料</value>
+  </data>
+  <data name="QrCode_Thanks" xml:space="preserve">
+    <value>感谢您的支持！您的每一份心意都是我继续开发的动力。</value>
+  </data>
+  <data name="QrCode_Wechat" xml:space="preserve">
+    <value>微信</value>
+  </data>
+  <data name="QrCode_WechatQRCode" xml:space="preserve">
+    <value>微信收款码</value>
+  </data>
+  <data name="QrCode_WechatHint" xml:space="preserve">
+    <value>微信扫码</value>
+  </data>
+  <data name="QrCode_Alipay" xml:space="preserve">
+    <value>支付宝</value>
+  </data>
+  <data name="QrCode_AlipayQRCode" xml:space="preserve">
+    <value>支付宝收款码</value>
+  </data>
+  <data name="QrCode_AlipayHint" xml:space="preserve">
+    <value>支付宝扫码</value>
   </data>
 </root>

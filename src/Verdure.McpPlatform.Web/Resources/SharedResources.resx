@@ -100,6 +100,9 @@
   <data name="Create" xml:space="preserve">
     <value>Create</value>
   </data>
+  <data name="LoadMore" xml:space="preserve">
+    <value>Load More</value>
+  </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
   </data>
@@ -1053,6 +1056,18 @@
   <data name="McpServiceConfigurations" xml:space="preserve">
     <value>MCP Service Configurations</value>
   </data>
+  <data name="ExternalLinks" xml:space="preserve">
+    <value>External Links</value>
+  </data>
+  <data name="VerdureMcpServicePlatform" xml:space="preserve">
+    <value>Verdure MCP Service Platform</value>
+  </data>
+  <data name="VerdureMcpServicePlatformDesc" xml:space="preserve">
+    <value>Open-source MCP service platform with rich tool extensions for AI assistants, including image generation and email delivery. Built on the MCP protocol for easy integration with Claude, ChatGPT, and more.</value>
+  </data>
+  <data name="GoToVerdureMcpServicePlatform" xml:space="preserve">
+    <value>Open Verdure MCP Platform</value>
+  </data>
   
   <!-- Tooltips -->
   <data name="TooltipGitHubCommunity" xml:space="preserve">
@@ -1302,5 +1317,123 @@
   </data>
   <data name="ClearSearch" xml:space="preserve">
     <value>Clear Search</value>
+  </data>
+
+  <!-- Support -->
+  <data name="Support_PageTitle" xml:space="preserve">
+    <value>Support Us - Verdure MCP Platform</value>
+  </data>
+  <data name="Support_Title" xml:space="preserve">
+    <value>Support Us</value>
+  </data>
+  <data name="Support_Subtitle" xml:space="preserve">
+    <value>Thank you for using Verdure MCP Platform! If you find it helpful, welcome to support our development work in the following ways.</value>
+  </data>
+  <data name="Support_FollowBilibili" xml:space="preserve">
+    <value>Follow Bilibili</value>
+  </data>
+  <data name="Support_SubscribeVideos" xml:space="preserve">
+    <value>Subscribe to my videos</value>
+  </data>
+  <data name="Support_BilibiliDesc" xml:space="preserve">
+    <value>Follow me on Bilibili for the latest tech shares, tutorials and project updates. Like, coin and collect is the biggest support for me!</value>
+  </data>
+  <data name="Support_GoToBilibili" xml:space="preserve">
+    <value>Go to Bilibili</value>
+  </data>
+  <data name="Support_BilibiliCharge" xml:space="preserve">
+    <value>Bilibili Charge</value>
+  </data>
+  <data name="Support_SupportCreation" xml:space="preserve">
+    <value>Support creation</value>
+  </data>
+  <data name="Support_ChargeDesc" xml:space="preserve">
+    <value>If you find my content helpful, you can support my creation through Bilibili charge feature, giving me more motivation to create quality content.</value>
+  </data>
+  <data name="Support_GoCharge" xml:space="preserve">
+    <value>Go Charge</value>
+  </data>
+  <data name="Support_ScanDonate" xml:space="preserve">
+    <value>Scan to Donate</value>
+  </data>
+  <data name="Support_DirectSupport" xml:space="preserve">
+    <value>Direct support</value>
+  </data>
+  <data name="Support_DonateDesc" xml:space="preserve">
+    <value>Scan the QR code below to donate directly, your support will be used for server maintenance, feature development and more quality content creation.</value>
+  </data>
+  <data name="Support_ShowQrCode" xml:space="preserve">
+    <value>Show QR Code</value>
+  </data>
+  <data name="Support_OtherWays" xml:space="preserve">
+    <value>Other Ways to Support</value>
+  </data>
+  <data name="Support_StarProject" xml:space="preserve">
+    <value>Star Project</value>
+  </data>
+  <data name="Support_StarDesc" xml:space="preserve">
+    <value>Give our project a Star on GitHub to help more people discover it</value>
+  </data>
+  <data name="Support_Share" xml:space="preserve">
+    <value>Share</value>
+  </data>
+  <data name="Support_ShareDesc" xml:space="preserve">
+    <value>Share this service with your friends to benefit more people</value>
+  </data>
+  <data name="Support_ReportBug" xml:space="preserve">
+    <value>Report Bug</value>
+  </data>
+  <data name="Support_BugDesc" xml:space="preserve">
+    <value>Found a bug or have improvement suggestions? Welcome to submit an Issue</value>
+  </data>
+  <data name="Support_ContributeCode" xml:space="preserve">
+    <value>Contribute Code</value>
+  </data>
+  <data name="Support_ContributeDesc" xml:space="preserve">
+    <value>Welcome to submit PR, let's make the project better together</value>
+  </data>
+  <data name="Support_ThanksTitle" xml:space="preserve">
+    <value>Thank you for your support!</value>
+  </data>
+  <data name="Support_ThanksDesc" xml:space="preserve">
+    <value>Every support is our motivation to move forward, let's build a better MCP service ecosystem together!</value>
+  </data>
+  <data name="Support_CtaTitle" xml:space="preserve">
+    <value>Support the Platform</value>
+  </data>
+  <data name="Support_CtaDesc" xml:space="preserve">
+    <value>If Verdure MCP Platform helps you, consider following, starring, or donating to keep it growing.</value>
+  </data>
+  <data name="Support_CtaButton" xml:space="preserve">
+    <value>Support Us</value>
+  </data>
+
+  <!-- QR Code Dialog -->
+  <data name="QrCode_DialogTitle" xml:space="preserve">
+    <value>Scan to Donate</value>
+  </data>
+  <data name="QrCode_ScanHint" xml:space="preserve">
+    <value>Use WeChat or Alipay to scan the QR code below to donate</value>
+  </data>
+  <data name="QrCode_Thanks" xml:space="preserve">
+    <value>Thank you for your support! Every donation will be used for server maintenance and feature development.</value>
+  </data>
+  <data name="QrCode_Wechat" xml:space="preserve">
+    <value>WeChat</value>
+  </data>
+  <data name="QrCode_WechatQRCode" xml:space="preserve">
+    <value>WeChat QR Code</value>
+  </data>
+  <data name="QrCode_WechatHint" xml:space="preserve">
+    <value>Scan with WeChat</value>
+  </data>
+  <data name="QrCode_Alipay" xml:space="preserve">
+    <value>Alipay</value>
+  </data>
+  <data name="QrCode_AlipayQRCode" xml:space="preserve">
+    <value>Alipay QR Code</value>
+  </data>
+  <data name="QrCode_AlipayHint" xml:space="preserve">
+    <value>Scan with Alipay</value>
   </data>
 </root>

@@ -1,0 +1,1 @@
+.\scripts\seed-test-data.ps1 -Token "<YOUR_TOKEN>" -SkipCertificateCheck

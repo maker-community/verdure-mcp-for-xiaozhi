@@ -41,8 +41,8 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0" />
     <!-- Other packages -->
     <PackageVersion Include="RedLock.net" Version="2.3.2" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.12.24" />
-    <PackageVersion Include="StackExchange.Redis" Version="2.10.1" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.12.35" />
+    <PackageVersion Include="StackExchange.Redis" Version="2.10.14" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
     <!-- Test packages -->
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />

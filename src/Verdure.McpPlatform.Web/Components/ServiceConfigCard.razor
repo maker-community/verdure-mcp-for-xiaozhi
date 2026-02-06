@@ -6,11 +6,11 @@
 @inject IDateTimeFormatter DateTimeFormatter
 
 <MudCard Elevation="2" 
-         Class="service-config-card m3-card-elevated" 
+         Class="service-config-card m3-card-content" 
          Style="height: 100%; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
     
     <!-- Header with Logo and Status -->
-    <MudCardHeader Style="background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%); padding: 16px;">
+    <MudCardHeader Class="m3-card-header-tonal" Style="padding: 16px;">
         <CardHeaderContent>
             <div class="d-flex align-center justify-space-between" style="width: 100%;">
                 <div class="d-flex align-center" style="gap: 12px; flex: 1; min-width: 0;">
@@ -18,7 +18,7 @@
                     <div style="position: relative;">
                         <MudAvatar Size="Size.Medium" 
                                    Color="Color.Primary"
-                                   Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); color: white;">
+                                   Style="background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%); color: white;">
                             @if (!string.IsNullOrEmpty(Service.LogoUrl))
                             {
                                 <MudImage Src="@Service.LogoUrl" Alt="@Service.Name" Style="width: 100%; height: 100%; object-fit: cover;" />
@@ -30,13 +30,13 @@
                         </MudAvatar>
                         @if (Service.IsPublic)
                         {
-                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #4CAF50; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);"></div>
+                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: var(--m3-success); border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(var(--m3-success-rgb), 0.2);"></div>
                         }
                     </div>
                     
                     <!-- Service Name -->
                     <MudText Typo="Typo.h6" 
-                             Style="font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1a1a1a;">
+                             Style="font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--m3-on-surface);">
                         @Service.Name
                     </MudText>
                 </div>
@@ -129,7 +129,7 @@
             <MudChip T="string" 
                      Size="Size.Small" 
                      Variant="Variant.Outlined"
-                     Style="border-color: #1976D2; color: #1976D2; font-weight: 500; border-radius: 16px;"
+                     Style="border-color: var(--m3-primary); color: var(--m3-primary); font-weight: 500; border-radius: 16px;"
                      Icon="@Icons.Material.Filled.Code">
                 @(Service.Protocol ?? "stdio")
             </MudChip>
@@ -140,7 +140,7 @@
                 <MudChip T="string" 
                          Size="Size.Small" 
                          Variant="Variant.Filled"
-                         Style="background: #E8F5E9; color: #2E7D32; font-weight: 500; border-radius: 16px;"
+                         Style="background: var(--m3-success-container); color: var(--m3-success); font-weight: 500; border-radius: 16px;"
                          Icon="@Icons.Material.Filled.Public">
                     @Loc["Public"]
                 </MudChip>
@@ -150,7 +150,7 @@
                 <MudChip T="string" 
                          Size="Size.Small" 
                          Variant="Variant.Outlined"
-                         Style="border-color: #BDBDBD; color: #757575; font-weight: 500; border-radius: 16px;"
+                         Style="border-color: var(--m3-outline); color: var(--m3-on-surface-variant); font-weight: 500; border-radius: 16px;"
                          Icon="@Icons.Material.Filled.Lock">
                     @Loc["Private"]
                 </MudChip>
@@ -160,7 +160,7 @@
             <MudChip T="string" 
                      Size="Size.Small" 
                      Variant="Variant.Outlined"
-                     Style="border-color: #1976D2; color: #1976D2; font-weight: 500; border-radius: 16px;"
+                     Style="border-color: var(--m3-primary); color: var(--m3-primary); font-weight: 500; border-radius: 16px;"
                      Icon="@Icons.Material.Filled.Build">
                 @string.Format(Loc["ToolsCount"], Service.Tools?.Count ?? 0)
             </MudChip>
@@ -190,7 +190,7 @@
                 <!-- Creator Avatar -->
                 <MudAvatar Size="Size.Small" 
                            Color="Color.Primary"
-                           Style="width: 24px; height: 24px; font-size: 11px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                           Style="width: 24px; height: 24px; font-size: 11px; background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%);">
                     @if (!string.IsNullOrEmpty(Service.Creator.AvatarUrl))
                     {
                         <MudImage Src="@Service.Creator.AvatarUrl" Alt="@GetCreatorName()" Style="width: 100%; height: 100%; object-fit: cover;" />
@@ -204,11 +204,11 @@
                 <!-- Creator Name and Date -->
                 <div style="flex: 1; min-width: 0;">
                     <MudText Typo="Typo.caption" 
-                             Style="color: #424242; font-weight: 500; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                             Style="color: var(--m3-on-surface-variant); font-weight: 500; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         @GetCreatorName()
                     </MudText>
                     <MudText Typo="Typo.caption" 
-                             Style="color: #9E9E9E; font-size: 11px; line-height: 1.2;"
+                             Style="color: var(--m3-on-surface-variant); font-size: 11px; line-height: 1.2;"
                              title="@DateTimeFormatter.FormatDateTime(Service.CreatedAt)">
                         @DateTimeFormatter.FormatFriendlyDate(Service.CreatedAt)
                     </MudText>
@@ -221,9 +221,9 @@
             <div class="d-flex align-center" style="gap: 4px; margin-top: auto;">
                 <MudIcon Icon="@Icons.Material.Outlined.Schedule" 
                          Size="Size.Small" 
-                         Style="color: #9E9E9E; font-size: 16px;" />
+                         Style="color: var(--m3-on-surface-variant); font-size: 16px;" />
                 <MudText Typo="Typo.caption" 
-                         Style="color: #757575; font-weight: 400;"
+                         Style="color: var(--m3-on-surface-variant); font-weight: 400;"
                          title="@DateTimeFormatter.FormatDateTime(Service.CreatedAt)">
                     @DateTimeFormatter.FormatFriendlyDate(Service.CreatedAt)
                 </MudText>

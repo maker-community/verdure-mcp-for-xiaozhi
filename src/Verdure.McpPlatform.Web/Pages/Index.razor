@@ -7,7 +7,7 @@
 <PageTitle>@Loc["AppTitle"]</PageTitle>
 
 <!-- Hero Section - 全宽大气背景 -->
-        <div Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); padding: 120px 0 100px;">
+        <div Style="background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%); padding: 120px 0 100px;">
             <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudGrid Justify="Justify.Center">
                 <MudItem xs="12" md="10" lg="8">
@@ -30,7 +30,7 @@
                                     <MudButton Href="/dashboard" 
                                               Variant="Variant.Filled" 
                                               Size="Size.Large"
-                                              Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; padding: 12px 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
+                                              Style="background-color: var(--m3-surface); color: var(--m3-primary); font-weight: 600; padding: 12px 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
                                               StartIcon="@Icons.Material.Filled.Dashboard">
                                         @Loc["EnterDashboard"]
                                     </MudButton>
@@ -49,7 +49,7 @@
                                     <MudButton Href="authentication/login" 
                                               Variant="Variant.Filled" 
                                               Size="Size.Large"
-                                              Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; padding: 12px 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
+                                              Style="background-color: var(--m3-surface); color: var(--m3-primary); font-weight: 600; padding: 12px 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
                                               StartIcon="@Icons.Material.Filled.Login">
                                         @Loc["GetStarted"]
                                     </MudButton>
@@ -71,7 +71,7 @@
         </div>
 
         <!-- Features Section -->
-        <div id="features" Style="padding: 80px 0; background: #FFFFFF;">
+        <div id="features" Style="padding: 80px 0; background: var(--m3-surface);">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-8" Style="font-weight: 500;">
                 @Loc["CoreFeatures"]
@@ -124,7 +124,7 @@
         </div>
 
         <!-- Architecture Section -->
-        <div id="architecture" Style="padding: 80px 0; background: #FAFAFA;">
+        <div id="architecture" Style="padding: 80px 0; background: var(--m3-background);">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-8" Style="font-weight: 500;">
                 @Loc["ArchitectureDesign"]
@@ -158,14 +158,14 @@
         </div>
 
         <!-- Community Section -->
-        <div id="community" Style="padding: 80px 0; background: #FFFFFF;">
+        <div id="community" Style="padding: 80px 0; background: var(--m3-surface);">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-8" Style="font-weight: 500;">
                 @Loc["JoinMakerCommunity"]
             </MudText>
             <MudGrid Justify="Justify.Center">
                 <MudItem xs="12" md="10">
-                    <MudPaper Elevation="2" Class="pa-8" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);">
+                    <MudPaper Elevation="2" Class="pa-8" Style="background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%);">
                         <div class="text-center">
                             <MudText Typo="Typo.h5" Style="color: #FFFFFF; margin-bottom: 2rem;">
                                 @Loc["FollowLvYinAGang"]
@@ -177,7 +177,7 @@
                                               Variant="Variant.Filled" 
                                               FullWidth="true"
                                               StartIcon="@Icons.Custom.Brands.GitHub"
-                                              Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                              Style="background-color: var(--m3-surface); color: var(--m3-primary); font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                                         @Loc["GitHubCommunity"]
                                     </MudButton>
                                 </MudItem>
@@ -187,7 +187,7 @@
                                               Variant="Variant.Filled" 
                                               FullWidth="true"
                                               StartIcon="@Icons.Material.Filled.VideoLibrary"
-                                              Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                              Style="background-color: var(--m3-surface); color: var(--m3-primary); font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                                         @Loc["BilibiliHomepage"]
                                     </MudButton>
                                 </MudItem>
@@ -197,7 +197,7 @@
                                               Variant="Variant.Filled" 
                                               FullWidth="true"
                                               StartIcon="@Icons.Material.Filled.Code"
-                                              Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                              Style="background-color: var(--m3-surface); color: var(--m3-primary); font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                                         @Loc["ProjectSource"]
                                     </MudButton>
                                 </MudItem>
@@ -205,7 +205,7 @@
                                     <MudButton Variant="Variant.Filled" 
                                               FullWidth="true"
                                               StartIcon="@Icons.Material.Filled.Group"
-                                              Style="background-color: #FFFFFF; color: #1976D2; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
+                                              Style="background-color: var(--m3-surface); color: var(--m3-primary); font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
                                               OnClick="@(() => _showQQGroup = true)">
                                         @Loc["QQCommunicationGroup"]
                                     </MudButton>
@@ -214,7 +214,7 @@
                             @if (_showQQGroup)
                             {
                                 <MudAlert Severity="Severity.Info" Class="mt-4" Style="background-color: rgba(255,255,255,0.95);">
-                                    <MudText Typo="Typo.body1" Style="color: #1565C0; font-weight: 600;">
+                                    <MudText Typo="Typo.body1" Style="color: var(--m3-primary-dark); font-weight: 600;">
                                         @Loc["QQGroupNumber"]
                                     </MudText>
                                 </MudAlert>
@@ -227,7 +227,7 @@
         </div>
 
         <!-- Getting Started Section -->
-        <div Style="padding: 80px 0 100px; background: #FAFAFA;">
+        <div Style="padding: 80px 0 100px; background: var(--m3-background);">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-8" Style="font-weight: 500;">
                 @Loc["QuickStart"]

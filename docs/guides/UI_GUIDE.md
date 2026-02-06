@@ -48,6 +48,12 @@ The Verdure MCP Platform features a modern, professional UI built with:
 - **Logout**: Clears authentication state
 - **Settings**: View user claims and account information
 
+### 5. Support Page
+- **Support Us**:
+  - Bilibili follow and charge links
+  - QR code donation dialog (WeChat and Alipay)
+  - Other ways to support: Star, share, report issues, contribute code
+
 ## Design System
 
 ### Color Palette

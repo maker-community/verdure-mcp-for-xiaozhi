@@ -37,6 +37,13 @@
                 @Loc["Dashboard"]
             </MudNavLink>
 
+            <MudNavLink Href="/support" 
+                        Icon="@Icons.Material.Outlined.Favorite"
+                        IconColor="Color.Error"
+                        Class="m3-nav-item">
+                @Loc["Support_Title"]
+            </MudNavLink>
+
             <!-- M3 分组标题 -->
             <div class="m3-nav-section-title" style="margin-top: var(--m3-spacing-lg);">
                 @Loc["McpManagement"]
@@ -81,6 +88,18 @@
                     @Loc["AdminMcpServices"]
                 </MudNavLink>
             }
+
+            <div class="m3-nav-section-title" style="margin-top: var(--m3-spacing-lg);">
+                @Loc["ExternalLinks"]
+            </div>
+
+            <MudNavLink Href="https://mcp.verdure-hiro.cn/"
+                        Target="_blank"
+                        Icon="@Icons.Material.Outlined.OpenInNew"
+                        IconColor="Color.Info"
+                        Class="m3-nav-item">
+                @Loc["VerdureMcpServicePlatform"]
+            </MudNavLink>
             
             <!-- M3 分隔线 -->
             <MudDivider Class="my-4" Style="opacity: 0.12;" />

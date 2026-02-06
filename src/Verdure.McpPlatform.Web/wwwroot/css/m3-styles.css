@@ -7,25 +7,52 @@
    M3 Design Tokens
    ========================================================================== */
 :root {
-    /* M3 Color Tokens - 蓝色主题 */
-    --m3-primary: #1976D2;
-    --m3-primary-light: #BBDEFB;
-    --m3-primary-dark: #1565C0;
+    /* M3 Color Tokens - Verdure Modern (M3 aligned) */
+    --m3-primary: #2F6FED;
+    --m3-primary-rgb: 47, 111, 237;
+    --m3-primary-light: #C5D7FF;
+    --m3-primary-dark: #1C4FD8;
     --m3-on-primary: #FFFFFF;
+    --m3-primary-container: #E3ECFF;
+    --m3-on-primary-container: #102A5C;
     
-    --m3-secondary: #0097A7;
-    --m3-secondary-light: #B2EBF2;
-    --m3-secondary-dark: #00838F;
+    --m3-secondary: #4C6A7D;
+    --m3-secondary-rgb: 76, 106, 125;
+    --m3-secondary-light: #C9D5DC;
+    --m3-secondary-dark: #344B58;
     --m3-on-secondary: #FFFFFF;
+    --m3-secondary-container: #E6EEF2;
+    --m3-on-secondary-container: #22323A;
     
-    --m3-success: #2E7D32;
-    --m3-warning: #F57C00;
-    --m3-error: #D32F2F;
-    --m3-info: #0288D1;
+    --m3-tertiary: #C26A3C;
+    --m3-tertiary-rgb: 194, 106, 60;
+    --m3-tertiary-light: #F3D3C4;
+    --m3-tertiary-dark: #9A4F2C;
+    --m3-on-tertiary: #FFFFFF;
+    --m3-tertiary-container: #F9E4D8;
+    --m3-on-tertiary-container: #3A2216;
+    
+    --m3-success: #1E8E3E;
+    --m3-success-rgb: 30, 142, 62;
+    --m3-success-container: #DFF3E7;
+    --m3-warning: #E37400;
+    --m3-warning-rgb: 227, 116, 0;
+    --m3-warning-dark: #C15F00;
+    --m3-warning-container: #FFE6CC;
+    --m3-error: #B3261E;
+    --m3-error-rgb: 179, 38, 30;
+    --m3-error-container: #F9DEDC;
+    --m3-info: #1A73E8;
+    --m3-info-rgb: 26, 115, 232;
+    --m3-info-container: #DDEBFF;
     
     --m3-surface: #FFFFFF;
-    --m3-background: #FAFAFA;
-    --m3-on-surface: #212121;
+    --m3-surface-variant: #EEF1F5;
+    --m3-background: #F7F8FA;
+    --m3-on-surface: #1E1F22;
+    --m3-on-surface-variant: #4B5563;
+    --m3-outline: #D4D8DE;
+    --m3-outline-variant: #C4CAD2;
     
     /* M3 间距系统 (Spacing Scale) */
     --m3-spacing-xs: 4px;
@@ -122,33 +149,75 @@
     border-radius: var(--m3-shape-md);
     padding: var(--m3-spacing-lg);
     background-color: var(--mud-palette-surface);
-    transition: box-shadow var(--m3-duration-medium) var(--m3-easing-standard);
+    transition: box-shadow var(--m3-duration-medium) var(--m3-easing-standard),
+                transform var(--m3-duration-medium) var(--m3-easing-standard);
 }
 
-.m3-card-elevated {
-    box-shadow: 0px 1px 2px rgba(0,0,0,0.3), 0px 1px 3px 1px rgba(0,0,0,0.15);
+/* Content cards: default list/detail containers */
+.m3-card-content {
+    background-color: var(--m3-surface);
+    border: 1px solid var(--m3-outline);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
-.m3-card-elevated:hover {
-    box-shadow: 0px 2px 3px rgba(0,0,0,0.3), 0px 6px 10px 4px rgba(0,0,0,0.15);
+.m3-card-content:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
     transform: translateY(-2px);
 }
 
+/* Elevated cards: for hero/action emphasis */
+.m3-card-elevated {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+}
+
+.m3-card-elevated:hover {
+    box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+    transform: translateY(-2px);
+}
+
+/* Tonal cards: subtle emphasis without borders */
 .m3-card-filled {
-    background-color: var(--mud-palette-surface-variant);
+    background-color: var(--m3-surface-variant);
+    border: 1px solid transparent;
     box-shadow: none;
 }
 
+/* Outlined cards: low emphasis */
 .m3-card-outlined {
-    border: 1px solid var(--mud-palette-divider);
+    border: 1px solid var(--m3-outline);
     box-shadow: none;
+}
+
+.m3-card-header-tonal {
+    background: linear-gradient(135deg, rgba(var(--m3-primary-rgb), 0.06) 0%, rgba(var(--m3-primary-rgb), 0.02) 100%);
+}
+
+/* Hero card: consistent page header treatment */
+.m3-hero-card {
+    background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%);
+    border-radius: var(--m3-shape-lg);
+    overflow: hidden;
+}
+
+.m3-hero-card .m3-hero-title,
+.m3-hero-card .m3-hero-icon {
+    color: #FFFFFF;
+}
+
+.m3-hero-card .m3-hero-subtitle {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.m3-hero-action {
+    background: var(--m3-surface);
+    color: var(--m3-primary);
 }
 
 /* Connection Card Specific Styles */
 .connection-card {
     position: relative;
     overflow: hidden;
-    background: #FFFFFF;
+    background: var(--m3-surface);
 }
 
 .connection-card:hover {
@@ -162,7 +231,7 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #1976D2 0%, #0097A7 100%);
+    background: linear-gradient(90deg, var(--m3-primary) 0%, var(--m3-tertiary) 100%);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -193,6 +262,19 @@
     border-radius: var(--m3-shape-lg) !important;
     padding: 8px 16px !important;
     font-size: 0.875rem !important;
+}
+
+/* Load More block style */
+.load-more-container {
+    background: var(--mud-palette-surface-variant);
+    border: none;
+    border-radius: var(--m3-shape-lg);
+    padding: 8px 12px;
+    margin: 8px 0 16px;
+}
+
+.load-more-button {
+    box-shadow: 0px 1px 3px rgba(0,0,0,0.18);
 }
 
 /* M3 图标按钮 */
@@ -248,7 +330,7 @@
     border-radius: var(--m3-shape-md);
     padding: var(--m3-spacing-lg);
     transition: all var(--m3-duration-medium) var(--m3-easing-standard);
-    box-shadow: 0px 1px 2px rgba(0,0,0,0.3), 0px 1px 3px 1px rgba(0,0,0,0.15);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
     /* 确保所有卡片高度一致 */
     height: 100%;
     display: flex;
@@ -256,39 +338,39 @@
 }
 
 .m3-stat-card:hover {
-    box-shadow: 0px 2px 3px rgba(0,0,0,0.3), 0px 6px 10px 4px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.10);
     transform: translateY(-2px);
 }
 
 /* 优化背景色对比度 - 使用更深的颜色和明显的边框 */
 .m3-stat-card-primary {
-    background-color: #E3F2FD; /* Blue 50 - 更深的蓝色背景 */
-    border-left: 4px solid var(--mud-palette-primary);
+    background-color: var(--m3-primary-container);
+    border-left: 3px solid var(--mud-palette-primary);
 }
 
 .m3-stat-card-secondary {
-    background-color: #E0F7FA; /* Cyan 50 - 更深的青色背景 */
-    border-left: 4px solid var(--mud-palette-secondary);
+    background-color: var(--m3-secondary-container);
+    border-left: 3px solid var(--mud-palette-secondary);
 }
 
 .m3-stat-card-success {
-    background-color: #E8F5E9; /* Green 50 - 更深的绿色背景 */
-    border-left: 4px solid var(--mud-palette-success);
+    background-color: var(--m3-success-container);
+    border-left: 3px solid var(--mud-palette-success);
 }
 
 .m3-stat-card-warning {
-    background-color: #FFF3E0; /* Orange 50 - 更深的橙色背景 */
-    border-left: 4px solid var(--mud-palette-warning);
+    background-color: var(--m3-warning-container);
+    border-left: 3px solid var(--mud-palette-warning);
 }
 
 .m3-stat-card-error {
-    background-color: #FFEBEE; /* Red 50 - 更深的红色背景 */
-    border-left: 4px solid var(--mud-palette-error);
+    background-color: var(--m3-error-container);
+    border-left: 3px solid var(--mud-palette-error);
 }
 
 .m3-stat-card-info {
-    background-color: #E1F5FE; /* Light Blue 50 - 更深的浅蓝色背景 */
-    border-left: 4px solid var(--mud-palette-info);
+    background-color: var(--m3-info-container);
+    border-left: 3px solid var(--mud-palette-info);
 }
 
 /* ==========================================================================
@@ -311,7 +393,7 @@
 }
 
 .m3-nav-item:hover {
-    background-color: rgba(103, 80, 164, 0.08);
+    background-color: rgba(var(--m3-primary-rgb), 0.08);
 }
 
 /* ==========================================================================
@@ -458,7 +540,7 @@
 
 /* Skeleton Loading Animation (骨架屏加载动画) */
 .skeleton-card {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background: linear-gradient(90deg, var(--m3-surface-variant) 25%, #E5E9EF 50%, var(--m3-surface-variant) 75%);
     background-size: 200% 100%;
     animation: loading 1.5s infinite ease-in-out;
     border-radius: var(--m3-shape-md);

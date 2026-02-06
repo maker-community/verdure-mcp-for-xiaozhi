@@ -35,7 +35,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #1976D2 0%, #0097A7 100%);
+            background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%);
         }
         
         .loading-container {
@@ -121,7 +121,7 @@
         .logo-icon {
             width: 30px;
             height: 30px;
-            fill: #1976D2;
+            fill: var(--m3-primary);
         }
         
         .loading-text {
@@ -215,7 +215,7 @@
     </div>
 
     <div id="blazor-error-ui">
-        <div style="background: #ef476f; color: white; padding: 1rem; text-align: center;">
+        <div style="background: var(--m3-error); color: white; padding: 1rem; text-align: center;">
             <span id="error-message">An unhandled error has occurred.</span>
             <a href="." class="reload" style="color: white; text-decoration: underline; margin: 0 10px;" id="reload-link">Reload</a>
             <span class="dismiss" style="color: white; cursor: pointer;">✕</span>

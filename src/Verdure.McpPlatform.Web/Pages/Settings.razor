@@ -16,15 +16,15 @@
 <MudGrid>
     <!-- M3 Hero Banner - 统一蓝色渐变 -->
     <MudItem xs="12">
-        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
+        <MudCard Elevation="2" Class="m3-mb-xl m3-hero-card">
             <MudCardContent Class="pa-6">
                 <div class="d-flex align-center mb-2">
-                    <MudIcon Icon="@Icons.Material.Filled.Settings" Size="Size.Large" Style="color: #FFFFFF; margin-right: 12px;" />
-                    <MudText Typo="Typo.h4" Style="color: #FFFFFF; font-weight: 600; margin: 0;">
+                    <MudIcon Icon="@Icons.Material.Filled.Settings" Size="Size.Large" Class="m3-hero-icon" Style="margin-right: 12px;" />
+                    <MudText Typo="Typo.h4" Class="m3-hero-title" Style="font-weight: 600; margin: 0;">
                         @Loc["Settings"]
                     </MudText>
                 </div>
-                <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85); margin-left: 48px;">
+                <MudText Typo="Typo.body1" Class="m3-hero-subtitle" Style="margin-left: 48px;">
                     @Loc["ManageAccountPreferences"]
                 </MudText>
             </MudCardContent>
