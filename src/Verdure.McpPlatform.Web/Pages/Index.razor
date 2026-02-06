@@ -226,6 +226,39 @@
         </MudContainer>
         </div>
 
+        <!-- Support Section -->
+        <div id="support" Style="padding: 80px 0; background: #FFFFFF;">
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+            <MudPaper Elevation="2" Class="pa-8" Style="background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%); border: 1px solid rgba(25, 118, 210, 0.2);">
+                <MudGrid AlignItems="AlignItems.Center">
+                    <MudItem xs="12" md="8">
+                        <MudText Typo="Typo.h4" Class="mb-3" Style="font-weight: 600; color: #1565C0;">
+                            @Loc["Support_CtaTitle"]
+                        </MudText>
+                        <MudText Typo="Typo.body1" Class="mb-4" Style="color: #424242; max-width: 640px;">
+                            @Loc["Support_CtaDesc"]
+                        </MudText>
+                        <div class="d-flex align-center gap-1">
+                            <MudIcon Icon="@Icons.Material.Filled.Favorite" Color="Color.Error" />
+                            <MudIcon Icon="@Icons.Material.Filled.Favorite" Color="Color.Error" />
+                            <MudIcon Icon="@Icons.Material.Filled.Favorite" Color="Color.Error" />
+                            <MudText Typo="Typo.body2" Style="color: #616161; margin-left: 6px;">
+                                @Loc["Support_Title"]
+                            </MudText>
+                        </div>
+                    </MudItem>
+                    <MudItem xs="12" md="4" Class="text-center">
+                        <MudButton Href="/support" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large"
+                                  StartIcon="@Icons.Material.Filled.Favorite"
+                                  Style="font-weight: 600; padding: 12px 28px;">
+                            @Loc["Support_CtaButton"]
+                        </MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudContainer>
+        </div>
+
         <!-- Getting Started Section -->
         <div Style="padding: 80px 0 100px; background: #FAFAFA;">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">

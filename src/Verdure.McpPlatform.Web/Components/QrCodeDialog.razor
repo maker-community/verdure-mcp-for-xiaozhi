@@ -1,0 +1,55 @@
+@using Microsoft.Extensions.Localization
+@using Verdure.McpPlatform.Web.Resources
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <DialogContent>
+        <MudStack AlignItems="AlignItems.Center" Spacing="4">
+            <MudText Typo="Typo.body1" Class="text-center" Style="font-weight: 600;">
+                @Loc["QrCode_ScanHint"]
+            </MudText>
+
+            <MudGrid Spacing="4" Justify="Justify.Center">
+                <MudItem xs="12" sm="6">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="2">
+                        <MudText Typo="Typo.h6" Style="font-weight: 600; color: #07C160;">@Loc["QrCode_Wechat"]</MudText>
+                        <MudPaper Elevation="2" Class="pa-3" Style="border-radius: 12px; background-color: #FFFFFF;">
+                            <MudImage Src="/wechat.JPG" Alt="@Loc["QrCode_WechatQRCode"]" Width="240" Height="240"
+                                      Style="display: block; border-radius: 8px;" />
+                        </MudPaper>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-center">
+                            @Loc["QrCode_WechatHint"]
+                        </MudText>
+                    </MudStack>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="2">
+                        <MudText Typo="Typo.h6" Style="font-weight: 600; color: #1677FF;">@Loc["QrCode_Alipay"]</MudText>
+                        <MudPaper Elevation="2" Class="pa-3" Style="border-radius: 12px; background-color: #FFFFFF;">
+                            <MudImage Src="/alipay.JPG" Alt="@Loc["QrCode_AlipayQRCode"]" Width="240" Height="240"
+                                      Style="display: block; border-radius: 8px;" />
+                        </MudPaper>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-center">
+                            @Loc["QrCode_AlipayHint"]
+                        </MudText>
+                    </MudStack>
+                </MudItem>
+            </MudGrid>
+
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-center" Style="line-height: 1.6;">
+                @Loc["QrCode_Thanks"]
+            </MudText>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close" Color="Color.Primary" Variant="Variant.Text">@Loc["Close"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudBlazor.IDialogReference? MudDialog { get; set; }
+
+    private void Close() => MudDialog?.Close(DialogResult.Cancel());
+}
