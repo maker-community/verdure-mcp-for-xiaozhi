@@ -149,26 +149,47 @@
     border-radius: var(--m3-shape-md);
     padding: var(--m3-spacing-lg);
     background-color: var(--mud-palette-surface);
-    transition: box-shadow var(--m3-duration-medium) var(--m3-easing-standard);
+    transition: box-shadow var(--m3-duration-medium) var(--m3-easing-standard),
+                transform var(--m3-duration-medium) var(--m3-easing-standard);
 }
 
-.m3-card-elevated {
-    box-shadow: 0px 1px 2px rgba(0,0,0,0.3), 0px 1px 3px 1px rgba(0,0,0,0.15);
+/* Content cards: default list/detail containers */
+.m3-card-content {
+    background-color: var(--m3-surface);
+    border: 1px solid var(--m3-outline);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
-.m3-card-elevated:hover {
-    box-shadow: 0px 2px 3px rgba(0,0,0,0.3), 0px 6px 10px 4px rgba(0,0,0,0.15);
+.m3-card-content:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
     transform: translateY(-2px);
 }
 
+/* Elevated cards: for hero/action emphasis */
+.m3-card-elevated {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+}
+
+.m3-card-elevated:hover {
+    box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+    transform: translateY(-2px);
+}
+
+/* Tonal cards: subtle emphasis without borders */
 .m3-card-filled {
-    background-color: var(--mud-palette-surface-variant);
+    background-color: var(--m3-surface-variant);
+    border: 1px solid transparent;
     box-shadow: none;
 }
 
+/* Outlined cards: low emphasis */
 .m3-card-outlined {
-    border: 1px solid var(--mud-palette-divider);
+    border: 1px solid var(--m3-outline);
     box-shadow: none;
+}
+
+.m3-card-header-tonal {
+    background: linear-gradient(135deg, rgba(var(--m3-primary-rgb), 0.06) 0%, rgba(var(--m3-primary-rgb), 0.02) 100%);
 }
 
 /* Connection Card Specific Styles */
@@ -288,7 +309,7 @@
     border-radius: var(--m3-shape-md);
     padding: var(--m3-spacing-lg);
     transition: all var(--m3-duration-medium) var(--m3-easing-standard);
-    box-shadow: 0px 1px 2px rgba(0,0,0,0.3), 0px 1px 3px 1px rgba(0,0,0,0.15);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
     /* 确保所有卡片高度一致 */
     height: 100%;
     display: flex;
@@ -296,39 +317,39 @@
 }
 
 .m3-stat-card:hover {
-    box-shadow: 0px 2px 3px rgba(0,0,0,0.3), 0px 6px 10px 4px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.10);
     transform: translateY(-2px);
 }
 
 /* 优化背景色对比度 - 使用更深的颜色和明显的边框 */
 .m3-stat-card-primary {
     background-color: var(--m3-primary-container);
-    border-left: 4px solid var(--mud-palette-primary);
+    border-left: 3px solid var(--mud-palette-primary);
 }
 
 .m3-stat-card-secondary {
     background-color: var(--m3-secondary-container);
-    border-left: 4px solid var(--mud-palette-secondary);
+    border-left: 3px solid var(--mud-palette-secondary);
 }
 
 .m3-stat-card-success {
     background-color: var(--m3-success-container);
-    border-left: 4px solid var(--mud-palette-success);
+    border-left: 3px solid var(--mud-palette-success);
 }
 
 .m3-stat-card-warning {
     background-color: var(--m3-warning-container);
-    border-left: 4px solid var(--mud-palette-warning);
+    border-left: 3px solid var(--mud-palette-warning);
 }
 
 .m3-stat-card-error {
     background-color: var(--m3-error-container);
-    border-left: 4px solid var(--mud-palette-error);
+    border-left: 3px solid var(--mud-palette-error);
 }
 
 .m3-stat-card-info {
     background-color: var(--m3-info-container);
-    border-left: 4px solid var(--mud-palette-info);
+    border-left: 3px solid var(--mud-palette-info);
 }
 
 /* ==========================================================================

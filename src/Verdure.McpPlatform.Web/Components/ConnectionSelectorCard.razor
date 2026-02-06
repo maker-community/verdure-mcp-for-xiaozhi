@@ -4,7 +4,7 @@
 @inject IStringLocalizer<SharedResources> Loc
 
 <MudCard Elevation="2" 
-         Class="@($"connection-selector-card m3-card-elevated {(IsSelected ? "selected" : "")}")" 
+         Class="@($"connection-selector-card m3-card-content {(IsSelected ? "selected" : "")}")" 
          Style="@GetCardStyle()"
          @onclick="@(() => OnSelect.InvokeAsync())">
     
@@ -137,7 +137,7 @@
         border-radius: 12px;
         overflow: hidden;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 2px solid transparent;
+        border: 1px solid var(--m3-outline);
     }
     
     .connection-selector-card:hover {
