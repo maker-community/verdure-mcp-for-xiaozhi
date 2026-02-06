@@ -49,10 +49,10 @@
 
 @code {
     /// <summary>
-    /// 控制文字颜色，首页使用黑色 (#424242)，仪表盘使用白色 (#FFFFFF)
+    /// 控制文字颜色，首页使用中性文本色，仪表盘使用白色
     /// </summary>
     [Parameter]
-    public string TextColor { get; set; } = "#424242";
+    public string TextColor { get; set; } = "var(--m3-on-surface-variant)";
     
     private string _currentCulture = CultureInfo.CurrentUICulture.Name;
     

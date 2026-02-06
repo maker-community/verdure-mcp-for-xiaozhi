@@ -4,7 +4,7 @@
 @inject IStringLocalizer<SharedResources> Loc
 
 <MudCard Elevation="2" 
-         Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" 
+         Style="background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%); border-radius: 16px; overflow: hidden;" 
          Class="m3-mb-xl">
     <MudCardContent Class="pa-3 pa-sm-4 pa-md-6">
         <div class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center" Style="gap: 0.75rem;">
@@ -34,7 +34,7 @@
             {
                 <MudButton Href="@ActionHref" 
                           Variant="Variant.Filled" 
-                          Style="background: #FFFFFF; color: #1976D2; flex-shrink: 0;"
+                          Style="background: var(--m3-surface); color: var(--m3-primary); flex-shrink: 0;"
                           StartIcon="@Icons.Material.Filled.Add"
                           Size="@(IsSmallScreen ? Size.Medium : Size.Large)"
                           Class="@(IsSmallScreen ? "m3-button" : "m3-button-lg")"

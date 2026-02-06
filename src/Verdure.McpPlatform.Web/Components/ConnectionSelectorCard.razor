@@ -20,18 +20,18 @@
                                  Color="@(IsSelected ? Color.Primary : Color.Default)" />
                         @if (Connection.IsEnabled && Connection.IsConnected)
                         {
-                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #4CAF50; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);"></div>
+                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: var(--m3-success); border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(var(--m3-success-rgb), 0.2);"></div>
                         }
                         else if (Connection.IsEnabled && !Connection.IsConnected)
                         {
-                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #FF9800; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);"></div>
+                            <div style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: var(--m3-warning); border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 2px rgba(var(--m3-warning-rgb), 0.2);"></div>
                         }
                     </div>
                     
                     <!-- Connection Name -->
                     <div style="flex: 1; min-width: 0;">
                         <MudText Typo="Typo.subtitle1" 
-                                 Style="font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1a1a1a;">
+                                 Style="font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--m3-on-surface);">
                             @Connection.Name
                         </MudText>
                         <MudText Typo="Typo.caption" Color="Color.Secondary">
@@ -89,7 +89,7 @@
                     <MudChip T="string" 
                              Size="Size.Small" 
                              Variant="Variant.Text"
-                             Style="background: #E8F5E9; color: #2E7D32; font-size: 11px; height: 24px; border-radius: 12px;"
+                             Style="background: var(--m3-success-container); color: var(--m3-success); font-size: 11px; height: 24px; border-radius: 12px;"
                              Icon="@Icons.Material.Filled.CheckCircle">
                         @Loc["Connected"]
                     </MudChip>
@@ -99,7 +99,7 @@
                     <MudChip T="string" 
                              Size="Size.Small" 
                              Variant="Variant.Text"
-                             Style="background: #FFF3E0; color: #E65100; font-size: 11px; height: 24px; border-radius: 12px;"
+                             Style="background: var(--m3-warning-container); color: var(--m3-warning); font-size: 11px; height: 24px; border-radius: 12px;"
                              Icon="@Icons.Material.Filled.Warning">
                         @Loc["Disconnected"]
                     </MudChip>
@@ -110,7 +110,7 @@
                 <MudChip T="string" 
                          Size="Size.Small" 
                          Variant="Variant.Text"
-                         Style="background: rgba(189, 189, 189, 0.1); color: #757575; font-size: 11px; height: 24px; border-radius: 12px;"
+                         Style="background: var(--m3-surface-variant); color: var(--m3-on-surface-variant); font-size: 11px; height: 24px; border-radius: 12px;"
                          Icon="@Icons.Material.Filled.PowerSettingsNew">
                     @Loc["NotStarted"]
                 </MudChip>
@@ -120,7 +120,7 @@
             <MudChip T="string" 
                      Size="Size.Small" 
                      Variant="Variant.Text"
-                     Style="background: rgba(25, 118, 210, 0.08); color: #1976D2; font-size: 11px; height: 24px; border-radius: 12px;"
+                     Style="background: rgba(var(--m3-primary-rgb), 0.08); color: var(--m3-primary); font-size: 11px; height: 24px; border-radius: 12px;"
                      Icon="@Icons.Material.Filled.Link">
                 @string.Format(Loc["BindingsCount"], Connection.ServiceBindings.Count)
             </MudChip>
@@ -146,8 +146,8 @@
     }
     
     .connection-selector-card.selected {
-        border-color: #1976D2;
-        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3) !important;
+        border-color: var(--m3-primary);
+        box-shadow: 0 4px 12px rgba(var(--m3-primary-rgb), 0.3) !important;
     }
 </style>
 
@@ -169,8 +169,8 @@
     private string GetHeaderStyle()
     {
         return IsSelected
-            ? "background: linear-gradient(135deg, rgba(25, 118, 210, 0.15) 0%, rgba(25, 118, 210, 0.08) 100%); padding: 16px;"
-            : "background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%); padding: 16px;";
+            ? "background: linear-gradient(135deg, rgba(var(--m3-primary-rgb), 0.15) 0%, rgba(var(--m3-primary-rgb), 0.08) 100%); padding: 16px;"
+            : "background: linear-gradient(135deg, rgba(var(--m3-primary-rgb), 0.08) 0%, rgba(var(--m3-primary-rgb), 0.03) 100%); padding: 16px;";
     }
     
     private string GetStatusText()

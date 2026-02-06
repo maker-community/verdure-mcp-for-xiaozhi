@@ -7,7 +7,7 @@
 @if (IsCompact)
 {
     <!-- 精简版 Footer：全宽、无边距、贴底部 -->
-    <div style="background-color: #FAFAFA; border-top: 1px solid #E0E0E0; padding: 1.5rem 0; margin-top: 0;">
+    <div style="background-color: var(--m3-background); border-top: 1px solid var(--m3-outline); padding: 1.5rem 0; margin-top: 0;">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <!-- 第一行：版权和许可信息（居中） -->
             <div class="text-center mb-3">
@@ -47,7 +47,7 @@
 else
 {
     <!-- 完整版 Footer：包含详细信息 -->
-    <MudPaper Elevation="0" Class="mt-8 py-6" Style="background-color: #FAFAFA; border-top: 1px solid #E0E0E0;">
+    <MudPaper Elevation="0" Class="mt-8 py-6" Style="background-color: var(--m3-background); border-top: 1px solid var(--m3-outline);">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudGrid>
                 <!-- 项目信息 -->
@@ -56,7 +56,7 @@ else
                         <img src="app-logo.png" 
                              alt="Verdure Logo" 
                              style="width: 32px; height: 32px;" />
-                        <MudText Typo="Typo.h6" Style="font-weight: 600; color: #1976D2; margin: 0;">
+                        <MudText Typo="Typo.h6" Style="font-weight: 600; color: var(--m3-primary); margin: 0;">
                             Verdure MCP Platform
                         </MudText>
                     </div>

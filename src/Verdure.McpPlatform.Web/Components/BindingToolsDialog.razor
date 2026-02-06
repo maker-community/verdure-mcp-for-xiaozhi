@@ -12,7 +12,7 @@
                          Color="Color.Primary" 
                          Size="Size.Large" />
                 <div>
-                    <MudText Typo="Typo.h6" Style="font-weight: 600; color: #1a1a1a;">
+                    <MudText Typo="Typo.h6" Style="font-weight: 600; color: var(--m3-on-surface);">
                         @ServiceName
                     </MudText>
                     <MudText Typo="Typo.body2" Color="Color.Secondary">
@@ -31,15 +31,15 @@
                     {
                         <div class="d-flex align-center tool-item" 
                              style="padding: 12px 16px; 
-                                    background: rgba(25, 118, 210, 0.04); 
+                                 background: rgba(var(--m3-primary-rgb), 0.04); 
                                     border-radius: 8px; 
-                                    border-left: 3px solid #1976D2;">
+                                 border-left: 3px solid var(--m3-primary);">
                             <MudIcon Icon="@Icons.Material.Filled.Build" 
                                      Size="Size.Small" 
                                      Color="Color.Primary" 
                                      Class="mr-3" />
                             <MudText Typo="Typo.body2" 
-                                     Style="color: #424242;">
+                                     Style="color: var(--m3-on-surface-variant);">
                                 @tool
                             </MudText>
                         </div>
@@ -68,9 +68,9 @@
     }
     
     .tool-item:hover {
-        background: rgba(25, 118, 210, 0.08) !important;
+        background: rgba(var(--m3-primary-rgb), 0.08) !important;
         transform: translateX(4px);
-        border-left-color: #1565C0 !important;
+        border-left-color: var(--m3-primary-dark) !important;
     }
 </style>
 

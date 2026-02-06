@@ -13,7 +13,7 @@
             <div class="d-flex align-center" style="gap: 16px;">
                 <MudAvatar Size="Size.Large" 
                            Color="Color.Primary"
-                           Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); color: white;">
+                           Style="background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%); color: white;">
                     @if (!string.IsNullOrEmpty(Service.LogoUrl))
                     {
                         <MudImage Src="@Service.LogoUrl" Alt="@Service.Name" Style="width: 100%; height: 100%; object-fit: cover;" />
@@ -30,7 +30,7 @@
                     <MudChip T="string" 
                              Size="Size.Small" 
                              Variant="Variant.Filled"
-                             Style="background: #E8F5E9; color: #2E7D32; font-weight: 500;"
+                             Style="background: var(--m3-success-container); color: var(--m3-success); font-weight: 500;"
                              Icon="@Icons.Material.Filled.Public">
                         @Loc["Public"]
                     </MudChip>
@@ -60,7 +60,7 @@
                 <MudChip T="string" 
                          Size="Size.Small" 
                          Variant="Variant.Outlined"
-                         Style="border-color: #1976D2; color: #1976D2; font-weight: 500; border-radius: 16px;"
+                         Style="border-color: var(--m3-primary); color: var(--m3-primary); font-weight: 500; border-radius: 16px;"
                          Icon="@Icons.Material.Filled.Code">
                     @(Service.Protocol ?? "stdio")
                 </MudChip>

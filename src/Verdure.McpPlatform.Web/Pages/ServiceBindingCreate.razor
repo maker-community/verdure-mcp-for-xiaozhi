@@ -19,7 +19,7 @@
 <MudGrid>
     <!-- M3 Hero Banner - 统一蓝色渐变 -->
     <MudItem xs="12">
-        <MudCard Elevation="2" Style="background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
+        <MudCard Elevation="2" Style="background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-xl">
             <MudCardContent Class="pa-6">
                 <div class="d-flex align-center" Style="gap: 1rem;">
                     <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" 
@@ -71,7 +71,7 @@
     <!-- Wizard Progress -->
     <MudItem xs="12">
         <MudCard Elevation="2">
-            <MudCardHeader Style="background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.03) 100%);">
+            <MudCardHeader Style="background: linear-gradient(135deg, rgba(var(--m3-primary-rgb), 0.08) 0%, rgba(var(--m3-primary-rgb), 0.03) 100%);">
                 <CardHeaderContent>
                     <div class="d-flex align-center justify-space-between" style="gap: 16px;">
                         @if (!IsFromPublicService)
@@ -220,7 +220,7 @@
                         </MudGrid>
 
                         <!-- Connection Cards with Load More -->
-                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid #e0e0e0; border-radius: 8px;">
+                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--m3-outline); border-radius: 8px;">
                             <MudGrid Spacing="3" Class="pa-3">
                                 @if (_connectionInitialLoading)
                                 {
@@ -325,7 +325,7 @@
                         </MudGrid>
 
                         <!-- Connection Cards with Load More -->
-                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid #e0e0e0; border-radius: 8px;">
+                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--m3-outline); border-radius: 8px;">
                             <MudGrid Spacing="3" Class="pa-3">
                                 @if (_connectionInitialLoading)
                                 {
@@ -438,7 +438,7 @@
                         </MudGrid>
 
                         <!-- Service Cards with Load More -->
-                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid #e0e0e0; border-radius: 8px;">
+                        <div style="height: 400px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--m3-outline); border-radius: 8px;">
                             <MudGrid Spacing="3" Class="pa-3">
                                 @if (_serviceInitialLoading)
                                 {
@@ -537,7 +537,7 @@
                                           Variant="Variant.Outlined"
                                           Class="mb-4" />
 
-                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px;">
+                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--m3-outline); border-radius: 8px; padding: 16px;">
                                 @foreach (var tool in GetFilteredTools())
                                 {
                                     var toolName = tool.Name;

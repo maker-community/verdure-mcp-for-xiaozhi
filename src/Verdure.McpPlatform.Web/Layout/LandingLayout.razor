@@ -19,7 +19,7 @@
                      alt="Verdure Logo" 
                      style="width: 40px; height: 40px;" />
                 <!-- 平台标题：在手机等窄屏幕设备上隐藏，以节省空间 -->
-                <MudText Typo="Typo.h6" Class="d-none d-sm-block" Style="color: #1976D2; font-weight: 600; margin-left: 0.75rem;">
+                <MudText Typo="Typo.h6" Class="d-none d-sm-block" Style="color: var(--m3-primary); font-weight: 600; margin-left: 0.75rem;">
                     Verdure MCP Platform
                 </MudText>
             </div>
@@ -27,13 +27,13 @@
             <!-- 右侧导航和操作 -->
             <div class="d-flex align-center gap-4">
                 <!-- 导航链接：在平板以下设备隐藏 -->
-                <MudLink Href="/#features" Underline="Underline.None" Class="d-none d-md-block" Style="color: #424242; font-weight: 500;">
+                <MudLink Href="/#features" Underline="Underline.None" Class="d-none d-md-block" Style="color: var(--m3-on-surface-variant); font-weight: 500;">
                     @Loc["Features"]
                 </MudLink>
-                <MudLink Href="/#architecture" Underline="Underline.None" Class="d-none d-md-block" Style="color: #424242; font-weight: 500;">
+                <MudLink Href="/#architecture" Underline="Underline.None" Class="d-none d-md-block" Style="color: var(--m3-on-surface-variant); font-weight: 500;">
                     @Loc["Architecture"]
                 </MudLink>
-                <MudLink Href="/#community" Underline="Underline.None" Class="d-none d-md-block" Style="color: #424242; font-weight: 500;">
+                <MudLink Href="/#community" Underline="Underline.None" Class="d-none d-md-block" Style="color: var(--m3-on-surface-variant); font-weight: 500;">
                     @Loc["Community"]
                 </MudLink>
                 
@@ -45,14 +45,14 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Groups" 
                                   Size="Size.Medium"
                                   Class="d-none d-sm-inline-flex"
-                                  Style="color: #424242;"
+                                  Style="color: var(--m3-on-surface-variant);"
                                   Href="https://github.com/maker-community" 
                                   Target="_blank" />
                 </MudTooltip>
                 <MudTooltip Text="@Loc["TooltipProjectSource"]">
                     <MudIconButton Icon="@Icons.Custom.Brands.GitHub" 
                                   Size="Size.Medium"
-                                  Style="color: #424242;"
+                                  Style="color: var(--m3-on-surface-variant);"
                                   Href="https://github.com/maker-community/verdure-mcp-for-xiaozhi" 
                                   Target="_blank" />
                 </MudTooltip>
@@ -60,7 +60,7 @@
                     <MudIconButton Icon="@VerdureIcons.SocialMedia.Bilibili" 
                                   Size="Size.Medium"
                                   Class="d-none d-sm-inline-flex"
-                                  Style="color: #424242;"
+                                  Style="color: var(--m3-on-surface-variant);"
                                   Href="https://space.bilibili.com/25228512" 
                                   Target="_blank" />
                 </MudTooltip>
@@ -69,7 +69,7 @@
                 <MudDivider Vertical="true" FlexItem="true" Class="d-none d-sm-block" Style="height: 30px;" />
                 
                 <!-- 语言切换 -->
-                <CultureSelector TextColor="#424242" />
+                <CultureSelector TextColor="var(--m3-on-surface-variant)" />
                 
                 <!-- 登录/用户菜单 -->
                 <AuthorizeView>
@@ -93,11 +93,11 @@
                         <MudMenu Icon="@Icons.Material.Filled.AccountCircle" 
                                  AnchorOrigin="Origin.BottomRight" 
                                  TransformOrigin="Origin.TopRight"
-                                 Style="color: #424242;">
+                                 Style="color: var(--m3-on-surface-variant);">
                             <ActivatorContent>
                                 <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" 
                                               Size="Size.Medium"
-                                              Style="color: #424242;" />
+                                              Style="color: var(--m3-on-surface-variant);" />
                             </ActivatorContent>
                             <ChildContent>
                                 <MudMenuItem>
@@ -134,7 +134,7 @@
     </MudAppBar>
     
     <!-- 主内容区域 - 全宽，无侧边栏 -->
-    <MudMainContent Style="padding: 0; background: #FAFAFA;">
+    <MudMainContent Style="padding: 0; background: var(--m3-background);">
         @Body
         <Footer />
     </MudMainContent>
@@ -145,40 +145,40 @@
     {
         PaletteLight = new PaletteLight()
         {
-            Primary = "#1976D2",
+            Primary = "#2F6FED",
             PrimaryContrastText = "#FFFFFF",
-            PrimaryDarken = "#1565C0",
-            PrimaryLighten = "#BBDEFB",
+            PrimaryDarken = "#1C4FD8",
+            PrimaryLighten = "#C5D7FF",
             
-            Secondary = "#0097A7",
+            Secondary = "#4C6A7D",
             SecondaryContrastText = "#FFFFFF",
-            SecondaryDarken = "#00838F",
-            SecondaryLighten = "#B2EBF2",
+            SecondaryDarken = "#344B58",
+            SecondaryLighten = "#C9D5DC",
             
-            Tertiary = "#5F6368",
+            Tertiary = "#C26A3C",
             TertiaryContrastText = "#FFFFFF",
-            TertiaryDarken = "#3C4043",
-            TertiaryLighten = "#E8EAED",
+            TertiaryDarken = "#9A4F2C",
+            TertiaryLighten = "#F3D3C4",
             
             Surface = "#FFFFFF",
-            Background = "#FAFAFA",
+            Background = "#F7F8FA",
             AppbarBackground = "#FFFFFF",
             DrawerBackground = "#FFFFFF",
-            DrawerText = "#424242",
+            DrawerText = "#2B2F33",
             
-            Success = "#2E7D32",
-            Info = "#0288D1",
-            Warning = "#F57C00",
-            Error = "#D32F2F",
+            Success = "#1E8E3E",
+            Info = "#1A73E8",
+            Warning = "#E37400",
+            Error = "#B3261E",
             
-            TextPrimary = "#212121",
-            TextSecondary = "#757575",
-            TextDisabled = "#BDBDBD",
+            TextPrimary = "#1E1F22",
+            TextSecondary = "#5F6B76",
+            TextDisabled = "#9AA3AB",
             
-            Divider = "#E0E0E0",
-            DividerLight = "#F5F5F5",
+            Divider = "#E3E7EC",
+            DividerLight = "#F1F4F7",
             
-            ActionDefault = "#757575",
+            ActionDefault = "#5F6B76",
             ActionDisabled = "rgba(0, 0, 0, 0.26)",
             ActionDisabledBackground = "rgba(0, 0, 0, 0.12)",
             
