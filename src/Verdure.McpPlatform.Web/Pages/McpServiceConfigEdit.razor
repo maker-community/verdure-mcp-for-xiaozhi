@@ -16,7 +16,7 @@
 <MudGrid>
     <!-- M3 Hero Banner -->
     <MudItem xs="12">
-        <MudCard Elevation="2" Style="background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%); border-radius: 16px; overflow: hidden;" Class="m3-mb-lg">
+        <MudCard Elevation="2" Class="m3-mb-lg m3-hero-card">
             <MudCardContent Class="pa-6">
                 <div class="d-flex align-center" Style="gap: 1rem;">
                     <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" 
@@ -24,10 +24,10 @@
                                   OnClick="NavigateBack" 
                                   Size="Size.Large" />
                     <div>
-                        <MudText Typo="Typo.h4" Style="font-weight: 600; color: #FFFFFF;">
+                        <MudText Typo="Typo.h4" Class="m3-hero-title" Style="font-weight: 600;">
                             @(IsEditMode ? Loc["EditMcpService"] : Loc["CreateMcpService"])
                         </MudText>
-                        <MudText Typo="Typo.body1" Style="color: rgba(255, 255, 255, 0.85);">
+                        <MudText Typo="Typo.body1" Class="m3-hero-subtitle">
                             @(IsEditMode ? Loc["EditMcpServiceDescription"] : Loc["CreateMcpServiceDescription"])
                         </MudText>
                     </div>

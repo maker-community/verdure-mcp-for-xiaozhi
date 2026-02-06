@@ -192,6 +192,27 @@
     background: linear-gradient(135deg, rgba(var(--m3-primary-rgb), 0.06) 0%, rgba(var(--m3-primary-rgb), 0.02) 100%);
 }
 
+/* Hero card: consistent page header treatment */
+.m3-hero-card {
+    background: linear-gradient(135deg, var(--m3-primary) 0%, var(--m3-primary-dark) 100%);
+    border-radius: var(--m3-shape-lg);
+    overflow: hidden;
+}
+
+.m3-hero-card .m3-hero-title,
+.m3-hero-card .m3-hero-icon {
+    color: #FFFFFF;
+}
+
+.m3-hero-card .m3-hero-subtitle {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.m3-hero-action {
+    background: var(--m3-surface);
+    color: var(--m3-primary);
+}
+
 /* Connection Card Specific Styles */
 .connection-card {
     position: relative;
