@@ -276,10 +276,10 @@
 
                             @if (_connectionHasMoreData && !_connectionLoadingMore && !_connectionInitialLoading)
                             {
-                                <div class="d-flex justify-center py-2">
-                                    <MudButton Variant="Variant.Text" Color="Color.Primary"
-                                               OnClick="LoadMoreConnectionsAsync"
-                                               Style="text-transform: none;">
+                                <div class="load-more-container d-flex justify-center">
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                               Class="m3-button load-more-button"
+                                               OnClick="LoadMoreConnectionsAsync">
                                         @Loc["LoadMore"]
                                     </MudButton>
                                 </div>
@@ -381,10 +381,10 @@
 
                             @if (_connectionHasMoreData && !_connectionLoadingMore && !_connectionInitialLoading)
                             {
-                                <div class="d-flex justify-center py-2">
-                                    <MudButton Variant="Variant.Text" Color="Color.Primary"
-                                               OnClick="LoadMoreConnectionsAsync"
-                                               Style="text-transform: none;">
+                                <div class="load-more-container d-flex justify-center">
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                               Class="m3-button load-more-button"
+                                               OnClick="LoadMoreConnectionsAsync">
                                         @Loc["LoadMore"]
                                     </MudButton>
                                 </div>
@@ -496,10 +496,10 @@
 
                             @if (_serviceHasMoreData && !_serviceLoadingMore && !_serviceInitialLoading)
                             {
-                                <div class="d-flex justify-center py-2">
-                                    <MudButton Variant="Variant.Text" Color="Color.Primary"
-                                               OnClick="LoadMoreServicesAsync"
-                                               Style="text-transform: none;">
+                                <div class="load-more-container d-flex justify-center">
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                               Class="m3-button load-more-button"
+                                               OnClick="LoadMoreServicesAsync">
                                         @Loc["LoadMore"]
                                     </MudButton>
                                 </div>

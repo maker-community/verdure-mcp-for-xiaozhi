@@ -100,6 +100,9 @@
   <data name="Create" xml:space="preserve">
     <value>Create</value>
   </data>
+  <data name="LoadMore" xml:space="preserve">
+    <value>Load More</value>
+  </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
   </data>

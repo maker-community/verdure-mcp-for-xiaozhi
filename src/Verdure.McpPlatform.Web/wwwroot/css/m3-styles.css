@@ -195,6 +195,19 @@
     font-size: 0.875rem !important;
 }
 
+/* Load More block style */
+.load-more-container {
+    background: var(--mud-palette-surface-variant);
+    border: none;
+    border-radius: var(--m3-shape-lg);
+    padding: 8px 12px;
+    margin: 8px 0 16px;
+}
+
+.load-more-button {
+    box-shadow: 0px 1px 3px rgba(0,0,0,0.18);
+}
+
 /* M3 图标按钮 */
 .m3-icon-button {
     border-radius: var(--m3-shape-full) !important;

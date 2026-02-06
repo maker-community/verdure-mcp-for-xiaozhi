@@ -100,6 +100,9 @@
   <data name="Create" xml:space="preserve">
     <value>创建</value>
   </data>
+  <data name="LoadMore" xml:space="preserve">
+    <value>加载更多</value>
+  </data>
   <data name="Close" xml:space="preserve">
     <value>关闭</value>
   </data>

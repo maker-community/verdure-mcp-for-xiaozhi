@@ -139,10 +139,10 @@
 
             @if (_hasMoreData && !_loadingMore && !_initialLoading)
             {
-                <div class="d-flex justify-center py-4">
-                    <MudButton Variant="Variant.Text" Color="Color.Primary"
-                               OnClick="LoadMoreAsync"
-                               Style="text-transform: none;">
+                <div class="load-more-container d-flex justify-center">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                               Class="m3-button load-more-button"
+                               OnClick="LoadMoreAsync">
                         @Loc["LoadMore"]
                     </MudButton>
                 </div>
