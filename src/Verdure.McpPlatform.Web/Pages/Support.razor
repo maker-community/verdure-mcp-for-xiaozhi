@@ -5,173 +5,179 @@
 @using Verdure.McpPlatform.Web.Icons
 @inject IStringLocalizer<SharedResources> Loc
 @inject IDialogService DialogService
+@attribute [Authorize]
 
 <PageTitle>@Loc["Support_PageTitle"]</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-6" Style="font-weight: 600;">@Loc["Support_Title"]</MudText>
-
-<MudText Typo="Typo.body1" Class="mb-8" Color="Color.Secondary" Style="line-height: 1.75; max-width: 800px;">
-    @Loc["Support_Subtitle"]
-</MudText>
-
-<MudGrid Spacing="4">
-    <MudItem xs="12" md="4">
-        <MudCard Elevation="1" Class="h-100" Style="border-radius: 16px; background-color: #FFFFFF; border: 1px solid rgba(25, 118, 210, 0.12); box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);">
-            <MudCardHeader Style="padding: 20px 20px 16px;">
-                <CardHeaderAvatar>
-                    <MudAvatar Color="Color.Primary" Size="Size.Large" Style="border-radius: 12px;">
-                        <MudIcon Icon="@VerdureIcons.SocialMedia.Bilibili" />
-                    </MudAvatar>
-                </CardHeaderAvatar>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_FollowBilibili"]</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Support_SubscribeVideos"]</MudText>
-                </CardHeaderContent>
-            </MudCardHeader>
-            <MudCardContent Style="padding: 0 20px 16px;">
-                <MudText Typo="Typo.body2" Style="line-height: 1.6; color: rgba(0, 0, 0, 0.70);">
-                    @Loc["Support_BilibiliDesc"]
-                </MudText>
-            </MudCardContent>
-            <MudCardActions Style="padding: 12px 20px 20px;">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
-                           Href="https://space.bilibili.com/25228512" Target="_blank"
-                           StartIcon="@Icons.Material.Filled.PlayArrow"
-                           Style="border-radius: 20px; text-transform: none; height: 44px;">
-                    @Loc["Support_GoToBilibili"]
-                </MudButton>
-            </MudCardActions>
-        </MudCard>
-    </MudItem>
-
-    <MudItem xs="12" md="4">
-        <MudCard Elevation="1" Class="h-100" Style="border-radius: 16px; background-color: #FFFFFF; border: 1px solid rgba(245, 124, 0, 0.12); box-shadow: 0 2px 8px rgba(245, 124, 0, 0.08);">
-            <MudCardHeader Style="padding: 20px 20px 16px;">
-                <CardHeaderAvatar>
-                    <MudAvatar Color="Color.Warning" Size="Size.Large" Style="border-radius: 12px;">
-                        <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" />
-                    </MudAvatar>
-                </CardHeaderAvatar>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_BilibiliCharge"]</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Support_SupportCreation"]</MudText>
-                </CardHeaderContent>
-            </MudCardHeader>
-            <MudCardContent Style="padding: 0 20px 16px;">
-                <MudText Typo="Typo.body2" Style="line-height: 1.6; color: rgba(0, 0, 0, 0.70);">
-                    @Loc["Support_ChargeDesc"]
-                </MudText>
-            </MudCardContent>
-            <MudCardActions Style="padding: 12px 20px 20px;">
-                <MudButton Variant="Variant.Filled" Color="Color.Warning" FullWidth="true"
-                           Href="https://space.bilibili.com/25228512" Target="_blank"
-                           StartIcon="@Icons.Material.Filled.FlashOn"
-                           Style="border-radius: 20px; text-transform: none; height: 44px;">
-                    @Loc["Support_GoCharge"]
-                </MudButton>
-            </MudCardActions>
-        </MudCard>
-    </MudItem>
-
-    <MudItem xs="12" md="4">
-        <MudCard Elevation="1" Class="h-100" Style="border-radius: 16px; background-color: #FFFFFF; border: 1px solid rgba(46, 125, 50, 0.12); box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);">
-            <MudCardHeader Style="padding: 20px 20px 16px;">
-                <CardHeaderAvatar>
-                    <MudAvatar Color="Color.Success" Size="Size.Large" Style="border-radius: 12px;">
-                        <MudIcon Icon="@Icons.Material.Filled.Favorite" />
-                    </MudAvatar>
-                </CardHeaderAvatar>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_ScanDonate"]</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Support_DirectSupport"]</MudText>
-                </CardHeaderContent>
-            </MudCardHeader>
-            <MudCardContent Style="padding: 0 20px 16px;">
-                <MudText Typo="Typo.body2" Style="line-height: 1.6; color: rgba(0, 0, 0, 0.70);">
-                    @Loc["Support_DonateDesc"]
-                </MudText>
-            </MudCardContent>
-            <MudCardActions Style="padding: 12px 20px 20px;">
-                <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true"
-                           OnClick="@ShowQrCode"
-                           StartIcon="@Icons.Material.Filled.QrCode"
-                           Style="border-radius: 20px; text-transform: none; height: 44px;">
-                    @Loc["Support_ShowQrCode"]
-                </MudButton>
-            </MudCardActions>
-        </MudCard>
+<MudGrid>
+    <MudItem xs="12">
+        <PageHeader Icon="@Icons.Material.Filled.Favorite"
+                    Title="@Loc["Support_Title"]"
+                    TotalCount="1"
+                    CountMessage="@Loc["Support_Subtitle"]"
+                    EmptyMessage="@Loc["Support_Subtitle"]"
+                    IsSmallScreen="false" />
     </MudItem>
 </MudGrid>
 
-<MudDivider Class="my-8" Style="margin-top: 48px; margin-bottom: 48px;" />
-
-<MudText Typo="Typo.h5" Class="mb-6" Style="font-weight: 600;">@Loc["Support_OtherWays"]</MudText>
-
 <MudGrid Spacing="4">
-    <MudItem xs="12" md="6">
-        <MudPaper Elevation="1" Class="pa-5" Style="background-color: #FFFFFF; border-radius: 16px; border: 1px solid rgba(25, 118, 210, 0.1); box-shadow: 0 2px 6px rgba(25, 118, 210, 0.04);">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                <MudAvatar Color="Color.Warning" Size="Size.Large" Variant="Variant.Outlined" Style="border-radius: 12px;">
-                    <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Large" />
-                </MudAvatar>
-                <MudStack Spacing="1">
-                    <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_StarProject"]</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary" Style="line-height: 1.6;">
-                        @Loc["Support_StarDesc"]
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="1" Class="h-100" Style="border-radius: 16px; background-color: #FFFFFF; border: 1px solid rgba(25, 118, 210, 0.12); box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);">
+                <MudCardHeader Style="padding: 20px 20px 16px;">
+                    <CardHeaderAvatar>
+                        <MudAvatar Color="Color.Primary" Size="Size.Large" Style="border-radius: 12px;">
+                            <MudIcon Icon="@VerdureIcons.SocialMedia.Bilibili" />
+                        </MudAvatar>
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_FollowBilibili"]</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Support_SubscribeVideos"]</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent Style="padding: 0 20px 16px;">
+                    <MudText Typo="Typo.body2" Style="@CardDescStyle">
+                        @Loc["Support_BilibiliDesc"]
                     </MudText>
-                </MudStack>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+                </MudCardContent>
+                <MudCardActions Style="padding: 12px 20px 20px;">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
+                               Href="https://space.bilibili.com/25228512" Target="_blank"
+                               StartIcon="@Icons.Material.Filled.PlayArrow"
+                               Style="border-radius: 20px; text-transform: none; height: 44px;">
+                        @Loc["Support_GoToBilibili"]
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
 
-    <MudItem xs="12" md="6">
-        <MudPaper Elevation="1" Class="pa-5" Style="background-color: #FFFFFF; border-radius: 16px; border: 1px solid rgba(25, 118, 210, 0.1); box-shadow: 0 2px 6px rgba(25, 118, 210, 0.04);">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                <MudAvatar Color="Color.Info" Size="Size.Large" Variant="Variant.Outlined" Style="border-radius: 12px;">
-                    <MudIcon Icon="@Icons.Material.Filled.Share" Size="Size.Large" />
-                </MudAvatar>
-                <MudStack Spacing="1">
-                    <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_Share"]</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary" Style="line-height: 1.6;">
-                        @Loc["Support_ShareDesc"]
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="1" Class="h-100" Style="border-radius: 16px; background-color: #FFFFFF; border: 1px solid rgba(245, 124, 0, 0.12); box-shadow: 0 2px 8px rgba(245, 124, 0, 0.08);">
+                <MudCardHeader Style="padding: 20px 20px 16px;">
+                    <CardHeaderAvatar>
+                        <MudAvatar Color="Color.Warning" Size="Size.Large" Style="border-radius: 12px;">
+                            <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" />
+                        </MudAvatar>
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_BilibiliCharge"]</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Support_SupportCreation"]</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent Style="padding: 0 20px 16px;">
+                    <MudText Typo="Typo.body2" Style="@CardDescStyle">
+                        @Loc["Support_ChargeDesc"]
                     </MudText>
-                </MudStack>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+                </MudCardContent>
+                <MudCardActions Style="padding: 12px 20px 20px;">
+                    <MudButton Variant="Variant.Filled" Color="Color.Warning" FullWidth="true"
+                               Href="https://space.bilibili.com/25228512" Target="_blank"
+                               StartIcon="@Icons.Material.Filled.FlashOn"
+                               Style="border-radius: 20px; text-transform: none; height: 44px;">
+                        @Loc["Support_GoCharge"]
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
 
-    <MudItem xs="12" md="6">
-        <MudPaper Elevation="1" Class="pa-5" Style="background-color: #FFFFFF; border-radius: 16px; border: 1px solid rgba(25, 118, 210, 0.1); box-shadow: 0 2px 6px rgba(25, 118, 210, 0.04);">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                <MudAvatar Color="Color.Error" Size="Size.Large" Variant="Variant.Outlined" Style="border-radius: 12px;">
-                    <MudIcon Icon="@Icons.Material.Filled.BugReport" Size="Size.Large" />
-                </MudAvatar>
-                <MudStack Spacing="1">
-                    <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_ReportBug"]</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary" Style="line-height: 1.6;">
-                        @Loc["Support_BugDesc"]
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="1" Class="h-100" Style="border-radius: 16px; background-color: #FFFFFF; border: 1px solid rgba(46, 125, 50, 0.12); box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);">
+                <MudCardHeader Style="padding: 20px 20px 16px;">
+                    <CardHeaderAvatar>
+                        <MudAvatar Color="Color.Success" Size="Size.Large" Style="border-radius: 12px;">
+                            <MudIcon Icon="@Icons.Material.Filled.Favorite" />
+                        </MudAvatar>
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_ScanDonate"]</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">@Loc["Support_DirectSupport"]</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent Style="padding: 0 20px 16px;">
+                    <MudText Typo="Typo.body2" Style="@CardDescStyle">
+                        @Loc["Support_DonateDesc"]
                     </MudText>
-                </MudStack>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+                </MudCardContent>
+                <MudCardActions Style="padding: 12px 20px 20px;">
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true"
+                               OnClick="@ShowQrCode"
+                               StartIcon="@Icons.Material.Filled.QrCode"
+                               Style="border-radius: 20px; text-transform: none; height: 44px;">
+                        @Loc["Support_ShowQrCode"]
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
 
-    <MudItem xs="12" md="6">
-        <MudPaper Elevation="1" Class="pa-5" Style="background-color: #FFFFFF; border-radius: 16px; border: 1px solid rgba(25, 118, 210, 0.1); box-shadow: 0 2px 6px rgba(25, 118, 210, 0.04);">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                <MudAvatar Color="Color.Success" Size="Size.Large" Variant="Variant.Outlined" Style="border-radius: 12px;">
-                    <MudIcon Icon="@Icons.Material.Filled.Code" Size="Size.Large" />
-                </MudAvatar>
-                <MudStack Spacing="1">
-                    <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_ContributeCode"]</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary" Style="line-height: 1.6;">
-                        @Loc["Support_ContributeDesc"]
-                    </MudText>
+    <MudDivider Class="my-8" Style="margin-top: 48px; margin-bottom: 48px;" />
+
+    <MudText Typo="Typo.h5" Class="mb-6" Style="font-weight: 600;">@Loc["Support_OtherWays"]</MudText>
+
+    <MudGrid Spacing="4">
+        <MudItem xs="12" md="6">
+            <MudPaper Elevation="1" Class="pa-5" Style="background-color: #FFFFFF; border-radius: 16px; border: 1px solid rgba(25, 118, 210, 0.1); box-shadow: 0 2px 6px rgba(25, 118, 210, 0.04);">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                    <MudAvatar Color="Color.Warning" Size="Size.Large" Variant="Variant.Outlined" Style="border-radius: 12px;">
+                        <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Large" />
+                    </MudAvatar>
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_StarProject"]</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Style="@PaperDescStyle">
+                            @Loc["Support_StarDesc"]
+                        </MudText>
+                    </MudStack>
                 </MudStack>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudPaper Elevation="1" Class="pa-5" Style="background-color: #FFFFFF; border-radius: 16px; border: 1px solid rgba(25, 118, 210, 0.1); box-shadow: 0 2px 6px rgba(25, 118, 210, 0.04);">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                    <MudAvatar Color="Color.Info" Size="Size.Large" Variant="Variant.Outlined" Style="border-radius: 12px;">
+                        <MudIcon Icon="@Icons.Material.Filled.Share" Size="Size.Large" />
+                    </MudAvatar>
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_Share"]</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Style="@PaperDescStyle">
+                            @Loc["Support_ShareDesc"]
+                        </MudText>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudPaper Elevation="1" Class="pa-5" Style="background-color: #FFFFFF; border-radius: 16px; border: 1px solid rgba(25, 118, 210, 0.1); box-shadow: 0 2px 6px rgba(25, 118, 210, 0.04);">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                    <MudAvatar Color="Color.Error" Size="Size.Large" Variant="Variant.Outlined" Style="border-radius: 12px;">
+                        <MudIcon Icon="@Icons.Material.Filled.BugReport" Size="Size.Large" />
+                    </MudAvatar>
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_ReportBug"]</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Style="@PaperDescStyle">
+                            @Loc["Support_BugDesc"]
+                        </MudText>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudPaper Elevation="1" Class="pa-5" Style="background-color: #FFFFFF; border-radius: 16px; border: 1px solid rgba(25, 118, 210, 0.1); box-shadow: 0 2px 6px rgba(25, 118, 210, 0.04);">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                    <MudAvatar Color="Color.Success" Size="Size.Large" Variant="Variant.Outlined" Style="border-radius: 12px;">
+                        <MudIcon Icon="@Icons.Material.Filled.Code" Size="Size.Large" />
+                    </MudAvatar>
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.h6" Style="font-weight: 600;">@Loc["Support_ContributeCode"]</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Style="@PaperDescStyle">
+                            @Loc["Support_ContributeDesc"]
+                        </MudText>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
 
 <MudPaper Class="pa-8 mt-8 text-center" Elevation="1" Style="background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%); border-radius: 20px; border: 2px solid #1976D2;">
     <MudIcon Icon="@Icons.Material.Filled.Favorite" Color="Color.Error" Size="Size.Large" Class="mb-3" />
@@ -182,6 +188,8 @@
 </MudPaper>
 
 @code {
+    private const string CardDescStyle = "line-height: 1.6; min-height: 4.8em; color: rgba(0, 0, 0, 0.70);";
+    private const string PaperDescStyle = "line-height: 1.6; min-height: 3.2em;";
     private async Task ShowQrCode()
     {
         var parameters = new DialogParameters();
