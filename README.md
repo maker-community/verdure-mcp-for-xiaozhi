@@ -10,7 +10,7 @@
   [![MudBlazor](https://img.shields.io/badge/MudBlazor-Latest-594AE2)](https://mudblazor.com/)
   [![License](https://img.shields.io/github/license/maker-community/verdure-mcp-for-xiaozhi)](./LICENSE)
   
-  [在线体验](#-在线服务) · [快速开始](#-快速开始) · [视频教程](#-视频教程) · [社区交流](#-社区与支持)
+  [English README](./README.en.md) · [在线体验](#-在线服务) · [快速开始](#-快速开始) · [视频教程](#-视频教程) · [社区交流](#-社区与支持)
 </div>
 
 ---
