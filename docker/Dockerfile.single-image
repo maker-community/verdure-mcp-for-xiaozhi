@@ -55,6 +55,9 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 
 # Publish API project (includes Web static files in wwwroot)
+# 说明：wwwroot 下的 .br / .gz 预压缩文件由 Blazor SDK 在发布时自动生成
+#       （含 _framework、_content/MudBlazor、index.html、css 等），Kestrel 会按
+#       Accept-Encoding 自动协商返回，无需在镜像里额外做压缩处理。
 RUN dotnet publish "Verdure.McpPlatform.Api.csproj" \
     -c $BUILD_CONFIGURATION \
     -o /app/publish \

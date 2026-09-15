@@ -1,9 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
-    <!-- Enable all globalization data for Blazor WebAssembly -->
-    <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
-    
+    <!--
+      只加载 CJK 子集 ICU 数据：icudt_CJK.dat 覆盖 en-* / ja / ko / zh-*，
+      正好包含本应用支持的 zh-CN 与 en-US 两种语言。
+      实测各文件体积：icudt.dat(全部) 1490KB / icudt_no_CJK 1081KB / icudt_CJK 934KB / icudt_EFIGS 538KB。
+      原来的 BlazorWebAssemblyLoadAllGlobalizationData=true 会加载完整的 icudt.dat，
+      线上实测该文件 brotli 后仍有 322KB；改用 CJK 子集后实测为 243KB，省下约 79KB。
+    -->
+    <BlazorIcuDataFileName>icudt_CJK.dat</BlazorIcuDataFileName>
+
     <!-- Version Information -->
     <Product>Verdure MCP Platform Web</Product>
   </PropertyGroup>

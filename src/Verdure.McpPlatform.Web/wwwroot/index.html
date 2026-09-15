@@ -8,11 +8,10 @@
     <base href="/" />
     <link rel="icon" type="image/png" href="favicon.png" />
     
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    
+    <!-- 字体：改用系统字体栈。
+         原来引用的 Google Fonts (Inter) 实测字体文件从未被加载（css/app.css 用的是 Roboto），
+         却要付出额外 DNS + TLS + 一个 render-blocking 样式的代价，弱网下还会拖慢首屏，故移除。 -->
+
     <!-- MudBlazor CSS -->
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
     
@@ -25,7 +24,7 @@
     
     <style>
         body {
-            font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+            font-family: 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Arial', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             margin: 0;
             padding: 0;
         }
