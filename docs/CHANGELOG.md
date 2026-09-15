@@ -1,5 +1,38 @@
 # 更新日志 (Changelog)
 
+## [1.1.4] - 2026-09-15
+
+### ⚡ 首屏加载性能优化
+
+- **[Web] 全球化数据只加载 CJK 子集**
+  - `BlazorWebAssemblyLoadAllGlobalizationData=true` → `BlazorIcuDataFileName=icudt_CJK.dat`
+  - `icudt_CJK.dat` 覆盖 `en-*` / `ja` / `ko` / `zh-*`，已满足现有的 zh-CN / en-US 两种语言
+  - 实测：ICU 数据文件 1490KB → 934KB（brotli 后 322KB → 243KB）
+- **[Web] 图片资源压缩（首屏传输约减少 470KB）**
+  - `app-logo.png`：800×800 / 381KB → 256×256 / 31.5KB
+  - `alipay.JPG`：149KB → 56KB、`wechat.JPG`：142KB → 54KB（保留 512×512，二维码清晰度不受影响）
+- **[Web] 移除 Google Fonts 外链**
+  - 实测 `fonts.googleapis.com` 的 Inter 字体文件从未被加载（`css/app.css` 实际使用 Roboto），
+    却会阻塞首屏并增加 DNS/TLS 往返，故移除；字体栈改为系统字体并补充中文字体
+    `PingFang SC` / `Microsoft YaHei`
+
+### 🔧 部署配置（Nginx）
+
+- 缓存头改为按「状态码 + URI」统一生成：
+  - 修复 404 等失败响应被标记 `max-age=31536000, immutable`、被浏览器缓存一年的问题（现为 `no-store`）
+  - 修复 `location` 内 `add_header` 覆盖 server 层安全头、导致 HSTS / Referrer-Policy 丢失的问题
+  - SPA 深链接（如 `/connections`）返回的 HTML 补齐 `no-cache`
+- 新增 `proxy_cache` + `proxy_cache_lock`：同一静态资源并发首访只回源一次
+- `_framework` 与静态资源关闭 `proxy_buffering`（大文件流式直传，不落磁盘临时文件）
+- `Connection` 头改用 `map` 计算，不再对所有请求写死 `upgrade`；上游启用 keepalive
+
+### 📌 说明
+
+- 无数据库迁移、无 API 契约变更，可直接替换镜像升级
+- 镜像：`gilzhang/verdure-mcp-platform:alpine-v1.1.4`
+
+---
+
 ## [未发布] - 2025-11-19
 
 ### 🔑 修复

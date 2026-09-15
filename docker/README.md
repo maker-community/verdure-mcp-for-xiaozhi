@@ -55,7 +55,7 @@ cd c:\github-verdure\verdure-mcp-for-xiaozhi
 cd c:\github-verdure\verdure-mcp-for-xiaozhi
 
 # 构建镜像（使用 docker-compose.single-image.yml 中定义的镜像名称）
-docker build -t gilzhang/verdure-mcp-platform:alpine-v1.0.9 -f docker/Dockerfile.single-image .
+docker build -t gilzhang/verdure-mcp-platform:alpine-v1.1.4 -f docker/Dockerfile.single-image .
 ```
 
 ### 构建说明
@@ -77,7 +77,7 @@ docker build -t my-registry/verdure-mcp:latest -f docker/Dockerfile.single-image
 docker build --build-arg BUILD_CONFIGURATION=Debug -t gilzhang/verdure-mcp-platform:debug -f docker/Dockerfile.single-image .
 
 # 不使用缓存（完全重新构建）
-docker build --no-cache -t gilzhang/verdure-mcp-platform:alpine-v1.0.9 -f docker/Dockerfile.single-image .
+docker build --no-cache -t gilzhang/verdure-mcp-platform:alpine-v1.1.4 -f docker/Dockerfile.single-image .
 ```
 
 ### 推送到 Docker Hub
@@ -87,7 +87,7 @@ docker build --no-cache -t gilzhang/verdure-mcp-platform:alpine-v1.0.9 -f docker
 docker login
 
 # 推送镜像
-docker push gilzhang/verdure-mcp-platform:alpine-v1.0.9
+docker push gilzhang/verdure-mcp-platform:alpine-v1.1.4
 ```
 
 ## 🛠️ 常用命令
